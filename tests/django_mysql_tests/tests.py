@@ -11,3 +11,7 @@ class SimpleTests(TestCase):
 
     def test_simple(self):
         MyModel.objects.create()
+
+    def test_two(self):
+        MyModel.objects.create()
+        MyModel.objects.create()
