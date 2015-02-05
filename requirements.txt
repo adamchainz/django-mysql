@@ -1,4 +1,4 @@
 # Minimum Django version
 django>=1.7
-
+MySQL-python==1.2.5
 wheel==0.23.0
