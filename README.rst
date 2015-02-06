@@ -21,3 +21,17 @@ Features
 --------
 
 * TODO
+
+Requirements
+------------
+
+The `Travis CI config
+<https://github.com/adamchainz/django-mysql/blob/master/.travis.yml>`_ tests
+with:
+
+* Python 2.7, 3.3, 3.4
+* Django: 1.7
+* MySQL 5.5, 5.6, and MariaDB 5.5, 10.0, 10.1
+* mysqlclient (Python 3 compatible version of MySQLdb1)
+
+So any combination of these should be good.
