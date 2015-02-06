@@ -40,6 +40,19 @@ class SetCharFieldTests(TestCase):
         clean = Settee.objects.filter(features__has={"mouldy", "rotten"})
         self.assertEqual(clean.count(), 0)
 
+    def test_len_lookup_empty(self):
+        sofa = Settee.objects.create(features=set())
+
+        empty = Settee.objects.filter(features__len=0)
+        self.assertEqual(empty.count(), 1)
+        self.assertEqual(empty[0], sofa)
+
+        one = Settee.objects.filter(features__len=1)
+        self.assertEqual(one.count(), 0)
+
+        one_or_more = Settee.objects.filter(features__len__gte=0)
+        self.assertEqual(one_or_more.count(), 1)
+
     def test_len_lookup(self):
         sofa = Settee.objects.create(features={"leather", "expensive"})
 
