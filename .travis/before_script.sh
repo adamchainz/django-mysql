@@ -4,7 +4,7 @@ if [[ $DB == 'mysql' ]]
 then
   if [[ $DB_VERSION == '5.5' ]]
   then
-    sudo service mysql start  # Travis default installed version
+    sudo service mysql start || true  # Travis default installed version
   else
     sudo apt-get -y remove mysql-server
     sudo apt-get -y autoremove
@@ -24,4 +24,4 @@ then
   yes Y | sudo apt-get install -y mariadb-server
 fi
 
-mysql -e 'create database test;'
+mysql -e 'create database if not exists test;'
