@@ -45,3 +45,24 @@ class SetLength(Transform):
         lhs, params = compiler.compile(self.lhs)
         expr = "(1 + CHAR_LENGTH(%s) - CHAR_LENGTH(REPLACE(%s, ',', '')))"
         return expr % (lhs, lhs), params
+
+
+@CharField.register_lookup
+class SoundsLike(Lookup):
+    lookup_name = 'sounds_like'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return '%s SOUNDS LIKE %s' % (lhs, rhs), params
+
+
+@CharField.register_lookup
+class Soundex(Transform):
+    lookup_name = 'soundex'
+    output_field = CharField()
+
+    def as_sql(self, compiler, connection):
+        lhs, params = compiler.compile(self.lhs)
+        return "SOUNDEX(%s)" % lhs, params
