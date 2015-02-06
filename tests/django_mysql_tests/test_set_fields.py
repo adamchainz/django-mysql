@@ -1,5 +1,12 @@
 # -*- coding:utf-8 -*-
+import re
+
+from django.core import exceptions
+from django.db import models
+from django.db.migrations.writer import MigrationWriter
 from django.test import TestCase
+
+from django_mysql.fields import SetCharField
 
 from django_mysql_tests.models import Settee
 
@@ -49,3 +56,121 @@ class SetCharFieldTests(TestCase):
 
         three = Settee.objects.filter(features__len=3)
         self.assertEqual(three.count(), 0)
+
+
+class ValidationTests(TestCase):
+
+    def test_max_length(self):
+        field = SetCharField(
+            models.CharField(max_length=32),
+            size=3,
+            max_length=32
+        )
+
+        field.clean({'a', 'b', 'c'}, None)
+
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean({'a', 'b', 'c', 'd'}, None)
+        self.assertEqual(
+            cm.exception.messages[0],
+            'Set contains 4 items, it should contain no more than 3.'
+        )
+
+
+class CheckTests(TestCase):
+
+    def test_field_checks(self):
+        field = SetCharField(models.CharField(), max_length=32)
+        field.set_attributes_from_name('field')
+        errors = field.check()
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].id, 'django_mysql.E001')
+
+    def test_invalid_base_fields(self):
+        field = SetCharField(
+            models.ForeignKey('django_mysql_tests.Author'),
+            max_length=32
+        )
+        field.set_attributes_from_name('field')
+        errors = field.check()
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].id, 'django_mysql.E002')
+
+    def test_max_length_including_base(self):
+        field = SetCharField(
+            models.CharField(max_length=32),
+            size=2, max_length=32)
+        field.set_attributes_from_name('field')
+        errors = field.check()
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].id, 'django_mysql.E003')
+
+
+class TestMigrations(TestCase):
+
+    def test_deconstruct(self):
+        field = SetCharField(models.IntegerField(), max_length=32)
+        name, path, args, kwargs = field.deconstruct()
+        new = SetCharField(*args, **kwargs)
+        self.assertEqual(type(new.base_field), type(field.base_field))
+
+    def test_deconstruct_with_size(self):
+        field = SetCharField(models.IntegerField(), size=3, max_length=32)
+        name, path, args, kwargs = field.deconstruct()
+        new = SetCharField(*args, **kwargs)
+        self.assertEqual(new.size, field.size)
+
+    def test_deconstruct_args(self):
+        field = SetCharField(models.CharField(max_length=5), max_length=32)
+        name, path, args, kwargs = field.deconstruct()
+        new = SetCharField(*args, **kwargs)
+        self.assertEqual(
+            new.base_field.max_length,
+            field.base_field.max_length
+        )
+
+    def test_makemigrations(self):
+        field = SetCharField(models.CharField(max_length=5), max_length=32)
+        statement, imports = MigrationWriter.serialize(field)
+
+        # The order of the output max_length/size statements varies by
+        # python version, hence a little regexp to match them
+        self.assertRegexpMatches(
+            statement,
+            re.compile(
+                r"""^django_mysql\.fields\.SetCharField\(
+                    models\.CharField\(max_length=5\),\ # space here
+                    (
+                        max_length=32,\ size=None|
+                        size=None,\ max_length=32
+                    )
+                    \)$
+                """,
+                re.VERBOSE
+            )
+        )
+
+    def test_makemigrations_with_size(self):
+        field = SetCharField(
+            models.CharField(max_length=5),
+            max_length=32,
+            size=5
+        )
+        statement, imports = MigrationWriter.serialize(field)
+
+        # The order of the output max_length/size statements varies by
+        # python version, hence a little regexp to match them
+        self.assertRegexpMatches(
+            statement,
+            re.compile(
+                r"""^django_mysql\.fields\.SetCharField\(
+                    models\.CharField\(max_length=5\),\ # space here
+                    (
+                        max_length=32,\ size=5|
+                        size=5,\ max_length=32
+                    )
+                    \)$
+                """,
+                re.VERBOSE
+            )
+        )
