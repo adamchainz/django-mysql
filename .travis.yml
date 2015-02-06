@@ -13,6 +13,6 @@ services:
 before_script:
   - mysql -e 'create database test;'
 
-install: pip install -r requirements.txt --use-mirrors
+install: pip install -r requirements.txt
 
 script: ./runtests.py
