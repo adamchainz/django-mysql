@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Django MySQL Extensions's documentation!
-======================================
+Welcome to Django MySQL's documentation!
+========================================
 
 Contents:
 
@@ -13,7 +13,7 @@ Contents:
 
    readme
    installation
-   usage
+   features
    contributing
    authors
    history

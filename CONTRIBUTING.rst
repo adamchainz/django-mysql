@@ -36,8 +36,8 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Django MySQL Extensions could always use more documentation, whether as part of the
-official Django MySQL Extensions docs, in docstrings, or even on the web in blog posts,
+Django MySQL could always use more documentation, whether as part of the
+official Django MySQL docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback

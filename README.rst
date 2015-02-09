@@ -1,6 +1,6 @@
-===============================
-Django MySQL Extensions
-===============================
+============
+Django MySQL
+============
 
 .. image:: https://badge.fury.io/py/django-mysql.png
     :target: http://badge.fury.io/py/django-mysql
@@ -12,26 +12,33 @@ Django MySQL Extensions
         :target: https://pypi.python.org/pypi/django-mysql
 
 
-Extensions to Django for use with MySQL/MariaDB
+MySQL and its fork MariaDB have a number of features which are not available in
+vanilla Django... This package helps you get at them.
 
-* Free software: BSD license
-* Documentation: https://django-mysql.readthedocs.org.
 
-Features
---------
+Including
+---------
 
-* TODO
+Here's a short list of what's inside:
+
+* User locks - easy locking between your distributed servers
+* Easy access to server status variables
+
 
 Requirements
 ------------
 
-The `Travis CI config
-<https://github.com/adamchainz/django-mysql/blob/master/.travis.yml>`_ tests
-with:
+Tested with:
 
-* Python 2.7, 3.3, 3.4
+* Python: 2.7, 3.3, 3.4
 * Django: 1.7
-* MySQL 5.5, 5.6, and MariaDB 5.5, 10.0, 10.1
-* mysqlclient (Python 3 compatible version of MySQLdb1)
+* MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
+* mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
 
-So any combination of these should be good.
+Any combination of these should be good.
+
+
+Documentation
+-------------
+
+You can view the online documentation at http://django-mysql.readthedocs.org .

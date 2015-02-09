@@ -14,13 +14,13 @@ class BaseStatus(object):
     """
     query = ""
 
-    def __init__(self, db_name=None):
-        if db_name is None:
-            db_name = DEFAULT_DB_ALIAS
-        self.db_name = db_name
+    def __init__(self, connection_name=None):
+        if connection_name is None:
+            connection_name = DEFAULT_DB_ALIAS
+        self.connection_name = connection_name
 
     def get_cursor(self):
-        return connections[self.db_name].cursor()
+        return connections[self.connection_name].cursor()
 
     def get(self, name):
         if '%' in name:
