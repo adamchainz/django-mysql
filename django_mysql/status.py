@@ -67,4 +67,4 @@ class GlobalStatus(BaseStatus):
 
 
 class SessionStatus(BaseStatus):
-    query = "SHOW GLOBAL STATUS"
+    query = "SHOW SESSION STATUS"
