@@ -11,6 +11,9 @@ Django MySQL
 .. image:: https://pypip.in/d/django-mysql/badge.png
         :target: https://pypi.python.org/pypi/django-mysql
 
+.. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
+        :target: http://django-extensions.readthedocs.org/en/latest/
+
 
 MySQL and its fork MariaDB have a number of features which are not available in
 vanilla Django... This package helps you get at them.
