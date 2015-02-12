@@ -1,77 +1,151 @@
 # -*- coding:utf-8 -*-
+import json
 import re
 
-from django.core import exceptions
-from django.db import models
+from django.core import exceptions, serializers
+from django.core.management import call_command
+from django.db import models, connection
+from django.db.models import Q
 from django.db.migrations.writer import MigrationWriter
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from django_mysql.fields import SetCharField
 
-from django_mysql_tests.models import Settee
+from django_mysql_tests.models import (
+    CharSetModel, CharSetDefaultModel, IntSetModel
+)
 
 
-class SetCharFieldTests(TestCase):
+class TestSaveLoad(TestCase):
 
-    def test_easy(self):
-        s = Settee.objects.create(features={"big", "comfy"})
-        self.assertSetEqual(s.features, {"comfy", "big"})
-        s = Settee.objects.get(id=s.id)
-        self.assertSetEqual(s.features, {"comfy", "big"})
+    def test_char_easy(self):
+        s = CharSetModel.objects.create(field={"big", "comfy"})
+        self.assertSetEqual(s.field, {"comfy", "big"})
+        s = CharSetModel.objects.get(id=s.id)
+        self.assertSetEqual(s.field, {"comfy", "big"})
 
-    def test_cant_create_sets_with_commas(self):
-        with self.assertRaises(AssertionError):
-            Settee.objects.create(features={"co,ma", "contained"})
+    def test_char_cant_create_sets_with_commas(self):
+        with self.assertRaises(ValueError):
+            CharSetModel.objects.create(field={"co,mma", "contained"})
 
-    def test_has_lookup(self):
-        sofa = Settee.objects.create(features={"mouldy", "rotten"})
+    def test_char_contains_lookup(self):
+        mymodel = CharSetModel.objects.create(field={"mouldy", "rotten"})
 
-        mouldy = Settee.objects.filter(features__has="mouldy")
+        mouldy = CharSetModel.objects.filter(field__contains="mouldy")
         self.assertEqual(mouldy.count(), 1)
-        self.assertEqual(mouldy[0], sofa)
+        self.assertEqual(mouldy[0], mymodel)
 
-        rotten = Settee.objects.filter(features__has="rotten")
+        rotten = CharSetModel.objects.filter(field__contains="rotten")
         self.assertEqual(rotten.count(), 1)
-        self.assertEqual(rotten[0], sofa)
+        self.assertEqual(rotten[0], mymodel)
 
-        clean = Settee.objects.filter(features__has="clean")
+        clean = CharSetModel.objects.filter(field__contains="clean")
         self.assertEqual(clean.count(), 0)
 
-        clean = Settee.objects.filter(features__has={"mouldy", "rotten"})
-        self.assertEqual(clean.count(), 0)
+        with self.assertRaises(ValueError):
+            list(CharSetModel.objects.filter(field__contains={"a", "b"}))
 
-    def test_len_lookup_empty(self):
-        sofa = Settee.objects.create(features=set())
+        both = CharSetModel.objects.filter(
+            Q(field__contains="mouldy") & Q(field__contains="rotten")
+        )
+        self.assertEqual(both.count(), 1)
+        self.assertEqual(both[0], mymodel)
 
-        empty = Settee.objects.filter(features__len=0)
+        either = CharSetModel.objects.filter(
+            Q(field__contains="mouldy") | Q(field__contains="clean")
+        )
+        self.assertEqual(either.count(), 1)
+
+        not_clean = CharSetModel.objects.exclude(field__contains="clean")
+        self.assertEqual(not_clean.count(), 1)
+
+        not_mouldy = CharSetModel.objects.exclude(field__contains="mouldy")
+        self.assertEqual(not_mouldy.count(), 0)
+
+    def test_char_len_lookup_empty(self):
+        mymodel = CharSetModel.objects.create(field=set())
+
+        empty = CharSetModel.objects.filter(field__len=0)
         self.assertEqual(empty.count(), 1)
-        self.assertEqual(empty[0], sofa)
+        self.assertEqual(empty[0], mymodel)
 
-        one = Settee.objects.filter(features__len=1)
+        one = CharSetModel.objects.filter(field__len=1)
         self.assertEqual(one.count(), 0)
 
-        one_or_more = Settee.objects.filter(features__len__gte=0)
+        one_or_more = CharSetModel.objects.filter(field__len__gte=0)
         self.assertEqual(one_or_more.count(), 1)
 
-    def test_len_lookup(self):
-        sofa = Settee.objects.create(features={"leather", "expensive"})
+    def test_char_len_lookup(self):
+        mymodel = CharSetModel.objects.create(field={"red", "expensive"})
 
-        empty = Settee.objects.filter(features__len=0)
+        empty = CharSetModel.objects.filter(field__len=0)
         self.assertEqual(empty.count(), 0)
 
-        one_or_more = Settee.objects.filter(features__len__gte=1)
+        one_or_more = CharSetModel.objects.filter(field__len__gte=1)
         self.assertEqual(one_or_more.count(), 1)
-        self.assertEqual(one_or_more[0], sofa)
+        self.assertEqual(one_or_more[0], mymodel)
 
-        two = Settee.objects.filter(features__len=2)
+        two = CharSetModel.objects.filter(field__len=2)
         self.assertEqual(two.count(), 1)
-        self.assertEqual(two[0], sofa)
+        self.assertEqual(two[0], mymodel)
 
-        three = Settee.objects.filter(features__len=3)
+        three = CharSetModel.objects.filter(field__len=3)
         self.assertEqual(three.count(), 0)
 
+    def test_char_default(self):
+        mymodel = CharSetDefaultModel.objects.create()
+        self.assertEqual(mymodel.field, {"a", "d"})
 
-class ValidationTests(TestCase):
+        mymodel = CharSetDefaultModel.objects.get(id=mymodel.id)
+        self.assertEqual(mymodel.field, {"a", "d"})
+
+    def test_int_easy(self):
+        mymodel = IntSetModel.objects.create(field={1, 2})
+        self.assertSetEqual(mymodel.field, {1, 2})
+        mymodel = IntSetModel.objects.get(id=mymodel.id)
+        self.assertSetEqual(mymodel.field, {1, 2})
+
+    def test_int_contains_lookup(self):
+        onetwo = IntSetModel.objects.create(field={1, 2})
+
+        ones = IntSetModel.objects.filter(field__contains=1)
+        self.assertEqual(ones.count(), 1)
+        self.assertEqual(ones[0], onetwo)
+
+        twos = IntSetModel.objects.filter(field__contains=2)
+        self.assertEqual(twos.count(), 1)
+        self.assertEqual(twos[0], onetwo)
+
+        threes = IntSetModel.objects.filter(field__contains=3)
+        self.assertEqual(threes.count(), 0)
+
+        with self.assertRaises(ValueError):
+            list(IntSetModel.objects.filter(field__contains={1, 2}))
+
+        ones_and_twos = IntSetModel.objects.filter(
+            Q(field__contains=1) & Q(field__contains=2)
+        )
+        self.assertEqual(ones_and_twos.count(), 1)
+        self.assertEqual(ones_and_twos[0], onetwo)
+
+        ones_and_threes = IntSetModel.objects.filter(
+            Q(field__contains=1) & Q(field__contains=3)
+        )
+        self.assertEqual(ones_and_threes.count(), 0)
+
+        ones_or_threes = IntSetModel.objects.filter(
+            Q(field__contains=1) | Q(field__contains=3)
+        )
+        self.assertEqual(ones_or_threes.count(), 1)
+
+        no_three = IntSetModel.objects.exclude(field__contains=3)
+        self.assertEqual(no_three.count(), 1)
+
+        no_one = IntSetModel.objects.exclude(field__contains=1)
+        self.assertEqual(no_one.count(), 0)
+
+
+class TestValidation(TestCase):
 
     def test_max_length(self):
         field = SetCharField(
@@ -90,7 +164,7 @@ class ValidationTests(TestCase):
         )
 
 
-class CheckTests(TestCase):
+class TestCheck(TestCase):
 
     def test_field_checks(self):
         field = SetCharField(models.CharField(), max_length=32)
@@ -187,3 +261,46 @@ class TestMigrations(TestCase):
                 re.VERBOSE
             )
         )
+
+    @override_settings(MIGRATION_MODULES={
+        "django_mysql_tests": "django_mysql_tests.set_default_migrations",
+    })
+    def test_adding_field_with_default(self):
+        table_name = 'django_mysql_tests_intsetdefaultmodel'
+        with connection.cursor() as cursor:
+            self.assertNotIn(
+                table_name,
+                connection.introspection.table_names(cursor)
+            )
+
+        call_command('migrate', 'django_mysql_tests', verbosity=0)
+        with connection.cursor() as cursor:
+            self.assertIn(
+                table_name,
+                connection.introspection.table_names(cursor)
+            )
+
+        call_command('migrate', 'django_mysql_tests', 'zero', verbosity=0)
+        with connection.cursor() as cursor:
+            self.assertNotIn(
+                table_name,
+                connection.introspection.table_names(cursor)
+            )
+
+
+class TestSerialization(TestCase):
+
+    def test_dumping(self):
+        instance = CharSetModel(field={"big", "comfy"})
+        data = json.loads(serializers.serialize('json', [instance]))[0]
+        field = data['fields']['field']
+        self.assertEqual(sorted(field.split(',')), ["big", "comfy"])
+
+    def test_loading(self):
+        test_data = '''
+            [{"fields": {"field": "big,leather,comfy"},
+             "model": "django_mysql_tests.CharSetModel", "pk": null}]
+        '''
+        objs = list(serializers.deserialize('json', test_data))
+        instance = objs[0].object
+        self.assertEqual(instance.field, set(["big", "leather", "comfy"]))

@@ -7,8 +7,8 @@ from django_mysql.fields import SetCharField
 from django_mysql.models import Model
 
 
-class Settee(Model):
-    features = SetCharField(
+class CharSetModel(Model):
+    field = SetCharField(
         base_field=CharField(max_length=8),
         size=3,
         max_length=32,
@@ -16,6 +16,17 @@ class Settee(Model):
 
     def __unicode__(self):
         return "{} {}".format(self.id, ",".join(self.features))
+
+
+class IntSetModel(Model):
+    field = SetCharField(base_field=IntegerField(), size=5, max_length=32)
+
+
+class CharSetDefaultModel(Model):
+    field = SetCharField(base_field=CharField(max_length=5),
+                         size=5,
+                         max_length=32,
+                         default=lambda: {"a", "d"})
 
 
 class Author(Model):
