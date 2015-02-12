@@ -32,8 +32,7 @@ setup(
     packages=[
         'django_mysql',
     ],
-    package_dir={'django_mysql':
-                 'django_mysql'},
+    package_dir={'django_mysql': 'django_mysql'},
     include_package_data=True,
     install_requires=requirements,
     license="BSD",
