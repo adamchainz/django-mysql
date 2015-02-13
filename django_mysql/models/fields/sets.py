@@ -1,13 +1,14 @@
 # -*- coding:utf-8 -*-
+from __future__ import absolute_import
+
 from django.core import checks
 from django.db.models import (CharField, IntegerField, SubfieldBase,
                               Transform)
 from django.db.models.lookups import Contains
 from django.utils import six
 
+from django_mysql.forms import SimpleSetField
 from django_mysql.validators import SetMaxLengthValidator
-
-__all__ = ['SetCharField']
 
 
 class SetCharField(six.with_metaclass(SubfieldBase, CharField)):
@@ -21,7 +22,7 @@ class SetCharField(six.with_metaclass(SubfieldBase, CharField)):
         super(SetCharField, self).__init__(**kwargs)
 
         if self.size:
-            self.validators.append(SetMaxLengthValidator(self.size))
+            self.validators.append(SetMaxLengthValidator(int(self.size)))
 
     def check(self, **kwargs):
         errors = super(SetCharField, self).check(**kwargs)
@@ -82,7 +83,7 @@ class SetCharField(six.with_metaclass(SubfieldBase, CharField)):
 
     def deconstruct(self):
         name, path, args, kwargs = super(SetCharField, self).deconstruct()
-        path = 'django_mysql.fields.SetCharField'
+        path = 'django_mysql.models.SetCharField'
         args.insert(0, self.base_field)
         kwargs['size'] = self.size
         return name, path, args, kwargs
@@ -124,6 +125,15 @@ class SetCharField(six.with_metaclass(SubfieldBase, CharField)):
     def value_to_string(self, obj):
         vals = self._get_val_from_obj(obj)
         return self.get_prep_value(vals)
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': SimpleSetField,
+            'base_field': self.base_field.formfield(),
+            'max_length': self.size,
+        }
+        defaults.update(kwargs)
+        return super(SetCharField, self).formfield(**defaults)
 
 
 @SetCharField.register_lookup

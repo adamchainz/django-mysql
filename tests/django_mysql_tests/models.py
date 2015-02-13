@@ -3,8 +3,7 @@ from django.db.models import (
     CharField, DecimalField, ForeignKey, IntegerField, Model as VanillaModel
 )
 
-from django_mysql.fields import SetCharField
-from django_mysql.models import Model
+from django_mysql.models import Model, SetCharField
 
 
 class CharSetModel(Model):

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-import django_mysql.fields
+from django_mysql.models import SetCharField
 
 
 class Migration(migrations.Migration):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False,
                  auto_created=True, primary_key=True)),
-                ('field', django_mysql.fields.SetCharField(
+                ('field', SetCharField(
                     models.IntegerField(), size=None, max_length=32)),
             ],
             options={
