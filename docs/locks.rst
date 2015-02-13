@@ -43,6 +43,18 @@ Lock
         set to ``STATEMENT``. Most environments have ``binlog_format`` set to
         ``MIXED`` because it can be more performant, but do check.
 
+    .. warning::
+
+        It's not very well documented, but you can only hold one lock per
+        database connection at a time. Acquiring a new lock releases the old
+        one.
+
+        Since there is no MySQL function to tell you if you are currently
+        holding a lock, this class does not check that you only acquire one
+        lock. It has been a `more than 10 year feature request
+        <http://bugs.mysql.com/bug.php?id=1118>`_ to hold more than one lock
+        per connection, and has been finally announced in MySQL 5.7.5.
+
     .. attribute:: name
 
         This is a required argument.
