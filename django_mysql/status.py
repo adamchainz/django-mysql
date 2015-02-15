@@ -2,8 +2,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import contextlib
-
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
 
@@ -26,16 +24,14 @@ class BaseStatus(object):
         if '%' in name:
             raise ValueError("get() is for fetching single variables, "
                              "no % wildcards")
-        cursor = self.get_cursor()
-        with contextlib.closing(cursor):
+        with self.get_cursor() as cursor:
             num_rows = cursor.execute(self.query + " LIKE %s", (name,))
             if num_rows == 0:
                 raise KeyError("No such status variable '%s'" % (name,))
             return self._cast(cursor.fetchone()[1])
 
     def as_dict(self, prefix=None):
-        cursor = self.get_cursor()
-        with contextlib.closing(cursor):
+        with self.get_cursor() as cursor:
             if prefix is None:
                 cursor.execute(self.query)
             else:

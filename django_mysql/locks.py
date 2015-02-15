@@ -1,6 +1,4 @@
 # -*- coding:utf-8 -*-
-import contextlib
-
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
 
@@ -27,8 +25,7 @@ class Lock(object):
         return connections[self.connection_name].cursor()
 
     def __enter__(self):
-        cursor = self.get_cursor()
-        with contextlib.closing(cursor):
+        with self.get_cursor() as cursor:
             cursor.execute(
                 "SELECT GET_LOCK(%s, %s)",
                 (self.name, self.acquire_timeout)
@@ -43,8 +40,7 @@ class Lock(object):
                 )
 
     def __exit__(self, a, b, c):
-        cursor = self.get_cursor()
-        with contextlib.closing(cursor):
+        with self.get_cursor() as cursor:
             cursor.execute("SELECT RELEASE_LOCK(%s)", (self.name,))
             result = cursor.fetchone()[0]
 
@@ -55,7 +51,6 @@ class Lock(object):
         return (self.holding_connection_id() is not None)
 
     def holding_connection_id(self):
-        cursor = self.get_cursor()
-        with contextlib.closing(cursor):
+        with self.get_cursor() as cursor:
             cursor.execute("SELECT IS_USED_LOCK(%s)", (self.name,))
             return cursor.fetchone()[0]
