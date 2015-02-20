@@ -8,4 +8,5 @@ SO MANY FEATURES!!
    :maxdepth: 2
 
    locks
+   models
    status

@@ -26,6 +26,8 @@ Here's a short list of what's inside:
 
 * User locks - easy locking between your distributed servers
 * Easy access to server status variables
+* ``approx_count`` on ``QuerySet`` for quick estimates of the number of
+  objects - and a quicker admin
 
 
 Requirements
