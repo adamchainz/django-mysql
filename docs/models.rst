@@ -29,10 +29,10 @@ from the ``django_mysql.models`` module.
 
     If you can't use the above ``Model`` class, you can add the methods using::
 
-        from mythings import MyModel
+        from mythings import MyBaseModel
         from django_mysql.models import QuerySet
 
-        class MySuperDuperModel(MyModel):
+        class MySuperDuperModel(MyBaseModel):
             objects = QuerySet.as_manager()
             # TODO: what fields should this model have??
 
@@ -50,7 +50,8 @@ from the ``django_mysql.models`` module.
         table. Whilst this is fast for ``MyISAM`` tables, for ``InnoDB`` it
         involves a full table scan to produce a consistent number, due to
         MVCC for transactions. If you have lots of rows, you will notice this
-        as a slow query.
+        as a slow query - `percona have some more details
+        <http://www.percona.com/blog/2006/12/01/count-for-innodb-tables/>`_.
 
         This method returns the approximate count found by running ``EXPLAIN
         SELECT COUNT(*) ...``. It can be out by 30-50% in the worst case, but
@@ -63,9 +64,9 @@ from the ``django_mysql.models`` module.
 
         .. attribute:: fall_back=True
 
-            If ``True``, ``count()`` will be called and returned if the
-            approximate count cannot be found, otherwise ``ValueError`` will be
-            raised.
+            If ``True`` and the approximate count cannot be calculated,
+            ``count()`` will be called and returned instead, otherwise
+            ``ValueError`` will be raised.
 
             The approximation can only be found for ``objects.all()``, with no
             filters, ``distinct()`` calls, etc., so it's reasonable to fall
@@ -73,39 +74,38 @@ from the ``django_mysql.models`` module.
 
         .. attribute:: return_approx_int=True
 
-            When ``True``, an ``int`` is not returned (when not falling back),
-            but instead a subclass called ``ApproximateInt``. This is for all
-            intents and purposes an ``int``, apart from when cast to ``str``,
-            it renders as e.g. **'Approximately 12345'**. Useful for templates
-            you can't edit (e.g. the admin) where you must communicate the
-            number is not 100% accurate.
+            When ``True``, an ``int`` is not returned (excpet when falling
+            back), but instead a subclass called ``ApproximateInt``. This is
+            for all intents and purposes an ``int``, apart from when cast to
+            ``str``, it renders as e.g. **'Approximately 12345'**
+            (internationalization included). Useful for templates you can't
+            edit (e.g. the admin) and you want to communicate that the number
+            is not 100% accurate.
 
         .. attribute:: min_size=1000
 
-            A threshold number at which the approximate count is returned. If
-            the approximate count is less that this number, ``count()`` will be
-            returned instead, since it should be so small as to not bother your
-            database. Set to ``0`` to disable this behaviour and always return
-            an approximation.
+            The threshold at which to use the approximate algorithm; if the
+            approximate count comes back as less that this number, ``count()``
+            will be called and returned instead, since it should be so small as
+            to not bother your database. Set to ``0`` to disable this behaviour
+            and always return the approximation.
 
-            The default of ``1000`` is a bit pessimistic; most tables won't
-            take long when calling ``COUNT(*)`` on tens of thosuands of rows,
-            but it could for very wide tables (lots of long fields), and we
-            want this to 'just work' everywhere.
+            The default of ``1000`` is a bit pessimistic - most tables won't
+            take long when calling ``COUNT(*)`` on tens of thousands of rows,
+            but it *could* be slow for very wide tables.
 
     .. method:: count_tries_approx(activate=False, \
                                    fall_back=True, \
                                    return_approx_int=True, \
                                    min_size=1000)
 
-            This is the magic method to make pre-existing code, such as
+            This is the 'magic' method to make pre-existing code, such as
             Django's admin, work with ``approx_count``. Calling
             ``count_tries_approx`` sets the QuerySet up such that then calling
             ``count`` will call ``approx_count`` instead, with the given
             arguments.
 
             To unset this, call ``count_tries_approx`` with ``activate=False``.
-            All the other arguments are passed to ``approx_count`` later.
 
             To 'fix' an Admin class with this, simply do the following
             (assuming ``Author`` inherits from ``django_mysql``'s ``Model``)::
