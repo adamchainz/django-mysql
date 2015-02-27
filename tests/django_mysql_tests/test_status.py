@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from django.test import TestCase
 
+from django_mysql.exceptions import TimeoutError
 from django_mysql.status import GlobalStatus, SessionStatus
 
 
@@ -48,6 +49,18 @@ class GlobalStatusTests(TestCase):
 
         status_dict_foo = status.as_dict('Foo_Non_Existent')
         self.assertEqual(len(status_dict_foo), 0)
+
+    def test_wait_until_load_low(self):
+        status = GlobalStatus()
+
+        # Assume tests are running on a non-busy server
+        status.wait_until_load_low()
+
+        with self.assertRaises(TimeoutError):
+            status.wait_until_load_low(var_name='Threads_running',
+                                       var_max=-1,  # obviously impossible
+                                       timeout=0.001,
+                                       sleep=0.0005)
 
 
 class SessionStatusTests(TestCase):

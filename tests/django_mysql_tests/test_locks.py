@@ -5,7 +5,8 @@ from django.db import connection
 from django.test import TestCase
 from django.utils.six.moves import queue
 
-from django_mysql.locks import Lock, TimeoutError
+from django_mysql.exceptions import TimeoutError
+from django_mysql.locks import Lock
 
 
 class LockTests(TestCase):
