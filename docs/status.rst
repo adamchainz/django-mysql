@@ -63,11 +63,12 @@ GlobalStatus
         waiting with `--max-load <http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--max-load>`_.
 
         Continually polls global status every ``sleep`` seconds until
-        ``var_name`` is at or below ``var_max``, or raise a ``TimeoutError`` if
+        ``var_name`` is at or below ``var_max``, or raise a
+        :class:`django_mysql.exceptions.TimeoutError` if
         it takes more than ``timeout`` seconds. Set ``timeout`` to 0 to never
-        time out. The default variable is taken from
-        ``pt-online-schema-change`` but with a lower default threshold that is
-        more suitable for smaller servers.
+        time out. Using ``Threads_running`` as the default variable is taken from
+        ``pt-online-schema-change``, but with a lower default threshold of 5
+        that is more suitable for smaller servers.
 
         You can use this method during large background operations which you
         don't want to affect other connections, such as your website. By
