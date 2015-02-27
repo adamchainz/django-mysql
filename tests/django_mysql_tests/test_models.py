@@ -4,6 +4,8 @@ from django.test import TransactionTestCase
 
 from django_mysql_tests.models import Author
 
+from .utils import captured_stdout
+
 
 class ApproximateCountTests(TransactionTestCase):
 
@@ -58,3 +60,41 @@ class ApproximateCountTests(TransactionTestCase):
         self.assertEqual(Author.objects.distinct().approx_count(), 10)
         with self.assertRaises(ValueError):
             Author.objects.distinct().approx_count(fall_back=False)
+
+
+class SmartChunkedIteratorTests(TransactionTestCase):
+
+    def setUp(self):
+        super(SmartChunkedIteratorTests, self).setUp()
+        Author.objects.bulk_create([Author() for i in range(10)])
+
+    def test_bad_querysets(self):
+        with self.assertRaises(ValueError):
+            Author.objects.all().order_by('name').iter_smart_chunks()
+
+        with self.assertRaises(ValueError):
+            Author.objects.all()[:5].iter_smart_chunks()
+
+    def test_basic(self):
+        seen = []
+        for authors in Author.objects.iter_smart_chunks():
+            seen.extend(author.pk for author in authors)
+        self.assertEqual(len(seen), Author.objects.count())
+
+    def test_reporting(self):
+        with captured_stdout() as output:
+            qs = Author.objects.all()
+            for authors in qs.iter_smart_chunks(report_progress=True):
+                list(authors)  # fetch them
+
+        lines = output.getvalue().split('\n')
+
+        reports = lines[0].split('\r')
+        for report in reports:
+            self.assertRegexpMatches(
+                report,
+                r"AuthorSmartChunkedIterator processed \d+/10 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?"
+            )
+
+        self.assertEqual(lines[1], 'Finished!')
