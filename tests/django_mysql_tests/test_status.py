@@ -24,6 +24,15 @@ class GlobalStatusTests(TestCase):
         with self.assertRaises(KeyError):
             status.get('Does_not_exist')
 
+    def test_get_many(self):
+        status = GlobalStatus()
+        myvars = status.get_many(['Threads_running', 'Uptime'])
+        self.assertTrue(isinstance(myvars, dict))
+        self.assertIn('Threads_running', myvars)
+        self.assertTrue(isinstance(myvars['Threads_running'], int))
+        self.assertIn('Uptime', myvars)
+        self.assertTrue(isinstance(myvars['Uptime'], int))
+
     def test_as_dict(self):
         status = GlobalStatus()
         status_dict = status.as_dict()
@@ -55,12 +64,31 @@ class GlobalStatusTests(TestCase):
 
         # Assume tests are running on a non-busy server
         status.wait_until_load_low()
+        status.wait_until_load_low({'Threads_running': 50,
+                                    'Threads_connected': 100})
 
-        with self.assertRaises(TimeoutError):
-            status.wait_until_load_low(var_name='Threads_running',
-                                       var_max=-1,  # obviously impossible
-                                       timeout=0.001,
-                                       sleep=0.0005)
+        with self.assertRaises(TimeoutError) as cm:
+            status.wait_until_load_low(
+                {'Threads_running': -1},  # obviously impossible
+                timeout=0.001,
+                sleep=0.0005
+            )
+        message = str(cm.exception)
+        self.assertIn('Threads_running', message)
+        self.assertIn('-1', message)
+
+        with self.assertRaises(TimeoutError) as cm:
+            status.wait_until_load_low(
+                {'Threads_running': 1000000,
+                 'Uptime': -1},  # obviously impossible
+                timeout=0.001,
+                sleep=0.0005
+            )
+        message = str(cm.exception)
+        self.assertIn('Uptime', message)
+        self.assertIn('-1', message)
+        self.assertNotIn('Threads_running', message)
+        self.assertNotIn('1000000', message)
 
 
 class SessionStatusTests(TestCase):

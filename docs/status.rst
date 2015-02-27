@@ -47,6 +47,13 @@ GlobalStatus
         numbers and booleans will be cast to their respective Python types -
         ``int``, ``float``, or ``bool``. Strings are be left as-is.
 
+    .. method:: get_many(names)
+
+        Returns a dictionary of names to current values, fetching them in a
+        single query. The names may not include wildcards (``%``).
+
+        Uses the same type-casting strategy as ``get()``.
+
     .. method:: as_dict(prefix=None)
 
         Returns a dictionary of names to current values. If ``prefix`` is
@@ -56,22 +63,24 @@ GlobalStatus
 
         Uses the same type-casting strategy as ``get()``.
 
-    .. method:: wait_until_load_low(var_name='Threads_running', var_max=5, \
+    .. method:: wait_until_load_low(thresholds={'Threads_running': 5}, \
                                     timeout=60.0, sleep=0.1)
 
-        A helper method similar to ``pt-online-schema-change``'s logic for
+        A helper method similar to the logic in ``pt-online-schema-change`` for
         waiting with `--max-load <http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--max-load>`_.
 
-        Continually polls global status every ``sleep`` seconds until
-        ``var_name`` is at or below ``var_max``, or raise a
-        :class:`django_mysql.exceptions.TimeoutError` if
-        it takes more than ``timeout`` seconds. Set ``timeout`` to 0 to never
-        time out. Using ``Threads_running`` as the default variable is taken from
-        ``pt-online-schema-change``, but with a lower default threshold of 5
-        that is more suitable for smaller servers.
+        Polls global status every ``sleep`` seconds until every variable named
+        in ``thresholds`` is at or below its specified threshold, or raises a
+        :class:`django_mysql.exceptions.TimeoutError` if this does not occur
+        within ``timeout`` seconds. Set ``timeout`` to 0 to never time out.
+
+        ``thresholds`` defaults to ``{'Threads_running': 5}``, which is the
+        default variable used in ``pt-online-schema-change``, but with a lower
+        threshold of 5 that is more suitable for small servers. You will very
+        probably need to tweak it to your server.
 
         You can use this method during large background operations which you
-        don't want to affect other connections, such as your website. By
+        don't want to affect other connections (i.e. your website). By
         processing in small chunks and waiting for low load in between, you
         sharply reduce your risk of outage.
 
