@@ -14,6 +14,10 @@ Django MySQL
 .. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
         :target: http://django-extensions.readthedocs.org/en/latest/
 
+.. image:: https://landscape.io/github/adamchainz/django-mysql/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/adamchainz/django-mysql/master
+   :alt: Code Health
+
 
 MySQL and its fork MariaDB have a number of features which are not available in
 vanilla Django... This package helps you get at them.
