@@ -12,6 +12,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 from .status import GlobalStatus
+from .utils import WeightedAverageRate
 
 
 class QuerySetMixin(object):
@@ -123,7 +124,9 @@ class SmartChunkedIterator(object):
             self.maybe_atomic = _noop_context
 
         self.status_thresholds = status_thresholds
-        self.chunk_time = chunk_time
+
+        self.rate = WeightedAverageRate(chunk_time)
+        self.chunk_size = 2  # Small but will expand rapidly anyhow
         self.chunk_max = chunk_max
 
         self.report_progress = report_progress
@@ -132,8 +135,6 @@ class SmartChunkedIterator(object):
     def __iter__(self):
         min_pk, max_pk = self.get_min_and_max()
         current_pk = min_pk
-        chunk_size = 2  # Small but will expand rapidly anyhow
-        chunk_time = self.chunk_time  # seconds
         status = GlobalStatus(self.queryset.db)
 
         self.init_progress()
@@ -142,7 +143,7 @@ class SmartChunkedIterator(object):
             status.wait_until_load_low(self.status_thresholds)
 
             start_pk = current_pk
-            current_pk = current_pk + chunk_size
+            current_pk = current_pk + self.chunk_size
             # Don't process rows that didn't exist at start of iteration
             end_pk = min(current_pk, max_pk + 1)
 
@@ -151,7 +152,7 @@ class SmartChunkedIterator(object):
                 yield chunk
                 self.update_progress(chunk=chunk, end_pk=end_pk)
 
-            chunk_size = self.adjust_chunk_size(chunk_size, timer, chunk_time)
+            self.adjust_chunk_size(chunk, timer.total_time)
 
         self.end_progress()
 
@@ -184,15 +185,24 @@ class SmartChunkedIterator(object):
 
         return (min_pk, max_pk)
 
-    def adjust_chunk_size(self, chunk_size, timer, chunk_time):
-        if timer.total_time > chunk_time:
-            # Too long - halve the size!
-            chunk_size = max(1, int(chunk_size / 2.0))
-        elif timer.total_time < chunk_time * 0.75:
-            # Too quick - increase the chunk size, up to max_size
-            chunk_size = max(chunk_size + 1, int(chunk_size * 1.1))
-            chunk_size = min(chunk_size, self.chunk_max)
-        return chunk_size
+    def adjust_chunk_size(self, chunk, chunk_time):
+        # If the queryset is not being fetched as-is, e.g. its .delete() is
+        # called, we can't know how many objects were affected, so we just
+        # assume they all exist/existed
+        if chunk._result_cache is None:
+            num_processed = self.chunk_size
+        else:
+            num_processed = len(chunk)
+
+        new_chunk_size = self.rate.update(num_processed, chunk_time)
+
+        if new_chunk_size < 1:
+            new_chunk_size = 1
+
+        if new_chunk_size > self.chunk_max:
+            new_chunk_size = self.chunk_max
+
+        self.chunk_size = new_chunk_size
 
     def init_progress(self):
         if not self.report_progress:
