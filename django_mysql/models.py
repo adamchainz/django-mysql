@@ -214,10 +214,7 @@ class SmartChunkedIterator(object):
         self.objects_done = 0
         self.chunks_done = 0
         if self.total is None:  # User didn't pass in a total
-            try:
-                self.total = self.queryset.approx_count(fall_back=False)
-            except ValueError:
-                self.total = self.queryset.count()
+            self.total = self.queryset.approx_count(fall_back=True)
 
         self.update_progress()
 
