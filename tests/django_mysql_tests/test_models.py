@@ -2,7 +2,9 @@
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
-from django_mysql_tests.models import Author
+from django_mysql.models import SmartIterator
+
+from django_mysql_tests.models import Author, VanillaAuthor
 
 from .utils import captured_stdout
 
@@ -110,3 +112,19 @@ class SmartIteratorTests(TransactionTestCase):
             )
 
         self.assertEqual(lines[1], 'Finished!')
+
+    def test_running_on_non_mysql_model(self):
+        VanillaAuthor.objects.create(name="Alpha")
+        VanillaAuthor.objects.create(name="pants")
+        VanillaAuthor.objects.create(name="Beta")
+        VanillaAuthor.objects.create(name="pants")
+
+        bad_authors = VanillaAuthor.objects.filter(name="pants")
+
+        self.assertEqual(bad_authors.count(), 2)
+
+        with captured_stdout():
+            for author in SmartIterator(bad_authors, report_progress=True):
+                author.delete()
+
+        self.assertEqual(bad_authors.count(), 0)

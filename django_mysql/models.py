@@ -137,7 +137,8 @@ class SmartChunkedIterator(object):
     def __iter__(self):
         min_pk, max_pk = self.get_min_and_max()
         current_pk = min_pk
-        status = GlobalStatus(self.queryset.db)
+        db_alias = self.queryset.db
+        status = GlobalStatus(db_alias)
 
         self.init_progress()
 
@@ -149,7 +150,7 @@ class SmartChunkedIterator(object):
             # Don't process rows that didn't exist at start of iteration
             end_pk = min(current_pk, max_pk + 1)
 
-            with StopWatch() as timer, self.maybe_atomic():
+            with StopWatch() as timer, self.maybe_atomic(using=db_alias):
                 chunk = self.queryset.filter(pk__gte=start_pk, pk__lt=end_pk)
                 yield chunk
                 self.update_progress(chunk=chunk, end_pk=end_pk)
@@ -214,7 +215,8 @@ class SmartChunkedIterator(object):
         self.objects_done = 0
         self.chunks_done = 0
         if self.total is None:  # User didn't pass in a total
-            self.total = self.queryset.approx_count(fall_back=True)
+            count_qs = self.queryset._clone(klass=QuerySet)
+            self.total = count_qs.approx_count(fall_back=True)
 
         self.update_progress()
 

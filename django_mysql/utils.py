@@ -59,5 +59,5 @@ class StopWatch(object):
 
 
 @contextmanager
-def noop_context():
+def noop_context(*args, **kwargs):
     yield
