@@ -1,6 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import division
 
+from contextlib import contextmanager
+import time
+
 
 class WeightedAverageRate(object):
     """
@@ -40,3 +43,21 @@ class WeightedAverageRate(object):
         avg_rate = self.avg_n / self.avg_t
         new_n = int(avg_rate * self.target_t)
         return new_n
+
+
+class StopWatch(object):
+    """
+    Context manager for timing a block
+    """
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.end_time = time.time()
+        self.total_time = self.end_time - self.start_time
+
+
+@contextmanager
+def noop_context():
+    yield

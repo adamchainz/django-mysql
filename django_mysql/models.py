@@ -1,8 +1,6 @@
 # -*- coding:utf-8 -*-
-from contextlib import contextmanager
 from copy import copy
 import sys
-import time
 
 from django.db import connections
 from django.db import models
@@ -12,7 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 from .status import GlobalStatus
-from .utils import WeightedAverageRate
+from .utils import noop_context, StopWatch, WeightedAverageRate
 
 
 class QuerySetMixin(object):
@@ -121,7 +119,7 @@ class SmartChunkedIterator(object):
         else:
             # Work around for `with` statement not supporting variable number
             # of contexts
-            self.maybe_atomic = _noop_context
+            self.maybe_atomic = noop_context
 
         self.status_thresholds = status_thresholds
 
@@ -267,21 +265,3 @@ class SmartChunkedIterator(object):
     @cached_property
     def model_name(self):
         return self.queryset.model.__name__
-
-
-class StopWatch(object):
-    """
-    Context manager for timing a block
-    """
-    def __enter__(self):
-        self.start_time = time.time()
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        self.end_time = time.time()
-        self.total_time = self.end_time - self.start_time
-
-
-@contextmanager
-def _noop_context():
-    yield
