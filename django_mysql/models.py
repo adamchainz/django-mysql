@@ -181,7 +181,6 @@ class SmartChunkedIterator(object):
             min_pk = min_qs[0]
         except IndexError:
             # We're working on an empty QuerySet, yield no chunks
-            return (0, 0)
             max_pk = min_pk = 0
         else:
             max_pk = max_qs[0]
