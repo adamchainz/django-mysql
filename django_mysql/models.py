@@ -78,6 +78,11 @@ class QuerySetMixin(object):
         else:
             return approx_count
 
+    def iter_smart(self, **kwargs):
+        assert 'queryset' not in kwargs, \
+            "You can't pass another queryset in through iter_smart!"
+        return SmartIterator(queryset=self, **kwargs)
+
     def iter_smart_chunks(self, **kwargs):
         assert 'queryset' not in kwargs, \
             "You can't pass another queryset in through iter_smart_chunks!"
@@ -111,7 +116,6 @@ class SmartChunkedIterator(object):
     def __init__(self, queryset, atomically=True, status_thresholds=None,
                  chunk_time=0.1, chunk_max=10000, report_progress=False,
                  total=None):
-        self.sanitize_queryset(queryset)
         self.queryset = self.sanitize_queryset(queryset)
 
         if atomically:
@@ -265,3 +269,13 @@ class SmartChunkedIterator(object):
     @cached_property
     def model_name(self):
         return self.queryset.model.__name__
+
+
+class SmartIterator(SmartChunkedIterator):
+    """
+    Subclass of SmartChunkedIterator that unpacks the chunks
+    """
+    def __iter__(self):
+        for chunk in super(SmartIterator, self).__iter__():
+            for obj in chunk:
+                yield obj

@@ -62,10 +62,10 @@ class ApproximateCountTests(TransactionTestCase):
             Author.objects.distinct().approx_count(fall_back=False)
 
 
-class SmartChunkedIteratorTests(TransactionTestCase):
+class SmartIteratorTests(TransactionTestCase):
 
     def setUp(self):
-        super(SmartChunkedIteratorTests, self).setUp()
+        super(SmartIteratorTests, self).setUp()
         Author.objects.bulk_create([Author() for i in range(10)])
 
     def test_bad_querysets(self):
@@ -75,11 +75,23 @@ class SmartChunkedIteratorTests(TransactionTestCase):
         with self.assertRaises(ValueError):
             Author.objects.all()[:5].iter_smart_chunks()
 
-    def test_basic(self):
+    def test_chunks(self):
         seen = []
         for authors in Author.objects.iter_smart_chunks():
-            seen.extend(author.pk for author in authors)
-        self.assertEqual(len(seen), Author.objects.count())
+            seen.extend(author.id for author in authors)
+
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
+    def test_objects(self):
+        seen = []
+        for author in Author.objects.iter_smart():
+            seen.append(author.id)
+
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
 
     def test_reporting(self):
         with captured_stdout() as output:
