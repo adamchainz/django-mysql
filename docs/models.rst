@@ -2,10 +2,10 @@
 Models
 ======
 
-.. currentmodule:: django_mysql.models
-
 MySQL-specific Model and QuerySet extensions. These classes can be imported
 from the ``django_mysql.models`` module.
+
+.. currentmodule:: django_mysql.models
 
 Adding the Extensions
 =====================
@@ -31,11 +31,13 @@ need to choose from the below. The simplest is to use the ``Model`` class.
 
 .. class:: QuerySet
 
-    A fully compatible subclass of Django's ``models.QuerySet`` that provides
-    MySQL-specific extensions. Mixes the below ``QuerySetMixin`` into Django's
-    ``models.QuerySet`` - therefore contains all the below methods.
+    A fully compatible subclass of Django's :class:`~django.db.models.QuerySet`
+    that provides MySQL-specific extensions by mixing in the below
+    ``QuerySetMixin``. Contains all the methods described under 'QuerySet
+    Extensions'.
 
-    If you can't use the above ``Model`` class, you can add the methods using::
+    If you can't use the above ``Model`` class, this is another way of getting
+    the extra methods by setting ``objects``::
 
         from mythings import MyBaseModel
         from django_mysql.models import QuerySet
@@ -48,15 +50,28 @@ need to choose from the below. The simplest is to use the ``Model`` class.
 .. class:: QuerySetMixin
 
     A mixin to be applied to ``QuerySet`` classes to add MySQL-specific
-    behaviour. Use if you have your own/other custom ``QuerySet`` behaviour to
-    add to. Contains all the below methods.
+    behaviour. Contains all the methods described under 'QuerySet Extensions'.
+
+    Mix in to your custom queryset to get the goodness::
+
+        from django.db.models import Model
+        from django_mysql.models import QuerySetMixin
+        from stackoverflow import CopyPasteQuerySet
+
+        class MySplendidQuerySet(QuerySetMixin, CopyPasteQuerySet):
+            pass
+
+        class MySplendidModel(Model):
+            objects = MySplendidQuerySet.as_manager()
+            # TODO: profit
 
 
 QuerySet Extensions
 ===================
 
 If you've installed ``QuerySetMixin`` onto your model via one of the above
-routes then all of these are available to you!
+routes then all of these are available to you! They're organized in sections
+to make them a bit easier to understand.
 
 Approximate Counting
 --------------------
@@ -140,3 +155,143 @@ Approximate Counting
 
         You can do this at a base class for all your ``ModelAdmin`` subclasses
         to apply the magical speed increase across your admin interface.
+
+
+'Smart' Iteration
+-----------------
+
+Here's a situation we've all been in - we screwed up,
+and now we need to fix the data. Let's say we accidentally set the address of all
+authors without an address to "Nowhere", rather than the blank string. How can
+we fix them??
+
+The simplest way would be to run the following::
+
+    Author.objects.filter(address="Nowhere").update(address="")
+
+Unfortunately with a lot of rows ('a lot' being dependent on your database
+server and level of traffic) this will stall other access to the table, since
+it will require MySQL to read all the rows and to hold write locks on them in
+a single query.
+
+To solve this, we could try updating a chunk of authors at a time; such code
+tends to get ugly/complicated pretty quickly::
+
+    min_id = 0
+    max_id = 1000
+    biggest_author_id = Author.objects.order_by('-id')[0].id
+    while True:
+        Author.objects.filter(id__gte=min_id, id__lte=BLA BLA BLA
+
+    # I'm not even going to type this all out, it's so much code
+
+Here's the solution to this boilerplate with added safety features - 'smart'
+iteration! There are two classes; one yields chunks of the given ``QuerySet``,
+and the other yields the objects inside those chunks. Nearly every data update
+can be thought of in one of these two methods.
+
+.. class:: SmartChunkedIterator(queryset, atomically=True, \
+                                status_thresholds=None, chunk_time=0.5, \
+                                chunk_max=10000, report_progress=False, \
+                                total=None)
+
+    Implements a smart iteration strategy over the given ``queryset``. There is
+    a method ``iter_smart_chunks`` that takes the same arguments on the
+    ``QuerySetMixin`` so you can just:
+
+        bad_authors = Author.objects.filter(address="Nowhere")
+        for author_chunk in bad_authors.iter_smart_chunks():
+            author_chunk.update(address="")
+
+    Iteration proceeds by yielding primary-key based slices of the queryset,
+    and dynamically adjusting the size of the chunk to try and take
+    ``chunk_time`` seconds. In between chunks, the
+    :func:`~django_mysql.status.GlobalStatus.wait_until_load_low` method of
+    :class:`~django_mysql.status.GlobalStatus` is called to ensure the database
+    is not under high load.
+
+    There are a lot of arguments and the defaults have been picked hopefully
+    sensibly, but please check for your case
+
+    .. attribute:: queryset
+
+        The queryset to iterate over; if you're calling via
+        ``.iter_smart_chunks`` then you don't need to set this since it's the
+        queryset you called it on.
+
+    .. attribute:: atomically=True
+
+        If true, wraps each chunk in a transaction via django's
+        :func:`transaction.atomic() <django:django.db.transaction.atomic>`.
+        Recommended for any write processing.
+
+    .. attribute:: status_thresholds=None
+
+        A dict of status variables and their maximum tolerated values to be
+        checked against after each chunk with
+        :func:`~django_mysql.status.GlobalStatus.wait_until_load_low`.
+
+        When set to ``None``, it lets
+        :class:`~django_mysql.status.GlobalStatus` use its default of
+        ``'Threads_running': 5}``. Set to an empty dict to disable status
+        checking (not really recommended, it doesn't add much overhead and can
+        will probably save your butt one day).
+
+    .. attribute:: chunk_time=0.5
+
+        The time in seconds to aim for each chunk to take. The chunk size is
+        dynamically adjusted to try and match this time, via a weighted average
+        of the past and current speed of processing. The default and algorithm
+        is taken from the analogous ``pt-online-schema-change`` flag
+        `--chunk-time <http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--chunk-time>`_.
+
+
+    .. attribute:: chunk_max=100000
+
+        The maximum number of objects in a chunk, a kind of sanity bound. Acts
+        to prevent harm in the case of iterating over a model with a large
+        'hole' in its primary key values, e.g. if only ids 1-10k and 100k-110k
+        exist, then the chunk 'slices' could grow very large in between 10k and
+        100k since you'd be "processing" the non-existent objects 10k-100k very
+        quickly.
+
+
+    .. attribute:: report_progress=False
+
+        If set to true, display out a running counter and summary on
+        ``sys.stdout``. Useful for interactive use. The message looks like
+        this::
+
+            AuthorSmartChunkedIterator processed 0/100000 objects (0.00%) in 0 chunks
+
+        And uses ``\r`` to erase itself when re-printing to avoid spamming your
+        screen.  At the end ``Finished!`` is printed on a new line.
+
+    .. attribute:: total=None
+
+        By default the total number of objects to process will be calculated
+        with :func:`~django_mysql.models.QuerySetMixin.approx_count`, with
+        ``fall_back`` set to ``True``. This ``count()`` query could potentially
+        be big and slow.
+
+        ``total`` allows you to pass in the total number of objects for
+        processing, if you can calculate in a cheaper way, for example if you
+        have a read-replica to use.
+
+
+.. class:: SmartIterator
+
+    A convenience subclass of ``SmartChunkedIterator`` that simply unpacks the
+    chunks for you. Can be accessed via the ``iter_smart`` method of
+    ``QuerySetMixin``. For example, rather than doing this::
+
+        bad_authors = Author.objects.filter(address="Nowhere")
+        for author_chunk in bad_authors.iter_smart_chunks():
+            for author in author_chunk:
+                author.send_apology_email()
+
+    You can do this::
+
+        bad_authors = Author.objects.filter(address="Nowhere")
+        for author in bad_authors.iter_smart():
+            author.send_apology_email()

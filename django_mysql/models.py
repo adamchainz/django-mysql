@@ -114,7 +114,7 @@ class ApproximateInt(int):
 
 class SmartChunkedIterator(object):
     def __init__(self, queryset, atomically=True, status_thresholds=None,
-                 chunk_time=0.1, chunk_max=10000, report_progress=False,
+                 chunk_time=0.5, chunk_max=10000, report_progress=False,
                  total=None):
         self.queryset = self.sanitize_queryset(queryset)
 
