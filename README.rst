@@ -20,7 +20,7 @@ Django MySQL
 
 
 .. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
-   :width: 50%
+   :height: 350
    :align: center
    :alt: Dolphin-pony - taking two cute things and ending up with something
      incredibly scary
