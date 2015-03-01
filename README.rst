@@ -32,6 +32,8 @@ Here's a short list of what's inside:
 * Easy access to server status variables
 * ``approx_count`` on ``QuerySet`` for quick estimates of the number of
   objects - and a quicker admin
+* 'Smart' iteration methods on ``QuerySet`` for efficient iteration over large
+  sets of objects slice-by-slice
 
 
 Requirements
