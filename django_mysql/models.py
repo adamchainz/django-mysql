@@ -162,13 +162,20 @@ class SmartChunkedIterator(object):
     def sanitize_queryset(self, queryset):
         if queryset.ordered:
             raise ValueError(
-                "You can't use %s on a queryset with an ordering.",
+                "You can't use %s on a QuerySet with an ordering." %
                 self.__class__.__name__
             )
 
         if queryset.query.low_mark or queryset.query.high_mark:
             raise ValueError(
-                "You can't use %s on a sliced queryset.",
+                "You can't use %s on a sliced QuerySet." %
+                self.__class__.__name__
+            )
+
+        pk = queryset.model._meta.pk
+        if not isinstance(pk, (models.IntegerField, models.AutoField)):
+            raise ValueError(
+                "You can't use %s on a model with a non-integer primary key." %
                 self.__class__.__name__
             )
 

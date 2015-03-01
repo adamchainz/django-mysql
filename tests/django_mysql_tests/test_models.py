@@ -4,7 +4,7 @@ from django.test import TransactionTestCase
 
 from django_mysql.models import SmartIterator
 
-from django_mysql_tests.models import Author, VanillaAuthor
+from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
 
 from .utils import captured_stdout
 
@@ -71,11 +71,17 @@ class SmartIteratorTests(TransactionTestCase):
         Author.objects.bulk_create([Author() for i in range(10)])
 
     def test_bad_querysets(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             Author.objects.all().order_by('name').iter_smart_chunks()
+        self.assertIn("ordering", str(cm.exception))
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             Author.objects.all()[:5].iter_smart_chunks()
+        self.assertIn("sliced QuerySet", str(cm.exception))
+
+        with self.assertRaises(ValueError) as cm:
+            NameAuthor.objects.all().iter_smart_chunks()
+        self.assertIn("non-integer primary key", str(cm.exception))
 
     def test_chunks(self):
         seen = []

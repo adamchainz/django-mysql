@@ -19,3 +19,7 @@ class Author(Model):
 
 class VanillaAuthor(VanillaModel):
     name = CharField(max_length=32)
+
+
+class NameAuthor(Model):
+    name = CharField(max_length=32, primary_key=True)
