@@ -19,8 +19,15 @@ Django MySQL
    :alt: Code Health
 
 
+.. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
+   :width: 50%
+   :align: center
+   :alt: Dolphin-pony - taking two cute things and ending up with something
+     incredibly scary
+
+
 MySQL and its fork MariaDB have a number of features which are not available in
-vanilla Django... This package helps you get at them.
+vanilla Django - this package helps you get at them.
 
 
 Including
