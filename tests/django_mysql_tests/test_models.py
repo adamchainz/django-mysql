@@ -87,25 +87,19 @@ class SmartIteratorTests(TransactionTestCase):
         self.assertEqual(seen, all_ids)
 
     def test_objects(self):
-        seen = []
-        for author in Author.objects.iter_smart():
-            seen.append(author.id)
-
+        seen = [author.id for author in Author.objects.iter_smart()]
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
         self.assertEqual(seen, all_ids)
 
     def test_no_matching_objects(self):
-        seen = []
-        for author in Author.objects.filter(name="Waaa").iter_smart():
-            seen.append(author.id)
+        seen = [author.id for author in
+                Author.objects.filter(name="Waaa").iter_smart()]
         self.assertEqual(seen, [])
 
     def test_no_objects(self):
         Author.objects.all().delete()
-        seen = []
-        for author in Author.objects.iter_smart():
-            seen.append(author.id)
+        seen = [author.id for author in Author.objects.iter_smart()]
         self.assertEqual(seen, [])
 
     def test_reporting(self):
