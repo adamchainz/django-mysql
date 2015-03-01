@@ -2,7 +2,11 @@
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
-from django_mysql_tests.models import Author
+from django_mysql.models import SmartIterator
+
+from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
+
+from .utils import captured_stdout
 
 
 class ApproximateCountTests(TransactionTestCase):
@@ -58,3 +62,104 @@ class ApproximateCountTests(TransactionTestCase):
         self.assertEqual(Author.objects.distinct().approx_count(), 10)
         with self.assertRaises(ValueError):
             Author.objects.distinct().approx_count(fall_back=False)
+
+
+class SmartIteratorTests(TransactionTestCase):
+
+    def setUp(self):
+        super(SmartIteratorTests, self).setUp()
+        Author.objects.bulk_create([Author() for i in range(10)])
+
+    def test_bad_querysets(self):
+        with self.assertRaises(ValueError) as cm:
+            Author.objects.all().order_by('name').iter_smart_chunks()
+        self.assertIn("ordering", str(cm.exception))
+
+        with self.assertRaises(ValueError) as cm:
+            Author.objects.all()[:5].iter_smart_chunks()
+        self.assertIn("sliced QuerySet", str(cm.exception))
+
+        with self.assertRaises(ValueError) as cm:
+            NameAuthor.objects.all().iter_smart_chunks()
+        self.assertIn("non-integer primary key", str(cm.exception))
+
+    def test_chunks(self):
+        seen = []
+        for authors in Author.objects.iter_smart_chunks():
+            seen.extend(author.id for author in authors)
+
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
+    def test_objects(self):
+        seen = [author.id for author in Author.objects.iter_smart()]
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
+    def test_no_matching_objects(self):
+        seen = [author.id for author in
+                Author.objects.filter(name="Waaa").iter_smart()]
+        self.assertEqual(seen, [])
+
+    def test_no_objects(self):
+        Author.objects.all().delete()
+        seen = [author.id for author in Author.objects.iter_smart()]
+        self.assertEqual(seen, [])
+
+    def test_reporting(self):
+        with captured_stdout() as output:
+            qs = Author.objects.all()
+            for authors in qs.iter_smart_chunks(report_progress=True):
+                list(authors)  # fetch them
+
+        lines = output.getvalue().split('\n')
+
+        reports = lines[0].split('\r')
+        for report in reports:
+            self.assertRegexpMatches(
+                report,
+                r"AuthorSmartChunkedIterator processed \d+/10 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?"
+            )
+
+        self.assertEqual(lines[1], 'Finished!')
+
+    def test_reporting_on_uncounted_qs(self):
+        Author.objects.create(name="pants")
+
+        with captured_stdout() as output:
+            qs = Author.objects.filter(name="pants")
+            for authors in qs.iter_smart_chunks(report_progress=True):
+                authors.delete()
+
+        lines = output.getvalue().split('\n')
+
+        reports = lines[0].split('\r')
+        for report in reports:
+            self.assertRegexpMatches(
+                report,
+                # We should have ??? since the deletion means the objects
+                # aren't fetched into python
+                r"AuthorSmartChunkedIterator processed (0|\?\?\?)/1 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?"
+            )
+
+        self.assertEqual(lines[1], 'Finished!')
+
+    def test_running_on_non_mysql_model(self):
+        VanillaAuthor.objects.create(name="Alpha")
+        VanillaAuthor.objects.create(name="pants")
+        VanillaAuthor.objects.create(name="Beta")
+        VanillaAuthor.objects.create(name="pants")
+
+        bad_authors = VanillaAuthor.objects.filter(name="pants")
+
+        self.assertEqual(bad_authors.count(), 2)
+
+        with captured_stdout():
+            for author in SmartIterator(bad_authors, report_progress=True):
+                author.delete()
+
+        self.assertEqual(bad_authors.count(), 0)

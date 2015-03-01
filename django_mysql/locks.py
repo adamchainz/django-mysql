@@ -2,9 +2,7 @@
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
 
-
-class TimeoutError(Exception):
-    pass
+from .exceptions import TimeoutError
 
 
 class Lock(object):

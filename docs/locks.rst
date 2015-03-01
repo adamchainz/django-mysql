@@ -23,7 +23,8 @@ Lock
 
     Basic usage::
 
-        from django_mysql.locks import Lock, TimeoutError
+        from django_mysql.exceptions import TimeoutError
+        from django_mysql.locks import Lock
 
         try:
             with Lock('my_unique_name', acquire_timeout=2.0):

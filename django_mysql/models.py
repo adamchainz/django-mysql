@@ -1,10 +1,16 @@
 # -*- coding:utf-8 -*-
 from copy import copy
+import sys
 
 from django.db import connections
 from django.db import models
+from django.db.transaction import atomic
 from django.utils import six
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
+
+from .status import GlobalStatus
+from .utils import noop_context, StopWatch, WeightedAverageRate
 
 
 class QuerySetMixin(object):
@@ -72,6 +78,16 @@ class QuerySetMixin(object):
         else:
             return approx_count
 
+    def iter_smart(self, **kwargs):
+        assert 'queryset' not in kwargs, \
+            "You can't pass another queryset in through iter_smart!"
+        return SmartIterator(queryset=self, **kwargs)
+
+    def iter_smart_chunks(self, **kwargs):
+        assert 'queryset' not in kwargs, \
+            "You can't pass another queryset in through iter_smart_chunks!"
+        return SmartChunkedIterator(queryset=self, **kwargs)
+
 
 class QuerySet(QuerySetMixin, models.QuerySet):
     pass
@@ -94,3 +110,177 @@ class ApproximateInt(int):
         return _("Approximately %(number)s") % {
             'number': super(ApproximateInt, self).__str__()
         }
+
+
+class SmartChunkedIterator(object):
+    def __init__(self, queryset, atomically=True, status_thresholds=None,
+                 chunk_time=0.5, chunk_max=10000, report_progress=False,
+                 total=None):
+        self.queryset = self.sanitize_queryset(queryset)
+
+        if atomically:
+            self.maybe_atomic = atomic
+        else:
+            # Work around for `with` statement not supporting variable number
+            # of contexts
+            self.maybe_atomic = noop_context
+
+        self.status_thresholds = status_thresholds
+
+        self.rate = WeightedAverageRate(chunk_time)
+        self.chunk_size = 2  # Small but will expand rapidly anyhow
+        self.chunk_max = chunk_max
+
+        self.report_progress = report_progress
+        self.total = total
+
+    def __iter__(self):
+        min_pk, max_pk = self.get_min_and_max()
+        current_pk = min_pk
+        db_alias = self.queryset.db
+        status = GlobalStatus(db_alias)
+
+        self.init_progress()
+
+        while current_pk <= max_pk:
+            status.wait_until_load_low(self.status_thresholds)
+
+            start_pk = current_pk
+            current_pk = current_pk + self.chunk_size
+            # Don't process rows that didn't exist at start of iteration
+            end_pk = min(current_pk, max_pk + 1)
+
+            with StopWatch() as timer, self.maybe_atomic(using=db_alias):
+                chunk = self.queryset.filter(pk__gte=start_pk, pk__lt=end_pk)
+                yield chunk
+                self.update_progress(chunk=chunk, end_pk=end_pk)
+
+            self.adjust_chunk_size(chunk, timer.total_time)
+
+        self.end_progress()
+
+    def sanitize_queryset(self, queryset):
+        if queryset.ordered:
+            raise ValueError(
+                "You can't use %s on a QuerySet with an ordering." %
+                self.__class__.__name__
+            )
+
+        if queryset.query.low_mark or queryset.query.high_mark:
+            raise ValueError(
+                "You can't use %s on a sliced QuerySet." %
+                self.__class__.__name__
+            )
+
+        pk = queryset.model._meta.pk
+        if not isinstance(pk, (models.IntegerField, models.AutoField)):
+            raise ValueError(
+                "You can't use %s on a model with a non-integer primary key." %
+                self.__class__.__name__
+            )
+
+        return queryset.order_by('pk')
+
+    def get_min_and_max(self):
+        min_qs = self.queryset.order_by('pk').values_list('pk', flat=True)
+        max_qs = self.queryset.order_by('-pk').values_list('pk', flat=True)
+        try:
+            min_pk = min_qs[0]
+        except IndexError:
+            # We're working on an empty QuerySet, yield no chunks
+            max_pk = min_pk = 0
+        else:
+            max_pk = max_qs[0]
+
+        return (min_pk, max_pk)
+
+    def adjust_chunk_size(self, chunk, chunk_time):
+        # If the queryset is not being fetched as-is, e.g. its .delete() is
+        # called, we can't know how many objects were affected, so we just
+        # assume they all exist/existed
+        if chunk._result_cache is None:
+            num_processed = self.chunk_size
+        else:
+            num_processed = len(chunk)
+
+        new_chunk_size = self.rate.update(num_processed, chunk_time)
+
+        if new_chunk_size < 1:
+            new_chunk_size = 1
+
+        if new_chunk_size > self.chunk_max:
+            new_chunk_size = self.chunk_max
+
+        self.chunk_size = new_chunk_size
+
+    def init_progress(self):
+        if not self.report_progress:
+            return
+
+        self.have_reported = False
+        self.objects_done = 0
+        self.chunks_done = 0
+        if self.total is None:  # User didn't pass in a total
+            count_qs = self.queryset._clone(klass=QuerySet)
+            self.total = count_qs.approx_count(fall_back=True)
+
+        self.update_progress()
+
+    def update_progress(self, chunk=None, end_pk=None):
+        if not self.report_progress:
+            return
+
+        if chunk is not None:
+            self.chunks_done += 1
+            if self.objects_done != "???":
+                # If the queryset is not being fetched as-is, e.g. its
+                # .delete() is called, we can't know how many objects were
+                # affected, so we just bum out and write "???".
+                if chunk._result_cache is None:
+                    self.objects_done = "???"
+                else:
+                    self.objects_done += len(chunk)
+
+        try:
+            percent_complete = 100 * (float(self.objects_done) / self.total)
+        except (ZeroDivisionError, ValueError):
+            percent_complete = 0.0
+
+        if not self.have_reported:
+            self.have_reported = True
+        else:
+            # Reset line on successive outputs
+            sys.stdout.write("\r")
+
+        sys.stdout.write(
+            "{} processed {}/{} objects ({:.2f}%) in {} chunks".format(
+                self.model_name + self.__class__.__name__,
+                self.objects_done,
+                self.total,
+                percent_complete,
+                self.chunks_done,
+            )
+        )
+        if end_pk is not None:
+            sys.stdout.write("; highest pk so far {}".format(end_pk))
+        sys.stdout.flush()
+
+    def end_progress(self):
+        if not self.report_progress:
+            return
+
+        sys.stdout.write("\nFinished!\n")
+
+    @cached_property
+    def model_name(self):
+        return self.queryset.model.__name__
+
+
+class SmartIterator(SmartChunkedIterator):
+    """
+    Subclass of SmartChunkedIterator that unpacks the chunks
+    """
+    def __iter__(self):
+        for chunk in super(SmartIterator, self).__iter__():
+            for obj in chunk:
+                yield obj

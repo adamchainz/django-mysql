@@ -2,8 +2,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import time
+
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
+
+from .exceptions import TimeoutError
 
 
 class BaseStatus(object):
@@ -29,6 +33,23 @@ class BaseStatus(object):
             if num_rows == 0:
                 raise KeyError("No such status variable '%s'" % (name,))
             return self._cast(cursor.fetchone()[1])
+
+    def get_many(self, names):
+        for name in names:
+            if "%" in name:
+                raise ValueError("get_many() is for fetching named "
+                                 "variables, no % wildcards")
+
+        with self.get_cursor() as cursor:
+            query = [self.query, "WHERE Variable_name IN ("]
+            query.extend(", ".join("%s" for n in names))
+            query.append(")")
+            cursor.execute(" ".join(query), names)
+
+            return {
+                name: self._cast(value)
+                for name, value in cursor.fetchall()
+            }
 
     def as_dict(self, prefix=None):
         with self.get_cursor() as cursor:
@@ -60,6 +81,34 @@ class BaseStatus(object):
 
 class GlobalStatus(BaseStatus):
     query = "SHOW GLOBAL STATUS"
+
+    def wait_until_load_low(self, thresholds=None, timeout=60.0, sleep=0.1):
+        if thresholds is None:
+            thresholds = {'Threads_running': 5}
+
+        start = time.time()
+        names = thresholds.keys()
+
+        while True:
+            current = self.get_many(names)
+
+            higher = []
+            for name in names:
+                if current[name] > thresholds[name]:
+                    higher.append(name)
+
+            if not higher:
+                return
+
+            if timeout and time.time() > start + timeout:
+                raise TimeoutError(
+                    "Span too long waiting for load to drop: " +
+                    ",".join(
+                        "{} > {}".format(name, thresholds[name])
+                        for name in higher
+                    )
+                )
+            time.sleep(sleep)
 
 
 class SessionStatus(BaseStatus):
