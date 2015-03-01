@@ -23,7 +23,7 @@ test_requirements = [
 
 setup(
     name='django-mysql',
-    version='0.1.1',
+    version='0.1.2',
     description="Extensions to Django for use with MySQL/MariaDB",
     long_description=readme + '\n\n' + history,
     author="Adam Johnson",
