@@ -120,6 +120,28 @@ class SmartIteratorTests(TransactionTestCase):
 
         self.assertEqual(lines[1], 'Finished!')
 
+    def test_reporting_on_uncounted_qs(self):
+        Author.objects.create(name="pants")
+
+        with captured_stdout() as output:
+            qs = Author.objects.filter(name="pants")
+            for authors in qs.iter_smart_chunks(report_progress=True):
+                authors.delete()
+
+        lines = output.getvalue().split('\n')
+
+        reports = lines[0].split('\r')
+        for report in reports:
+            self.assertRegexpMatches(
+                report,
+                # We should have ??? since the deletion means the objects
+                # aren't fetched into python
+                r"AuthorSmartChunkedIterator processed (0|\?\?\?)/1 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?"
+            )
+
+        self.assertEqual(lines[1], 'Finished!')
+
     def test_running_on_non_mysql_model(self):
         VanillaAuthor.objects.create(name="Alpha")
         VanillaAuthor.objects.create(name="pants")
