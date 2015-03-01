@@ -12,7 +12,7 @@ Django MySQL
         :target: https://pypi.python.org/pypi/django-mysql
 
 .. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
-        :target: http://django-extensions.readthedocs.org/en/latest/
+        :target: http://django-mysql.readthedocs.org/en/latest/
 
 .. image:: https://landscape.io/github/adamchainz/django-mysql/master/landscape.svg?style=flat
    :target: https://landscape.io/github/adamchainz/django-mysql/master
