@@ -286,8 +286,8 @@ can be thought of in one of these two methods.
     ``QuerySetMixin``. For example, rather than doing this::
 
         bad_authors = Author.objects.filter(address="Nowhere")
-        for author_chunk in bad_authors.iter_smart_chunks():
-            for author in author_chunk:
+        for authors_chunk in bad_authors.iter_smart_chunks():
+            for author in authors_chunk:
                 author.send_apology_email()
 
     You can do this::
@@ -295,3 +295,5 @@ can be thought of in one of these two methods.
         bad_authors = Author.objects.filter(address="Nowhere")
         for author in bad_authors.iter_smart():
             author.send_apology_email()
+
+    All the same arguments are accepted.
