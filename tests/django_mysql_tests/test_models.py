@@ -163,3 +163,11 @@ class SmartIteratorTests(TransactionTestCase):
                 author.delete()
 
         self.assertEqual(bad_authors.count(), 0)
+
+
+class VisualExplainTests(TransactionTestCase):
+
+    def test_basic(self):
+        output = Author.objects.all().visual_explain()
+        self.assertEqual(output, "SELECT .")
+

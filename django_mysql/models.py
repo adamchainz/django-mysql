@@ -5,6 +5,7 @@ import sys
 from django.db import connections
 from django.db import models
 from django.db.transaction import atomic
+from django.test.utils import CaptureQueriesContext
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -87,6 +88,21 @@ class QuerySetMixin(object):
         assert 'queryset' not in kwargs, \
             "You can't pass another queryset in through iter_smart_chunks!"
         return SmartChunkedIterator(queryset=self, **kwargs)
+
+    def visual_explain(self):
+        connection = connections[self.db]
+        capture = CaptureQueriesContext(connection)
+        with capture:
+            list(self)  # execute
+        queries = [q['sql'] for q in capture.captured_queries]
+        # Assume we're the last query. Django sometimes throws in some SET
+        # statements when connecting/querying
+        query = queries[-1]
+
+        # Now to do the explain...
+        explain = "EXPLAIN " + query
+
+        return query
 
 
 class QuerySet(QuerySetMixin, models.QuerySet):
