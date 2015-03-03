@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+from textwrap import dedent
+
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
@@ -169,5 +171,29 @@ class VisualExplainTests(TransactionTestCase):
 
     def test_basic(self):
         output = Author.objects.all().visual_explain()
-        self.assertEqual(output, "SELECT .")
+        expected = dedent("""
+        Table scan
+        rows           1
+        +- Table
+           table          django_mysql_tests_author
+        """).strip() + "\n"
+        self.assertEqual(output, expected)
 
+    def test_subquery(self):
+        subq = Author.objects.all().values_list('id', flat=True)
+        output = Author.objects.filter(id__in=subq).visual_explain()
+        expected = dedent("""
+        JOIN
+        +- Unique index lookup
+        |  key            U0->PRIMARY
+        |  possible_keys  PRIMARY
+        |  key_len        4
+        |  ref            test_django_mysql.django_mysql_tests_author.id
+        |  rows           1
+        +- Table scan
+           rows           1
+           +- Table
+              table          django_mysql_tests_author
+              possible_keys  PRIMARY
+        """).strip() + "\n"
+        self.assertEqual(output, expected)
