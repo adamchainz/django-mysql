@@ -328,12 +328,12 @@ def pt_visual_explain(queryset, display=False):
         stdout=PIPE
     )
     mysql.stdout.close()
-    explanation = visual_explain.communicate()[0]
+    explanation = visual_explain.communicate()[0].decode(encoding="utf-8")
     if display:
         print(explanation)
     return explanation
 
 
 def have_pt_visual_explain():
-    status = call(['which', 'pt-visual-explain'])
+    status = call(['which', 'pt-visual-explain'], stdout=PIPE)
     return (status == 0)
