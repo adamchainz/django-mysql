@@ -1,10 +1,11 @@
 # -*- coding:utf-8 -*-
 from textwrap import dedent
+from unittest import skipUnless
 
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
-from django_mysql.models import SmartIterator
+from django_mysql.models import have_pt_visual_explain, SmartIterator
 
 from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
 
@@ -167,6 +168,7 @@ class SmartIteratorTests(TransactionTestCase):
         self.assertEqual(bad_authors.count(), 0)
 
 
+@skipUnless(have_pt_visual_explain(), "pt-visual-explain must be installed")
 class VisualExplainTests(TransactionTestCase):
 
     def test_basic(self):
@@ -177,6 +179,18 @@ class VisualExplainTests(TransactionTestCase):
         +- Table
            table          django_mysql_tests_author
         """).strip() + "\n"
+        self.assertEqual(output, expected)
+
+    def test_basic_display(self):
+        with captured_stdout() as capture:
+            Author.objects.all().visual_explain(display=True)
+        output = capture.getvalue().strip()
+        expected = dedent("""
+        Table scan
+        rows           1
+        +- Table
+           table          django_mysql_tests_author
+        """).strip()
         self.assertEqual(output, expected)
 
     def test_subquery(self):
