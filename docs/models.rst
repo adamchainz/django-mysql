@@ -213,8 +213,8 @@ can be thought of in one of these two methods.
     .. warning::
 
         Because of the slicing by primary key, there are restrictions on what
-        ``QuerySet``s you can use, and a ``ValueError`` will be raised if the
-        queryset doesn't meet that. Specifically, only ``QuerySet``s on models
+        ``QuerySet``\s you can use, and a ``ValueError`` will be raised if the
+        queryset doesn't meet that. Specifically, only ``QuerySet``\s on models
         with integer-based primary keys, which are unsliced, and have no
         ``order_by`` will work.
 
