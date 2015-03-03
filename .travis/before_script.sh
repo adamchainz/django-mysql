@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+# Add percona
+sudo apt-get install -y percona-toolkit
+
+# Add database
+
 if [[ $DB == 'mysql' ]]
 then
   if [[ $DB_VERSION == '5.5' ]]
