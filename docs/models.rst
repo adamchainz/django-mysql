@@ -305,3 +305,43 @@ can be thought of in one of these two methods.
             author.send_apology_email()
 
     All the same arguments are accepted.
+
+
+Visual Explain
+--------------
+
+How does MySQL *really* execute a query? The ``EXPLAIN`` statement
+(docs: `MySQL<http://dev.mysql.com/doc/refman/5.6/en/explain.html>`_ /
+`MariaDB <https://mariadb.com/kb/en/mariadb/explain/>`_),
+gives a description of the execution plan, and the ``pt-visual-explain``
+`tool <http://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
+can format this in an understandable tree.
+
+Here's a shortcut to turn a ``QuerySet`` into its visual explanation, making it
+easy to gain an understanding of what your queries do.
+
+.. method:: pt_visual_explain(display=True)
+
+    Call on a queryset to print its visual explanation, or with
+    ``display=False`` to return it as a string. Executes the query, captures
+    the SQL, then gets the visual explanation via a subprocess pipeline with
+    `mysql` and `pt-visual-explain`. You therefore need the MySQL client and
+    Percona Toolkit installed where you run this.
+
+    Example::
+
+        >>> Author.objects.all().pt_visual_explain()
+        Table scan
+        rows           1020
+        +- Table
+           table          myapp_author
+
+    Also importable as a standalone function if you can't use the
+    ``QuerySetMixin`` or you need it on a model you can't touch::
+
+        >>> from django_mysql.models import pt_visual_explain
+        >>> pt_visual_explain(User.objects.all())
+        Table scan
+        rows           1
+        +- Table
+           table          auth_user
