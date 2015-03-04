@@ -172,7 +172,7 @@ class VisualExplainTests(TransactionTestCase):
 
     def test_basic(self):
         with captured_stdout() as capture:
-            Author.objects.all().visual_explain()
+            Author.objects.all().pt_visual_explain()
         output = capture.getvalue()
         self.assertGreater(output, "")
         # Can't be too strict about the output since different database and pt-
@@ -182,7 +182,7 @@ class VisualExplainTests(TransactionTestCase):
         self.assertIn("Table", output)
 
     def test_basic_no_display(self):
-        output = Author.objects.all().visual_explain(display=False)
+        output = Author.objects.all().pt_visual_explain(display=False)
         self.assertGreater(output, "")
         self.assertIn("django_mysql_tests_author", output)
         self.assertIn("rows", output)
@@ -191,7 +191,7 @@ class VisualExplainTests(TransactionTestCase):
     def test_subquery(self):
         subq = Author.objects.all().values_list('id', flat=True)
         output = Author.objects.filter(id__in=subq) \
-                               .visual_explain(display=False)
+                               .pt_visual_explain(display=False)
         self.assertGreater(output, "")
         self.assertIn("possible_keys", output)
         self.assertIn("django_mysql_tests_author", output)
