@@ -94,7 +94,7 @@ class QuerySetMixin(object):
             "You can't pass another queryset in through iter_smart_chunks!"
         return SmartChunkedIterator(queryset=self, **kwargs)
 
-    def visual_explain(self, display=False):
+    def visual_explain(self, display=True):
         return pt_visual_explain(self, display)
 
 
@@ -295,7 +295,7 @@ class SmartIterator(SmartChunkedIterator):
                 yield obj
 
 
-def pt_visual_explain(queryset, display=False):
+def pt_visual_explain(queryset, display=True):
     connection = connections[queryset.db]
 
     if not have_pt_visual_explain():

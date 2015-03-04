@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-from textwrap import dedent
 from unittest import skipUnless
 
 from django.template import Context, Template
@@ -172,42 +171,29 @@ class SmartIteratorTests(TransactionTestCase):
 class VisualExplainTests(TransactionTestCase):
 
     def test_basic(self):
-        output = Author.objects.all().visual_explain()
-        expected = dedent("""
-        Table scan
-        rows           1
-        +- Table
-           table          django_mysql_tests_author
-        """).strip() + "\n"
-        self.assertEqual(output, expected)
-
-    def test_basic_display(self):
         with captured_stdout() as capture:
-            Author.objects.all().visual_explain(display=True)
-        output = capture.getvalue().strip()
-        expected = dedent("""
-        Table scan
-        rows           1
-        +- Table
-           table          django_mysql_tests_author
-        """).strip()
-        self.assertEqual(output, expected)
+            Author.objects.all().visual_explain()
+        output = capture.getvalue()
+        self.assertGreater(output, "")
+        # Can't be too strict about the output since different database and pt-
+        # visual-explain versions give different output
+        self.assertIn("django_mysql_tests_author", output)
+        self.assertIn("rows", output)
+        self.assertIn("Table", output)
+
+    def test_basic_no_display(self):
+        output = Author.objects.all().visual_explain(display=False)
+        self.assertGreater(output, "")
+        self.assertIn("django_mysql_tests_author", output)
+        self.assertIn("rows", output)
+        self.assertIn("Table", output)
 
     def test_subquery(self):
         subq = Author.objects.all().values_list('id', flat=True)
-        output = Author.objects.filter(id__in=subq).visual_explain()
-        expected = dedent("""
-        JOIN
-        +- Unique index lookup
-        |  key            U0->PRIMARY
-        |  possible_keys  PRIMARY
-        |  key_len        4
-        |  ref            test_django_mysql.django_mysql_tests_author.id
-        |  rows           1
-        +- Table scan
-           rows           1
-           +- Table
-              table          django_mysql_tests_author
-              possible_keys  PRIMARY
-        """).strip() + "\n"
-        self.assertEqual(output, expected)
+        output = Author.objects.filter(id__in=subq) \
+                               .visual_explain(display=False)
+        self.assertGreater(output, "")
+        self.assertIn("possible_keys", output)
+        self.assertIn("django_mysql_tests_author", output)
+        self.assertIn("rows", output)
+        self.assertIn("Table", output)
