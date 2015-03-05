@@ -8,6 +8,9 @@ Django MySQL
 .. image:: https://travis-ci.org/adamchainz/django-mysql.png?branch=master
         :target: https://travis-ci.org/adamchainz/django-mysql
 
+.. image:: https://coveralls.io/repos/adamchainz/django-mysql/badge.svg
+        :target: https://coveralls.io/r/adamchainz/django-mysql
+
 .. image:: https://pypip.in/d/django-mysql/badge.png
         :target: https://pypi.python.org/pypi/django-mysql
 

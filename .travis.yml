@@ -16,6 +16,10 @@ env:
 
 before_script: .travis/before_script.sh
 
-install: pip install -r requirements.txt
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
 
-script: ./runtests.py
+script: coverage run --source=django_mysql ./runtests.py
+
+after_success: coveralls
