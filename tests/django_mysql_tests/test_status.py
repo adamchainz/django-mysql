@@ -26,12 +26,20 @@ class GlobalStatusTests(TestCase):
 
     def test_get_many(self):
         status = GlobalStatus()
+
+        myvars = status.get_many([])
+        self.assertEqual(myvars, {})
+
         myvars = status.get_many(['Threads_running', 'Uptime'])
         self.assertTrue(isinstance(myvars, dict))
         self.assertIn('Threads_running', myvars)
         self.assertTrue(isinstance(myvars['Threads_running'], int))
         self.assertIn('Uptime', myvars)
         self.assertTrue(isinstance(myvars['Uptime'], int))
+
+        with self.assertRaises(ValueError) as cm:
+            status.get_many(['foo%'])
+        self.assertIn('wildcards', str(cm.exception))
 
     def test_as_dict(self):
         status = GlobalStatus()

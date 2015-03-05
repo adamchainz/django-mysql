@@ -35,10 +35,12 @@ class BaseStatus(object):
             return self._cast(cursor.fetchone()[1])
 
     def get_many(self, names):
-        for name in names:
-            if "%" in name:
-                raise ValueError("get_many() is for fetching named "
-                                 "variables, no % wildcards")
+        if not names:
+            return {}
+
+        if any(("%" in name) for name in names):
+            raise ValueError("get_many() is for fetching named "
+                             "variables, no % wildcards")
 
         with self.get_cursor() as cursor:
             query = [self.query, "WHERE Variable_name IN ("]

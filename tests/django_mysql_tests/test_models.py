@@ -100,6 +100,13 @@ class SmartIteratorTests(TransactionTestCase):
                                      .values_list('id', flat=True))
         self.assertEqual(seen, all_ids)
 
+    def test_objects_non_atomic(self):
+        seen = [author.id for author in
+                Author.objects.iter_smart(atomically=False)]
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
     def test_no_matching_objects(self):
         seen = [author.id for author in
                 Author.objects.filter(name="Waaa").iter_smart()]
