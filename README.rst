@@ -29,7 +29,7 @@ MySQL and its fork MariaDB have a number of features which are not available in
 vanilla Django - this package helps you get at them.
 
 
-Including
+Featuring
 ---------
 
 Here's a short list of what's inside:
@@ -41,6 +41,7 @@ Here's a short list of what's inside:
 * 'Smart' iteration methods on ``QuerySet`` for efficient iteration over large
   sets of objects slice-by-slice
 
+All are documented at http://django-mysql.readthedocs.org/en/latest/ .
 
 Requirements
 ------------
@@ -53,9 +54,3 @@ Tested with:
 * mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
 
 Any combination of these should be good.
-
-
-Documentation
--------------
-
-You can view the online documentation at http://django-mysql.readthedocs.org .
