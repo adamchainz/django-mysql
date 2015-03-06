@@ -21,14 +21,17 @@ from .utils import (
 
 class QuerySetMixin(object):
 
+    # Stop complaints about access to qs._count_tries_approx and model._meta
+    # pylint: disable=protected-access
+
     def __init__(self, *args, **kwargs):
         super(QuerySetMixin, self).__init__(*args, **kwargs)
         self._count_tries_approx = False
 
     def _clone(self, *args, **kwargs):
-        qs = super(QuerySetMixin, self)._clone(*args, **kwargs)
-        qs._count_tries_approx = copy(self._count_tries_approx)
-        return qs
+        clone = super(QuerySetMixin, self)._clone(*args, **kwargs)
+        clone._count_tries_approx = copy(self._count_tries_approx)
+        return clone
 
     def count(self):
         if self._count_tries_approx:
@@ -37,18 +40,18 @@ class QuerySetMixin(object):
 
     def count_tries_approx(self, activate=True, fall_back=True,
                            return_approx_int=True, min_size=1000):
-        qs = self._clone()
+        clone = self._clone()
 
         if activate:
-            qs._count_tries_approx = {
+            clone._count_tries_approx = {
                 'fall_back': fall_back,
                 'return_approx_int': return_approx_int,
                 'min_size': min_size,
             }
         else:
-            qs._count_tries_approx = False
+            clone._count_tries_approx = False
 
-        return qs
+        return clone
 
     def approx_count(self, fall_back=True, return_approx_int=True,
                      min_size=1000):
