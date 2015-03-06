@@ -69,6 +69,18 @@ its ``EXPLAIN`` to ``pt-visual-explain`` to see what the query plan is::
 :ref:`Read more <pt-visual-explain>`
 
 
+-------------
+Field Lookups
+-------------
+
+ORM extensions to built-in fields:
+
+    >>> Author.objects.filter(name__sounds_like='Robert')
+    [<Author: Robert>, <Author: Rupert>]
+
+:ref:`Read more <field-lookups>`
+
+
 -----
 Locks
 -----

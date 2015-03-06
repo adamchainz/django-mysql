@@ -16,6 +16,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    exposition
    installation
    queryset_extensions
+   field_lookups
    locks
    status
    exceptions
