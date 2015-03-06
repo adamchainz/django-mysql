@@ -21,5 +21,5 @@ class SoundexTests(TestCase):
         self.assertEqual(set(sounding), set())
 
     def test_soundex_strings(self):
-        author = Author.objects.create(name='hi')
-        self.assertEqual(Author.objects.get(name__soundex='H000'), author)
+        author = Author.objects.create(name='Robert')
+        self.assertEqual(Author.objects.get(name__soundex='R163'), author)
