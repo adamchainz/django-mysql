@@ -1,18 +1,21 @@
-.. django-mysql documentation master file, created by
-   sphinx-quickstart on Tue Jul  9 22:26:36 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Django-MySQL Documentation
+==========================
 
-Welcome to Django MySQL's documentation!
-========================================
+.. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
+   :alt: The dolphin-pony - proof that cute + cute = double cute.
 
-Contents:
+Django-MySQL is a non-inventively named package that helps you use some
+MySQL/MariaDB-specific features in the world of Django.
+
+If you're new, check out the :doc:`exposition` to see all the features in action,
+or get started with :doc:`installation`. Otherwise, here's the full contents:
 
 .. toctree::
    :maxdepth: 2
 
-   readme
+   exposition
    installation
+   queryset_extensions
    features
    contributing
    authors
@@ -24,4 +27,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

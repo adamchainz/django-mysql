@@ -23,32 +23,30 @@ Django MySQL
 
 
 .. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
-   :alt: The dolphin-pony - taking two cute things and ending up with something
-     quite scary
+   :alt: The dolphin-pony - proof that cute + cute = double cute.
 
 ..
 
-    | The dolphin-pony - taking two cute things and ending up with something
-    | quite scary.
+    | The dolphin-pony - proof that cute + cute = double cute.
 
 
-MySQL and its fork MariaDB have a number of features which are not available in
-vanilla Django - this package helps you get at them.
+Django-MySQL is a non-inventively named package that helps you use some
+MySQL/MariaDB-specific features in the world of Django.
 
 
-Featuring
----------
+What kind of features?
+----------------------
 
 Here's a short list of what's inside:
 
-* User locks - easy locking between your distributed servers
-* Easy access to server status variables
-* ``approx_count`` on ``QuerySet`` for quick estimates of the number of
-  objects - and a quicker admin
-* 'Smart' iteration methods on ``QuerySet`` for efficient iteration over large
-  sets of objects slice-by-slice
+* ``QuerySet`` extensions - 'smart' iteration, ``approx_count`` for quick
+  estimates of ``count()``, quick ``pt-visual-explain`` of the underlying
+  query
+* Status variable inspection and utility methods
+* User locks - use MySQL as a locking server between your servers
 
-All are documented at http://django-mysql.readthedocs.org/en/latest/ .
+To see them all, check out the exposition at
+http://django-mysql.readthedocs.org/en/latest/exposition.html .
 
 Requirements
 ------------
@@ -60,4 +58,5 @@ Tested with:
 * MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
 * mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
 
-Any combination of these should be good.
+Any combination of these should be good, and also ``MySQL-python`` should work
+since it's just an older version of ``mysqlclient``.

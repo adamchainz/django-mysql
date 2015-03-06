@@ -1,77 +1,14 @@
-======
-Models
-======
-
-MySQL-specific Model and QuerySet extensions. These classes can be imported
-from the ``django_mysql.models`` module.
-
-.. currentmodule:: django_mysql.models
-
-Adding the Extensions
-=====================
-
-There are several ways of adding the extensions to your models, and dependent
-on your project and other extensions you are adding to your models, you may
-need to choose from the below. The simplest is to use the ``Model`` class.
-
-.. class:: Model
-
-    A fully compatible subclass of Django's ``models.Model`` that provides
-    MySQL specific extensions. At current this only sets ``objects`` to
-    ``QuerySet.as_manager()`` with the below ``QuerySet`` class, providing the
-    queryset extensions. Make all your models inherit from this to get the
-    goodness!::
-
-        # from django.db.models import Model - no more!
-        from django_mysql.models import Model
-
-        class MySuperModel(Model):
-            pass  # TODO: come up with startup idea.
-
-
-.. class:: QuerySet
-
-    A fully compatible subclass of Django's :class:`~django.db.models.QuerySet`
-    that provides MySQL-specific extensions by mixing in the below
-    ``QuerySetMixin``. Contains all the methods described under 'QuerySet
-    Extensions'.
-
-    If you can't use the above ``Model`` class, this is another way of getting
-    the extra methods by setting ``objects``::
-
-        from mythings import MyBaseModel
-        from django_mysql.models import QuerySet
-
-        class MySuperDuperModel(MyBaseModel):
-            objects = QuerySet.as_manager()
-            # TODO: what fields should this model have??
-
-
-.. class:: QuerySetMixin
-
-    A mixin to be applied to ``QuerySet`` classes to add MySQL-specific
-    behaviour. Contains all the methods described under 'QuerySet Extensions'.
-
-    Mix in to your custom queryset to get the goodness::
-
-        from django.db.models import Model
-        from django_mysql.models import QuerySetMixin
-        from stackoverflow import CopyPasteQuerySet
-
-        class MySplendidQuerySet(QuerySetMixin, CopyPasteQuerySet):
-            pass
-
-        class MySplendidModel(Model):
-            objects = MySplendidQuerySet.as_manager()
-            # TODO: profit
-
-
 QuerySet Extensions
 ===================
 
-If you've installed ``QuerySetMixin`` onto your model via one of the above
-routes then all of these are available to you! They're organized in sections
-to make them a bit easier to understand.
+MySQL-specific Model and QuerySet extensions. To add these to your
+``Model``/``Manager``/``QuerySet`` trifecta, see :doc:`installation`. Methods
+below are all ``QuerySet`` methods unless otherwise stated; where standalone
+classes/functions are referred to, they can be imported from
+``django_mysql.models``.
+
+
+.. currentmodule:: django_mysql.models
 
 Approximate Counting
 --------------------
@@ -89,10 +26,12 @@ Approximate Counting
 
     This method returns the approximate count found by running ``EXPLAIN SELECT
     COUNT(*) ...``. It can be out by 30-50% in the worst case, but in many
-    applications it is closer, and is good enough. For example, the admin pages
-    paginate all objects in a model, and if you have a lot of pages you don't
-    need always need an absolute count (more in a second on how to install it
-    on the admin).
+    applications it is closer, and is good enough, such as when presenting many
+    pages of results but users will only practically scroll through the first
+    few. For example::
+
+        Author.objects.count()  # slow
+        Author.objects.approx_count()  # fast, with some error
 
     Three arguments are taken:
 
