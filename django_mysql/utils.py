@@ -2,6 +2,7 @@
 from __future__ import division
 
 from contextlib import contextmanager
+from subprocess import call, PIPE
 import time
 
 
@@ -96,3 +97,8 @@ def settings_to_cmd_args(settings_dict):  # pragma: no cover
     if db:
         args += [db]
     return args
+
+
+def have_program(program_name):
+    status = call(['which', program_name], stdout=PIPE)
+    return (status == 0)

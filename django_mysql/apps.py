@@ -3,7 +3,7 @@ from django.apps import AppConfig
 from django.db.models import CharField, TextField
 from django.utils.translation import ugettext_lazy as _
 
-from .lookups import Soundex, SoundsLike
+from django_mysql.models.lookups import Soundex, SoundsLike
 
 
 class MySQLConfig(AppConfig):

@@ -4,13 +4,11 @@ from unittest import skipUnless
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
-from django_mysql.models import (
-    ApproximateInt, have_pt_visual_explain, SmartIterator
-)
+from django_mysql.models import ApproximateInt, SmartIterator
+from django_mysql.utils import have_program
 
 from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
-
-from .utils import captured_stdout
+from django_mysql_tests.utils import captured_stdout
 
 
 class ApproximateCountTests(TransactionTestCase):
@@ -185,7 +183,8 @@ class SmartIteratorTests(TransactionTestCase):
         self.assertEqual(bad_authors.count(), 0)
 
 
-@skipUnless(have_pt_visual_explain(), "pt-visual-explain must be installed")
+@skipUnless(have_program('pt-visual-explain'),
+            "pt-visual-explain must be installed")
 class VisualExplainTests(TransactionTestCase):
 
     def test_basic(self):

@@ -2,20 +2,20 @@
 from __future__ import print_function
 
 from copy import copy
-from subprocess import call, PIPE, Popen
+from subprocess import PIPE, Popen
 import sys
 
-from django.db import connections
-from django.db import models
+from django.db import connections, models
 from django.db.transaction import atomic
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
-from .status import GlobalStatus
-from .utils import (
-    noop_context, settings_to_cmd_args, StopWatch, WeightedAverageRate
+from django_mysql.status import GlobalStatus
+from django_mysql.utils import (
+    have_program, noop_context, settings_to_cmd_args, StopWatch,
+    WeightedAverageRate
 )
 
 
@@ -103,13 +103,6 @@ class QuerySetMixin(object):
 
 class QuerySet(QuerySetMixin, models.QuerySet):
     pass
-
-
-class Model(models.Model):
-    class Meta(object):
-        abstract = True
-
-    objects = QuerySet.as_manager()
 
 
 @six.python_2_unicode_compatible
@@ -301,7 +294,7 @@ class SmartIterator(SmartChunkedIterator):
 def pt_visual_explain(queryset, display=True):
     connection = connections[queryset.db]
 
-    if not have_pt_visual_explain():  # pragma: no cover
+    if not have_program('pt-visual-explain'):  # pragma: no cover
         raise OSError("pt-visual-explain doesn't appear to be installed")
 
     # Run one query to ensure we are connected
@@ -336,8 +329,3 @@ def pt_visual_explain(queryset, display=True):
         print(explanation)
     else:
         return explanation
-
-
-def have_pt_visual_explain():
-    status = call(['which', 'pt-visual-explain'], stdout=PIPE)
-    return (status == 0)
