@@ -16,7 +16,9 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    exposition
    installation
    queryset_extensions
-   features
+   locks
+   status
+   exceptions
    contributing
    authors
    history

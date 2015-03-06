@@ -27,6 +27,8 @@ Admin, you can set the ``QuerySet`` to do this automatically::
     qs = Author.objects.all().count_tries_approx()
     # Now calling qs.count() will try approx_count() first
 
+:ref:`Read more <approximate-counting>`
+
 
 'Smart' Iteration
 -----------------
@@ -49,9 +51,11 @@ slices which traverse the table, whilst dynamically adjusting the slice size::
         author.save()
         author.send_apology_email()
 
+:ref:`Read more <smart-iteration>`
 
-pt-visual-explain
------------------
+
+Integration with pt-visual-explain
+----------------------------------
 
 For interactive use - capture the query this ``QuerySet`` represents, and give
 its ``EXPLAIN`` to ``pt-visual-explain`` to see what the query plan is::
@@ -61,6 +65,8 @@ its ``EXPLAIN`` to ``pt-visual-explain`` to see what the query plan is::
     rows           1020
     +- Table
        table          myapp_author
+
+:ref:`Read more <pt-visual-explain>`
 
 
 -----
@@ -73,6 +79,8 @@ prevent concurrent access to some resource::
     with Lock("ExternalAPI", timeout=10.0):
         do_some_external_api_stuff()
 
+:ref:`Read more <locks>`
+
 
 ------
 Status
@@ -84,3 +92,5 @@ programmatic access to global or session status variables::
     status = GlobalStatus()
     if status.get('Threads_running') > 100:
         raise BorkError("Server too busy right now, come back later")
+
+:ref:`Read more <status>`

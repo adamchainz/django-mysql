@@ -37,8 +37,8 @@ Add ``'django_mysql'`` to your ``INSTALLED_APPS`` setting::
     )
 
 
-QuerySet Extensions
--------------------
+Extending your QuerySets
+------------------------
 
 Half the fun features are extensions to ``QuerySet``. You can add these to your
 project in a number of ways, depending on what is easiest for your code - all

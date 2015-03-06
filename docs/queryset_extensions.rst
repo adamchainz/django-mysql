@@ -3,12 +3,12 @@ QuerySet Extensions
 
 MySQL-specific Model and QuerySet extensions. To add these to your
 ``Model``/``Manager``/``QuerySet`` trifecta, see :doc:`installation`. Methods
-below are all ``QuerySet`` methods unless otherwise stated; where standalone
-classes/functions are referred to, they can be imported from
-``django_mysql.models``.
-
+below are all ``QuerySet`` methods; where standalone forms are referred to,
+they can be imported from ``django_mysql.models``.
 
 .. currentmodule:: django_mysql.models
+
+.. _approximate-counting:
 
 Approximate Counting
 --------------------
@@ -95,6 +95,8 @@ Approximate Counting
         You can do this at a base class for all your ``ModelAdmin`` subclasses
         to apply the magical speed increase across your admin interface.
 
+
+.. _smart-iteration:
 
 'Smart' Iteration
 -----------------
@@ -246,8 +248,10 @@ can be thought of in one of these two methods.
     All the same arguments are accepted.
 
 
-Visual Explain
---------------
+.. _pt-visual-explain:
+
+Integration with pt-visual-explain
+----------------------------------
 
 How does MySQL *really* execute a query? The ``EXPLAIN`` statement
 (docs: `MySQL<http://dev.mysql.com/doc/refman/5.6/en/explain.html>`_ /

@@ -1,8 +1,13 @@
+.. _status:
+
 ======
 Status
 ======
 
-These classes can be imported from the ``django_mysql.status`` module.
+MySQL gives you some data about the server status through its
+``SHOW GLOBAL STATUS`` and ``SHOW SESSION STATUS`` commands; these classes make
+it easy to access and inspect this, as well as providing utility methods. They
+can be imported from the ``django_mysql.status`` module.
 
 .. currentmodule:: django_mysql.status
 

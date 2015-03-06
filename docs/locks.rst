@@ -1,25 +1,24 @@
+.. _locks:
+
 =====
 Locks
 =====
 
 .. currentmodule:: django_mysql.locks
 
-These classes can be imported from the ``django_mysql.locks`` module.
-
-Lock
-----
+The following can be imported from ``django_mysql.locks``.
 
 .. class:: Lock(name, acquire_timeout=10.0, connection_name=None)
 
     MySQL can act as a locking server for arbitrary named locks (created on the
-    fly) via its ``GET_LOCK`` function. This can be useful for locking your
-    distributed web or worker servers against some shared or limited resource.
+    fly) via its ``GET_LOCK`` function - sometimes called 'User Locks' since
+    they are user-specific, and don't lock tables or rows. They can be useful
+    for your code to limit its access to some shared resource.
 
-    This class implements a named lock as a context manager, which calls the
+    This class implements a user lock as a context manager, which calls the
     underlying MySQL functions ``GET_LOCK``, ``RELEASE_LOCK``, and
     ``IS_USED_LOCK`` to manage it. It is not re-entrant so don't write
-    processes that gain/release the same lock more than once, or write a pull
-    request :)
+    code that gains/releases the same lock more than once.
 
     Basic usage::
 
@@ -32,14 +31,14 @@ Lock
         except TimeoutError:
             print "Could not get the lock"
 
-    For more information on named locks refer to the ``GET_LOCK`` documentation
+    For more information on user locks refer to the ``GET_LOCK`` documentation
     on `MySQL
     <http://dev.mysql.com/doc/refman/5.6/en/miscellaneous-functions.html#function_get-lock>`_
     or `MariaDB <https://mariadb.com/kb/en/mariadb/get_lock/>`_.
 
     .. warning::
 
-        As the documentation warns, named locks are unsafe to use if you have
+        As the documentation warns, user locks are unsafe to use if you have
         replication running and your replication format (``binlog_format``) is
         set to ``STATEMENT``. Most environments have ``binlog_format`` set to
         ``MIXED`` because it can be more performant, but do check.
@@ -60,7 +59,7 @@ Lock
 
         This is a required argument.
 
-        Specifies the name of the lock. Since named locks share a global
+        Specifies the name of the lock. Since user locks share a global
         namespace on the MySQL server, it will automatically be prefixed with
         the name of the database you use in your connection from DATABASES and
         a full stop, in case multiple apps are using different databases on the
@@ -89,9 +88,3 @@ Lock
 
         Returns the MySQL ``CONNECTION_ID()`` of the holder of the lock, or
         ``None`` if it is not currently held.
-
-
-.. class:: TimeoutError
-
-    Exception that is raised if the named lock times out (at the MySQL layer)
-    on acquisition.
