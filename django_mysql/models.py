@@ -301,7 +301,7 @@ class SmartIterator(SmartChunkedIterator):
 def pt_visual_explain(queryset, display=True):
     connection = connections[queryset.db]
 
-    if not have_pt_visual_explain():
+    if not have_pt_visual_explain():  # pragma: no cover
         raise OSError("pt-visual-explain doesn't appear to be installed")
 
     # Run one query to ensure we are connected

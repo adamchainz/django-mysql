@@ -4,7 +4,9 @@ from unittest import skipUnless
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
-from django_mysql.models import have_pt_visual_explain, SmartIterator
+from django_mysql.models import (
+    ApproximateInt, have_pt_visual_explain, SmartIterator
+)
 
 from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
 
@@ -32,6 +34,8 @@ class ApproximateCountTests(TransactionTestCase):
         qs2 = qs.count_tries_approx(min_size=2)
         self.assertNotEqual(qs, qs2)
         self.assertTrue(qs2._count_tries_approx)
+        count = qs2.count()
+        self.assertTrue(isinstance(count, ApproximateInt))
 
         qs3 = qs2.count_tries_approx(False)
         self.assertNotEqual(qs2, qs3)
@@ -103,6 +107,13 @@ class SmartIteratorTests(TransactionTestCase):
     def test_objects_non_atomic(self):
         seen = [author.id for author in
                 Author.objects.iter_smart(atomically=False)]
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
+    def test_objects_max_size(self):
+        seen = [author.id for author in
+                Author.objects.iter_smart(chunk_max=1)]
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
         self.assertEqual(seen, all_ids)

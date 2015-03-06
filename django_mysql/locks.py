@@ -42,7 +42,7 @@ class Lock(object):
             cursor.execute("SELECT RELEASE_LOCK(%s)", (self.name,))
             result = cursor.fetchone()[0]
 
-            if result is not None and result == 0:
+            if result is None or result == 0:
                 raise ValueError("Tried to release an unheld lock.")
 
     def is_held(self):

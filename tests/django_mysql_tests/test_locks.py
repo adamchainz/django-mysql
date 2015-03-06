@@ -30,6 +30,13 @@ class LockTests(TestCase):
 
     import_time_lock = Lock('defined_at_import_time')
 
+    def test_error_on_unneeded_exit(self):
+        mylock = Lock("mylock")
+        self.assertFalse(mylock.is_held())
+        with self.assertRaises(ValueError) as cm:
+            mylock.__exit__(None, None, None)
+        self.assertIn("unheld lock", str(cm.exception))
+
     def test_defined_at_import_time(self):
         import_time_lock = self.import_time_lock
 
