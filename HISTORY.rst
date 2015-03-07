@@ -3,6 +3,13 @@
 History
 =======
 
+0.1.3 (2015-03-08)
+------------------
+
+* Added ``pt_visual_explain`` integration on ``QuerySet``
+* Added soundex-based field lookups for the ORM
+
+
 0.1.2 (2015-03-01)
 ------------------
 
