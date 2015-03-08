@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
+from __future__ import print_function
+
+import os
+import sys
+
+if sys.argv[-1] == 'publish':
+    os.system("python setup.py sdist upload")
+    os.system("python setup.py bdist_wheel upload")
+    sys.exit()
 
 
 try:
