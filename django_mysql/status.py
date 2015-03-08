@@ -7,7 +7,7 @@ import time
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
 
-from .exceptions import TimeoutError
+from django_mysql.exceptions import TimeoutError
 
 
 class BaseStatus(object):
