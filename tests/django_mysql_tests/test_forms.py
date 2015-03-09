@@ -48,6 +48,8 @@ class TestSimpleFormField(TestCase):
             ['a', 'b', 'c']
         )
 
+        self.assertEqual(field.prepare_value('1,a'), '1,a')
+
     def test_max_length(self):
         field = SimpleSetField(forms.CharField(), max_length=2)
         with self.assertRaises(exceptions.ValidationError) as cm:

@@ -4,8 +4,9 @@ from __future__ import absolute_import
 from django.core import checks
 from django.db.models import (CharField, IntegerField, SubfieldBase,
                               TextField, Transform)
-from django.db.models.lookups import Contains
+from django.db.models.lookups import Lookup
 from django.utils import six
+from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.validators import SetMaxLengthValidator
@@ -53,7 +54,9 @@ class SetFieldMixin(object):
 
     @property
     def description(self):
-        return 'Set of %s' % self.base_field.description
+        return _('Set of %(base_description)s') % {
+            'base_description': self.base_field.description
+        }
 
     def set_attributes_from_name(self, name):
         super(SetFieldMixin, self).set_attributes_from_name(name)
@@ -89,7 +92,7 @@ class SetFieldMixin(object):
 
     def get_db_prep_lookup(self, lookup_type, value, connection,
                            prepared=False):
-        if lookup_type == 'contains':
+        if lookup_type in ('contains', 'icontains'):
             # Avoid the default behaviour of adding wildcards on either side of
             # what we're searching for, because FIND_IN_SET is doing that
             # implicitly
@@ -161,7 +164,7 @@ class SetTextField(six.with_metaclass(SubfieldBase, SetFieldMixin, TextField)):
     pass
 
 
-class SetContains(Contains):
+class SetContains(Lookup):
     lookup_name = 'contains'
 
     def as_sql(self, qn, connection):
@@ -174,6 +177,14 @@ class SetContains(Contains):
 
 SetCharField.register_lookup(SetContains)
 SetTextField.register_lookup(SetContains)
+
+
+class SetIContains(SetContains):
+    lookup_name = 'icontains'
+
+
+SetCharField.register_lookup(SetIContains)
+SetTextField.register_lookup(SetIContains)
 
 
 class SetLength(Transform):

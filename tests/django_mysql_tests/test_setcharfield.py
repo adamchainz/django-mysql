@@ -10,6 +10,8 @@ from django.db.models import Q
 from django.db.migrations.writer import MigrationWriter
 from django.test import TestCase, override_settings
 
+import ddt
+
 from django_mysql.models import SetCharField
 from django_mysql.forms import SimpleSetField
 
@@ -18,6 +20,7 @@ from django_mysql_tests.models import (
 )
 
 
+@ddt.ddt
 class TestSaveLoad(TestCase):
 
     def test_char_easy(self):
@@ -30,38 +33,51 @@ class TestSaveLoad(TestCase):
         with self.assertRaises(ValueError):
             CharSetModel.objects.create(field={"co,mma", "contained"})
 
-    def test_char_contains_lookup(self):
+    def test_char_basic_lookup(self):
+        mymodel = CharSetModel.objects.create()
+        empty = CharSetModel.objects.filter(field="")
+
+        self.assertEqual(empty.count(), 1)
+        self.assertEqual(empty[0], mymodel)
+
+        mymodel.delete()
+
+        self.assertEqual(empty.count(), 0)
+
+    @ddt.data('contains', 'icontains')
+    def test_char_lookup(self, lookup):
+        lname = 'field__' + lookup
         mymodel = CharSetModel.objects.create(field={"mouldy", "rotten"})
 
-        mouldy = CharSetModel.objects.filter(field__contains="mouldy")
+        mouldy = CharSetModel.objects.filter(**{lname: "mouldy"})
         self.assertEqual(mouldy.count(), 1)
         self.assertEqual(mouldy[0], mymodel)
 
-        rotten = CharSetModel.objects.filter(field__contains="rotten")
+        rotten = CharSetModel.objects.filter(**{lname: "rotten"})
         self.assertEqual(rotten.count(), 1)
         self.assertEqual(rotten[0], mymodel)
 
-        clean = CharSetModel.objects.filter(field__contains="clean")
+        clean = CharSetModel.objects.filter(**{lname: "clean"})
         self.assertEqual(clean.count(), 0)
 
         with self.assertRaises(ValueError):
-            list(CharSetModel.objects.filter(field__contains={"a", "b"}))
+            list(CharSetModel.objects.filter(**{lname: {"a", "b"}}))
 
         both = CharSetModel.objects.filter(
-            Q(field__contains="mouldy") & Q(field__contains="rotten")
+            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
         )
         self.assertEqual(both.count(), 1)
         self.assertEqual(both[0], mymodel)
 
         either = CharSetModel.objects.filter(
-            Q(field__contains="mouldy") | Q(field__contains="clean")
+            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
         )
         self.assertEqual(either.count(), 1)
 
-        not_clean = CharSetModel.objects.exclude(field__contains="clean")
+        not_clean = CharSetModel.objects.exclude(**{lname: "clean"})
         self.assertEqual(not_clean.count(), 1)
 
-        not_mouldy = CharSetModel.objects.exclude(field__contains="mouldy")
+        not_mouldy = CharSetModel.objects.exclude(**{lname: "mouldy"})
         self.assertEqual(not_mouldy.count(), 0)
 
     def test_char_len_lookup_empty(self):
@@ -174,6 +190,8 @@ class TestCheck(TestCase):
         errors = field.check()
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0].id, 'django_mysql.E001')
+        self.assertIn('Base field for set has errors', errors[0].msg)
+        self.assertIn('max_length', errors[0].msg)
 
     def test_invalid_base_fields(self):
         field = SetCharField(
@@ -184,6 +202,7 @@ class TestCheck(TestCase):
         errors = field.check()
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0].id, 'django_mysql.E002')
+        self.assertIn('Base field for set must be', errors[0].msg)
 
     def test_max_length_including_base(self):
         field = SetCharField(
@@ -193,6 +212,7 @@ class TestCheck(TestCase):
         errors = field.check()
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0].id, 'django_mysql.E003')
+        self.assertIn('Field can overrun', errors[0].msg)
 
 
 class TestMigrations(TestCase):
@@ -308,6 +328,20 @@ class TestSerialization(TestCase):
         self.assertEqual(instance.field, set(["big", "leather", "comfy"]))
 
 
+class TestDescription(TestCase):
+
+    def test_char(self):
+        field = SetCharField(models.CharField(max_length=5), max_length=32)
+        self.assertEqual(
+            field.description,
+            "Set of String (up to %(max_length)s)"
+        )
+
+    def test_int(self):
+        field = SetCharField(models.IntegerField(), max_length=32)
+        self.assertEqual(field.description, "Set of Integer")
+
+
 class TestFormField(TestCase):
 
     def test_model_field_formfield(self):
@@ -318,7 +352,7 @@ class TestFormField(TestCase):
         self.assertEqual(form_field.base_field.max_length, 27)
 
     def test_model_field_formfield_size(self):
-        model_field = SetCharField(models.CharField(max_length=27), size=4)
+        model_field = SetCharField(models.IntegerField(), size=4)
         form_field = model_field.formfield()
         self.assertIsInstance(form_field, SimpleSetField)
         self.assertEqual(form_field.max_length, 4)

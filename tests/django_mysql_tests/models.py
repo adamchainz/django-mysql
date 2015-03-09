@@ -31,9 +31,12 @@ class CharSetDefaultModel(Model):
 class BigCharSetModel(Model):
     field = SetTextField(
         base_field=CharField(max_length=8),
-        size=3,
         max_length=32,
     )
+
+
+class BigIntSetModel(Model):
+    field = SetTextField(base_field=IntegerField())
 
 
 class Author(Model):
