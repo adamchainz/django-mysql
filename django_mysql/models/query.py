@@ -119,8 +119,8 @@ class ApproximateInt(int):
 
 class SmartChunkedIterator(object):
     def __init__(self, queryset, atomically=True, status_thresholds=None,
-                 chunk_time=0.5, chunk_max=10000, report_progress=False,
-                 total=None):
+                 pk_range=None, chunk_time=0.5, chunk_max=10000,
+                 report_progress=False, total=None):
         self.queryset = self.sanitize_queryset(queryset)
 
         if atomically:
@@ -131,6 +131,7 @@ class SmartChunkedIterator(object):
             self.maybe_atomic = noop_context
 
         self.status_thresholds = status_thresholds
+        self.pk_range = pk_range
 
         self.rate = WeightedAverageRate(chunk_time)
         self.chunk_size = 2  # Small but will expand rapidly anyhow
@@ -187,6 +188,9 @@ class SmartChunkedIterator(object):
         return queryset.order_by('pk')
 
     def get_min_and_max(self):
+        if self.pk_range is not None:
+            return self.pk_range
+
         min_qs = self.queryset.order_by('pk').values_list('pk', flat=True)
         max_qs = self.queryset.order_by('-pk').values_list('pk', flat=True)
         try:
