@@ -64,7 +64,7 @@ def noop_context(*args, **kwargs):
     yield
 
 
-def settings_to_cmd_args(settings_dict):  # pragma: no cover
+def settings_to_cmd_args(settings_dict):
     """
     Copied from django 1.8 MySQL backend DatabaseClient - where the runshell
     commandline creation has been extracted and made callable like so.
