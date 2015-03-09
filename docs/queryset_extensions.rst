@@ -132,13 +132,13 @@ and the other yields the objects inside those chunks. Nearly every data update
 can be thought of in one of these two methods.
 
 .. class:: SmartChunkedIterator(queryset, atomically=True, \
-                                status_thresholds=None, chunk_time=0.5, \
-                                chunk_max=10000, report_progress=False, \
-                                total=None)
+                                status_thresholds=None, pk_range=None, \
+                                chunk_time=0.5, chunk_max=10000, \
+                                report_progress=False, total=None)
 
     Implements a smart iteration strategy over the given ``queryset``. There is
     a method ``iter_smart_chunks`` that takes the same arguments on the
-    ``QuerySetMixin`` so you can just:
+    ``QuerySetMixin`` so you can just::
 
         bad_authors = Author.objects.filter(address="Nowhere")
         for author_chunk in bad_authors.iter_smart_chunks():
@@ -185,6 +185,33 @@ can be thought of in one of these two methods.
         ``'Threads_running': 5}``. Set to an empty dict to disable status
         checking (not really recommended, it doesn't add much overhead and can
         will probably save your butt one day).
+
+    .. attribute:: pk_range=None
+
+        Controls the primary key range to iterate over with slices. By default, with
+        ``pk_range=None``, the QuerySet will be searched for its minimum and
+        maximum ``pk`` values before starting. On QuerySets that match few
+        rows, or whose rows aren't evenly distributed, this can still execute a
+        long blocking table scan to find these two rows.
+        You can remedy this by givnig a value for ``pk_range``:
+
+        * If set to ``'all'``, the range will be the minimum and maximum PK
+          values of the entire table, excluding any filters you have set up -
+          that is, for ``Model.objects.all()`` for the given ``QuerySet``'s
+          model.
+
+        * If set to a 2-tuple, it will be unpacked and used as the minimum and
+          maxmimum values respectively.
+
+        .. note::
+
+            The iterator determines the minimum and maximum at the start of
+            iteration and does not update them whilst iterating, which is
+            normally a safe assumption, since if you're "fixing things" you
+            probably aren't creating any more bad data. If you do need to
+            process *every* row then set ``pk_range`` to have a maximum far
+            greater than what you expect would be reached by inserts that occur
+            during iteration.
 
     .. attribute:: chunk_time=0.5
 
