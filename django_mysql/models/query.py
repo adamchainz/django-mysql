@@ -188,11 +188,18 @@ class SmartChunkedIterator(object):
         return queryset.order_by('pk')
 
     def get_min_and_max(self):
-        if self.pk_range is not None:
+        if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
             return self.pk_range
+        elif self.pk_range == 'all':
+            base_qs = self.queryset.model.objects.using(self.queryset.db).all()
+        elif self.pk_range is None:
+            base_qs = self.queryset
+        else:
+            raise ValueError("Unrecognized value for pk_range: {}"
+                             .format(self.pk_range))
 
-        min_qs = self.queryset.order_by('pk').values_list('pk', flat=True)
-        max_qs = self.queryset.order_by('-pk').values_list('pk', flat=True)
+        min_qs = base_qs.order_by('pk').values_list('pk', flat=True)
+        max_qs = base_qs.order_by('-pk').values_list('pk', flat=True)
         try:
             min_pk = min_qs[0]
         except IndexError:

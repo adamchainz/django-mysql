@@ -109,7 +109,14 @@ class SmartIteratorTests(TransactionTestCase):
                                      .values_list('id', flat=True))
         self.assertEqual(seen, all_ids)
 
-    def test_objects_pk_range(self):
+    def test_objects_pk_range_all(self):
+        seen = [author.id for author in
+                Author.objects.iter_smart(pk_range='all')]
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
+    def test_objects_pk_range_tuple(self):
         seen = [author.id for author in
                 Author.objects.iter_smart(pk_range=(0, 0))]
         self.assertEqual(seen, [])
@@ -123,6 +130,11 @@ class SmartIteratorTests(TransactionTestCase):
                                      .filter(id__gte=min_id, id__lte=max_id)
                                      .values_list('id', flat=True))
         self.assertEqual(seen, cut_ids)
+
+    def test_objects_pk_range_bad(self):
+        with self.assertRaises(ValueError) as cm:
+            list(Author.objects.iter_smart(pk_range="My Bad Value"))
+        self.assertIn("Unrecognized value for pk_range", str(cm.exception))
 
     def test_objects_max_size(self):
         seen = [author.id for author in
