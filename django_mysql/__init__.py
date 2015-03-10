@@ -2,7 +2,7 @@
 
 __author__ = 'Adam Johnson'
 __email__ = 'me@adamj.eu'
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 
 default_app_config = 'django_mysql.apps.MySQLConfig'
