@@ -46,6 +46,10 @@ class DBParamsTests(TestCase):
             call_command('dbparams', 'nonexistent')
         self.assertIn("does not exist", str(cm.exception))
 
+    def test_invalid_both(self):
+        with self.assertRaises(CommandError):
+            call_command('dbparams', dsn=True, mysql=True)
+
     @mock.patch(command_connections, sqlite)
     def test_invalid_not_mysql(self):
         with self.assertRaises(CommandError) as cm:
