@@ -13,7 +13,6 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
 .. toctree::
    :maxdepth: 2
 
-   self
    exposition
    installation
    queryset_extensions
