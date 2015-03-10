@@ -22,14 +22,14 @@ For example:
 
 .. code-block:: console
 
-    $ python manage.py dbparams
+    $ python manage.py dbparams && echo  # There is no newline
     --user=ausername --password=apassword --host=ahost.example.com mydatabase
     $ mysql $(python manage.py dbparams)  # The same as manage.py dbshell
-    $ mysqldump $(python manage.py dbparams)  # Aha
+    $ mysqldump $(python manage.py dbparams) | gzip -9 > backup.sql.gz # Aha
 
 The format of parameters is::
 
-    python manage.py dbparams [--mysql | --dsn] <optional db alias>
+    python manage.py dbparams [--mysql | --dsn] <optional connection alias>
 
 If the database alias is given, it should be alias of a connection from the
 ``DATABASES`` setting; defaults to 'default'. Only MySQL connections are
@@ -44,7 +44,7 @@ Mutually exclusive format flags:
 
     .. code-block:: console
 
-        $ mysqldump $(python manage.py dbparams)
+        $ mysqldump $(python manage.py dbparams) | gzip -9 > backup.sql.gz
 
     Which will translate to include all the relevant flags, including your
     database.
@@ -57,8 +57,7 @@ Mutually exclusive format flags:
 
     .. code-block:: console
 
-        $ pt-online-schema-change $(python manage.py --dsn),t=app_author \
-              --alter "ENGINE=INNODB"
+        $ pt-duplicate-key-checker $(python manage.py dbparams --dsn)
 
     .. note::
 

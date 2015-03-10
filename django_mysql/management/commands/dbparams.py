@@ -11,10 +11,12 @@ from django_mysql.utils import settings_to_cmd_args
 
 
 class Command(BaseCommand):
-    args = "<connection alias from DATABASES (defaults to 'default')>"
+    args = "<optional connection alias>"
 
     help = ("Outputs shell parameters representing database connection "
-            "suitable for inclusion in various tools' commandlines.")
+            "suitable for inclusion in various tools' commandlines. The "
+            "connection alias should be a name from DATABASES - defaults to "
+            "'{default}'.").format(default=DEFAULT_DB_ALIAS)
 
     option_list = BaseCommand.option_list + (
         make_option(
