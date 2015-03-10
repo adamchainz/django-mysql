@@ -13,12 +13,14 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
 .. toctree::
    :maxdepth: 2
 
+   self
    exposition
    installation
    queryset_extensions
    field_lookups
    locks
    status
+   manage_commands
    exceptions
    contributing
    authors

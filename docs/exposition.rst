@@ -106,3 +106,18 @@ programmatic access to global or session status variables::
         raise BorkError("Server too busy right now, come back later")
 
 :ref:`Read more <status>`
+
+
+-------------------
+Management Commands
+-------------------
+
+Quick inclusion of your database parameters from settings in commandline
+tools:
+
+.. code-block:: console
+
+    $ mysqldump $(python manage.py dbparams)
+
+:ref:`Read more <management_commands>`
+
