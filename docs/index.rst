@@ -19,6 +19,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    field_lookups
    locks
    status
+   manage_commands
    exceptions
    contributing
    authors
