@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import os
 import re
-from setuptools import setup, find_packages
+from setuptools import setup
 import sys
 
 
@@ -14,6 +14,15 @@ def get_version(package):
     """
     init_py = open(os.path.join(package, '__init__.py')).read()
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
+
+
+def get_packages(package):
+    """
+    Return root package and all sub-packages.
+    """
+    return [dirpath
+            for dirpath, dirnames, filenames in os.walk(package)
+            if os.path.exists(os.path.join(dirpath, '__init__.py'))]
 
 
 def get_package_data(package):
@@ -71,7 +80,7 @@ setup(
     author="Adam Johnson",
     author_email='me@adamj.eu',
     url='https://github.com/adamchainz/django-mysql',
-    packages=find_packages(exlude=['tests']),
+    packages=get_packages('django_mysql'),
     include_package_data=True,
     install_requires=requirements,
     license="BSD",
