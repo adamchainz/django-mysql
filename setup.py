@@ -71,7 +71,7 @@ setup(
     author="Adam Johnson",
     author_email='me@adamj.eu',
     url='https://github.com/adamchainz/django-mysql',
-    packages=find_packages(exlude=['tests']),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     install_requires=requirements,
     license="BSD",
