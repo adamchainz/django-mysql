@@ -109,6 +109,33 @@ class SmartIteratorTests(TransactionTestCase):
                                      .values_list('id', flat=True))
         self.assertEqual(seen, all_ids)
 
+    def test_objects_pk_range_all(self):
+        seen = [author.id for author in
+                Author.objects.iter_smart(pk_range='all')]
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, all_ids)
+
+    def test_objects_pk_range_tuple(self):
+        seen = [author.id for author in
+                Author.objects.iter_smart(pk_range=(0, 0))]
+        self.assertEqual(seen, [])
+
+        min_id = Author.objects.earliest('id').id
+        max_id = Author.objects.order_by('id')[5].id
+
+        seen = [author.id for author in
+                Author.objects.iter_smart(pk_range=(min_id, max_id))]
+        cut_ids = list(Author.objects.order_by('id')
+                                     .filter(id__gte=min_id, id__lte=max_id)
+                                     .values_list('id', flat=True))
+        self.assertEqual(seen, cut_ids)
+
+    def test_objects_pk_range_bad(self):
+        with self.assertRaises(ValueError) as cm:
+            list(Author.objects.iter_smart(pk_range="My Bad Value"))
+        self.assertIn("Unrecognized value for pk_range", str(cm.exception))
+
     def test_objects_max_size(self):
         seen = [author.id for author in
                 Author.objects.iter_smart(chunk_max=1)]
@@ -139,6 +166,24 @@ class SmartIteratorTests(TransactionTestCase):
             self.assertRegexpMatches(
                 report,
                 r"AuthorSmartChunkedIterator processed \d+/10 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?"
+            )
+
+        self.assertEqual(lines[1], 'Finished!')
+
+    def test_reporting_with_total(self):
+        with captured_stdout() as output:
+            qs = Author.objects.all()
+            for authors in qs.iter_smart_chunks(report_progress=True, total=4):
+                list(authors)  # fetch them
+
+        lines = output.getvalue().split('\n')
+
+        reports = lines[0].split('\r')
+        for report in reports:
+            self.assertRegexpMatches(
+                report,
+                r"AuthorSmartChunkedIterator processed \d+/4 objects "
                 r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?"
             )
 

@@ -119,8 +119,8 @@ class ApproximateInt(int):
 
 class SmartChunkedIterator(object):
     def __init__(self, queryset, atomically=True, status_thresholds=None,
-                 chunk_time=0.5, chunk_max=10000, report_progress=False,
-                 total=None):
+                 pk_range=None, chunk_time=0.5, chunk_max=10000,
+                 report_progress=False, total=None):
         self.queryset = self.sanitize_queryset(queryset)
 
         if atomically:
@@ -131,6 +131,7 @@ class SmartChunkedIterator(object):
             self.maybe_atomic = noop_context
 
         self.status_thresholds = status_thresholds
+        self.pk_range = pk_range
 
         self.rate = WeightedAverageRate(chunk_time)
         self.chunk_size = 2  # Small but will expand rapidly anyhow
@@ -187,8 +188,18 @@ class SmartChunkedIterator(object):
         return queryset.order_by('pk')
 
     def get_min_and_max(self):
-        min_qs = self.queryset.order_by('pk').values_list('pk', flat=True)
-        max_qs = self.queryset.order_by('-pk').values_list('pk', flat=True)
+        if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
+            return self.pk_range
+        elif self.pk_range == 'all':
+            base_qs = self.queryset.model.objects.using(self.queryset.db).all()
+        elif self.pk_range is None:
+            base_qs = self.queryset
+        else:
+            raise ValueError("Unrecognized value for pk_range: {}"
+                             .format(self.pk_range))
+
+        min_qs = base_qs.order_by('pk').values_list('pk', flat=True)
+        max_qs = base_qs.order_by('-pk').values_list('pk', flat=True)
         try:
             min_pk = min_qs[0]
         except IndexError:
