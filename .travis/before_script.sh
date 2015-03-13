@@ -26,7 +26,7 @@ then
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
   sudo add-apt-repository "deb http://ftp.osuosl.org/pub/mariadb/repo/$DB_VERSION/ubuntu precise main"
   sudo apt-get update -qq
-  yes Y | sudo apt-get install -y mariadb-server
+  yes Y | sudo apt-get install -y mariadb-server libmariadbclient-dev
 fi
 
 mysql -e 'create database if not exists test;'
