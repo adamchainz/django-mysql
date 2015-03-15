@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 from threading import Thread
+from unittest import expectedFailure
 
 from django.db import connection
 from django.test import TestCase
@@ -90,3 +91,55 @@ class LockTests(TestCase):
         self.assertFalse(threading_test.is_held())
         with threading_test:
             pass
+
+    def test_threads_concurrent_access(self):
+        """
+        Test that the same lock object can be used in multiple threads, allows
+        the definition of a lock upfront in a module.
+        """
+        to_me = queue.Queue()
+        to_you = queue.Queue()
+        the_lock = Lock('THElock', 0.05)
+
+        def check_it_lock_it():
+            self.assertFalse(the_lock.is_held())
+            with the_lock:
+                to_me.put("Locked")
+                to_you.get(True)
+
+        other_thread = Thread(target=check_it_lock_it)
+        other_thread.start()
+        try:
+            item = to_me.get(True)
+            self.assertEqual(item, "Locked")
+
+            cursor = connection.cursor()
+            cursor.execute("SELECT CONNECTION_ID()")
+            own_connection_id = cursor.fetchone()[0]
+
+            self.assertTrue(the_lock.is_held())
+            self.assertNotEqual(the_lock.holding_connection_id(),
+                                own_connection_id)
+
+            with self.assertRaises(TimeoutError):
+                with the_lock:
+                    pass
+
+            to_you.put("Stop")
+        finally:
+            other_thread.join()
+
+        with the_lock:
+            pass
+
+    @expectedFailure
+    def test_something(self):
+        """
+        Only MySQL 5.7 gives the ability to hold more than one named lock, so
+        this is an expectedFailure until then.
+
+        N.B. MariaDB 10.0.2+ already has the patch.
+        """
+        with Lock("a"):
+            with Lock("b"):
+                pass
