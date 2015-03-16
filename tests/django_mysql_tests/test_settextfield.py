@@ -27,6 +27,14 @@ class TestSaveLoad(TestCase):
         s = BigCharSetModel.objects.get(id=s.id)
         self.assertSetEqual(s.field, big_set)
 
+        letters = set('abcdefghi')
+        bigger_set = big_set | letters
+        s.field.update(letters)
+        self.assertEqual(s.field, bigger_set)
+        s.save()
+        s = BigCharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, bigger_set)
+
     def test_char_cant_create_sets_with_commas(self):
         with self.assertRaises(ValueError):
             BigCharSetModel.objects.create(field={"co,mma", "contained"})

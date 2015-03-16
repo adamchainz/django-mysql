@@ -29,6 +29,12 @@ class TestSaveLoad(TestCase):
         s = CharSetModel.objects.get(id=s.id)
         self.assertSetEqual(s.field, {"comfy", "big"})
 
+        s.field.add("round")
+        s.save()
+        self.assertSetEqual(s.field, {"comfy", "big", "round"})
+        s = CharSetModel.objects.get(id=s.id)
+        self.assertSetEqual(s.field, {"comfy", "big", "round"})
+
     def test_char_cant_create_sets_with_commas(self):
         with self.assertRaises(ValueError):
             CharSetModel.objects.create(field={"co,mma", "contained"})
