@@ -1,1 +1,1 @@
-from .sets import *  # noqa
+from django_mysql.forms.sets import *  # noqa

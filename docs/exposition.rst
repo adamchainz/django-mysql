@@ -83,6 +83,32 @@ page-by-page scans. This extension adds an ORM-based API for handlers::
 :ref:`Read more <handler>`
 
 
+------------
+Model Fields
+------------
+
+Fields that use MySQL-specific features!
+
+Set Fields
+----------
+
+For storing sets of items in a comma-separated string::
+
+    class Post(Model):
+        name = CharField(max_length=32)
+        tags = SetTextField(
+            base_field=CharField(max_length=10)
+        )
+
+..
+
+    >>> Post.objects.create(name='First post', tags={'thoughts', 'django'})
+    >>> Post.objects.filter(tags__contains='django')
+    [<Post: First post>]
+
+:ref:`Read more <set-fields>`
+
+
 -------------
 Field Lookups
 -------------

@@ -16,9 +16,12 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    exposition
    installation
    queryset_extensions
+   model_fields
    field_lookups
    aggregates
    database_functions
+   form_fields
+   validators
    locks
    status
    manage_commands

@@ -7,7 +7,9 @@ from django.core.exceptions import ValidationError
 from django.utils import six
 from django.utils.translation import string_concat, ugettext_lazy as _
 
-from ..validators import SetMaxLengthValidator, SetMinLengthValidator
+from django_mysql.validators import (
+    SetMaxLengthValidator, SetMinLengthValidator
+)
 
 
 class SimpleSetField(forms.CharField):
