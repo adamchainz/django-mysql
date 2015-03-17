@@ -13,22 +13,53 @@ class TestSimpleFormField(TestCase):
         value = field.clean('a,b,c')
         self.assertEqual(value, {'a', 'b', 'c'})
 
+    def test_to_python_no_leading_commas(self):
+        field = SimpleSetField(forms.IntegerField())
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean(',1')
+        self.assertEqual(
+            cm.exception.messages[0],
+            'No leading, trailing, or double commas.'
+        )
+
+    def test_to_python_no_trailing_commas(self):
+        field = SimpleSetField(forms.IntegerField())
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean('1,')
+        self.assertEqual(
+            cm.exception.messages[0],
+            'No leading, trailing, or double commas.'
+        )
+
+    def test_to_python_no_double_commas(self):
+        field = SimpleSetField(forms.IntegerField())
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean('1,,2')
+        self.assertEqual(
+            cm.exception.messages[0],
+            'No leading, trailing, or double commas.'
+        )
+
     def test_to_python_fail(self):
         field = SimpleSetField(forms.IntegerField())
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean('a,b,9')
         self.assertEqual(
             cm.exception.messages[0],
-            'Item 0 in the set did not validate: Enter a whole number.'
+            'Item 1 in the set did not validate: Enter a whole number.'
         )
 
     def test_validate_fail(self):
-        field = SimpleSetField(forms.CharField(required=True))
+        field = SimpleSetField(
+            forms.ChoiceField(choices=(('a', 'The letter A'),
+                                       ('b', 'The letter B')))
+        )
         with self.assertRaises(exceptions.ValidationError) as cm:
-            field.clean('a,b,')
+            field.clean('a,c')
         self.assertEqual(
             cm.exception.messages[0],
-            'Item "" in the set did not validate: This field is required.'
+            'Item "c" in the set did not validate: '
+            'Select a valid choice. c is not one of the available choices.'
         )
 
     def test_validators_fail(self):
@@ -38,6 +69,32 @@ class TestSimpleFormField(TestCase):
         self.assertEqual(
             cm.exception.messages[0],
             'Item "a" in the set did not validate: Enter a valid value.'
+        )
+
+    def test_validators_fail_base_max_length(self):
+        field = SimpleSetField(forms.CharField(max_length=5))
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean('longer,yes')
+        self.assertEqual(
+            cm.exception.messages[0],
+            'Item "longer" in the set did not validate: '
+            'Ensure this value has at most 5 characters (it has 6).'
+        )
+
+    def test_validators_fail_base_min_max_length(self):
+        # there's just no satisfying some people...
+        field = SimpleSetField(forms.CharField(min_length=10, max_length=8))
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean('undefined')
+        self.assertEqual(
+            cm.exception.messages[0],
+            'Item "undefined" in the set did not validate: '
+            'Ensure this value has at least 10 characters (it has 9).'
+        )
+        self.assertEqual(
+            cm.exception.messages[1],
+            'Item "undefined" in the set did not validate: '
+            'Ensure this value has at most 8 characters (it has 9).'
         )
 
     def test_prepare_value(self):

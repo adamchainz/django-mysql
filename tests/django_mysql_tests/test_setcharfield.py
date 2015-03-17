@@ -25,15 +25,40 @@ class TestSaveLoad(TestCase):
 
     def test_char_easy(self):
         s = CharSetModel.objects.create(field={"big", "comfy"})
-        self.assertSetEqual(s.field, {"comfy", "big"})
+        self.assertEqual(s.field, {"comfy", "big"})
         s = CharSetModel.objects.get(id=s.id)
-        self.assertSetEqual(s.field, {"comfy", "big"})
+        self.assertEqual(s.field, {"comfy", "big"})
 
         s.field.add("round")
         s.save()
-        self.assertSetEqual(s.field, {"comfy", "big", "round"})
+        self.assertEqual(s.field, {"comfy", "big", "round"})
         s = CharSetModel.objects.get(id=s.id)
-        self.assertSetEqual(s.field, {"comfy", "big", "round"})
+        self.assertEqual(s.field, {"comfy", "big", "round"})
+
+    def test_char_string_direct(self):
+        s = CharSetModel.objects.create(field="big,bad")
+        s = CharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, {'big', 'bad'})
+
+    def test_is_a_set_immediately(self):
+        s = CharSetModel()
+        self.assertEqual(s.field, set())
+        s.field.add("bold")
+        s.field.add("brave")
+        s.save()
+        self.assertEqual(s.field, {"bold", "brave"})
+        s = CharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, {"bold", "brave"})
+
+    def test_empty(self):
+        s = CharSetModel.objects.create()
+        self.assertEqual(s.field, set())
+        s = CharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, set())
+
+    def test_char_cant_create_sets_with_empty_string(self):
+        with self.assertRaises(ValueError):
+            CharSetModel.objects.create(field={""})
 
     def test_char_cant_create_sets_with_commas(self):
         with self.assertRaises(ValueError):
@@ -125,9 +150,9 @@ class TestSaveLoad(TestCase):
 
     def test_int_easy(self):
         mymodel = IntSetModel.objects.create(field={1, 2})
-        self.assertSetEqual(mymodel.field, {1, 2})
+        self.assertEqual(mymodel.field, {1, 2})
         mymodel = IntSetModel.objects.get(id=mymodel.id)
-        self.assertSetEqual(mymodel.field, {1, 2})
+        self.assertEqual(mymodel.field, {1, 2})
 
     def test_int_contains_lookup(self):
         onetwo = IntSetModel.objects.create(field={1, 2})

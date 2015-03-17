@@ -71,7 +71,11 @@ class SetFieldMixin(object):
 
     def to_python(self, value):
         if isinstance(value, six.string_types):
-            value = {self.base_field.to_python(v) for v in value.split(',')}
+            if not len(value):
+                value = set()
+            else:
+                value = {self.base_field.to_python(v) for
+                         v in value.split(',')}
         return value
 
     def get_prep_value(self, value):
@@ -84,6 +88,12 @@ class SetFieldMixin(object):
                 if ',' in v:
                     raise ValueError(
                         "Set members in {klass} {name} cannot contain commas"
+                        .format(klass=self.__class__.__name__,
+                                name=self.name)
+                    )
+                elif not len(v):
+                    raise ValueError(
+                        "The empty string cannot be stored in {klass} {name}"
                         .format(klass=self.__class__.__name__,
                                 name=self.name)
                     )

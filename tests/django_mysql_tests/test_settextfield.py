@@ -35,9 +35,36 @@ class TestSaveLoad(TestCase):
         s = BigCharSetModel.objects.get(id=s.id)
         self.assertEqual(s.field, bigger_set)
 
+    def test_char_string_direct(self):
+        big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
+        big_str = ','.join(big_set)
+        s = BigCharSetModel.objects.create(field=big_str)
+        s = BigCharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, big_set)
+
+    def test_is_a_set_immediately(self):
+        s = BigCharSetModel()
+        self.assertEqual(s.field, set())
+        s.field.add("bold")
+        s.field.add("brave")
+        s.save()
+        self.assertEqual(s.field, {"bold", "brave"})
+        s = BigCharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, {"bold", "brave"})
+
+    def test_empty(self):
+        s = BigCharSetModel.objects.create()
+        self.assertEqual(s.field, set())
+        s = BigCharSetModel.objects.get(id=s.id)
+        self.assertEqual(s.field, set())
+
     def test_char_cant_create_sets_with_commas(self):
         with self.assertRaises(ValueError):
             BigCharSetModel.objects.create(field={"co,mma", "contained"})
+
+    def test_char_cant_create_sets_with_empty_string(self):
+        with self.assertRaises(ValueError):
+            BigCharSetModel.objects.create(field={""})
 
     def test_char_basic_lookup(self):
         mymodel = BigCharSetModel.objects.create()

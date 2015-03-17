@@ -62,8 +62,12 @@ except for ``max_length`` which is not needed.
     .. admonition:: Validation on save()
 
         When performing the set-to-string conversion for the database layer,
-        ``SetCharField`` checks for commas in any member's string
-        representation and will raise a ``ValueError`` if it finds one.
+        ``SetCharField`` performs some validation, and will raise
+        ``ValueError`` if there is a problem, to avoid saving bad data.
+        The following are invalid:
+
+        * If there is a comma in any member's string representation
+        * If the empty string is stored.
 
     The default form field is :class:`~django_mysql.forms.SimpleSetField`.
 

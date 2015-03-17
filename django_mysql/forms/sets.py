@@ -18,6 +18,7 @@ class SimpleSetField(forms.CharField):
     default_error_messages = {
         'item_invalid': _('Item "%(item)s" in the set did not validate: '),
         'item_n_invalid': _('Item %(nth)s in the set did not validate: '),
+        'no_double_commas': _('No leading, trailing, or double commas.'),
     }
 
     def __init__(self, base_field, max_length=None, min_length=None,
@@ -47,7 +48,14 @@ class SimpleSetField(forms.CharField):
 
         errors = []
         values = set()
-        for i, item in enumerate(items):
+        for i, item in enumerate(items, start=1):
+            if not len(item):
+                errors.append(ValidationError(
+                    self.error_messages['no_double_commas'],
+                    code='no_double_commas',
+                ))
+                continue
+
             try:
                 values.add(self.base_field.to_python(item))
             except ValidationError as e:
@@ -72,12 +80,13 @@ class SimpleSetField(forms.CharField):
                 self.base_field.validate(item)
             except ValidationError as e:
                 for error in e.error_list:
-                    errors.append(ValidationError(
-                        string_concat(self.error_messages['item_invalid'],
-                                      error.message),
-                        code='item_invalid',
-                        params={'item': item}
-                    ))
+                    for message in error.messages:
+                        errors.append(ValidationError(
+                            string_concat(self.error_messages['item_invalid'],
+                                          message),
+                            code='item_invalid',
+                            params={'item': item}
+                        ))
         if errors:
             raise ValidationError(errors)
 
@@ -89,11 +98,12 @@ class SimpleSetField(forms.CharField):
                 self.base_field.run_validators(item)
             except ValidationError as e:
                 for error in e.error_list:
-                    errors.append(ValidationError(
-                        string_concat(self.error_messages['item_invalid'],
-                                      error.message),
-                        code='item_invalid',
-                        params={'item': item}
-                    ))
+                    for message in error.messages:
+                        errors.append(ValidationError(
+                            string_concat(self.error_messages['item_invalid'],
+                                          message),
+                            code='item_invalid',
+                            params={'item': item}
+                        ))
         if errors:
             raise ValidationError(errors)

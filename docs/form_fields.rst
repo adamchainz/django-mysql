@@ -17,7 +17,8 @@ SimpleSetField
 .. class:: SimpleSetField(base_field, max_length=None, min_length=None)
 
     A simple field which maps to a set, with items separated by commas. It is
-    represented by an HTML ``<input>``.
+    represented by an HTML ``<input>``. Empty items, resulting from leading,
+    trailing, or double commas, are disallowed.
 
     .. attribute:: base_field
 
