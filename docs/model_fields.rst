@@ -16,7 +16,7 @@ More ways to store data! The following can be imported from
 Set Fields
 ----------
 
-Two fields that store sets of a base type in comma-separated strings - big
+Two fields that store sets of a base field in comma-separated strings - big
 brothers of django's :class:`~django.db.models.CommaSeparatedIntegerField`.
 There are two versions: ``SetCharField`` which is based on ``CharField``,
 appropriate for storing sets with a small maximum size, and ``SetTextField``
@@ -59,6 +59,12 @@ except for ``max_length`` which is not needed.
                 max_length=(6 * 3)  # 6 two digit numbers plus commas
             )
 
+    .. admonition:: Validation on save()
+
+        When performing the set-to-string conversion for the database layer,
+        ``SetCharField`` checks for commas in any member's string
+        representation and will raise a ``ValueError`` if it finds one.
+
     The default form field is :class:`~django_mysql.forms.SimpleSetField`.
 
 Querying Set Fields
@@ -68,14 +74,16 @@ Querying Set Fields
 
     These fields not built-in datatypes, and the filters use one or more SQL
     functions to parse the underlying string representation. They may slow down
-    on large tables if your queries are not selective via some other column.
+    on large tables if your queries are not otherwise selective.
 
 contains
 ~~~~~~~~
 
 The ``contains`` lookup is overridden on ``SetCharField`` and ``SetTextField``
-to match only where the set contains the given element, using MySQL's
-``FIND_IN_SET``. For example::
+to match where the set field contains the given element, using MySQL's
+``FIND_IN_SET`` (see `MariaDB
+<https://mariadb.com/kb/en/mariadb/find_in_set/>`_ / `MySQL
+<http://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_find-in-set>`_ docs). For example::
 
     >>> Post.objects.create(name='First post', tags={'thoughts', 'django'})
     >>> Post.objects.create(name='Second post', tags={'thoughts'})
