@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from django.db.models import CharField, Model as VanillaModel
+from django.db.models import CharField, ForeignKey, Model as VanillaModel
 
 from django_mysql.fields import SetCharField
 from django_mysql.models import Model
@@ -15,6 +15,7 @@ class Settee(Model):
 
 class Author(Model):
     name = CharField(max_length=32)
+    tutor = ForeignKey('self', null=True)
 
 
 class VanillaAuthor(VanillaModel):
