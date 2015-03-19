@@ -10,50 +10,20 @@ class HandlerTests(TestCase):
         Author.objects.create(name='JK Rowling')
         Author.objects.create(name='John Grisham')
 
-    def test_simple(self):
-        qs_all = list(Author.objects.order_by('id'))
+    def test_bad_creation_joins_not_allowed(self):
+        qs = Author.objects.filter(tutor__name='A')
+        with self.assertRaises(ValueError):
+            qs.handler()
 
-        with Author.objects.handler() as handler:
-            handler_all = list(handler.read(limit=10000))
+    def test_bad_creation_limit_not_allowed(self):
+        qs = Author.objects.all()[:100]
+        with self.assertRaises(ValueError):
+            qs.handler()
 
-        self.assertEqual(handler_all, qs_all)
-
-    def test_limit(self):
-        qs_first = Author.objects.earliest('id')
-
-        with Author.objects.handler() as handler:
-            handler_first = handler.read(limit=1)[0]
-
-        self.assertEqual(handler_first, qs_first)
-
-    def test_filter(self):
-        qs = Author.objects.filter(name__startswith='John')
-
-        with qs._clone().handler() as handler:
-            handler_all = list(handler.read())
-        qs_all = list(qs._clone())
-
-        self.assertEqual(handler_all, qs_all)
-
-    def test_exclude(self):
-        qs = Author.objects.filter(name__contains='JK')
-        qs_all = list(qs._clone())
-
-        with qs._clone().handler() as handler:
-            handler_all = list(handler.read())
-
-        self.assertEqual(handler_all, qs_all)
-
-    def test_filter_sql_name(self):
-        # Check that params are kept as params and no SQL injection occurs
-        table_col = "`something`.`something`"
-        author = Author.objects.create(name=table_col)
-        qs = Author.objects.filter(name=table_col)
-
-        with qs.handler() as handler:
-            handler_all = list(handler.read(limit=100))
-
-        self.assertEqual(handler_all, [author])
+    def test_bad_creation_ordering_not_allowed(self):
+        qs = Author.objects.order_by('name')
+        with self.assertRaises(ValueError):
+            qs.handler()
 
     def test_bad_read_unopened(self):
         handler = Author.objects.all().handler()
@@ -61,33 +31,48 @@ class HandlerTests(TestCase):
             handler.read()
 
     def test_bad_read_mode(self):
-        with Author.objects.all().handler() as handler:
+        with Author.objects.handler() as handler:
             with self.assertRaises(ValueError):
                 handler.read(mode='non-existent')
 
-    def test_iter(self):
-        qs = Author.objects.all()
+    def test_read_does_single_by_default(self):
+        with Author.objects.handler() as handler:
+            out = list(handler.read())
+            self.assertEqual(len(out), 1)
+            author = out[0]
+            self.assertIn(author, Author.objects.all())
+
+    def test_read_limit_first(self):
+        with Author.objects.handler() as handler:
+            handler_first = handler.read(limit=1)[0]
+        qs_first = Author.objects.earliest('id')
+
+        self.assertEqual(handler_first, qs_first)
+
+    def test_read_limit_last(self):
+        with Author.objects.handler() as handler:
+            handler_last = handler.read(mode='last', limit=1)[0]
+        qs_last = Author.objects.latest('id')
+
+        self.assertEqual(handler_last, qs_last)
+
+    def test_read_limit_all(self):
+        with Author.objects.handler() as handler:
+            handler_all = list(handler.read(limit=2))
+        qs_all = list(Author.objects.all())
+
+        self.assertEqual(handler_all, qs_all)
+
+    def test_read_where_filter_read(self):
+        qs = Author.objects.filter(name__startswith='John')
 
         with qs.handler() as handler:
-            seen_pks = []
-            for author in handler.iter(chunk_size=1):
-                seen_pks.append(author.pk)
+            handler_all = list(handler.read())
+        qs_all = list(qs)
 
-        all_pks = qs.values_list('id', flat=True)
-        self.assertEqual(seen_pks, list(sorted(all_pks)))
+        self.assertEqual(handler_all, qs_all)
 
-    def test_iter_reverse(self):
-        qs = Author.objects.all()
-
-        with qs.handler() as handler:
-            seen_pks = []
-            for author in handler.iter(chunk_size=1, forwards=False):
-                seen_pks.append(author.pk)
-
-        all_pks = qs.values_list('id', flat=True)
-        self.assertEqual(seen_pks, list(sorted(all_pks, reverse=True)))
-
-    def test_filter_f_expression(self):
+    def test_read_where_filter_f_expression(self):
         qs = Author.objects.filter(name=F('name'))
 
         with qs.handler() as handler:
@@ -95,12 +80,50 @@ class HandlerTests(TestCase):
 
         self.assertEqual(len(handler_all), 2)
 
-    def test_bad_filter_joins_not_allowed(self):
-        qs = Author.objects.filter(tutor__name='A')
-        with self.assertRaises(ValueError):
-            qs.handler()
+    def test_read_where_exclude(self):
+        qs = Author.objects.filter(name__contains='JK')
 
-    def test_bad_filter_limit_not_allowed(self):
-        qs = Author.objects.all()[:100]
-        with self.assertRaises(ValueError):
-            qs.handler()
+        with qs.handler() as handler:
+            handler_all = list(handler.read())
+        qs_all = list(qs)
+
+        self.assertEqual(handler_all, qs_all)
+
+    def test_read_where_filter_params_not_injected_or_modified(self):
+        table_col = "`looks_like`.`table_column`"
+        author = Author.objects.create(name=table_col)
+        qs = Author.objects.filter(name=table_col)
+
+        with qs.handler() as handler:
+            handler_first = handler.read()[0]
+
+        self.assertEqual(handler_first, author)
+
+    def test_iter_all(self):
+        all_ids = list(Author.objects.values_list('id', flat=True))
+
+        with Author.objects.handler() as handler:
+            seen_ids = [author.id for author in handler.iter()]
+
+        self.assertEqual(seen_ids, list(sorted(all_ids)))
+
+    def test_iter_chunk_size_1(self):
+        all_ids = list(Author.objects.values_list('id', flat=True))
+
+        with Author.objects.handler() as handler:
+            seen_ids = [author.id for author in handler.iter()]
+
+        self.assertEqual(seen_ids, list(sorted(all_ids)))
+
+    def test_iter_reverse(self):
+        all_ids = list(Author.objects.values_list('id', flat=True))
+
+        with Author.objects.handler() as handler:
+            seen_ids = [author.id for author in handler.iter(forwards=False)]
+
+        self.assertEqual(seen_ids, list(sorted(all_ids, reverse=True)))
+
+    def test_bad_iter_unopened(self):
+        handler = Author.objects.all().handler()
+        with self.assertRaises(RuntimeError):
+            sum(1 for x in handler.iter())

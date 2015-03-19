@@ -59,7 +59,7 @@ class Handler(object):
             not query.group_by and
             not query.having and
             not query.distinct and
-            query.default_ordering and
+            not query.order_by and
             len(query.tables) <= 1
         )
 
