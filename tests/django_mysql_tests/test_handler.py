@@ -24,3 +24,21 @@ class HandlerTests(TestCase):
             handler_first = handler.read(limit=1)[0]
 
         self.assertEqual(handler_first, qs_first)
+
+    def test_filter(self):
+        qs = Author.objects.filter(name__startswith='John')
+        qs_all = list(qs._clone())
+
+        with qs._clone().handler() as handler:
+            handler_all = list(handler.read())
+
+        self.assertEqual(handler_all, qs_all)
+
+    def test_exclude(self):
+        qs = Author.objects.filter(name__contains='JK')
+        qs_all = list(qs._clone())
+
+        with qs._clone().handler() as handler:
+            handler_all = list(handler.read())
+
+        self.assertEqual(handler_all, qs_all)
