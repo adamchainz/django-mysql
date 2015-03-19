@@ -14,7 +14,7 @@ class Settee(Model):
 
 
 class Author(Model):
-    name = CharField(max_length=32)
+    name = CharField(max_length=32, db_index=True)
     tutor = ForeignKey('self', null=True)
 
 

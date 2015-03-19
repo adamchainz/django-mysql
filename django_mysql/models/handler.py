@@ -80,12 +80,17 @@ class Handler(object):
 
     # Public methods
 
-    def read(self, mode='first', limit=None):
+    def read(self, index='pk', mode='first', limit=None):
         if not self.open:
             raise RuntimeError("This handler isn't open yet")
 
-        sql = ["HANDLER {} READ `PRIMARY`".format(self._handler_name)]
+        sql = ["HANDLER {} READ".format(self._handler_name)]
         params = ()
+
+        if index == 'pk':
+            sql.append("`PRIMARY`")
+        else:
+            sql.append(index)
 
         if mode == 'first':
             sql.append("FIRST")
