@@ -6,10 +6,23 @@ from django.test import TestCase
 from django_mysql_tests.models import Author, AuthorMultiIndex
 
 
-class HandlerTests(TestCase):
-    def setUp(self):
-        self.jk = Author.objects.create(name='JK Rowling')
-        self.grisham = Author.objects.create(name='John Grisham')
+def get_index_names(model):
+    # There's no easy way of getting index names in django so pull them from
+    # INFORMATION_SCHEMA
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT DISTINCT INDEX_NAME
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = %s AND
+                  TABLE_NAME = %s""",
+            (connection.settings_dict['NAME'], model._meta.db_table)
+        )
+
+        index_names = [x[0] for x in cursor.fetchall()]
+    return index_names
+
+
+class HandlerCreationTests(TestCase):
 
     def test_bad_creation_joins_not_allowed(self):
         qs = Author.objects.filter(tutor__name='A')
@@ -26,6 +39,16 @@ class HandlerTests(TestCase):
         with self.assertRaises(ValueError):
             qs.handler()
 
+
+class BaseAuthorTestCase(TestCase):
+
+    def setUp(self):
+        self.jk = Author.objects.create(name='JK Rowling')
+        self.grisham = Author.objects.create(name='John Grisham')
+
+
+class HandlerReadTests(BaseAuthorTestCase):
+
     def test_bad_read_unopened(self):
         handler = Author.objects.all().handler()
         with self.assertRaises(RuntimeError):
@@ -38,10 +61,8 @@ class HandlerTests(TestCase):
 
     def test_read_does_single_by_default(self):
         with Author.objects.handler() as handler:
-            out = list(handler.read())
-            self.assertEqual(len(out), 1)
-            author = out[0]
-            self.assertIn(author, Author.objects.all())
+            handler_all = list(handler.read())
+        self.assertEqual(handler_all, [self.jk])
 
     def test_read_limit_first(self):
         with Author.objects.handler() as handler:
@@ -72,7 +93,7 @@ class HandlerTests(TestCase):
         self.assertEqual(handler_all, qs_all)
 
     def test_read_index_different(self):
-        index_name = [name for name in self.get_index_names(Author)
+        index_name = [name for name in get_index_names(Author)
                       if name != "PRIMARY"][0]
 
         with Author.objects.handler() as handler:
@@ -196,19 +217,8 @@ class HandlerTests(TestCase):
             with self.assertRaises(ValueError):
                 handler.read(value___exact=1)
 
-    def test_read_index_multipart(self):
-        AuthorMultiIndex.objects.create(name='John Smith', country='Scotland')
-        smith2 = AuthorMultiIndex.objects.create(name='John Smith',
-                                                 country='England')
 
-        idx_name = [name for name in self.get_index_names(AuthorMultiIndex)
-                    if name != "PRIMARY"][0]
-
-        with AuthorMultiIndex.objects.handler() as handler:
-            value = ('John Smith', 'England')
-            handler_result = handler.read(index=idx_name, value=value)[0]
-
-        self.assertEqual(handler_result, smith2)
+class HandlerIterTests(BaseAuthorTestCase):
 
     def test_iter_all(self):
         all_ids = list(Author.objects.values_list('id', flat=True))
@@ -239,18 +249,26 @@ class HandlerTests(TestCase):
         with self.assertRaises(RuntimeError):
             sum(1 for x in handler.iter())
 
-    @classmethod
-    def get_index_names(cls, model):
-        # There's no easy way of getting index names in django so get the name
-        # of the index on Author.name from INFORMATION_SCHEMA
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT DISTINCT INDEX_NAME
-                FROM INFORMATION_SCHEMA.STATISTICS
-                WHERE TABLE_SCHEMA = %s AND
-                      TABLE_NAME = %s""",
-                (connection.settings_dict['NAME'], model._meta.db_table)
-            )
 
-            index_names = [x[0] for x in cursor.fetchall()]
-        return index_names
+class HandlerMultipartIndexTests(TestCase):
+
+    def setUp(self):
+        self.smith1 = AuthorMultiIndex.objects.create(name='John Smith',
+                                                      country='Scotland')
+        self.smith2 = AuthorMultiIndex.objects.create(name='John Smith',
+                                                      country='England')
+        self.index_name = [name for name in get_index_names(AuthorMultiIndex)
+                           if name != "PRIMARY"][0]
+
+    def test_read_all(self):
+        with AuthorMultiIndex.objects.handler() as handler:
+            handler_all = list(handler.read(index=self.index_name, limit=2))
+        qs_all = list(AuthorMultiIndex.objects.order_by('name', 'country'))
+        self.assertEqual(handler_all, qs_all)
+
+    def test_read_index_multipart(self):
+        with AuthorMultiIndex.objects.handler() as handler:
+            value = ('John Smith', 'England')
+            result = handler.read(index=self.index_name, value=value)[0]
+
+        self.assertEqual(result, self.smith2)
