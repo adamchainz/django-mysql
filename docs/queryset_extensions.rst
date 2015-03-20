@@ -315,3 +315,17 @@ easy to gain an understanding of what your queries do.
         rows           1
         +- Table
            table          auth_user
+
+
+.. _handler:
+
+Handler
+-------
+
+MySQL's ``HANDLER`` commands give simple NoSQL-style read access to rows faster
+than normal SQL queries, with the ability to perform index lookups or
+page-by-page scans (docs:
+`MySQL<http://dev.mysql.com/doc/refman/5.6/en/handler.html>`_ /
+`MariaDB <https://mariadb.com/kb/en/mariadb/handler-commands/>`_).
+
+This extension adds an ORM-based API for handlers::
