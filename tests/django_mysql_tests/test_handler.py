@@ -122,6 +122,25 @@ class HandlerTests(TestCase):
 
         self.assertEqual(handler_first, author)
 
+    def test_read_where_passed_in(self):
+        qs = Author.objects.filter(name__startswith='John')
+
+        with Author.objects.handler() as handler:
+            handler_author = handler.read(where=qs)[0]
+
+        self.assertEqual(handler_author, qs[0])
+
+    def test_read_where_passed_in_overrides_completely(self):
+        qs = Author.objects.filter(name='JK Rowling')
+        qs2 = Author.objects.filter(name='John Grisham')
+
+        with qs.handler() as handler:
+            handler_default = handler.read()[0]
+            handler_where = handler.read(where=qs2)[0]
+
+        self.assertEqual(handler_default, qs[0])
+        self.assertEqual(handler_where, qs2[0])
+
     def test_iter_all(self):
         all_ids = list(Author.objects.values_list('id', flat=True))
 
