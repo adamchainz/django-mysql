@@ -3,13 +3,13 @@ from django.db import connection
 from django.db.models import F
 from django.test import TestCase
 
-from django_mysql_tests.models import Author
+from django_mysql_tests.models import Author, AuthorMultiIndex
 
 
 class HandlerTests(TestCase):
     def setUp(self):
-        Author.objects.create(name='JK Rowling')
-        Author.objects.create(name='John Grisham')
+        self.jk = Author.objects.create(name='JK Rowling')
+        self.grisham = Author.objects.create(name='John Grisham')
 
     def test_bad_creation_joins_not_allowed(self):
         qs = Author.objects.filter(tutor__name='A')
@@ -72,20 +72,8 @@ class HandlerTests(TestCase):
         self.assertEqual(handler_all, qs_all)
 
     def test_read_index_different(self):
-        # There's no easy way of getting index names in django so get the name
-        # of the index on Author.name from INFORMATION_SCHEMA
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT DISTINCT INDEX_NAME
-                FROM INFORMATION_SCHEMA.STATISTICS
-                WHERE TABLE_SCHEMA = %s AND
-                      TABLE_NAME = %s
-                      AND INDEX_NAME != 'PRIMARY'
-                LIMIT 1""",
-                (connection.settings_dict['NAME'], Author._meta.db_table)
-            )
-
-            index_name = [x[0] for x in cursor.fetchall()][0]
+        index_name = [name for name in self.get_index_names(Author)
+                      if name != "PRIMARY"][0]
 
         with Author.objects.handler() as handler:
             handler_all = list(handler.read(index=index_name, limit=2))
@@ -148,6 +136,35 @@ class HandlerTests(TestCase):
         self.assertEqual(handler_default, qs[0])
         self.assertEqual(handler_where, qs2[0])
 
+    def test_read_bad_where_passed_in(self):
+        with Author.objects.handler() as handler:
+            with self.assertRaises(ValueError):
+                handler.read(where=Author.objects.filter(tutor__name='A'))
+
+    def test_read_index_value_and_mode_invalid(self):
+        with Author.objects.handler() as handler:
+            with self.assertRaises(ValueError):
+                handler.read(index_value=1, mode='first')
+
+    def test_read_index_pk(self):
+        with Author.objects.handler() as handler:
+            handler_result = handler.read(index_value=self.jk.id)[0]
+        self.assertEqual(handler_result, self.jk)
+
+    def test_read_index_multipart(self):
+        AuthorMultiIndex.objects.create(name='John Smith', country='Scotland')
+        smith2 = AuthorMultiIndex.objects.create(name='John Smith',
+                                                 country='England')
+
+        idx_name = [name for name in self.get_index_names(AuthorMultiIndex)
+                    if name != "PRIMARY"][0]
+
+        with AuthorMultiIndex.objects.handler() as handler:
+            value = ('John Smith', 'England')
+            handler_result = handler.read(index=idx_name, index_value=value)[0]
+
+        self.assertEqual(handler_result, smith2)
+
     def test_iter_all(self):
         all_ids = list(Author.objects.values_list('id', flat=True))
 
@@ -176,3 +193,19 @@ class HandlerTests(TestCase):
         handler = Author.objects.all().handler()
         with self.assertRaises(RuntimeError):
             sum(1 for x in handler.iter())
+
+    @classmethod
+    def get_index_names(cls, model):
+        # There's no easy way of getting index names in django so get the name
+        # of the index on Author.name from INFORMATION_SCHEMA
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """SELECT DISTINCT INDEX_NAME
+                FROM INFORMATION_SCHEMA.STATISTICS
+                WHERE TABLE_SCHEMA = %s AND
+                      TABLE_NAME = %s""",
+                (connection.settings_dict['NAME'], model._meta.db_table)
+            )
+
+            index_names = [x[0] for x in cursor.fetchall()]
+        return index_names

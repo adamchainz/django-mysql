@@ -33,15 +33,34 @@ class Handler(object):
 
     # Public methods
 
-    def read(self, index='PRIMARY', mode='first', where=None, limit=None):
+    def read(self, index='PRIMARY', index_value=None, mode=None, where=None,
+             limit=None):
         if not self.open:
             raise RuntimeError("This handler isn't open yet")
+
+        if index_value is not None and mode is not None:
+            raise ValueError("You cannot use index_value and mode together in "
+                             "a handler read")
+        elif index_value is None and mode is None:
+            # Default
+            mode = 'first'
 
         sql = ["HANDLER {} READ".format(self._handler_name)]
         params = ()
 
         # Caller's responsibility to ensure the index name is correct
         sql.append("`{}`".format(index))
+
+        if index_value is not None:
+            sql.append("=")
+            if isinstance(index_value, tuple):
+                sql.append("(")
+                sql.append(",".join("%s" for x in index_value))
+                sql.append(")")
+                params += index_value
+            else:
+                sql.append("(%s)")
+                params += (index_value,)
 
         if mode == 'first':
             sql.append("FIRST")
@@ -51,7 +70,7 @@ class Handler(object):
             sql.append("NEXT")
         elif mode == 'prev':
             sql.append("PREV")
-        else:
+        elif index_value is None:
             raise ValueError("'mode' must be one of: first, last, next, prev")
 
         if where is None:

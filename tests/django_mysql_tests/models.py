@@ -24,3 +24,11 @@ class VanillaAuthor(VanillaModel):
 
 class NameAuthor(Model):
     name = CharField(max_length=32, primary_key=True)
+
+
+class AuthorMultiIndex(Model):
+    class Meta(object):
+        index_together = ('name', 'country')
+
+    name = CharField(max_length=32)
+    country = CharField(max_length=32)
