@@ -64,7 +64,14 @@ class HandlerTests(TestCase):
 
         self.assertEqual(handler_all, qs_all)
 
-    def test_read_index(self):
+    def test_read_index_primary(self):
+        with Author.objects.handler() as handler:
+            handler_all = list(handler.read(index='PRIMARY', limit=2))
+        qs_all = list(Author.objects.order_by('id'))
+
+        self.assertEqual(handler_all, qs_all)
+
+    def test_read_index_different(self):
         # There's no easy way of getting index names in django so get the name
         # of the index on Author.name from INFORMATION_SCHEMA
         with connection.cursor() as cursor:
