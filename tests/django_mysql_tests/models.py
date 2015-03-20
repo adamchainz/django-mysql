@@ -12,18 +12,30 @@ class Settee(Model):
         max_length=32,
     )
 
+    def __unicode__(self):
+        return "{} {}".format(self.id, ",".join(self.features))
+
 
 class Author(Model):
     name = CharField(max_length=32, db_index=True)
     tutor = ForeignKey('self', null=True)
 
+    def __unicode__(self):
+        return "{} {}".format(self.id, self.name)
+
 
 class VanillaAuthor(VanillaModel):
     name = CharField(max_length=32)
 
+    def __unicode__(self):
+        return "{} {}".format(self.id, self.name)
+
 
 class NameAuthor(Model):
     name = CharField(max_length=32, primary_key=True)
+
+    def __unicode__(self):
+        return "{} {}".format(self.id, self.name)
 
 
 class AuthorMultiIndex(Model):
@@ -32,3 +44,6 @@ class AuthorMultiIndex(Model):
 
     name = CharField(max_length=32)
     country = CharField(max_length=32)
+
+    def __unicode__(self):
+        return "{} {} in {}".format(self.id, self.name, self.country)

@@ -33,15 +33,17 @@ class Handler(object):
 
     # Public methods
 
-    def read(self, index='PRIMARY', index_value=None, mode=None, where=None,
-             limit=None):
+    def read(self, index='PRIMARY', mode=None, where=None, limit=None,
+             **kwargs):
         if not self.open:
             raise RuntimeError("This handler isn't open yet")
 
-        if index_value is not None and mode is not None:
-            raise ValueError("You cannot use index_value and mode together in "
-                             "a handler read")
-        elif index_value is None and mode is None:
+        index_op, index_value = self._parse_index_value(kwargs)
+
+        if index_op is not None and mode is not None:
+            raise ValueError("You cannot use an index operator and mode "
+                             "together in a handler read")
+        elif index_op is None and mode is None:
             # Default
             mode = 'first'
 
@@ -51,8 +53,8 @@ class Handler(object):
         # Caller's responsibility to ensure the index name is correct
         sql.append("`{}`".format(index))
 
-        if index_value is not None:
-            sql.append("=")
+        if index_op is not None:
+            sql.append(index_op)
             if isinstance(index_value, tuple):
                 sql.append("(")
                 sql.append(",".join("%s" for x in index_value))
@@ -70,7 +72,7 @@ class Handler(object):
             sql.append("NEXT")
         elif mode == 'prev':
             sql.append("PREV")
-        elif index_value is None:
+        elif index_op is None:
             raise ValueError("'mode' must be one of: first, last, next, prev")
 
         if where is None:
@@ -89,6 +91,50 @@ class Handler(object):
             params += (limit,)
 
         return self._model.objects.raw(" ".join(sql), params)
+
+    def _parse_index_value(self, kwargs):
+        """
+        Parse the HANDLER-supported subset of django's __ expression syntax
+        """
+        if len(kwargs) == 0:
+            return None, None
+        elif len(kwargs) > 1:
+            raise ValueError("You can't pass more than one value expression, "
+                             "you passed {}".format(",".join(kwargs.keys())))
+
+        name, value = list(kwargs.items())[0]
+
+        if not name.startswith('value'):
+            raise ValueError("The keyword arg {} is not valid for this "
+                             "function".format(name))
+
+        if name == 'value':
+            return ('=', value)
+
+        if not name.startswith('value__'):
+            raise ValueError("The keyword arg {} is not valid for this "
+                             "function".format(name))
+
+        operator = name[name.find('__') + 2:]
+        try:
+            return (self._operator_values[operator], value)
+        except KeyError:
+            raise ValueError(
+                "The operator {op} is not valid for index value matching. "
+                "Valid operators are {valid}"
+                .format(
+                    op=operator,
+                    valid=",".join(self._operator_values.keys())
+                )
+            )
+
+    _operator_values = {
+        'lt': '<',
+        'lte': '<=',
+        'exact': '=',
+        'gte': '>=',
+        'gt': '>',
+    }
 
     def iter(self, chunk_size=100, forwards=True):
         if forwards:

@@ -144,12 +144,57 @@ class HandlerTests(TestCase):
     def test_read_index_value_and_mode_invalid(self):
         with Author.objects.handler() as handler:
             with self.assertRaises(ValueError):
-                handler.read(index_value=1, mode='first')
+                handler.read(value=1, mode='first')
 
-    def test_read_index_pk(self):
+    def test_read_index_equal(self):
         with Author.objects.handler() as handler:
-            handler_result = handler.read(index_value=self.jk.id)[0]
+            handler_result = handler.read(value=self.jk.id)[0]
         self.assertEqual(handler_result, self.jk)
+
+    def test_read_index_equal_exact(self):
+        with Author.objects.handler() as handler:
+            handler_result = handler.read(value__exact=self.jk.id)[0]
+        self.assertEqual(handler_result, self.jk)
+
+    def test_read_index_less_than(self):
+        with Author.objects.handler() as handler:
+            handler_result = handler.read(value__lt=self.jk.id + 1)[0]
+        self.assertEqual(handler_result, self.jk)
+
+    def test_read_index_less_than_equal(self):
+        with Author.objects.handler() as handler:
+            handler_result = handler.read(value__lte=self.jk.id)[0]
+        self.assertEqual(handler_result, self.jk)
+
+    def test_read_index_greater_than_equal(self):
+        with Author.objects.handler() as handler:
+            handler_result = handler.read(value__gte=self.jk.id)[0]
+        self.assertEqual(handler_result, self.jk)
+
+    def test_read_index_greater_than(self):
+        with Author.objects.handler() as handler:
+            handler_result = handler.read(value__gt=self.jk.id)[0]
+        self.assertEqual(handler_result, self.grisham)
+
+    def test_read_index_too_many_filters(self):
+        with Author.objects.handler() as handler:
+            with self.assertRaises(ValueError):
+                handler.read(value__lte=1, value__gte=1)
+
+    def test_read_index_bad_operator(self):
+        with Author.objects.handler() as handler:
+            with self.assertRaises(ValueError):
+                handler.read(value__flange=1)
+
+    def test_read_bad_argument(self):
+        with Author.objects.handler() as handler:
+            with self.assertRaises(ValueError):
+                handler.read(pk=1)
+
+    def test_read_bad_argument_underscores(self):
+        with Author.objects.handler() as handler:
+            with self.assertRaises(ValueError):
+                handler.read(value___exact=1)
 
     def test_read_index_multipart(self):
         AuthorMultiIndex.objects.create(name='John Smith', country='Scotland')
@@ -161,7 +206,7 @@ class HandlerTests(TestCase):
 
         with AuthorMultiIndex.objects.handler() as handler:
             value = ('John Smith', 'England')
-            handler_result = handler.read(index=idx_name, index_value=value)[0]
+            handler_result = handler.read(index=idx_name, value=value)[0]
 
         self.assertEqual(handler_result, smith2)
 
