@@ -47,3 +47,11 @@ class AuthorMultiIndex(Model):
 
     def __unicode__(self):
         return "{} {} in {}".format(self.id, self.name, self.country)
+
+
+class AuthorHugeName(Model):
+    class Meta(object):
+        db_table = 'this_is_an_author_with_an_incredibly_long_table_name_' \
+                   'you_know_it'
+
+    name = CharField(max_length=32)

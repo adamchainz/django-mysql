@@ -1,3 +1,6 @@
+# -*- coding:utf-8 -*-
+from __future__ import unicode_literals
+
 from random import randint
 import re
 
@@ -12,9 +15,16 @@ class Handler(object):
         self.db = queryset.db
         self._model = queryset.model
         self._table_name = self._model._meta.db_table
-        self._handler_name = '{}_{}'.format(self._table_name, randint(1, 2e10))
 
+        self._handler_name = self._construct_name(self._table_name)
         self._where, self._params = self._extract_where(queryset)
+
+    def _construct_name(self, table_name):
+        # Undocumented max of 64 chars (get error on HANDLER CLOSE only!)
+        return '{}_{}'.format(
+            table_name[31:],
+            randint(1, 2e10)
+        )
 
     # Context manager
 

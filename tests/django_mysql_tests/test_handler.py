@@ -3,7 +3,11 @@ from django.db import connection
 from django.db.models import F
 from django.test import TestCase
 
-from django_mysql_tests.models import Author, AuthorMultiIndex
+from django_mysql.models.handler import Handler
+
+from django_mysql_tests.models import (
+    Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
+)
 
 
 def get_index_names(model):
@@ -38,6 +42,10 @@ class HandlerCreationTests(TestCase):
         qs = Author.objects.order_by('name')
         with self.assertRaises(ValueError):
             qs.handler()
+
+    def test_can_open_close_with_huge_table_name(self):
+        with AuthorHugeName.objects.handler():
+            pass
 
 
 class BaseAuthorTestCase(TestCase):
@@ -272,3 +280,54 @@ class HandlerMultipartIndexTests(TestCase):
             result = handler.read(index=self.index_name, value=value)[0]
 
         self.assertEqual(result, self.smith2)
+
+
+class HandlerNestingTests(BaseAuthorTestCase):
+
+    def setUp(self):
+        super(HandlerNestingTests, self).setUp()
+
+        self.jk_name = NameAuthor.objects.create(name='JK Rowling')
+        self.grisham_name = NameAuthor.objects.create(name='John Grisham')
+
+    def test_can_nest(self):
+        ahandler = Author.objects.handler()
+        bhandler = NameAuthor.objects.handler()
+        with ahandler, bhandler:
+            handler_plain = ahandler.read()[0]
+            handler_name = bhandler.read()[0]
+
+        self.assertEqual(handler_plain, self.jk)
+        self.assertEqual(handler_name, self.jk_name)
+
+    def test_can_nest_two_for_same_table(self):
+        ahandler = Author.objects.handler()
+        bhandler = Author.objects.handler()
+
+        with ahandler, bhandler:
+            first = ahandler.read()[0]
+            second = bhandler.read()[0]
+
+        self.assertEqual(first, self.jk)
+        self.assertEqual(second, self.jk)
+
+
+class HandlerStandaloneTests(TestCase):
+
+    def setUp(self):
+        self.jk = VanillaAuthor.objects.create(name='JK Rowling')
+        self.grisham = VanillaAuthor.objects.create(name='John Grisham')
+
+    def test_vanilla_works(self):
+        handler = Handler(VanillaAuthor.objects.all())
+        with handler:
+            first = handler.read()[0]
+
+        self.assertEqual(first, self.jk)
+
+    def test_vanilla_filters(self):
+        qs = VanillaAuthor.objects.filter(name__startswith='John')
+        with Handler(qs) as handler:
+            first = handler.read()[0]
+
+        self.assertEqual(first, self.grisham)
