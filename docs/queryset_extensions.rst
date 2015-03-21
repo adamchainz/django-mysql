@@ -372,8 +372,8 @@ easily as well::
     manager. You may have multiple handlers open at once, even on the same
     table, but you cannot open the same one twice.
 
-    .. attribute:: read(index='PRIMARY', mode=None, where=None, limit=None, \
-                        value__LOOKUP=None)
+    .. attribute:: read(index='PRIMARY', value__LOOKUP=None, mode=None, \
+                        where=None, limit=None)
 
         Returns the result of a ``HANDLER .. READ`` statement as a
         :class:`~django.db.models.RawQuerySet` for the given ``queryset``'s
@@ -400,12 +400,13 @@ easily as well::
 
             Both single and multi-column indexes are supported.
 
-        .. attribute:: value__LOOKUP
+        .. attribute:: value__LOOKUP=None
 
-            ``value__LOOKUP`` allows you to specify an index lookup using the
-            same style as Django's ORM. You may only have one index lookup on a
-            ``read`` - other conditions must be filtered with ``where``. For
-            example::
+            The 'first form' of ``HANDLER .. READ`` supports index lookups.
+            ``value__LOOKUP`` allows you to specify a lookup on ``index`` using
+            the same style as Django's ORM, and is mutually exclusive with
+            ``mode``. You may only have one index lookup on a ``read`` - other
+            conditions must be filtered with ``where``. For example::
 
                 # Read objects with primary key <= 100
                 handler.read(value__lte=100, limit=100)
@@ -430,15 +431,22 @@ easily as well::
             The 'second form' of ``HANDLER .. READ`` supports paging over a
             table, fetching one batch of results at a time whilst the handler
             object on MySQL's end retains state, somewhat like a 'cursor'. This
-            is mututally exclusive with specifying an index lookup via
-            ``value__LOOKUP``.
+            is mututally exclusive with ``value__LOOKUP``, and if neither is
+            specified, this is the default.
 
-            You can specify ``'first'`` and then repeatedly ``'next'`` to
-            iterate forwards over the index, or ``'last'`` and then repeatedly
-            ``'prev'`` to iterate backwards over the index. The page size is
-            set with ``limit``.
+            There are four modes::
 
-            N.B. the below ``iter`` method below is recommended for iteration.
+                * ``first`` - commence iteration at the start
+                * ``next`` - continue ascending/go forward one page
+                * ``last`` - commence iteration at the end (in reverse)
+                * ``prev`` - continue descending/go backward one page
+
+            To iterate forwards, use ``'first'`` and then
+            repeatedly ``'next'``. To iterate backwards, use ``'last'`` and
+            then repeatedly ``'prev'``. The page size is set with ``limit``.
+
+            N.B. the below ``iter`` method below is recommended for most
+            iteration.
 
         .. attribute:: where=None
 
