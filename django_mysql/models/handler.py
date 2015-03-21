@@ -29,6 +29,8 @@ class Handler(object):
     # Context manager
 
     def __enter__(self):
+        if self.open:
+            raise ValueError("You cannot open the same handler twice!")
         self.cursor = connections[self.db].cursor()
         self.cursor.__enter__()
         self.cursor.execute("HANDLER `{}` OPEN AS {}"
@@ -37,6 +39,8 @@ class Handler(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if not self.open:
+            raise ValueError("You cannot close an unopened handler!")
         self.cursor.execute("HANDLER `{}` CLOSE".format(self._handler_name))
         self.cursor.__exit__(exc_type, exc_value, traceback)
         self.open = False

@@ -47,6 +47,18 @@ class HandlerCreationTests(TestCase):
         with AuthorHugeName.objects.handler():
             pass
 
+    def test_cannot_open_twice(self):
+        handler = Author.objects.handler()
+        with handler:
+            with self.assertRaises(ValueError):
+                with handler:
+                    pass
+
+    def test_cannot_close_unopened(self):
+        handler = Author.objects.handler()
+        with self.assertRaises(ValueError):
+            handler.__exit__(None, None, None)
+
 
 class BaseAuthorTestCase(TestCase):
 
