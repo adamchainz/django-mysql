@@ -3,6 +3,27 @@
 History
 =======
 
+0.1.6 (2015-03-21)
+------------------
+
+* Added support for ``HANDLER`` statements as a ``QuerySet`` extension
+* Now tested on Django 1.8
+* Add ``pk_range`` argument for 'smart iteration' code
+
+
+0.1.5 (2015-03-11)
+------------------
+
+* Added ``manage.py`` command ``dbparams`` for outputting database paramters
+  in formats useful for shell scripts
+
+
+0.1.4 (2015-03-10)
+------------------
+
+* Fix release process
+
+
 0.1.3 (2015-03-08)
 ------------------
 
