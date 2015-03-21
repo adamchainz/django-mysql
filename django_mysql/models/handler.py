@@ -90,7 +90,12 @@ class Handler(object):
                 params += self._params
         else:
             # 'where' is another queryset to use the clause from
-            where, where_params = self._extract_where(where)
+            if isinstance(where, tuple):
+                # Allow parsing in a pre-extracted where clause + params -
+                # as iter() does
+                where, where_params = where
+            else:
+                where, where_params = self._extract_where(where)
             sql.append(where)
             params += where_params
 
@@ -151,15 +156,21 @@ class Handler(object):
         'gt': '>',
     }
 
-    def iter(self, chunk_size=100, forwards=True):
+    def iter(self, index='PRIMARY', where=None, chunk_size=100, forwards=True):
         if forwards:
             mode = 'first'
         else:
             mode = 'last'
 
+        if where is not None:
+            # Pre-convert so each iteration doesn't have to repeatedly parse
+            # the SQL
+            where = self._extract_where(where)
+
         while True:
             count = 0
-            for obj in self.read(mode=mode, limit=chunk_size):
+            for obj in self.read(index=index, where=where,
+                                 mode=mode, limit=chunk_size):
                 count += 1
                 yield obj
 
@@ -178,7 +189,7 @@ class Handler(object):
         """
         Was this a queryset with filters/excludes/expressions set? If so,
         extract the WHERE clause from the ORM output so we can use it in the
-        handler queries
+        handler queries.
         """
         if not cls._is_simple_query(queryset.query):
             raise ValueError("This QuerySet's WHERE clause is too complex to "

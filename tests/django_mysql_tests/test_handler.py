@@ -257,6 +257,22 @@ class HandlerIterTests(BaseAuthorTestCase):
         with self.assertRaises(RuntimeError):
             sum(1 for x in handler.iter())
 
+    def test_iter_where_preset(self):
+        where_qs = Author.objects.filter(name__startswith='John')
+
+        with where_qs.handler() as handler:
+            seen_ids = [author.id for author in handler.iter()]
+
+        self.assertEqual(seen_ids, [self.grisham.id])
+
+    def test_iter_where_passed_in(self):
+        where_qs = Author.objects.filter(name__startswith='John')
+
+        with Author.objects.handler() as handler:
+            seen_ids = [author.id for author in handler.iter(where=where_qs)]
+
+        self.assertEqual(seen_ids, [self.grisham.id])
+
 
 class HandlerMultipartIndexTests(TestCase):
 
