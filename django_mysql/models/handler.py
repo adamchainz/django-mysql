@@ -22,7 +22,7 @@ class Handler(object):
     def _construct_name(self, table_name):
         # Undocumented max of 64 chars (get error on HANDLER CLOSE only!)
         return '{}_{}'.format(
-            table_name[31:],
+            table_name[-31:],
             randint(1, 2e10)
         )
 
