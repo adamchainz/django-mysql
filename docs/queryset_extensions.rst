@@ -485,7 +485,7 @@ easily as well::
             The name of the index to iterate over. As detailed above, this must
             be the index name on MySQL.
 
-        .. attribute:: where
+        .. attribute:: where=None
 
             A ``QuerySet`` for filter conditions, the same as ``read``'s
             ``where`` argument, as detailed above.
