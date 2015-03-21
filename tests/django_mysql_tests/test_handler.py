@@ -223,34 +223,35 @@ class HandlerReadTests(BaseAuthorTestCase):
     def test_read_bad_argument_underscores(self):
         with Author.objects.handler() as handler:
             with self.assertRaises(ValueError):
-                handler.read(value___exact=1)
+                handler.read(value_exact=1)
 
 
 class HandlerIterTests(BaseAuthorTestCase):
 
     def test_iter_all(self):
-        all_ids = list(Author.objects.values_list('id', flat=True))
-
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in handler.iter()]
 
-        self.assertEqual(seen_ids, list(sorted(all_ids)))
+        self.assertEqual(seen_ids, [self.jk.id, self.grisham.id])
 
     def test_iter_chunk_size_1(self):
-        all_ids = list(Author.objects.values_list('id', flat=True))
-
         with Author.objects.handler() as handler:
-            seen_ids = [author.id for author in handler.iter()]
+            seen_ids = [author.id for author in handler.iter(chunk_size=1)]
 
-        self.assertEqual(seen_ids, list(sorted(all_ids)))
+        self.assertEqual(seen_ids, [self.jk.id, self.grisham.id])
 
     def test_iter_reverse(self):
-        all_ids = list(Author.objects.values_list('id', flat=True))
-
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in handler.iter(forwards=False)]
 
-        self.assertEqual(seen_ids, list(sorted(all_ids, reverse=True)))
+        self.assertEqual(seen_ids, [self.grisham.id, self.jk.id])
+
+    def test_iter_reverse_chunk_size_1(self):
+        with Author.objects.handler() as handler:
+            seen_ids = [author.id for author in
+                        handler.iter(chunk_size=1, forwards=False)]
+
+        self.assertEqual(seen_ids, [self.grisham.id, self.jk.id])
 
     def test_bad_iter_unopened(self):
         handler = Author.objects.all().handler()
