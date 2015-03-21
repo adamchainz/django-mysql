@@ -274,6 +274,23 @@ class HandlerIterTests(BaseAuthorTestCase):
 
         self.assertEqual(seen_ids, [self.grisham.id])
 
+    def test_iter_loses_its_place(self):
+        portis = Author.objects.create(name='Charles Portis')
+
+        with Author.objects.handler() as handler:
+            iterator = handler.iter(chunk_size=1)
+            self.assertEqual(next(iterator), self.jk)
+            self.assertEqual(next(iterator), self.grisham)
+
+            iterator2 = handler.iter(chunk_size=1, forwards=False)
+            self.assertEqual(next(iterator2), portis)
+
+            # This SHOULD be portis, but it thinks it's exhausted already
+            # because iterator2 reset the iteration in reverse, and now for the
+            # NEXT page after the LAST
+            with self.assertRaises(StopIteration):
+                self.assertEqual(next(iterator), portis)
+
 
 class HandlerMultipartIndexTests(TestCase):
 
