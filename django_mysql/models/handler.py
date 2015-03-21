@@ -107,7 +107,7 @@ class Handler(object):
             sql.append("LIMIT %s")
             params += (limit,)
 
-        return self._model.objects.raw(" ".join(sql), params)
+        return self._model.objects.using(self.db).raw(" ".join(sql), params)
 
     _read_modes = {
         'first': 'FIRST',

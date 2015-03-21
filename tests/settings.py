@@ -19,6 +19,14 @@ DATABASES = {
         'HOST': '',
         'PORT': ''
     },
+    'secondary': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django_mysql2',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': ''
+    },
 }
 
 ALLOWED_HOSTS = []

@@ -377,3 +377,17 @@ class HandlerStandaloneTests(TestCase):
             first = handler.read()[0]
 
         self.assertEqual(first, self.grisham)
+
+
+class HandlerMultiDBTests(TestCase):
+
+    def setUp(self):
+        self.jk = Author.objects.using('secondary').create(name='JK Rowling')
+        self.grisham = Author.objects.create(name='John Grisham')
+
+    def test_queryset_db_is_used(self):
+        handler = Author.objects.using('secondary').handler()
+        with handler:
+            handler_result = handler.read()[0]
+
+        self.assertEqual(handler_result, self.jk)
