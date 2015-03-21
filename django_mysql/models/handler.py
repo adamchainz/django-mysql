@@ -74,16 +74,14 @@ class Handler(object):
                 sql.append("(%s)")
                 params += (index_value,)
 
-        if mode == 'first':
-            sql.append("FIRST")
-        elif mode == 'last':
-            sql.append("LAST")
-        elif mode == 'next':
-            sql.append("NEXT")
-        elif mode == 'prev':
-            sql.append("PREV")
-        elif index_op is None:
-            raise ValueError("'mode' must be one of: first, last, next, prev")
+        if index_op is None:
+            try:
+                sql.append(self._read_modes[mode])
+            except KeyError:
+                raise ValueError(
+                    "'mode' must be one of: {}"
+                    .format(",".join(self._read_modes.keys()))
+                )
 
         if where is None:
             # Use default
@@ -101,6 +99,13 @@ class Handler(object):
             params += (limit,)
 
         return self._model.objects.raw(" ".join(sql), params)
+
+    _read_modes = {
+        'first': 'FIRST',
+        'last': 'LAST',
+        'next': 'NEXT',
+        'prev': 'PREV'
+    }
 
     def _parse_index_value(self, kwargs):
         """
