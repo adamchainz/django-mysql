@@ -12,6 +12,7 @@ from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
+from django_mysql.models.handler import Handler
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
     have_program, noop_context, settings_to_cmd_args, StopWatch,
@@ -99,6 +100,9 @@ class QuerySetMixin(object):
 
     def pt_visual_explain(self, display=True):
         return pt_visual_explain(self, display)
+
+    def handler(self):
+        return Handler(self)
 
 
 class QuerySet(QuerySetMixin, models.QuerySet):
