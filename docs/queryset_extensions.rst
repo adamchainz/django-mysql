@@ -472,7 +472,7 @@ easily as well::
             rows.
 
     .. attribute:: iter(index='PRIMARY', where=None, chunk_size=100, \
-                        forwards=True)
+                        reverse=False)
 
         Iterate over a table via the named index, one chunk at a time, yielding
         the individual objects. Acts as a wrapper around repeated calls to
@@ -492,7 +492,7 @@ easily as well::
 
             The size of the chunks to read during iteration.
 
-        .. attribute:: forwards=True
+        .. attribute:: reverse=False
 
             The direction of iteration over the index. By default set to
             ``True``, the index will be iterated in ascending order; set to

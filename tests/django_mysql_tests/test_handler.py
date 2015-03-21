@@ -254,14 +254,14 @@ class HandlerIterTests(BaseAuthorTestCase):
 
     def test_iter_reverse(self):
         with Author.objects.handler() as handler:
-            seen_ids = [author.id for author in handler.iter(forwards=False)]
+            seen_ids = [author.id for author in handler.iter(reverse=True)]
 
         self.assertEqual(seen_ids, [self.grisham.id, self.jk.id])
 
     def test_iter_reverse_chunk_size_1(self):
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in
-                        handler.iter(chunk_size=1, forwards=False)]
+                        handler.iter(chunk_size=1, reverse=True)]
 
         self.assertEqual(seen_ids, [self.grisham.id, self.jk.id])
 
@@ -294,7 +294,7 @@ class HandlerIterTests(BaseAuthorTestCase):
             self.assertEqual(next(iterator), self.jk)
             self.assertEqual(next(iterator), self.grisham)
 
-            iterator2 = handler.iter(chunk_size=1, forwards=False)
+            iterator2 = handler.iter(chunk_size=1, reverse=True)
             self.assertEqual(next(iterator2), portis)
 
             # This SHOULD be portis, but it thinks it's exhausted already
