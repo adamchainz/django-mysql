@@ -324,17 +324,19 @@ Handler
 
 .. currentmodule:: django_mysql.models.handler
 
-MySQL's ``HANDLER`` commands give simple NoSQL-style read access to rows faster
-than normal SQL queries, with the ability to perform index lookups or
-page-by-page scans (docs:
+MySQL's ``HANDLER`` commands give you simple NoSQL-style read access, faster
+than full SQL queries, with the ability to perform index lookups or paginated
+scans (docs:
 `MySQL <http://dev.mysql.com/doc/refman/5.6/en/handler.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/handler-commands/>`_).
 
 This extension adds an ORM-based API for handlers. You can instantiate them
-from a ``QuerySet`` (and thus from `.objects`), and open close them as context
+from a ``QuerySet`` (and thus from `.objects`), and open/close them as context
 managers::
 
     with Author.objects.handler() as handler:
+
+        first_author_by_pk = handler.read()
 
         first_ten_authors_by_pk = handler.read(limit=10)
 
@@ -356,8 +358,9 @@ easily as well::
 .. warning::
 
     ``HANDLER`` is lower level than ``SELECT``, and has some optimizations
-    that mean it permits **dirty reads**. Check the database documentation and
-    understand the consequences of this before you replace any SQL queries!
+    that mean it permits 'for example' **dirty reads**. Check the database
+    documentation and understand the consequences of this before you replace
+    any SQL queries!
 
 
 .. class:: Handler(queryset)
@@ -372,22 +375,22 @@ easily as well::
     manager. You may have multiple handlers open at once, even on the same
     table, but you cannot open the same one twice.
 
-    .. attribute:: read(index='PRIMARY', value__LOOKUP=None, mode=None, \
-                        where=None, limit=None)
+    .. method:: read(index='PRIMARY', value__LOOKUP=None, mode=None, \
+                     where=None, limit=None)
 
         Returns the result of a ``HANDLER .. READ`` statement as a
         :class:`~django.db.models.RawQuerySet` for the given ``queryset``'s
-        model (which, like all ``QuerySet``\s is lazy).
+        model (which, like all ``QuerySet``\s, is lazy).
 
         .. note::
             The ``HANDLER`` statements must select whole rows, therefore there
             is no way of optimizing by returning only certain columns (like
             ``QuerySet``'s :meth:`~django.db.models.query.QuerySet.only()`).
 
-        MySQL supports three forms of ``HANDLER .. READ`` statements, but only
+        MySQL has three forms of ``HANDLER .. READ`` statements, but only the
         **first two forms** of ``HANDLER .. READ`` statements are supported -
-        you can specify index lookups, or pagination, and thus the arguments
-        ``mode`` and ``value__LOOKUP`` are mutually exclusive.
+        you can specify index lookups, or pagination. The third form, 'natural
+        row order', only makes sense for MyISAM tables.
 
         .. attribute:: index='PRIMARY'
 
@@ -420,13 +423,12 @@ easily as well::
                 * ``value__gt=x`` - index value ``>`` x
 
             For single-column indexes, specify the value; for multi-column
-            indexes, specify the tuple of values, for example::
+            indexes, specify the tuple of values. For example::
 
-                # Index is on on first and last name columns
                 grisham = handler.read(index='full_name_idx',
                                        value=('John', 'Grisham'))
 
-        .. attribute:: mode
+        .. attribute:: mode=None
 
             The 'second form' of ``HANDLER .. READ`` supports paging over a
             table, fetching one batch of results at a time whilst the handler
@@ -471,8 +473,8 @@ easily as well::
             first row. Specify ``limit`` to retrieve a different number of
             rows.
 
-    .. attribute:: iter(index='PRIMARY', where=None, chunk_size=100, \
-                        reverse=False)
+    .. method:: iter(index='PRIMARY', where=None, chunk_size=100, \
+                     reverse=False)
 
         Iterate over a table via the named index, one chunk at a time, yielding
         the individual objects. Acts as a wrapper around repeated calls to
@@ -506,4 +508,3 @@ easily as well::
                 You can only have one iteration happening at a time per
                 ``Handler``, otherwise on the MySQL side it loses its position.
                 There is no checking for this in ``Handler`` class.
-

@@ -52,7 +52,7 @@ coverage:
 docs:
 	rm -f docs/django-mysql.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ django-mysql
+	# DJANGO_SETTINGS_MODULE=django.conf.global_settings sphinx-apidoc -o docs/ django_mysql
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
