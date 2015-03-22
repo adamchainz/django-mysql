@@ -19,6 +19,8 @@ class SimpleSetField(forms.CharField):
         'item_invalid': _('Item "%(item)s" in the set did not validate: '),
         'item_n_invalid': _('Item %(nth)s in the set did not validate: '),
         'no_double_commas': _('No leading, trailing, or double commas.'),
+        'no_duplicates': _("Duplicates are not supported. "
+                           "'%(item)s' appears twice or more.")
     }
 
     def __init__(self, base_field, max_length=None, min_length=None,
@@ -57,7 +59,7 @@ class SimpleSetField(forms.CharField):
                 continue
 
             try:
-                values.add(self.base_field.to_python(item))
+                value = self.base_field.to_python(item)
             except ValidationError as e:
                 for error in e.error_list:
                     errors.append(ValidationError(
@@ -66,6 +68,15 @@ class SimpleSetField(forms.CharField):
                         code='item_n_invalid',
                         params={'nth': i},
                     ))
+
+            if value in values:
+                errors.append(ValidationError(
+                    self.error_messages['no_duplicates'],
+                    code='no_duplicates',
+                    params={'item': item}
+                ))
+            else:
+                values.add(value)
 
         if errors:
             raise ValidationError(errors)

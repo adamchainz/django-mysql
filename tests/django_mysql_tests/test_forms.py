@@ -40,13 +40,35 @@ class TestSimpleFormField(TestCase):
             'No leading, trailing, or double commas.'
         )
 
-    def test_to_python_fail(self):
+    def test_to_python_base_field_does_not_validate(self):
         field = SimpleSetField(forms.IntegerField())
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean('a,b,9')
         self.assertEqual(
             cm.exception.messages[0],
             'Item 1 in the set did not validate: Enter a whole number.'
+        )
+
+    def test_to_python_duplicates_not_allowed(self):
+        field = SimpleSetField(forms.IntegerField())
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean('1,1')
+        self.assertEqual(
+            cm.exception.messages[0],
+            "Duplicates are not supported. '1' appears twice or more."
+        )
+
+    def test_to_python_two_duplicates_not_allowed(self):
+        field = SimpleSetField(forms.IntegerField())
+        with self.assertRaises(exceptions.ValidationError) as cm:
+            field.clean('1,2,1,2')
+        self.assertEqual(
+            cm.exception.messages[0],
+            "Duplicates are not supported. '1' appears twice or more."
+        )
+        self.assertEqual(
+            cm.exception.messages[1],
+            "Duplicates are not supported. '2' appears twice or more."
         )
 
     def test_validate_fail(self):
