@@ -17,10 +17,6 @@ Django MySQL
 .. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
         :target: http://django-mysql.readthedocs.org/en/latest/
 
-.. image:: https://landscape.io/github/adamchainz/django-mysql/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/adamchainz/django-mysql/master
-   :alt: Code Health
-
 
 .. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
    :alt: The dolphin-pony - proof that cute + cute = double cute.
