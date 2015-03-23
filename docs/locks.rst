@@ -8,7 +8,7 @@ Locks
 
 The following can be imported from ``django_mysql.locks``.
 
-.. class:: Lock(name, acquire_timeout=10.0, connection_name=None)
+.. class:: Lock(name, acquire_timeout=10.0, using=None)
 
     MySQL can act as a locking server for arbitrary named locks (created on the
     fly) via its ``GET_LOCK`` function - sometimes called 'User Locks' since
@@ -46,8 +46,8 @@ The following can be imported from ``django_mysql.locks``.
     .. warning::
 
         It's not very well documented, but you can only hold one lock per
-        database connection at a time. Acquiring a new lock releases the old
-        one.
+        database connection at a time. Acquiring a lock releases any other lock
+        you were holding.
 
         Since there is no MySQL function to tell you if you are currently
         holding a lock, this class does not check that you only acquire one
@@ -68,16 +68,15 @@ The following can be imported from ``django_mysql.locks``.
         Whilst not documented, the length limit is somewhere between 1 and 10
         million characters, so most sane uses should be fine.
 
-    .. attribute:: acquire_timeout
+    .. attribute:: acquire_timeout=10.0
 
         The time in seconds to wait to acquire the lock, as will be passed to
         ``GET_LOCK()``. Defaults to 10 seconds.
 
-    .. attribute:: connection_name
+    .. attribute:: using=None
 
-        The name of the connection to use from ``DATABASES`` in your Django
-        settings. Defaults to Django's ``DEFAULT_DB_ALIAS`` to use your main
-        database connection.
+        The connection alias from ``DATABASES`` to use. Defaults to Django's
+        ``DEFAULT_DB_ALIAS`` to use your main database connection.
 
     .. method:: is_held()
 

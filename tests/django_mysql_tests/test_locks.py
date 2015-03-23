@@ -133,13 +133,23 @@ class LockTests(TestCase):
             pass
 
     @expectedFailure
-    def test_something(self):
+    def test_holding_more_than_one(self):
         """
         Only MySQL 5.7 gives the ability to hold more than one named lock, so
         this is an expectedFailure until then.
 
         N.B. MariaDB 10.0.2+ already has the patch.
         """
-        with Lock("a"):
-            with Lock("b"):
-                pass
+        lock_a = Lock("a")
+        lock_b = Lock("b")
+        with lock_a, lock_b:
+            self.assertTrue(lock_a.is_held())
+
+    def test_multi_connection(self):
+        lock_a = Lock("a")
+        lock_b = Lock("b", using='secondary')
+
+        with lock_a, lock_b:
+            # Different connections = can hold > 1!
+            self.assertTrue(lock_a.is_held())
+            self.assertTrue(lock_b.is_held())

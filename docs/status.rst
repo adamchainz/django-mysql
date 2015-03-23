@@ -14,7 +14,7 @@ can be imported from the ``django_mysql.status`` module.
 GlobalStatus
 ------------
 
-.. class:: GlobalStatus(name, connection_name=None)
+.. class:: GlobalStatus(name, using=None)
 
     Provides easy  access to the output of ``SHOW GLOBAL STATUS``. These
     statistics are useful for monitoring purposes or ensuring operations your
@@ -36,11 +36,10 @@ GlobalStatus
     `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ or
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_.
 
-    .. attribute:: connection_name
+    .. attribute:: using=None
 
-        The name of the connection to use from ``DATABASES`` in your Django
-        settings. Defaults to Django's ``DEFAULT_DB_ALIAS`` to use your main
-        database connection.
+        The connection alias from ``DATABASES`` to use. Defaults to Django's
+        ``DEFAULT_DB_ALIAS`` to use your main database connection.
 
     .. method:: get(name)
 
