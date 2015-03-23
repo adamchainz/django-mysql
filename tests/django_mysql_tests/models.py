@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
-from django.db.models import CharField, ForeignKey, Model as VanillaModel
+from django.db.models import (
+    CharField, DecimalField, ForeignKey, IntegerField, Model as VanillaModel
+)
 
 from django_mysql.fields import SetCharField
 from django_mysql.models import Model
@@ -55,3 +57,13 @@ class AuthorHugeName(Model):
                    'you_know_it'
 
     name = CharField(max_length=32)
+
+
+class Alphabet(Model):
+    a = IntegerField(default=1)
+    b = IntegerField(default=2)
+    c = IntegerField(default=3)
+    d = CharField(max_length=32)
+    e = CharField(max_length=32, null=True)
+    f = IntegerField(null=True)
+    g = DecimalField(default=0, decimal_places=2, max_digits=10)
