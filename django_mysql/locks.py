@@ -6,21 +6,23 @@ from django_mysql.exceptions import TimeoutError
 
 
 class Lock(object):
-    def __init__(self, name, acquire_timeout=10.0, connection_name=None):
+    def __init__(self, name, acquire_timeout=10.0, using=None):
         self.acquire_timeout = acquire_timeout
-        if connection_name is None:
-            connection_name = DEFAULT_DB_ALIAS
-        self.connection_name = connection_name
+
+        if using is None:
+            self.db = DEFAULT_DB_ALIAS
+        else:
+            self.db = using
 
         # For multi-database servers, we prefix the name of the lock wth
         # the database, to protect against concurrent apps with the same locks
         self.name = '.'.join((
-            connections[self.connection_name].settings_dict['NAME'],
+            connections[self.db].settings_dict['NAME'],
             name
         ))
 
     def get_cursor(self):
-        return connections[self.connection_name].cursor()
+        return connections[self.db].cursor()
 
     def __enter__(self):
         with self.get_cursor() as cursor:
