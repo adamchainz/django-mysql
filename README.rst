@@ -38,6 +38,7 @@ Here's a short list of what's inside:
 * ``QuerySet`` extensions - 'smart' iteration, ``approx_count`` for quick
   estimates of ``count()``, quick ``pt-visual-explain`` of the underlying
   query
+* Handler - quicker reads using MySQL's built-in NoSQL API
 * Status variable inspection and utility methods
 * User locks - use MySQL as a locking server between your servers
 
@@ -50,7 +51,7 @@ Requirements
 Tested with:
 
 * Python: 2.7, 3.3, 3.4
-* Django: 1.7, 1.8 beta
+* Django: 1.7, 1.8 RC
 * MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
 * mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
 

@@ -8,7 +8,7 @@ Requirements
 Tested with:
 
 * Python: 2.7, 3.3, 3.4
-* Django: 1.7, 1.8 beta
+* Django: 1.7, 1.8 RC
 * MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
 * mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
 
