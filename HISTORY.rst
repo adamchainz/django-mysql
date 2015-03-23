@@ -6,8 +6,9 @@ History
 0.1.7 (pending)
 ---------------
 
-* Renamed ``connection_name`` argument to ``db`` on ``Lock``, ``GlobalStatus``,
-  and ``SessionStatus`` classes, for more consistency with Django.
+* Renamed ``connection_name`` argument to ``using`` on ``Lock``,
+  ``GlobalStatus``, and ``SessionStatus`` classes, for more consistency with
+  Django.
 
 
 0.1.6 (2015-03-21)
