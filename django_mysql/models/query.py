@@ -71,7 +71,8 @@ class QuerySetMixin(object):
         if not can_approx_count:
             if not fall_back:
                 raise ValueError("Cannot use approx_count on this queryset.")
-            return self.count()
+            # Always fall through to super class
+            return super(QuerySetMixin, self).count()
 
         connection = connections[self.db]
         with connection.cursor() as cursor:

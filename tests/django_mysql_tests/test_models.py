@@ -39,6 +39,12 @@ class ApproximateCountTests(TransactionTestCase):
         self.assertNotEqual(qs2, qs3)
         self.assertFalse(qs3._count_tries_approx)
 
+    def test_activation_but_fallback(self):
+        qs = Author.objects.exclude(name='TEST').count_tries_approx()
+        count = qs.count()
+        self.assertEqual(count, 10)
+        self.assertFalse(isinstance(count, ApproximateInt))
+
     def test_output_in_templates(self):
         approx_count = Author.objects.approx_count(min_size=1)
         text = Template('{{ var }}').render(Context({'var': approx_count}))
