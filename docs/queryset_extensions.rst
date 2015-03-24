@@ -65,10 +65,8 @@ Approximate Counting
         long when calling ``COUNT(*)`` on tens of thousands of rows, but it
         *could* be slow for very wide tables.
 
-.. method:: count_tries_approx(activate=False, \
-                               fall_back=True, \
-                               return_approx_int=True, \
-                               min_size=1000)
+.. method:: count_tries_approx(activate=True, fall_back=True, \
+                               return_approx_int=True, min_size=1000)
 
         This is the 'magic' method to make pre-existing code, such as Django's
         admin, work with ``approx_count``. Calling ``count_tries_approx`` sets
