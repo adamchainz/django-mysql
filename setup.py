@@ -53,9 +53,6 @@ requirements = [
     "django>=1.7"
 ]
 
-test_requirements = [
-]
-
 setup(
     name='django-mysql',
     version=version,
@@ -85,6 +82,4 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Topic :: Database',
     ],
-    test_suite='tests',
-    tests_require=test_requirements
 )
