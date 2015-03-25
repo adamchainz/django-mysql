@@ -182,6 +182,14 @@ class StringFunctionTests(TestCase):
         "Requires old Django version without Database Functions")
 class OldDjangoFunctionTests(TestCase):
 
-    def test_they_dont_work(self):
+    def test_single_arg_doesnt_work(self):
         with self.assertRaises(ValueError):
             CRC32('name')
+
+    def test_multi_arg_doesnt_work(self):
+        with self.assertRaises(ValueError):
+            Greatest('a', 'b')
+
+    def test_concat_ws_doesnt_work(self):
+        with self.assertRaises(ValueError):
+            ConcatWS('a', 'b', separator='::')

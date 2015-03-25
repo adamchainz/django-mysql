@@ -38,7 +38,9 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source django_mysql ./runtests.py
+	coverage erase
+	tox
+	coverage combine
 	coverage report -m
 	coverage html
 	open htmlcov/index.html

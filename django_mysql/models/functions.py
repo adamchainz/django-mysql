@@ -8,7 +8,7 @@ else:
         def __init__(self, *args, **kwargs):
             raise ValueError("Database Functions only exist in Django 1.8+")
 
-    Value = object
+    Value = tuple
 
 
 class SingleArgFunc(Func):
