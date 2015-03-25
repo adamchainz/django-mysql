@@ -4,7 +4,7 @@ History
 =======
 
 0.1.7 (2015-03-25)
----------------
+------------------
 
 * Renamed ``connection_name`` argument to ``using`` on ``Lock``,
   ``GlobalStatus``, and ``SessionStatus`` classes, for more consistency with
