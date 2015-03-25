@@ -3,12 +3,13 @@
 History
 =======
 
-0.1.7 (pending)
+0.1.7 (2015-03-25)
 ---------------
 
 * Renamed ``connection_name`` argument to ``using`` on ``Lock``,
   ``GlobalStatus``, and ``SessionStatus`` classes, for more consistency with
   Django.
+* Fix recursion error on ``QuerySetMixin`` when using ``count_tries_approx``
 
 
 0.1.6 (2015-03-21)
