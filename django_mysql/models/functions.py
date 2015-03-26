@@ -26,6 +26,17 @@ class MultiArgFunc(Func):
         super(MultiArgFunc, self).__init__(*expressions)
 
 
+# Comparison Functions
+
+
+class Greatest(MultiArgFunc):
+    function = 'GREATEST'
+
+
+class Least(MultiArgFunc):
+    function = 'LEAST'
+
+
 # Numeric Functions
 
 
@@ -47,14 +58,6 @@ class CRC32(SingleArgFunc):
 class Floor(SingleArgFunc):
     function = 'FLOOR'
     output_field_class = IntegerField
-
-
-class Greatest(MultiArgFunc):
-    function = 'GREATEST'
-
-
-class Least(MultiArgFunc):
-    function = 'LEAST'
 
 
 class Round(Func):
@@ -96,6 +99,9 @@ class ConcatWS(Func):
                                        output_field=output_field)
 
 
+# Encryption Functions
+
+
 class MD5(SingleArgFunc):
     function = 'MD5'
     output_field_class = CharField
@@ -108,12 +114,12 @@ class SHA1(SingleArgFunc):
 
 class SHA2(Func):
     function = 'SHA2'
-    bitlengths = (224, 256, 384, 512)
+    hash_lens = (224, 256, 384, 512)
 
-    def __init__(self, expression, bitlength):
-        if bitlength not in self.bitlengths:
+    def __init__(self, expression, hash_len=512):
+        if hash_len not in self.hash_lens:
             raise ValueError(
-                "bitlength must be one of {}"
-                .format(",".join(str(x) for x in self.bitlengths))
+                "hash_len must be one of {}"
+                .format(",".join(str(x) for x in self.hash_lens))
             )
-        super(SHA2, self).__init__(expression, Value(bitlength))
+        super(SHA2, self).__init__(expression, Value(hash_len))

@@ -16,6 +16,25 @@ from django_mysql_tests.models import Alphabet
 
 @skipIf(django.VERSION <= (1, 8),
         "Requires Database Functions from Django 1.8+")
+class ComparisonFunctionTests(TestCase):
+
+    def test_greatest(self):
+        Alphabet.objects.create(d='A', e='B')
+        ab = Alphabet.objects.annotate(best=Greatest('d', 'e')).first()
+        self.assertEqual(ab.best, 'B')
+
+    def test_greatest_takes_no_kwargs(self):
+        with self.assertRaises(TypeError):
+            Greatest('a', something='wrong')
+
+    def test_least(self):
+        Alphabet.objects.create(a=1, b=2, c=-1)
+        ab = Alphabet.objects.annotate(worst=Least('a', 'b', 'c')).first()
+        self.assertEqual(ab.worst, -1)
+
+
+@skipIf(django.VERSION <= (1, 8),
+        "Requires Database Functions from Django 1.8+")
 class NumericFunctionTests(TestCase):
 
     def test_abs(self):
@@ -46,20 +65,6 @@ class NumericFunctionTests(TestCase):
         Alphabet.objects.create(g=1.5)
         ab = Alphabet.objects.annotate(gfloor=Floor('g')).first()
         self.assertEqual(ab.gfloor, 1)
-
-    def test_greatest(self):
-        Alphabet.objects.create(d='A', e='B')
-        ab = Alphabet.objects.annotate(best=Greatest('d', 'e')).first()
-        self.assertEqual(ab.best, 'B')
-
-    def test_greatest_takes_no_kwargs(self):
-        with self.assertRaises(TypeError):
-            Greatest('a', something='wrong')
-
-    def test_least(self):
-        Alphabet.objects.create(a=1, b=2, c=-1)
-        ab = Alphabet.objects.annotate(worst=Least('a', 'b', 'c')).first()
-        self.assertEqual(ab.worst, -1)
 
     def test_round(self):
         Alphabet.objects.create(g=24.459)
@@ -149,6 +154,11 @@ class StringFunctionTests(TestCase):
         )
         self.assertEqual(ab.de, 'AAA:BBB')
 
+
+@skipIf(django.VERSION <= (1, 8),
+        "Requires Database Functions from Django 1.8+")
+class EncryptionFunctionTests(TestCase):
+
     def test_md5_string(self):
         string = 'A string'
         Alphabet.objects.create(d=string)
@@ -167,13 +177,20 @@ class StringFunctionTests(TestCase):
         string = 'A string'
         Alphabet.objects.create(d=string)
 
-        for bitlength in (224, 256, 384, 512):
-            sha_func = getattr(hashlib, 'sha{}'.format(bitlength))
+        for hash_len in (224, 256, 384, 512):
+            sha_func = getattr(hashlib, 'sha{}'.format(hash_len))
             pysha = sha_func(string.encode('ascii')).hexdigest()
-            ab = Alphabet.objects.annotate(sha=SHA2('d', bitlength)).first()
+            ab = Alphabet.objects.annotate(sha=SHA2('d', hash_len)).first()
             self.assertEqual(ab.sha, pysha)
 
-    def test_sha2_bad_bitlength(self):
+    def test_sha2_string_hash_len_default(self):
+        string = 'A string'
+        Alphabet.objects.create(d=string)
+        pysha512 = hashlib.sha512(string.encode('ascii')).hexdigest()
+        ab = Alphabet.objects.annotate(sha=SHA2('d')).first()
+        self.assertEqual(ab.sha, pysha512)
+
+    def test_sha2_bad_hash_len(self):
         with self.assertRaises(ValueError):
             SHA2('a', 123)
 

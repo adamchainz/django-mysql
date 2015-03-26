@@ -82,6 +82,7 @@ page-by-page scans. This extension adds an ORM-based API for handlers::
 
 :ref:`Read more <handler>`
 
+
 -------------
 Field Lookups
 -------------
@@ -92,6 +93,19 @@ ORM extensions to built-in fields:
     [<Author: Robert>, <Author: Rupert>]
 
 :ref:`Read more <field-lookups>`
+
+
+------------------
+Database Functions
+------------------
+
+MySQL-specific database functions for the ORM:
+
+    >>> Author.objects.annotate(full_name=ConcatWS('first_name', 'last_name', separator=' ')) \
+    ...               .first().full_name
+    "Charles Dickens"
+
+:ref:`Read more <database_functions>`
 
 
 -----
