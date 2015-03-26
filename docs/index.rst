@@ -17,6 +17,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    installation
    queryset_extensions
    field_lookups
+   database_functions
    locks
    status
    manage_commands

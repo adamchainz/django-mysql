@@ -13,6 +13,10 @@ install:
   - pip install -r requirements/requirements-testing.txt
   - pip install coveralls tox
 
-script: tox
+script:
+  - coverage erase
+  - tox
 
-after_success: coveralls
+after_success:
+  - coverage combine
+  - coveralls
