@@ -8,8 +8,22 @@ from django.utils import six
 from django.utils.translation import string_concat, ugettext_lazy as _
 
 from django_mysql.validators import (
-    SetMaxLengthValidator, SetMinLengthValidator
+    ListMaxLengthValidator, ListMinLengthValidator, SetMaxLengthValidator,
+    SetMinLengthValidator
 )
+
+
+class SimpleListField(forms.CharField):
+    def __init__(self, base_field, max_length=None, min_length=None,
+                 *args, **kwargs):
+        self.base_field = base_field
+        super(SimpleListField, self).__init__(*args, **kwargs)
+        if max_length is not None:
+            self.max_length = max_length
+            self.validators.append(ListMaxLengthValidator(int(max_length)))
+        if min_length is not None:
+            self.min_length = min_length
+            self.validators.append(ListMinLengthValidator(int(min_length)))
 
 
 class SimpleSetField(forms.CharField):

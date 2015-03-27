@@ -3,7 +3,9 @@ from django.db.models import (
     CharField, DecimalField, ForeignKey, IntegerField, Model as VanillaModel
 )
 
-from django_mysql.models import Model, SetCharField, SetTextField
+from django_mysql.models import (
+    ListCharField, Model, SetCharField, SetTextField
+)
 
 
 class CharSetModel(Model):
@@ -14,8 +16,20 @@ class CharSetModel(Model):
     )
 
 
+class CharListModel(Model):
+    field = ListCharField(
+        base_field=CharField(max_length=8),
+        size=3,
+        max_length=32,
+    )
+
+
 class IntSetModel(Model):
     field = SetCharField(base_field=IntegerField(), size=5, max_length=32)
+
+
+class IntListModel(Model):
+    field = ListCharField(base_field=IntegerField(), size=5, max_length=32)
 
 
 class CharSetDefaultModel(Model):
@@ -23,6 +37,13 @@ class CharSetDefaultModel(Model):
                          size=5,
                          max_length=32,
                          default=lambda: {"a", "d"})
+
+
+class CharListDefaultModel(Model):
+    field = ListCharField(base_field=CharField(max_length=5),
+                          size=5,
+                          max_length=32,
+                          default=lambda: ["a", "d"])
 
 
 class BigCharSetModel(Model):
