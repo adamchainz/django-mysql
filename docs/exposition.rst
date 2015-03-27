@@ -95,6 +95,22 @@ ORM extensions to built-in fields:
 :ref:`Read more <field-lookups>`
 
 
+----------
+Aggregates
+----------
+
+``GROUP_CONCAT`` is supported, which allows you to bring back the concatenation
+of an aggregate in one query:
+
+    >>> author = Author.objects.annotate(
+    ...     book_ids=GroupConcat('books__id')
+    ... ).get(name="William Shakespeare")
+    >>> author.book_ids
+    "1,2,5,17,29"
+
+:ref:`Read more <aggregates>`
+
+
 ------------------
 Database Functions
 ------------------

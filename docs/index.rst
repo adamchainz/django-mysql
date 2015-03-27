@@ -17,6 +17,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    installation
    queryset_extensions
    field_lookups
+   aggregates
    database_functions
    locks
    status
