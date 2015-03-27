@@ -1,1 +1,1 @@
-from django_mysql.models.fields.sets import SetCharField, SetTextField  # NOQA
+from django_mysql.models.fields.sets import *  # NOQA

@@ -13,9 +13,6 @@ class CharSetModel(Model):
         max_length=32,
     )
 
-    def __unicode__(self):
-        return "{} {}".format(self.id, ",".join(self.features))
-
 
 class IntSetModel(Model):
     field = SetCharField(base_field=IntegerField(), size=5, max_length=32)

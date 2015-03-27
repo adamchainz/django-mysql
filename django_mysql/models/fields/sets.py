@@ -12,6 +12,9 @@ from django_mysql.forms import SimpleSetField
 from django_mysql.validators import SetMaxLengthValidator
 
 
+__all__ = ('SetCharField', 'SetTextField',)
+
+
 class SetFieldMixin(object):
     def __init__(self, base_field, size=None, **kwargs):
         self.base_field = base_field
