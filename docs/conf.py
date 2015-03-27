@@ -31,6 +31,9 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
+from django.conf import settings
+settings.configure()
+
 import django_mysql
 
 # -- General configuration ---------------------------------------------
