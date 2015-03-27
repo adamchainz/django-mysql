@@ -4,3 +4,4 @@ from django_mysql.models.query import (  # NOQA
     ApproximateInt, SmartChunkedIterator, SmartIterator, pt_visual_explain,
     QuerySet, QuerySetMixin
 )
+from django_mysql.models.fields import SetCharField, SetTextField  # NOQA

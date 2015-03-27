@@ -3,12 +3,11 @@ from django.db.models import (
     CharField, DecimalField, ForeignKey, IntegerField, Model as VanillaModel
 )
 
-from django_mysql.fields import SetCharField
-from django_mysql.models import Model
+from django_mysql.models import Model, SetCharField, SetTextField
 
 
-class Settee(Model):
-    features = SetCharField(
+class CharSetModel(Model):
+    field = SetCharField(
         base_field=CharField(max_length=8),
         size=3,
         max_length=32,
@@ -16,6 +15,28 @@ class Settee(Model):
 
     def __unicode__(self):
         return "{} {}".format(self.id, ",".join(self.features))
+
+
+class IntSetModel(Model):
+    field = SetCharField(base_field=IntegerField(), size=5, max_length=32)
+
+
+class CharSetDefaultModel(Model):
+    field = SetCharField(base_field=CharField(max_length=5),
+                         size=5,
+                         max_length=32,
+                         default=lambda: {"a", "d"})
+
+
+class BigCharSetModel(Model):
+    field = SetTextField(
+        base_field=CharField(max_length=8),
+        max_length=32,
+    )
+
+
+class BigIntSetModel(Model):
+    field = SetTextField(base_field=IntegerField())
 
 
 class Author(Model):

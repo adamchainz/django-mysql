@@ -1,0 +1,219 @@
+# -*- coding:utf-8 -*-
+from __future__ import absolute_import
+
+from django.core import checks
+from django.db.models import (CharField, IntegerField, SubfieldBase,
+                              TextField, Transform)
+from django.db.models.lookups import Lookup
+from django.utils import six
+from django.utils.translation import ugettext_lazy as _
+
+from django_mysql.forms import SimpleSetField
+from django_mysql.validators import SetMaxLengthValidator
+
+
+class SetFieldMixin(object):
+    def __init__(self, base_field, size=None, **kwargs):
+        self.base_field = base_field
+        self.size = size
+
+        super(SetFieldMixin, self).__init__(**kwargs)
+
+        if self.size:
+            self.validators.append(SetMaxLengthValidator(int(self.size)))
+
+    def check(self, **kwargs):
+        errors = super(SetFieldMixin, self).check(**kwargs)
+        if not isinstance(self.base_field, (CharField, IntegerField)):
+            errors.append(
+                checks.Error(
+                    'Base field for set must be a CharField or IntegerField.',
+                    hint=None,
+                    obj=self,
+                    id='django_mysql.E002'
+                )
+            )
+            return errors
+
+        # Remove the field name checks as they are not needed here.
+        base_errors = self.base_field.check()
+        if base_errors:
+            messages = '\n    '.join(
+                '%s (%s)' % (error.msg, error.id)
+                for error in base_errors
+            )
+            errors.append(
+                checks.Error(
+                    'Base field for set has errors:\n    %s' % messages,
+                    hint=None,
+                    obj=self,
+                    id='django_mysql.E001'
+                )
+            )
+        return errors
+
+    @property
+    def description(self):
+        return _('Set of %(base_description)s') % {
+            'base_description': self.base_field.description
+        }
+
+    def set_attributes_from_name(self, name):
+        super(SetFieldMixin, self).set_attributes_from_name(name)
+        self.base_field.set_attributes_from_name(name)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(SetFieldMixin, self).deconstruct()
+        path = 'django_mysql.models.%s' % self.__class__.__name__
+        args.insert(0, self.base_field)
+        kwargs['size'] = self.size
+        return name, path, args, kwargs
+
+    def to_python(self, value):
+        if isinstance(value, six.string_types):
+            if not len(value):
+                value = set()
+            else:
+                value = {self.base_field.to_python(v) for
+                         v in value.split(',')}
+        return value
+
+    def get_prep_value(self, value):
+        if isinstance(value, set):
+            value = {
+                six.text_type(self.base_field.get_prep_value(v))
+                for v in value
+            }
+            for v in value:
+                if ',' in v:
+                    raise ValueError(
+                        "Set members in {klass} {name} cannot contain commas"
+                        .format(klass=self.__class__.__name__,
+                                name=self.name)
+                    )
+                elif not len(v):
+                    raise ValueError(
+                        "The empty string cannot be stored in {klass} {name}"
+                        .format(klass=self.__class__.__name__,
+                                name=self.name)
+                    )
+            return ','.join(value)
+        return value
+
+    def get_db_prep_lookup(self, lookup_type, value, connection,
+                           prepared=False):
+        if lookup_type in ('contains', 'icontains'):
+            # Avoid the default behaviour of adding wildcards on either side of
+            # what we're searching for, because FIND_IN_SET is doing that
+            # implicitly
+            if isinstance(value, set):
+                # Can't do multiple contains without massive ORM hackery
+                # (ANDing all the FIND_IN_SET calls), so just reject them
+                raise ValueError(
+                    "Can't do contains with a set and {klass}, you should "
+                    "pass them as separate filters."
+                    .format(klass=self.__class__.__name__)
+                )
+            return [six.text_type(self.base_field.get_prep_value(value))]
+        return super(SetFieldMixin, self).get_db_prep_lookup(
+            lookup_type, value, connection, prepared)
+
+    def value_to_string(self, obj):
+        vals = self._get_val_from_obj(obj)
+        return self.get_prep_value(vals)
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': SimpleSetField,
+            'base_field': self.base_field.formfield(),
+            'max_length': self.size,
+        }
+        defaults.update(kwargs)
+        return super(SetFieldMixin, self).formfield(**defaults)
+
+
+class SetCharField(six.with_metaclass(SubfieldBase, SetFieldMixin, CharField)):
+    """
+    A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
+    """
+    def check(self, **kwargs):
+        errors = super(SetCharField, self).check(**kwargs)
+
+        # Unfortunately this check can't really be done for IntegerFields since
+        # they have boundless length
+        has_base_error = any(e.id == 'django_mysql.E001' for e in errors)
+        if (
+            not has_base_error and
+            isinstance(self.base_field, CharField) and
+            self.size
+        ):
+            max_size = (
+                # The chars used
+                (self.size * (self.base_field.max_length)) +
+                # The commas
+                self.size - 1
+            )
+            if max_size > self.max_length:
+                errors.append(
+                    checks.Error(
+                        'Field can overrun - set contains CharFields of max '
+                        'length %s, leading to a comma-combined max length of '
+                        '%s, which is greater than the space reserved for the '
+                        'set - %s' %
+                        (self.base_field.max_length, max_size,
+                            self.max_length),
+                        hint=None,
+                        obj=self,
+                        id='django_mysql.E003'
+                    )
+                )
+        return errors
+
+
+class SetTextField(six.with_metaclass(SubfieldBase, SetFieldMixin, TextField)):
+    pass
+
+
+class SetContains(Lookup):
+    lookup_name = 'contains'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        # Put rhs on the left since that's the order FIND_IN_SET uses
+        return 'FIND_IN_SET(%s, %s)' % (rhs, lhs), params
+
+
+SetCharField.register_lookup(SetContains)
+SetTextField.register_lookup(SetContains)
+
+
+class SetIContains(SetContains):
+    lookup_name = 'icontains'
+
+
+SetCharField.register_lookup(SetIContains)
+SetTextField.register_lookup(SetIContains)
+
+
+class SetLength(Transform):
+    lookup_name = 'len'
+    output_field = IntegerField()
+
+    expr = (
+        # No str.count equivalent in MySQL :(
+        "("
+        "CHAR_LENGTH(%s) -"
+        "CHAR_LENGTH(REPLACE(%s, ',', '')) +"
+        "IF(CHAR_LENGTH(%s), 1, 0)"
+        ")"
+    )
+
+    def as_sql(self, compiler, connection):
+        lhs, params = compiler.compile(self.lhs)
+        return self.expr % (lhs, lhs, lhs), params
+
+
+SetCharField.register_lookup(SetLength)
+SetTextField.register_lookup(SetLength)

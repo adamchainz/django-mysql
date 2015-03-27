@@ -5,7 +5,8 @@ Field Lookups
 =============
 
 ORM extensions for extra filtering. These are all automatically added for the
-appropriate field types.
+appropriate field types. Note that lookups specific to only the included
+:doc:`model fields <model_fields>` are documented with the field.
 
 -------
 Soundex
