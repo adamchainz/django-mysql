@@ -4,37 +4,45 @@
 Status
 ======
 
-MySQL gives you some data about the server status through its
-``SHOW GLOBAL STATUS`` and ``SHOW SESSION STATUS`` commands; these classes make
-it easy to access and inspect this, as well as providing utility methods. They
-can be imported from the ``django_mysql.status`` module.
+MySQL gives you metadata on the server status through its
+``SHOW GLOBAL STATUS`` and ``SHOW SESSION STATUS`` commands. These classes
+make it easy to get this data, as well as providing utility methods to react
+to it.
+
+The following can all be imported from ``django_mysql.status``.
 
 .. currentmodule:: django_mysql.status
 
-GlobalStatus
-------------
 
 .. class:: GlobalStatus(name, using=None)
 
-    Provides easy  access to the output of ``SHOW GLOBAL STATUS``. These
-    statistics are useful for monitoring purposes or ensuring operations your
-    app creates aren't saturating the database server and bringing your site
-    down.
+    Provides easy access to the output of ``SHOW GLOBAL STATUS``. These
+    statistics are useful for monitoring purposes, or ensuring queries your
+    code creates aren't saturating the server.
 
     Basic usage::
 
-        from django_mysql.status import GlobalStatus
+        from django_mysql.status import global_status
 
         # Wait until a quiet moment
-        while GlobalStatus().get('Threads_running') >= 5:
+        while global_status.get('Threads_running') >= 5:
             time.sleep(1)
 
         # Log all status variables
-        logger.log("DB status", extra=GlobalStatus().as_dict())
+        logger.log("DB status", extra=global_status.as_dict())
 
-    To see what variables you can get, refer to the documentation on
-    `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ or
-    `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_.
+    Note that ``global_status`` is a pre-existing instance for the default
+    database connection from ``DATABASES``. If you're using more than database
+    connection, you should instantiate the class::
+
+        >>> from django_mysql.status import GlobalStatus
+        >>> GlobalStatus(using='replica1').get('Threads_running')
+        47
+
+    To see the names of all the avaiable variables, refer to the documentation:
+    `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_. They vary
+    based upon server version, plugins installed, etc.
 
     .. attribute:: using=None
 
@@ -44,8 +52,8 @@ GlobalStatus
     .. method:: get(name)
 
         Returns the current value of the named status variable. The name may
-        not include wildcards (``%``). If it does not exist, ``KeyError`` will
-        be raised.
+        not include SQJ wildcards (``%``). If it does not exist, ``KeyError``
+        will be raised.
 
         The result set for ``SHOW STATUS`` returns values in strings, so
         numbers and booleans will be cast to their respective Python types -
@@ -89,17 +97,26 @@ GlobalStatus
         sharply reduce your risk of outage.
 
 
-SessionStatus
--------------
-
 .. class:: SessionStatus(name, connection_name=None)
 
     This class is the same as GlobalStatus apart from it runs
     ``SHOW SESSION STATUS``, so *some* variables are restricted to the current
     connection only, rather than the whole server. For which, you should refer
-    to the documentation on
-    `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ or
+    to the documentation:
+    `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_.
 
     Also it doesn't have the ``wait_until_load_low`` method, which only makes
     sense in a global setting.
+
+    Example usage::
+
+        from django_mysql.status import session_status
+
+        read_operations = session_status.get("Handler_read")
+
+    And for a different connection:
+
+        from django_mysql.status import SessionStatus
+
+        replica1_reads = SessionStatus(using='replica1').get("Handler_read")

@@ -6,6 +6,7 @@ import time
 
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
+from django.utils.functional import SimpleLazyObject
 
 from django_mysql.exceptions import TimeoutError
 
@@ -116,3 +117,7 @@ class GlobalStatus(BaseStatus):
 
 class SessionStatus(BaseStatus):
     query = "SHOW SESSION STATUS"
+
+
+global_status = SimpleLazyObject(GlobalStatus)
+session_status = SimpleLazyObject(SessionStatus)
