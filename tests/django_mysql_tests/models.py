@@ -4,7 +4,7 @@ from django.db.models import (
 )
 
 from django_mysql.models import (
-    ListCharField, Model, SetCharField, SetTextField
+    ListCharField, ListTextField, Model, SetCharField, SetTextField
 )
 
 
@@ -53,8 +53,16 @@ class BigCharSetModel(Model):
     )
 
 
+class BigCharListModel(Model):
+    field = ListTextField(base_field=CharField(max_length=8))
+
+
 class BigIntSetModel(Model):
     field = SetTextField(base_field=IntegerField())
+
+
+class BigIntListModel(Model):
+    field = ListTextField(base_field=IntegerField())
 
 
 class Author(Model):

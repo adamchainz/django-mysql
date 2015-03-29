@@ -13,7 +13,7 @@ from django_mysql.models.transforms import SetLength
 from django_mysql.forms import SimpleListField
 from django_mysql.validators import ListMaxLengthValidator
 
-__all__ = ('ListCharField',)
+__all__ = ('ListCharField', 'ListTextField')
 
 
 class ListFieldMixin(object):
@@ -200,10 +200,13 @@ class ListTextField(six.with_metaclass(SubfieldBase,
 
 
 ListCharField.register_lookup(SetContains)
+ListTextField.register_lookup(SetContains)
 
 ListCharField.register_lookup(SetIContains)
+ListTextField.register_lookup(SetIContains)
 
 ListCharField.register_lookup(SetLength)
+ListTextField.register_lookup(SetLength)
 
 
 class IndexLookup(Lookup):
