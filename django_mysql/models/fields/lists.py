@@ -2,38 +2,40 @@
 from __future__ import absolute_import
 
 from django.core import checks
-from django.db.models import CharField, IntegerField, SubfieldBase, TextField
+from django.db.models import (
+    CharField, IntegerField, Lookup, SubfieldBase, TextField
+)
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
-from django_mysql.forms import SimpleSetField
-from django_mysql.validators import SetMaxLengthValidator
+from django_mysql.forms import SimpleListField
+from django_mysql.validators import ListMaxLengthValidator
+
+__all__ = ('ListCharField', 'ListTextField')
 
 
-__all__ = ('SetCharField', 'SetTextField',)
+class ListFieldMixin(object):
 
-
-class SetFieldMixin(object):
     def __init__(self, base_field, size=None, **kwargs):
         self.base_field = base_field
         self.size = size
 
-        super(SetFieldMixin, self).__init__(**kwargs)
+        super(ListFieldMixin, self).__init__(**kwargs)
 
         if self.size:
-            self.validators.append(SetMaxLengthValidator(int(self.size)))
+            self.validators.append(ListMaxLengthValidator(int(self.size)))
 
     def check(self, **kwargs):
-        errors = super(SetFieldMixin, self).check(**kwargs)
+        errors = super(ListFieldMixin, self).check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
                 checks.Error(
-                    'Base field for set must be a CharField or IntegerField.',
+                    'Base field for list must be a CharField or IntegerField.',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E002'
+                    id='django_mysql.E005'
                 )
             )
             return errors
@@ -47,26 +49,26 @@ class SetFieldMixin(object):
             )
             errors.append(
                 checks.Error(
-                    'Base field for set has errors:\n    %s' % messages,
+                    'Base field for list has errors:\n    %s' % messages,
                     hint=None,
                     obj=self,
-                    id='django_mysql.E001'
+                    id='django_mysql.E004'
                 )
             )
         return errors
 
     @property
     def description(self):
-        return _('Set of %(base_description)s') % {
+        return _('List of %(base_description)s') % {
             'base_description': self.base_field.description
         }
 
     def set_attributes_from_name(self, name):
-        super(SetFieldMixin, self).set_attributes_from_name(name)
+        super(ListFieldMixin, self).set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(SetFieldMixin, self).deconstruct()
+        name, path, args, kwargs = super(ListFieldMixin, self).deconstruct()
         path = 'django_mysql.models.%s' % self.__class__.__name__
         args.insert(0, self.base_field)
         kwargs['size'] = self.size
@@ -75,22 +77,22 @@ class SetFieldMixin(object):
     def to_python(self, value):
         if isinstance(value, six.string_types):
             if not len(value):
-                value = set()
+                value = []
             else:
-                value = {self.base_field.to_python(v) for
-                         v in value.split(',')}
+                value = [self.base_field.to_python(v) for
+                         v in value.split(',')]
         return value
 
     def get_prep_value(self, value):
-        if isinstance(value, set):
-            value = {
+        if isinstance(value, list):
+            value = [
                 six.text_type(self.base_field.get_prep_value(v))
                 for v in value
-            }
+            ]
             for v in value:
                 if ',' in v:
                     raise ValueError(
-                        "Set members in {klass} {name} cannot contain commas"
+                        "List members in {klass} {name} cannot contain commas"
                         .format(klass=self.__class__.__name__,
                                 name=self.name)
                     )
@@ -103,22 +105,38 @@ class SetFieldMixin(object):
             return ','.join(value)
         return value
 
+    def get_lookup(self, lookup_name):
+        lookup = super(ListFieldMixin, self).get_lookup(lookup_name)
+        if lookup:
+            return lookup
+
+        try:
+            index = int(lookup_name)
+        except ValueError:
+            pass
+        else:
+            index += 1  # MySQL uses 1-indexing
+            return IndexLookupFactory(index)
+
+        return lookup
+
     def get_db_prep_lookup(self, lookup_type, value, connection,
                            prepared=False):
         if lookup_type in ('contains', 'icontains'):
             # Avoid the default behaviour of adding wildcards on either side of
             # what we're searching for, because FIND_IN_SET is doing that
             # implicitly
-            if isinstance(value, set):
+            if isinstance(value, list):
                 # Can't do multiple contains without massive ORM hackery
                 # (ANDing all the FIND_IN_SET calls), so just reject them
                 raise ValueError(
-                    "Can't do contains with a set and {klass}, you should "
+                    "Can't do contains with a list and {klass}, you should "
                     "pass them as separate filters."
                     .format(klass=self.__class__.__name__)
                 )
             return [six.text_type(self.base_field.get_prep_value(value))]
-        return super(SetFieldMixin, self).get_db_prep_lookup(
+
+        return super(ListFieldMixin, self).get_db_prep_lookup(
             lookup_type, value, connection, prepared)
 
     def value_to_string(self, obj):
@@ -127,24 +145,26 @@ class SetFieldMixin(object):
 
     def formfield(self, **kwargs):
         defaults = {
-            'form_class': SimpleSetField,
+            'form_class': SimpleListField,
             'base_field': self.base_field.formfield(),
             'max_length': self.size,
         }
         defaults.update(kwargs)
-        return super(SetFieldMixin, self).formfield(**defaults)
+        return super(ListFieldMixin, self).formfield(**defaults)
 
 
-class SetCharField(six.with_metaclass(SubfieldBase, SetFieldMixin, CharField)):
+class ListCharField(six.with_metaclass(SubfieldBase,
+                                       ListFieldMixin,
+                                       CharField)):
     """
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
     def check(self, **kwargs):
-        errors = super(SetCharField, self).check(**kwargs)
+        errors = super(ListCharField, self).check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
         # they have boundless length
-        has_base_error = any(e.id == 'django_mysql.E001' for e in errors)
+        has_base_error = any(e.id == 'django_mysql.E004' for e in errors)
         if (
             not has_base_error and
             isinstance(self.base_field, CharField) and
@@ -167,21 +187,46 @@ class SetCharField(six.with_metaclass(SubfieldBase, SetFieldMixin, CharField)):
                             self.max_length),
                         hint=None,
                         obj=self,
-                        id='django_mysql.E003'
+                        id='django_mysql.E006'
                     )
                 )
         return errors
 
 
-class SetTextField(six.with_metaclass(SubfieldBase, SetFieldMixin, TextField)):
+class ListTextField(six.with_metaclass(SubfieldBase,
+                                       ListFieldMixin,
+                                       TextField)):
     pass
 
 
-SetCharField.register_lookup(SetContains)
-SetTextField.register_lookup(SetContains)
+ListCharField.register_lookup(SetContains)
+ListTextField.register_lookup(SetContains)
 
-SetCharField.register_lookup(SetIContains)
-SetTextField.register_lookup(SetIContains)
+ListCharField.register_lookup(SetIContains)
+ListTextField.register_lookup(SetIContains)
 
-SetCharField.register_lookup(SetLength)
-SetTextField.register_lookup(SetLength)
+ListCharField.register_lookup(SetLength)
+ListTextField.register_lookup(SetLength)
+
+
+class IndexLookup(Lookup):
+
+    def __init__(self, index, *args, **kwargs):
+        super(IndexLookup, self).__init__(*args, **kwargs)
+        self.index = index
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        # Put rhs on the left since that's the order FIND_IN_SET uses
+        return '(FIND_IN_SET(%s, %s) = %s)' % (rhs, lhs, self.index), params
+
+
+class IndexLookupFactory(object):
+
+    def __init__(self, index):
+        self.index = index
+
+    def __call__(self, *args, **kwargs):
+        return IndexLookup(self.index, *args, **kwargs)
