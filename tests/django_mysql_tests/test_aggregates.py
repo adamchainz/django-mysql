@@ -13,18 +13,17 @@ class GroupConcatTests(TestCase):
         self.jk = Author.objects.create(name='JK Rowling', tutor=self.shakes)
         self.grisham = Author.objects.create(name='Grisham', tutor=self.shakes)
 
+        self.tutee_ids = [self.jk.id, self.grisham.id]
         self.str_tutee_ids = [str(self.jk.id), str(self.grisham.id)]
 
     def test_basic_aggregate_ids(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat('id'))
-        concatted_ids = ",".join(self.str_tutee_ids)
-        self.assertEqual(out, {'tids': concatted_ids})
+        self.assertEqual(out, {'tids': self.tutee_ids})
 
     def test_basic_annotate_ids(self):
         concat = GroupConcat('tutees__id')
         shakey = Author.objects.annotate(tids=concat).get(id=self.shakes.id)
-        concatted_ids = ",".join(self.str_tutee_ids)
-        self.assertEqual(shakey.tids, concatted_ids)
+        self.assertEqual(shakey.tids, self.tutee_ids)
 
     def test_separator(self):
         concat = GroupConcat('id', separator=':')
@@ -50,4 +49,4 @@ class GroupConcatTests(TestCase):
                   .exclude(id=self.shakes.id)
                   .aggregate(tids=GroupConcat('tutor_id', distinct=True))
         )
-        self.assertEqual(out, {'tids': str(self.shakes.id)})
+        self.assertEqual(out, {'tids': [self.shakes.id]})

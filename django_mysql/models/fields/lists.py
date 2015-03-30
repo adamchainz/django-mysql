@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 from django.core import checks
 from django.db.models import (
-    CharField, IntegerField, Lookup, SubfieldBase, TextField
+    AutoField, CharField, IntegerField, Lookup, SubfieldBase, TextField
 )
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
@@ -27,9 +27,13 @@ class ListFieldMixin(object):
         if self.size:
             self.validators.append(ListMaxLengthValidator(int(self.size)))
 
+    # We allow AutoField just for GroupConcat - it acts like an integer and
+    # has no ability to autoincrement in a list anyway
+    ALLOWED_BASE_FIELDS = (CharField, IntegerField, AutoField)
+
     def check(self, **kwargs):
         errors = super(ListFieldMixin, self).check(**kwargs)
-        if not isinstance(self.base_field, (CharField, IntegerField)):
+        if not isinstance(self.base_field, self.ALLOWED_BASE_FIELDS):
             errors.append(
                 checks.Error(
                     'Base field for list must be a CharField or IntegerField.',
@@ -82,6 +86,9 @@ class ListFieldMixin(object):
                 value = [self.base_field.to_python(v) for
                          v in value.split(',')]
         return value
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def get_prep_value(self, value):
         if isinstance(value, list):
