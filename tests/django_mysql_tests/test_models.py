@@ -45,6 +45,12 @@ class ApproximateCountTests(TransactionTestCase):
         self.assertEqual(count, 10)
         self.assertFalse(isinstance(count, ApproximateInt))
 
+    def test_activation_but_fallback_due_to_min_size(self):
+        qs = Author.objects.count_tries_approx()
+        count = qs.count()
+        self.assertEqual(count, 10)
+        self.assertFalse(isinstance(count, ApproximateInt))
+
     def test_output_in_templates(self):
         approx_count = Author.objects.approx_count(min_size=1)
         text = Template('{{ var }}').render(Context({'var': approx_count}))

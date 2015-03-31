@@ -82,7 +82,8 @@ class QuerySetMixin(object):
             approx_count = cursor.fetchone()[8]  # 'rows' is the 9th column
 
         if min_size and approx_count < min_size:
-            return self.count()
+            # Always fall through to super class
+            return super(QuerySetMixin, self).count()
 
         if return_approx_int:
             return ApproximateInt(approx_count)
