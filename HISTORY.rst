@@ -3,6 +3,19 @@
 History
 =======
 
+0.1.8 (2015-03-31)
+------------------
+
+* Add ``Set`` and ``List`` fields which can store comma-separated sets and
+  lists of a base field with MySQL-specific lookups
+* Support MySQL's ``GROUP_CONCAT`` as an aggregate!
+* Add a ``functions`` module with many MySQL-specific functions for the new
+  Django 1.8 database functions feature
+* Allow access of the global and session status for the default connection from
+  a lazy singleton, similar to Django's ``connection`` object
+* Fix a different recursion error on ``count_tries_approx``
+
+
 0.1.7 (2015-03-25)
 ------------------
 
