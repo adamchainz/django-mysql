@@ -30,8 +30,10 @@ Approximate Counting
     pages of results but users will only practically scroll through the first
     few. For example::
 
-        Author.objects.count()  # slow
-        Author.objects.approx_count()  # fast, with some error
+        >>> Author.objects.count()  # slow
+        509741
+        >>> Author.objects.approx_count()  # fast, with some error
+        531140
 
     Three arguments are taken:
 
@@ -50,8 +52,15 @@ Approximate Counting
         but instead a subclass called ``ApproximateInt``. This is for all
         intents and purposes an ``int``, apart from when cast to ``str``, it
         renders as e.g. **'Approximately 12345'** (internationalization
-        included). Useful for templates you can't edit (e.g. the admin) and you
-        want to communicate that the number is not 100% accurate.
+        ready). Useful for templates you can't edit (e.g. the admin) and you
+        want to communicate that the number is not 100% accurate. For example::
+
+            >>> print(Author.objects.approx_count())  # ApproximateInt
+            Approximately 531140
+            >>> print(Author.objects.approx_count() + 0)  # plain int
+            531140
+            >>> print(Author.objects.approx_count(return_approx_int=False))  # plain int
+            531140
 
     .. attribute:: min_size=1000
 
