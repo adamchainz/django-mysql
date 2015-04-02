@@ -135,9 +135,9 @@ A transform that converts to the number of items in the list. For example::
 Index lookups
 ~~~~~~~~~~~~~
 
-This class of lookups allows you to index into the list to check if a certain
-element is in a certain position. There are no errors if it exceeds the
-``size`` of the list. For example::
+This class of lookups allows you to index into the list to check if the first
+occurence of a given element is at a given position. There are no errors if
+it exceeds the ``size`` of the list. For example::
 
     >>> Person.objects.filter(post_nominals__0='PhD')
     [<Person: Horatio>, <Person: Severus>]
@@ -149,11 +149,24 @@ element is in a certain position. There are no errors if it exceeds the
     []
 
 
+.. warning::
+
+    The underlying function, ``FIND_IN_SET``, is designed for *sets*, i.e.
+    comma-separated lists of unique elements. It therefore only allows you to
+    query about the *first* occurence of the given item. For example, this is
+    a non-match::
+
+        >>> Person.objects.create(name='Cacistus', post_nominals=['MSc', 'MSc'])
+        >>> Person.objects.filter(post_nominals__1='MSc')
+        []  # Cacistus does not appear because his first MSc is at position 0
+
+    This may be fine for your application, but be careful!
+
 .. note::
 
     ``FIND_IN_SET`` uses 1-based indexing for searches on comma-based strings
     when writing raw SQL. However these indexes use 0-based indexing to be
-    consistent with Python
+    consistent with Python.
 
 .. note::
 

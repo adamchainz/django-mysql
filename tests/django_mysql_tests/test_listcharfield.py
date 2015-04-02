@@ -171,6 +171,21 @@ class TestSaveLoad(TestCase):
         )
         self.assertEqual(list(red0_or_blue0), [mymodel])
 
+    def test_char_position_lookup_repeat_fails(self):
+        """
+        FIND_IN_SET returns the *first* position so repeats are not dealt with
+        """
+        CharListModel.objects.create(field=["red", "red", "blue"])
+
+        red1 = CharListModel.objects.filter(field__1="red")
+        self.assertEqual(list(red1), [])  # should be 'red'
+
+    def test_char_position_lookup_too_long(self):
+        CharListModel.objects.create(field=["red", "blue"])
+
+        red1 = CharListModel.objects.filter(field__2="blue")
+        self.assertEqual(list(red1), [])
+
     def test_int_easy(self):
         mymodel = IntListModel.objects.create(field=[1, 2])
         self.assertEqual(mymodel.field, [1, 2])
