@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
-from random import randint
 import re
+from random import randint
 
 from django.db import connections
 

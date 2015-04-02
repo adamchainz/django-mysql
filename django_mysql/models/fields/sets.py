@@ -6,11 +6,10 @@ from django.db.models import CharField, IntegerField, SubfieldBase, TextField
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
+from django_mysql.forms import SimpleSetField
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
-from django_mysql.forms import SimpleSetField
 from django_mysql.validators import SetMaxLengthValidator
-
 
 __all__ = ('SetCharField', 'SetTextField',)
 

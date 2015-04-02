@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import division
 
-from contextlib import contextmanager
-from subprocess import call, PIPE
 import time
+from contextlib import contextmanager
+from subprocess import PIPE, call
 
 
 class WeightedAverageRate(object):

@@ -1,5 +1,4 @@
-from django.db.models import CharField
-from django.db.models import Aggregate
+from django.db.models import Aggregate, CharField
 from django.db.models.sql.aggregates import Aggregate as SQLAggregate
 from django.utils.functional import cached_property
 

@@ -5,13 +5,13 @@ from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils import six
-from django.utils.translation import string_concat, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import string_concat
 
 from django_mysql.validators import (
     ListMaxLengthValidator, ListMinLengthValidator, SetMaxLengthValidator,
     SetMinLengthValidator
 )
-
 
 __all__ = ('SimpleListField', 'SimpleSetField')
 

@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import print_function
 
+import sys
 from copy import copy
 from subprocess import PIPE, Popen
-import sys
 
 from django.db import connections, models
 from django.db.transaction import atomic
@@ -15,8 +15,8 @@ from django.utils.translation import ugettext as _
 from django_mysql.models.handler import Handler
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
-    have_program, noop_context, settings_to_cmd_args, StopWatch,
-    WeightedAverageRate
+    StopWatch, WeightedAverageRate, have_program, noop_context,
+    settings_to_cmd_args
 )
 
 

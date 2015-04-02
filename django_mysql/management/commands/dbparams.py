@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from optparse import make_option
 
 from django.core.management import BaseCommand, CommandError
-from django.db import connections, DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import ConnectionDoesNotExist
 
 from django_mysql.utils import settings_to_cmd_args
