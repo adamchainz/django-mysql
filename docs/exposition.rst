@@ -7,22 +7,23 @@ Every feature in whistle-stop detail.
 QuerySet Extensions
 -------------------
 
-Django-MySQL comes with a number of extensions to QuerySets that can be
+Django-MySQL comes with a number of extensions to ``QuerySet`` that can be
 installed in a number of ways - e.g. adding the ``QuerySetMixin`` to your
-existing ``QuerySet`` subclass. They perform different utilities.
+existing ``QuerySet`` subclass.
 
 
 Approximate Counting
 --------------------
 
-``SELECT COUNT(*) ...`` can become a slow query since it requires a scan of all
-data - so we provide a way to access the approximation of the count that MySQL
-knows. You can call it directly::
+``SELECT COUNT(*) ...`` can become a slow query, since it requires a scan of
+all rows; the ``approx_count`` functions solves this by returning the estimated
+count that MySQL keeps in metadata. You can call it directly::
 
-    Author.objects.count()
+    Author.objects.approx_count()
 
-Or if you have pre-existing code that calls ``count()`` later, e.g. the Django
-Admin, you can set the ``QuerySet`` to do this automatically::
+Or if you have pre-existing code that calls ``count()`` on a ``QuerySet`` you
+pass it, such as the Django Admin, you can set the ``QuerySet`` to do try
+``approx_count`` first automatically::
 
     qs = Author.objects.all().count_tries_approx()
     # Now calling qs.count() will try approx_count() first
@@ -33,10 +34,11 @@ Admin, you can set the ``QuerySet`` to do this automatically::
 'Smart' Iteration
 -----------------
 
-Sometimes you need to modify every single instance of a model in your big
-database, and without creating any long running queries. The 'smart' iterators
-fetch the specified rows by slicing the ``QuerySet`` up into primary-key-ranged
-slices which traverse the table, whilst dynamically adjusting the slice size::
+Sometimes you need to modify every single instance of a model in a big table,
+without creating any long running queries that consume large amounts of
+resources. The 'smart' iterators traverse the table by slicing it into primary
+key ranges which span the table, performing each slice separately, and
+dynamically adjusting the slice size to keep them fast::
 
     # Some authors to fix
     bad_authors = Author.objects.filter(address="Nowhere")
@@ -57,8 +59,9 @@ slices which traverse the table, whilst dynamically adjusting the slice size::
 Integration with pt-visual-explain
 ----------------------------------
 
-For interactive use - capture the query this ``QuerySet`` represents, and give
-its ``EXPLAIN`` to ``pt-visual-explain`` to see what the query plan is::
+For interactive debugging of queries, this captures the query that the
+``QuerySet`` represents, and passes it through ``EXPLAIN`` and
+``pt-visual-explain`` to get a visual representation of the query plan::
 
     >>> Author.objects.all().pt_visual_explain()
     Table scan
@@ -89,10 +92,31 @@ Model Fields
 
 Fields that use MySQL-specific features!
 
+List Fields
+-----------
+
+Two field classes that allow you to store lists of items in a comma-separated
+string::
+
+    class Person(Model):
+        name = CharField(max_length=32)
+        post_nominals = ListTextField(
+            base_field=CharField(max_length=32)
+        )
+
+..
+
+    >>> Person.objects.filter(post_nominals__contains='PhD')
+    [<Person: Horatio>, <Person: Severus>]
+
+:ref:`Read more <list-fields>`
+
+
 Set Fields
 ----------
 
-For storing sets of items in a comma-separated string::
+Two field classes that allow you to store sets of items in a comma-separated
+string::
 
     class Post(Model):
         name = CharField(max_length=32)
@@ -113,7 +137,7 @@ For storing sets of items in a comma-separated string::
 Field Lookups
 -------------
 
-ORM extensions to built-in fields:
+ORM extensions to built-in fields::
 
     >>> Author.objects.filter(name__sounds_like='Robert')
     [<Author: Robert>, <Author: Rupert>]
@@ -125,8 +149,8 @@ ORM extensions to built-in fields:
 Aggregates
 ----------
 
-``GROUP_CONCAT`` is supported, which allows you to bring back the concatenation
-of an aggregate in one query:
+MySQL's powerful ``GROUP_CONCAT`` statement is added as an aggregate, allowing
+you to bring back the concatenation of values from a group in one query::
 
     >>> author = Author.objects.annotate(
     ...     book_ids=GroupConcat('books__id')
@@ -154,8 +178,7 @@ MySQL-specific database functions for the ORM:
 Locks
 -----
 
-A little-known MySQL feature, this allows you to lock an arbitrary string to
-prevent concurrent access to some resource::
+Use MySQL as a locking server for arbitrarily named lock::
 
     with Lock("ExternalAPI", timeout=10.0):
         do_some_external_api_stuff()
@@ -167,11 +190,9 @@ prevent concurrent access to some resource::
 Status
 ------
 
-Do you know what your server is doing, or what your code is doing to it? Quick
-programmatic access to global or session status variables::
+Easy access to global or session status variables::
 
-    status = GlobalStatus()
-    if status.get('Threads_running') > 100:
+    if global_status.get('Threads_running') > 100:
         raise BorkError("Server too busy right now, come back later")
 
 :ref:`Read more <status>`
@@ -181,12 +202,12 @@ programmatic access to global or session status variables::
 Management Commands
 -------------------
 
-Quick inclusion of your database parameters from settings in commandline
+Easy inclusion of your database parameters from settings in commandline
 tools:
 
 .. code-block:: console
 
-    $ mysqldump $(python manage.py dbparams)
+    $ mysqldump $(python manage.py dbparams) > dump.sql
 
 :ref:`Read more <management_commands>`
 

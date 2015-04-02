@@ -57,7 +57,7 @@ except for ``max_length`` which is not needed.
 
         class Person(Model):
             post_nominals = ListCharField(
-                base_field=CharField(),
+                base_field=CharField(max_length=32),
                 size=6,
                 max_length=(6 * 3)  # 6 two digit numbers plus commas
             )
@@ -98,7 +98,7 @@ For example::
     >>> Person.objects.create(name='Severus', post_nominals=['PhD', 'DPhil'])
     >>> Person.objects.create(name='Paulus', post_nominals=[])
 
-    >>> Person.objects.filter(middle_names__contains='PhD')
+    >>> Person.objects.filter(post_nominals__contains='PhD')
     [<Person: Horatio>, <Person: Severus>]
 
     >>> Person.objects.filter(post_nominals__contains='Esq.')

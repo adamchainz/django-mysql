@@ -115,7 +115,7 @@ The following can all be imported from ``django_mysql.status``.
 
         read_operations = session_status.get("Handler_read")
 
-    And for a different connection:
+    And for a different connection::
 
         from django_mysql.status import SessionStatus
 
