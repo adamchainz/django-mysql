@@ -7,7 +7,6 @@ from subprocess import PIPE, Popen
 
 from django.db import connections, models
 from django.db.transaction import atomic
-from django.test.utils import CaptureQueriesContext
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -309,25 +308,18 @@ class SmartIterator(SmartChunkedIterator):
 
 
 def pt_visual_explain(queryset, display=True):
-    connection = connections[queryset.db]
-
     if not have_program('pt-visual-explain'):  # pragma: no cover
         raise OSError("pt-visual-explain doesn't appear to be installed")
 
-    # Run one query to ensure we are connected
-    # This allows us to ensure we capture only the queryset's query below,
-    # as Django (and maybe settings) run statements when connecting
+    connection = connections[queryset.db]
+
+    # Have to initialize a cursor to force a real connection to exist
     with connection.cursor() as cursor:
-        cursor.execute("SELECT 1")
-
-    capturer = CaptureQueriesContext(connection)
-    with capturer:
-        list(queryset)  # execute the query, discarding results
-
-    queries = [q['sql'] for q in capturer.captured_queries]
-    assert len(queries) == 1, \
-        "QuerySet executed > 1 query, don't know which to EXPLAIN"
-    query = queries[0]
+        sql, params = queryset.query.sql_with_params()
+        # Go past ConnectionWrapper to MySQLdb Connection
+        real_connection = cursor.db.connection
+        # This is what cursor.execute does on MySQLdb
+        query = sql % map(real_connection.literal, params)
 
     # Now to do the explain and pass through pt-visual-explain
     mysql_command = (
