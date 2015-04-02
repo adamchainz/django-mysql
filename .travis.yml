@@ -10,7 +10,6 @@ env:
 before_script: .travis/before_script.sh
 
 install:
-  - pip install -r requirements/requirements-testing.txt
   - pip install coveralls tox
 
 script:
