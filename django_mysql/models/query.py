@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import sys
 from copy import copy
@@ -7,6 +7,7 @@ from subprocess import PIPE, Popen
 
 from django.db import connections, models
 from django.db.transaction import atomic
+from django.test.utils import CaptureQueriesContext
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -312,19 +313,20 @@ def pt_visual_explain(queryset, display=True):
         raise OSError("pt-visual-explain doesn't appear to be installed")
 
     connection = connections[queryset.db]
-
-    # Have to initialize a cursor to force a real connection to exist
-    with connection.cursor() as cursor:
+    capturer = CaptureQueriesContext(connection)
+    with capturer, connection.cursor() as cursor:
         sql, params = queryset.query.sql_with_params()
-        # Go past ConnectionWrapper to MySQLdb Connection
-        real_connection = cursor.db.connection
-        # This is what cursor.execute does on MySQLdb
-        query = sql % map(real_connection.literal, params)
+        cursor.execute('EXPLAIN ' + sql, params)
 
-    # Now to do the explain and pass through pt-visual-explain
+    queries = [q['sql'] for q in capturer.captured_queries]
+    # Take the last - django may have just opened up a connection in which
+    # case it would have run initialization command[s]
+    explain_query = queries[-1]
+
+    # Now do the explain and pass through pt-visual-explain
     mysql_command = (
         settings_to_cmd_args(connection.settings_dict) +
-        ['-e', "EXPLAIN EXTENDED " + query]
+        ['-e', explain_query]
     )
     mysql = Popen(mysql_command, stdout=PIPE)
     visual_explain = Popen(
