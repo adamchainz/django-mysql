@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import sys
 from copy import copy
@@ -309,30 +309,24 @@ class SmartIterator(SmartChunkedIterator):
 
 
 def pt_visual_explain(queryset, display=True):
-    connection = connections[queryset.db]
-
     if not have_program('pt-visual-explain'):  # pragma: no cover
         raise OSError("pt-visual-explain doesn't appear to be installed")
 
-    # Run one query to ensure we are connected
-    # This allows us to ensure we capture only the queryset's query below,
-    # as Django (and maybe settings) run statements when connecting
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT 1")
-
+    connection = connections[queryset.db]
     capturer = CaptureQueriesContext(connection)
-    with capturer:
-        list(queryset)  # execute the query, discarding results
+    with capturer, connection.cursor() as cursor:
+        sql, params = queryset.query.sql_with_params()
+        cursor.execute('EXPLAIN ' + sql, params)
 
     queries = [q['sql'] for q in capturer.captured_queries]
-    assert len(queries) == 1, \
-        "QuerySet executed > 1 query, don't know which to EXPLAIN"
-    query = queries[0]
+    # Take the last - django may have just opened up a connection in which
+    # case it would have run initialization command[s]
+    explain_query = queries[-1]
 
-    # Now to do the explain and pass through pt-visual-explain
+    # Now do the explain and pass through pt-visual-explain
     mysql_command = (
         settings_to_cmd_args(connection.settings_dict) +
-        ['-e', "EXPLAIN EXTENDED " + query]
+        ['-e', explain_query]
     )
     mysql = Popen(mysql_command, stdout=PIPE)
     visual_explain = Popen(

@@ -294,16 +294,17 @@ gives a description of the execution plan, and the ``pt-visual-explain``
 `tool <http://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
 can format this in an understandable tree.
 
-Here's a shortcut to turn a ``QuerySet`` into its visual explanation, making it
-easy to gain an understanding of what your queries do.
+This function is a shortcut to turn a ``QuerySet`` into its visual explanation,
+making it easy to gain a better understanding of what your queries really end
+up doing.
 
 .. method:: pt_visual_explain(display=True)
 
-    Call on a queryset to print its visual explanation, or with
-    ``display=False`` to return it as a string. Executes the query, captures
-    the SQL, then gets the visual explanation via a subprocess pipeline with
-    `mysql` and `pt-visual-explain`. You therefore need the MySQL client and
-    Percona Toolkit installed where you run this.
+    Call on a ``QuerySet`` to print its visual explanation, or with
+    ``display=False`` to return it as a string. It prepends the SQL of the
+    query with 'EXPLAIN' and passes it through the ``mysql`` and
+    ``pt-visual-explain`` commands to get the output. You therefore need the
+    MySQL client and Percona Toolkit installed where you run this.
 
     Example::
 
@@ -313,8 +314,9 @@ easy to gain an understanding of what your queries do.
         +- Table
            table          myapp_author
 
-    Also importable as a standalone function if you can't use the
-    ``QuerySetMixin`` or you need it on a model you can't touch::
+    Can also be imported as a standalone function if you want to use it on a
+    ``QuerySet`` that does not have the ``QuerySetMixin`` added, e.g. for
+    built-in django models::
 
         >>> from django_mysql.models import pt_visual_explain
         >>> pt_visual_explain(User.objects.all())
