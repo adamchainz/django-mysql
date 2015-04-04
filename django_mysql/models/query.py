@@ -1,7 +1,11 @@
 # -*- coding:utf-8 -*-
 from __future__ import print_function, unicode_literals
 
+import os
+import pty
 import sys
+from Queue import Empty, Queue
+from threading import Lock, Thread
 from copy import copy
 from subprocess import PIPE, Popen
 
@@ -340,3 +344,89 @@ def pt_visual_explain(queryset, display=True):
         print(explanation)
     else:
         return explanation
+
+
+def pt_fingerprint(query):
+    thread = PTFingerprintThread.get_thread()
+    thread.in_queue.put(query)
+    return thread.out_queue.get()
+
+
+class PTFingerprintThread(Thread):
+    """
+    Class for a singleton background thread to pass queries to pt-fingerprint
+    and get their fingerprints back. This is done because the process launch
+    time is relatively expensive and it's useful to be able to fingerprinting
+    queries quickly.
+
+    The get_thread() class method returns the singleton thread - either
+    instantiating it or returning the existing one.
+
+    The thread launches pt-fingerprint with subprocess and then takes queries
+    from an input queue, passes them the subprocess and returns the fingerprint
+    to an output queue. If it receives no queries in PROCESS_LIFETIME seconds,
+    it closes the subprocess and itself - so you don't have processes hanging
+    around.
+    """
+
+    the_thread = None
+    life_lock = Lock()
+
+    PROCESS_LIFETIME = 60.0  # seconds
+
+    @classmethod
+    def get_thread(cls):
+        with cls.life_lock:
+            if cls.the_thread is None:
+                in_queue = Queue()
+                out_queue = Queue()
+                thread = cls(in_queue, out_queue)
+                thread.daemon = True
+                thread.in_queue = in_queue
+                thread.out_queue = out_queue
+                thread.start()
+                cls.the_thread = thread
+
+        return cls.the_thread
+
+    def __init__(self, in_queue, out_queue, **kwargs):
+        self.in_queue = in_queue
+        self.out_queue = out_queue
+        super(PTFingerprintThread, self).__init__(**kwargs)
+
+    def run(self):
+        global fingerprint_thread
+        master, slave = pty.openpty()
+        proc = Popen(
+            ['pt-fingerprint'],
+            stdin=PIPE,
+            stdout=slave,
+            close_fds=True
+        )
+        stdin = proc.stdin
+        stdout = os.fdopen(master)
+
+        while True:
+            try:
+                query = self.in_queue.get(timeout=self.PROCESS_LIFETIME)
+            except Empty:
+                self.life_lock.acquire()
+                # We timed out, but there was something put into the queue
+                # since
+                if (
+                    self.__class__.the_thread is self and
+                    self.in_queue.qsize()
+                ):
+                    self.life_lock.release()
+                    break
+                # Die
+                break
+
+            stdin.write(query + ';\n')
+            stdin.flush()
+            fingerprint = stdout.readline()
+            self.out_queue.put(fingerprint.strip())
+
+        stdin.close()
+        self.__class__.the_thread = None
+        self.life_lock.release()
