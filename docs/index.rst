@@ -25,6 +25,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    locks
    status
    manage_commands
+   utilities
    exceptions
    contributing
    authors
