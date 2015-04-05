@@ -14,7 +14,7 @@ install:
 
 script:
   - coverage erase
-  - tox
+  - tox -- -v 2
 
 after_success:
   - coverage combine
