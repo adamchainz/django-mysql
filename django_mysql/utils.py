@@ -192,7 +192,7 @@ class PTFingerprintThread(Thread):
                 if (
                     self.__class__.the_thread is self and
                     self.in_queue.qsize()
-                ):
+                ):  # pragma: no cover
                     self.life_lock.release()
                     break
                 # Die

@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
+from time import sleep
 from unittest import skipUnless
 
 from django.test import TestCase
 
 from django_mysql.utils import (
-    have_program, pt_fingerprint, WeightedAverageRate
+    have_program, pt_fingerprint, PTFingerprintThread, WeightedAverageRate
 )
 
 
@@ -85,3 +86,10 @@ class PTFingerprintTests(TestCase):
             "rental.return_date is ? and rental_date ? interval "
             "film.rental_duration day < current_date() limit ?"
         )
+
+    def test_the_thread_shuts_on_time_out(self):
+        PTFingerprintThread.PROCESS_LIFETIME = 0.1
+        pt_fingerprint("select 123")
+        sleep(0.2)
+        self.assertIsNone(PTFingerprintThread.the_thread)
+        PTFingerprintThread.PROCESS_LIFETIME = 60
