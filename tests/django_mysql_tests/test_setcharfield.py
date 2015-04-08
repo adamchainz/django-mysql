@@ -218,6 +218,27 @@ class TestSetF(TestCase):
         model = CharSetModel.objects.get()
         self.assertEqual(model.field, {"big", "blue", "round"})
 
+    def test_add_to_multiple_objects(self):
+        CharSetModel.objects.create(field={"mouse"})
+        CharSetModel.objects.create(field={"keyboard"})
+        CharSetModel.objects.update(field=SetF('field').add("screen"))
+        first, second = tuple(CharSetModel.objects.all())
+        self.assertEqual(first.field, {"mouse", "screen"})
+        self.assertEqual(second.field, {"keyboard", "screen"})
+
+    def test_add_exists(self):
+        CharSetModel.objects.create(field={"nice"})
+        CharSetModel.objects.update(field=SetF('field').add("nice"))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"nice"})
+
+    def test_add_assignment(self):
+        model = CharSetModel.objects.create(field={"red"})
+        model.field = SetF('field').add('blue')
+        model.save()
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {'red', 'blue'})
+
     def test_remove_one(self):
         CharSetModel.objects.create(field={"dopey", "knifey"})
         CharSetModel.objects.update(field=SetF('field').remove('knifey'))
@@ -256,6 +277,27 @@ class TestSetF(TestCase):
         CharSetModel.objects.update(field=SetF('field').remove('c'))
         model = CharSetModel.objects.get()
         self.assertEqual(model.field, {"a", "b"})
+
+    def test_remove_not_exists(self):
+        CharSetModel.objects.create(field={"nice"})
+        CharSetModel.objects.update(field=SetF("field").remove("naughty"))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"nice"})
+
+    def test_remove_from_multiple_objects(self):
+        CharSetModel.objects.create(field={"mouse", "chair"})
+        CharSetModel.objects.create(field={"keyboard", "chair"})
+        CharSetModel.objects.update(field=SetF('field').remove("chair"))
+        first, second = tuple(CharSetModel.objects.all())
+        self.assertEqual(first.field, {"mouse"})
+        self.assertEqual(second.field, {"keyboard"})
+
+    def test_remove_assignment(self):
+        model = IntSetModel.objects.create(field={24, 89})
+        model.field = SetF('field').remove(89)
+        model.save()
+        model = IntSetModel.objects.get()
+        self.assertEqual(model.field, {24})
 
 
 @skipIf(django.VERSION >= (1, 8),

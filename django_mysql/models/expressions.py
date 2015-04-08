@@ -15,7 +15,7 @@ class SetF(object):
     def add(self, value):
         if not hasattr(value, 'as_sql'):
             value = Value(value)
-        return AppendSetF(self.field, value)
+        return AddSetF(self.field, value)
 
     def remove(self, value):
         if not hasattr(value, 'as_sql'):
@@ -37,82 +37,84 @@ class BaseSetF(BaseExpression):
         self.lhs, self.rhs = exprs
 
 
-class AppendSetF(BaseSetF):
+class AddSetF(BaseSetF):
 
+    # A slightly complicated expression.
+    # basically if 'value' is not in the set, concat the current set with a
+    # comma and 'value'
+    # N.B. using MySQL side variables to avoid repeat calculation of
+    # expression[s]
     sql_expression = collapse_spaces("""
-        (
-            IF(
-                FIND_IN_SET(the_value, the_field),
-                the_field,
-                CONCAT_WS(
-                    ',',
-                    IF(CHAR_LENGTH(the_field), the_field, NULL),
-                    the_value
-                )
+        IF(
+            FIND_IN_SET(@tmp_val:=%s, @tmp_f:=%s),
+            @tmp_f,
+            CONCAT_WS(
+                ',',
+                IF(CHAR_LENGTH(@tmp_f), @tmp_f, NULL),
+                @tmp_val
             )
         )
-    """).replace('the_field', '%s').replace('the_value', '%s')
+    """)
 
     def as_sql(self, compiler, connection):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (value, field, field, field, field, value)
+        sql = self.sql_expression % (value, field)
 
         params = []
-        # Once for each mention
         params.extend(value_params)
         params.extend(field_params)
-        params.extend(field_params)
-        params.extend(field_params)
-        params.extend(field_params)
-        params.extend(value_params)
 
         return sql, params
 
 
 class RemoveSetF(BaseSetF):
 
+    # Wow, this is a real doozy of an expression.
+    # Basically, if it IS in the set, cut the string up to be everything except
+    # that element.
+    # There are some tricks going on - e.g. LEAST to evaluate a sub expression
+    # but not use it in the output of CONCAT_WS
     sql_expression = collapse_spaces("""
-        (
-            IF(
-                @pos:=FIND_IN_SET(the_value, the_field),
-                CONCAT_WS(
-                    ",",
-                    LEAST(
-                        @num_items:=(
-                            CHAR_LENGTH(the_field) -
-                            CHAR_LENGTH(REPLACE(the_field, ',', '')) +
-                            IF(CHAR_LENGTH(the_field), 1, 0)
-                        ),
-                        NULL
+        IF(
+            @tmp_pos:=FIND_IN_SET(%s, @tmp_f:=%s),
+            CONCAT_WS(
+                ",",
+                LEAST(
+                    @tmp_len:=(
+                        CHAR_LENGTH(@tmp_f) -
+                        CHAR_LENGTH(REPLACE(@tmp_f, ',', '')) +
+                        IF(CHAR_LENGTH(@tmp_f), 1, 0)
                     ),
-                    NULLIF(SUBSTRING_INDEX(the_field, ",", @pos - 1), ''),
-                    NULLIF(
-                        SUBSTRING_INDEX(the_field, ",", -(@num_items - @pos)),
-                        '')
+                    NULL
                 ),
-                the_field
-            )
+                CASE WHEN
+                    (@tmp_before:=SUBSTRING_INDEX(@tmp_f, ",", @tmp_pos - 1))
+                    = ''
+                    THEN NULL
+                    ELSE @tmp_before
+                END,
+                CASE WHEN
+                    (@tmp_after:=
+                        SUBSTRING_INDEX(@tmp_f, ",", - (@tmp_len - @tmp_pos)))
+                    = ''
+                    THEN NULL
+                    ELSE @tmp_after
+                END
+            ),
+            @tmp_f
         )
-    """).replace("the_field", "%s").replace("the_value", "%s")
+    """)
 
     def as_sql(self, compiler, connection):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (value, field, field, field, field, field,
-                                     field, field)
+        sql = self.sql_expression % (value, field)
 
         params = []
-        # Once for each mention
         params.extend(value_params)
-        params.extend(field_params)
-        params.extend(field_params)
-        params.extend(field_params)
-        params.extend(field_params)
-        params.extend(field_params)
-        params.extend(field_params)
         params.extend(field_params)
 
         return sql, params
