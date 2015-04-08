@@ -258,6 +258,15 @@ class TestSetF(TestCase):
         self.assertEqual(model.field, {"a", "b"})
 
 
+@skipIf(django.VERSION >= (1, 8),
+        "Requires old Django version without Expressions")
+class TestSetFFails(TestCase):
+
+    def test_cannot_instantiate(self):
+        with self.assertRaises(ValueError):
+            SetF('field').add("something")
+
+
 class TestValidation(TestCase):
 
     def test_max_length(self):
