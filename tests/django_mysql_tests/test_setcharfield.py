@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
 import json
 import re
+from unittest import skipIf
 
+import django
 from django import forms
 from django.core import exceptions, serializers
 from django.core.management import call_command
@@ -12,7 +14,7 @@ from django.test import TestCase, override_settings
 
 import ddt
 
-from django_mysql.models import SetCharField
+from django_mysql.models import SetCharField, SetF
 from django_mysql.forms import SimpleSetField
 
 from django_mysql_tests.models import (
@@ -192,6 +194,68 @@ class TestSaveLoad(TestCase):
 
         no_one = IntSetModel.objects.exclude(field__contains=1)
         self.assertEqual(no_one.count(), 0)
+
+
+@skipIf(django.VERSION <= (1, 8),
+        "Requires Expressions from Django 1.8+")
+class TestSetF(TestCase):
+
+    def test_add_to_none(self):
+        CharSetModel.objects.create(field=set())
+        CharSetModel.objects.update(field=SetF('field').add('first'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"first"})
+
+    def test_add_to_one(self):
+        CharSetModel.objects.create(field={"big"})
+        CharSetModel.objects.update(field=SetF('field').add('bad'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"big", "bad"})
+
+    def test_add_to_some(self):
+        CharSetModel.objects.create(field={"big", "blue"})
+        CharSetModel.objects.update(field=SetF('field').add('round'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"big", "blue", "round"})
+
+    def test_remove_one(self):
+        CharSetModel.objects.create(field={"dopey", "knifey"})
+        CharSetModel.objects.update(field=SetF('field').remove('knifey'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"dopey"})
+
+    def test_remove_only_one(self):
+        CharSetModel.objects.create(field={"pants"})
+        CharSetModel.objects.update(field=SetF('field').remove('pants'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, set())
+
+    def test_remove_from_none(self):
+        CharSetModel.objects.create(field=set())
+        CharSetModel.objects.update(field=SetF("field").remove("jam"))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, set())
+
+    def test_remove_first(self):
+        CharSetModel.objects.create()
+        CharSetModel.objects.update(field="a,b,c")
+        CharSetModel.objects.update(field=SetF('field').remove('a'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"b", "c"})
+
+    def test_remove_middle(self):
+        CharSetModel.objects.create()
+        CharSetModel.objects.update(field="a,b,c")
+        CharSetModel.objects.update(field=SetF('field').remove('b'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"a", "c"})
+
+    def test_remove_last(self):
+        CharSetModel.objects.create()
+        CharSetModel.objects.update(field="a,b,c")
+        CharSetModel.objects.update(field=SetF('field').remove('c'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"a", "b"})
 
 
 class TestValidation(TestCase):
