@@ -324,12 +324,18 @@ Or with attribute assignment to a model::
 
         Takes an expression and returns a new expression that will take the
         value of the original field and add the value to the set if it is not
-        contained.
+        contained::
+
+            post.tags = SetF('tags').add('python')
+            post.save()
 
     .. method:: remove(value)
 
         Takes an expression and returns a new expression that will remove the
-        given item from the set field if it is present.
+        given item from the set field if it is present::
+
+            post.tags = SetF('tags').remove('pthyon')
+            post.save()
 
     .. warning::
 

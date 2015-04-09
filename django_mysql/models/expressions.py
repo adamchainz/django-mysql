@@ -80,7 +80,7 @@ class RemoveSetF(BaseSetF):
         IF(
             @tmp_pos:=FIND_IN_SET(%s, @tmp_f:=%s),
             CONCAT_WS(
-                ",",
+                ',',
                 LEAST(
                     @tmp_len:=(
                         CHAR_LENGTH(@tmp_f) -
@@ -90,14 +90,14 @@ class RemoveSetF(BaseSetF):
                     NULL
                 ),
                 CASE WHEN
-                    (@tmp_before:=SUBSTRING_INDEX(@tmp_f, ",", @tmp_pos - 1))
+                    (@tmp_before:=SUBSTRING_INDEX(@tmp_f, ',', @tmp_pos - 1))
                     = ''
                     THEN NULL
                     ELSE @tmp_before
                 END,
                 CASE WHEN
                     (@tmp_after:=
-                        SUBSTRING_INDEX(@tmp_f, ",", - (@tmp_len - @tmp_pos)))
+                        SUBSTRING_INDEX(@tmp_f, ',', - (@tmp_len - @tmp_pos)))
                     = ''
                     THEN NULL
                     ELSE @tmp_after
