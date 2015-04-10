@@ -209,3 +209,8 @@ class PTFingerprintThread(Thread):
         stdin.close()
         self.__class__.the_thread = None
         self.life_lock.release()
+
+
+def collapse_spaces(string):
+    bits = string.replace('\n', ' ').split(' ')
+    return " ".join(filter(None, bits))

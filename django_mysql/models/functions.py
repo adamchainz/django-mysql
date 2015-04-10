@@ -1,14 +1,6 @@
-import django
 from django.db.models import CharField, IntegerField, TextField
 
-if django.VERSION >= (1, 8):
-    from django.db.models.functions import Func, Value
-else:
-    class Func(object):
-        def __init__(self, *args, **kwargs):
-            raise ValueError("Database Functions only exist in Django 1.8+")
-
-    Value = tuple
+from django_mysql.shims.expressions import Func, Value
 
 
 class SingleArgFunc(Func):

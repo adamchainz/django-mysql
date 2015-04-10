@@ -290,3 +290,50 @@ A transform that converts to the number of items in the set. For example::
 
     >>> Post.objects.filter(tags__len__lt=2)
     [<Post: Second post>]
+
+
+``SetF()`` expressions
+----------------------
+
+Similar to Django's :class:`~django.db.models.F` expression, this
+allows you to perform an atomic add or remove on a set field at the database
+level::
+
+    >>> from django_mysql.models import SetF
+    >>> Post.objects.filter(tags__contains="django").update(tags=SetF('tags').add('programming'))
+    2
+    >>> Post.objects.update(tags=SetF('tags').remove('thoughts'))
+    2
+
+Or with attribute assignment to a model::
+
+    >>> post = Post.objects.earliest('id')
+    >>> post.tags = SetF('tags').add('python')
+    >>> post.save()
+
+.. class:: SetF(field_name)
+
+    You shoudl instantiate this class with the name of the field to use, and
+    then call one of its two methods with a value to be added/removed.
+
+    Note that unlike :class:`~django.db.models.F`, you cannot chain
+    the methods - the SQL involved is a bit too complicated, and thus you can
+    only perform a single addition or removal.
+
+    .. method:: add(value)
+
+        Takes an expression and returns a new expression that will take the
+        value of the original field and add the value to the set if it is not
+        contained.
+
+    .. method:: remove(value)
+
+        Takes an expression and returns a new expression that will remove the
+        given item from the set field if it is present.
+
+    .. warning::
+
+        Both of the above methods use SQL expressions with user variables in
+        their queries, all of which start with ``@tmp_``. This shouldn't affect
+        you much, but if you use user variables in your queries, beware for
+        any conflicts.
