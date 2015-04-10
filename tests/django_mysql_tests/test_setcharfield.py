@@ -20,6 +20,7 @@ from django_mysql.forms import SimpleSetField
 from django_mysql_tests.models import (
     CharSetModel, CharSetDefaultModel, IntSetModel
 )
+from django_mysql_tests.utils import override_mysql_variables
 
 
 @ddt.ddt
@@ -232,6 +233,14 @@ class TestSetF(TestCase):
         model = CharSetModel.objects.get()
         self.assertEqual(model.field, {"nice"})
 
+    @override_mysql_variables(SQL_MODE="ANSI")
+    def test_add_works_in_ansi_mode(self):
+        CharSetModel.objects.create()
+        CharSetModel.objects.update(field=SetF('field').add('big'))
+        CharSetModel.objects.update(field=SetF('field').add('bad'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"big", "bad"})
+
     def test_add_assignment(self):
         model = CharSetModel.objects.create(field={"red"})
         model.field = SetF('field').add('blue')
@@ -291,6 +300,15 @@ class TestSetF(TestCase):
         first, second = tuple(CharSetModel.objects.all())
         self.assertEqual(first.field, {"mouse"})
         self.assertEqual(second.field, {"keyboard"})
+
+    @override_mysql_variables(SQL_MODE="ANSI")
+    def test_remove_works_in_ansi_mode(self):
+        CharSetModel.objects.create(field={"bold"})
+        CharSetModel.objects.update(field=SetF('field').remove('big'))
+        CharSetModel.objects.update(field=SetF('field').remove('bold'))
+        CharSetModel.objects.update(field=SetF('field').remove('bad'))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, set())
 
     def test_remove_assignment(self):
         model = IntSetModel.objects.create(field={24, 89})
