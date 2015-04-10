@@ -17,7 +17,12 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
-        'PORT': ''
+        'PORT': '',
+        'OPTIONS': {'charset': 'utf8mb4'},
+        'TEST': {
+            'COLLATION': "utf8mb4_general_ci",
+            'CHARSET': "utf8mb4"
+        }
     },
     'secondary': {
         'ENGINE': 'django.db.backends.mysql',
@@ -25,7 +30,12 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
-        'PORT': ''
+        'PORT': '',
+        'OPTIONS': {'charset': 'utf8mb4'},
+        'TEST': {
+            'COLLATION': "utf8mb4_general_ci",
+            'CHARSET': "utf8mb4"
+        }
     },
 }
 
