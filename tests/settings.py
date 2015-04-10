@@ -70,4 +70,4 @@ try:
 except ImportError:
     pass
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = 'django_mysql_tests.runner.MySQLTestRunner'
