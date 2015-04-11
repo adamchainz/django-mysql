@@ -27,6 +27,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    manage_commands
    utilities
    test_utilities
+   monkey_patches
    exceptions
    contributing
    authors
