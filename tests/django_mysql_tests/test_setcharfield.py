@@ -16,11 +16,11 @@ import ddt
 
 from django_mysql.models import SetCharField, SetF
 from django_mysql.forms import SimpleSetField
+from django_mysql.test.utils import override_mysql_variables
 
 from django_mysql_tests.models import (
     CharSetModel, CharSetDefaultModel, IntSetModel
 )
-from django_mysql_tests.utils import override_mysql_variables
 
 
 @ddt.ddt

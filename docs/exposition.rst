@@ -222,3 +222,19 @@ Fingerprint queries quickly with the ``pt-fingerprint`` wrapper::
     "select * from myapp_author where id = 5"
 
 :ref:`Read more <utilities>`
+
+
+--------------
+Test Utilities
+--------------
+
+Set some MySQL server variables on a test case for every method or just a
+specific one::
+
+    class MyTests(TestCase):
+
+        @override_mysql_variables(SQL_MODE="ANSI")
+        def test_it_works_in_ansi_mode(self):
+            self.run_it()
+
+:ref:`Read more <test_utilities>`

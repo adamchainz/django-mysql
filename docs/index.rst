@@ -26,6 +26,7 @@ or get started with :doc:`installation`. Otherwise, here's the full contents:
    status
    manage_commands
    utilities
+   test_utilities
    exceptions
    contributing
    authors
