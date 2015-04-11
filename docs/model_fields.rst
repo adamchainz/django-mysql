@@ -17,9 +17,9 @@ More ways to store data! The following can be imported from
 List Fields
 -----------
 
-Two fields that store lists of data, big brothers of django's
-:class:`~django.db.models.CommaSeparatedIntegerField`, contenders to
-`django.contrib.postgres`'s
+Two fields that store lists of data, grown-up versions of django's
+:class:`~django.db.models.CommaSeparatedIntegerField`, cousins of
+``django.contrib.postgres``'s
 :class:`~django.contrib.postgres.fields.ArrayField`. There are two versions:
 ``ListCharField``, which is based on ``CharField`` and appropriate for storing
 lists with a small maximum size, and ``ListTextField``, which is based on
@@ -65,7 +65,7 @@ except for ``max_length`` which is not needed.
     .. admonition:: Validation on save()
 
         When performing the list-to-string conversion for the database,
-        ``SetCharField`` performs some validation, and will raise
+        ``ListCharField`` performs some validation, and will raise
         ``ValueError`` if there is a problem, to avoid saving bad data.
         The following are invalid:
 
@@ -182,8 +182,8 @@ it exceeds the ``size`` of the list. For example::
 Set Fields
 ----------
 
-Two fields that store sets of a base field in comma-separated strings - big
-brothers of django's :class:`~django.db.models.CommaSeparatedIntegerField`.
+Two fields that store sets of a base field in comma-separated strings -
+cousins of django's :class:`~django.db.models.CommaSeparatedIntegerField`.
 There are two versions: ``SetCharField``, which is based on ``CharField`` and
 appropriate for storing sets with a small maximum size, and ``SetTextField``,
 which is based on ``TextField`` and therefore suitable for sets of unbounded
