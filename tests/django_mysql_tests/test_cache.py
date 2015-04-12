@@ -55,7 +55,7 @@ _caches_setting_base = {
 }
 
 
-def caches_setting_for_tests(**params):
+def caches_setting_for_tests(options=None, **params):
     # `params` are test specific overrides and `_caches_settings_base` is the
     # base config for the tests.
     # This results in the following search order:
@@ -64,14 +64,20 @@ def caches_setting_for_tests(**params):
     for key, cache_params in setting.items():
         cache_params.update(_caches_setting_base[key])
         cache_params.update(params)
+        if options is not None:
+            cache_params.setdefault("OPTIONS", {}).update(**options)
     return setting
 
 
-@override_settings(CACHES=caches_setting_for_tests(
-    BACKEND='django_mysql.cache.MySQLCache',
-    # Spaces are used in the table name to ensure quoting/escaping is working
-    LOCATION='test cache table'
-))
+# Spaces are used in the table name to ensure quoting/escaping is working
+def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
+                            LOCATION='test cache table',
+                            **kwargs):
+    return override_settings(CACHES=caches_setting_for_tests(
+        BACKEND=BACKEND, LOCATION=LOCATION, **kwargs))
+
+
+@override_cache_settings()
 class MySQLCacheTests(TransactionTestCase):
 
     def setUp(self):
@@ -856,6 +862,33 @@ class MySQLCacheTests(TransactionTestCase):
         result = cache.add("mykey", "newvalue", 1)
         self.assertTrue(result)
         self.assertEqual(cache.get("mykey"), "newvalue")
+
+    @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10})
+    def test_compressed(self):
+        cache.set("key", "a" * 11)
+        self.assertEqual(cache.get("key"), "a" * 11)
+
+    @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10,
+                                      'COMPRESS_LEVEL': 9})
+    def test_compress_level(self):
+        cache.set("key", "a" * 11)
+        self.assertEqual(cache.get("key"), "a" * 11)
+
+        # Check a bad compression level = zlib error
+        with override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10,
+                                              'COMPRESS_LEVEL': 123}):
+            with self.assertRaises(Exception) as cm:
+                cache.set("key", "a" * 11)
+            self.assertIn("Bad compression level", str(cm.exception))
+
+    @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10})
+    def test_removing_compressed_option_leaves_compressed_data_readable(self):
+        cache.set("key", "a" * 11)
+        with override_cache_settings(options={'COMPRESS_MIN_LENGTH': 0}):
+            self.assertEqual(cache.get("key"), "a" * 11)
+            cache.set("key", "a" * 11)
+            self.assertEqual(cache.get("key"), "a" * 11)
+        self.assertEqual(cache.get("key"), "a" * 11)
 
 
 @override_settings(USE_TZ=True)

@@ -1,4 +1,5 @@
 import time
+import zlib
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.db import BaseDatabaseCache
@@ -20,6 +21,12 @@ BIGINT_UNSIGNED_MAX = 18446744073709551615
 class MySQLCache(BaseDatabaseCache):
 
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
+
+    def __init__(self, table, params):
+        super(MySQLCache, self).__init__(table, params)
+        options = params.get('OPTIONS', {})
+        self._compress_min_length = options.get('COMPRESS_MIN_LENGTH', 5000)
+        self._compress_level = options.get('COMPRESS_LEVEL', 6)
 
     def get(self, key, default=None, version=None):
         key = self.make_key(key, version=version)
@@ -241,9 +248,22 @@ class MySQLCache(BaseDatabaseCache):
         return super(MySQLCache, self).validate_key(key)
 
     def _encode(self, value):
-        return pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+        value = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+        if (
+            self._compress_min_length and
+            len(value) >= self._compress_min_length
+        ):
+            value = zlib.compress(value, self._compress_level)
+        return value
 
     def _decode(self, value):
+        try:
+            value = zlib.decompress(value)
+        except zlib.error as e:
+            # Not zlib data
+            if not str(e).endswith('incorrect header check'):
+                raise
+
         return pickle.loads(force_bytes(value))
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
