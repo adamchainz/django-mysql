@@ -7,7 +7,11 @@ import warnings
 
 from django.core.cache import cache, caches, CacheKeyWarning
 from django.db import connection
-from django.test import TransactionTestCase
+from django.http import HttpResponse
+from django.middleware.cache import (
+    FetchFromCacheMiddleware, UpdateCacheMiddleware
+)
+from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
 
 from django_mysql_tests.models import expensive_calculation, Poll
@@ -75,6 +79,7 @@ class MySQLCacheTests(TransactionTestCase):
         super(MySQLCacheTests, self).setUp()
         self.table_name = connection.ops.quote_name('test cache table')
         self.create_table()
+        self.factory = RequestFactory()
 
     def tearDown(self):
         # The super call needs to happen first because it uses the database.
@@ -720,6 +725,46 @@ class MySQLCacheTests(TransactionTestCase):
         self.assertIsNone(cache.get('answer2'))
         self.assertEqual(caches['custom_key'].get('answer2'), 42)
         self.assertEqual(caches['custom_key2'].get('answer2'), 42)
+
+    def test_cache_write_unpickable_object(self):
+        update_middleware = UpdateCacheMiddleware()
+        update_middleware.cache = cache
+
+        fetch_middleware = FetchFromCacheMiddleware()
+        fetch_middleware.cache = cache
+
+        request = self.factory.get('/cache/test')
+        request._cache_update_cache = True
+        get_cache_data = FetchFromCacheMiddleware().process_request(request)
+        self.assertIsNone(get_cache_data)
+
+        response = HttpResponse()
+        content = 'Testing cookie serialization.'
+        response.content = content
+        response.set_cookie('foo', 'bar')
+
+        update_middleware.process_response(request, response)
+
+        get_cache_data = fetch_middleware.process_request(request)
+        self.assertIsNotNone(get_cache_data)
+        self.assertEqual(get_cache_data.content, content.encode('utf-8'))
+        self.assertEqual(get_cache_data.cookies, response.cookies)
+
+        update_middleware.process_response(request, get_cache_data)
+        get_cache_data = fetch_middleware.process_request(request)
+        self.assertIsNotNone(get_cache_data)
+        self.assertEqual(get_cache_data.content, content.encode('utf-8'))
+        self.assertEqual(get_cache_data.cookies, response.cookies)
+
+    def test_add_fail_on_pickleerror(self):
+        "See https://code.djangoproject.com/ticket/21200"
+        with self.assertRaises(pickle.PickleError):
+            cache.add('unpickable', Unpickable())
+
+    def test_set_fail_on_pickleerror(self):
+        "See https://code.djangoproject.com/ticket/21200"
+        with self.assertRaises(pickle.PickleError):
+            cache.set('unpickable', Unpickable())
 
     # Our tests
 
