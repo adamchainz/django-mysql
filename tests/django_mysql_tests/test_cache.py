@@ -6,7 +6,7 @@ import time
 import warnings
 
 from django.core.cache import cache, caches, CacheKeyWarning
-from django.db import connection
+from django.db import connection, transaction
 from django.http import HttpResponse
 from django.middleware.cache import (
     FetchFromCacheMiddleware, UpdateCacheMiddleware
@@ -765,6 +765,13 @@ class MySQLCacheTests(TransactionTestCase):
         "See https://code.djangoproject.com/ticket/21200"
         with self.assertRaises(pickle.PickleError):
             cache.set('unpickable', Unpickable())
+
+    def test_clear_commits_transaction(self):
+        # Ensure the database transaction is committed (#19896)
+        cache.set("key1", "spam")
+        cache.clear()
+        transaction.rollback()
+        self.assertIsNone(cache.get("key1"))
 
     # Our tests
 
