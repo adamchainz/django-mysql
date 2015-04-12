@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 from threading import Thread
-from unittest import expectedFailure
 
 from django.db import connection
 from django.test import TestCase
@@ -132,14 +131,18 @@ class LockTests(TestCase):
         with the_lock:
             pass
 
-    @expectedFailure
     def test_holding_more_than_one(self):
-        """
-        Only MySQL 5.7 gives the ability to hold more than one named lock, so
-        this is an expectedFailure until then.
+        conn = connection
+        supports_multiple_locks = (
+            (conn.is_mariadb and conn.mysql_version >= (10, 0, 2)) or
+            (not conn.is_mariadb and conn.mysql_version >= (5, 7))
+        )
+        if not supports_multiple_locks:
+            self.skipTest(
+                "Only MySQL 5.7+ and MariaDB 10.0.2+ have the ability to hold "
+                "more than one named lock"
+            )
 
-        N.B. MariaDB 10.0.2+ already has the patch.
-        """
         lock_a = Lock("a")
         lock_b = Lock("b")
         with lock_a, lock_b:
