@@ -3,7 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.db import BaseDatabaseCache
-from django.db import DatabaseError, connections, router
+from django.db import connections, router
 from django.db.backends.utils import typecast_timestamp
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -111,25 +111,20 @@ class MySQLCache(BaseDatabaseCache):
                 now = connections[db].ops.value_to_db_datetime(now)
                 params = (key, blob, exp, now)
 
-            try:
-                cursor.execute(
-                    query.format(table_name=table),
-                    params
-                )
-            except DatabaseError:
-                # From Django's DatabaseCache: "To be threadsafe,
-                # updates/inserts are allowed to fail silently"
-                return False
-            else:
-                if mode == 'set':
-                    return True
-                elif mode == 'add':
-                    # Unwrap the onion skin around MySQLdb to get the genuine
-                    # connection
-                    mysqldb_connection = cursor.cursor.cursor.connection()
-                    # Use a special code in the add query for "did insert"
-                    insert_id = mysqldb_connection.insert_id()
-                    return (insert_id != 444)
+            cursor.execute(
+                query.format(table_name=table),
+                params
+            )
+
+            if mode == 'set':
+                return True
+            elif mode == 'add':
+                # Unwrap the onion skin around MySQLdb to get the genuine
+                # connection
+                mysqldb_connection = cursor.cursor.cursor.connection()
+                # Use a special code in the add query for "did insert"
+                insert_id = mysqldb_connection.insert_id()
+                return (insert_id != 444)
 
     _set_query = collapse_spaces("""
         INSERT INTO {table_name} (cache_key, value, expires)
