@@ -134,21 +134,6 @@ class MySQLCacheTests(TransactionTestCase):
         self.assertIsNone(cache.get("does_not_exist"))
         self.assertEqual(cache.get("does_not_exist", "bang!"), "bang!")
 
-    def test_get_many(self):
-        # Multiple cache keys can be returned using get_many
-        cache.set('a', 'a')
-        cache.set('b', 'b')
-        cache.set('c', 'c')
-        cache.set('d', 'd')
-        self.assertEqual(
-            cache.get_many(['a', 'c', 'd']),
-            {'a': 'a', 'c': 'c', 'd': 'd'}
-        )
-        self.assertEqual(
-            cache.get_many(['a', 'b', 'e']),
-            {'a': 'a', 'b': 'b'}
-        )
-
     def test_delete(self):
         # Cache keys can be deleted
         cache.set("key1", "spam")
@@ -329,16 +314,6 @@ class MySQLCacheTests(TransactionTestCase):
         time.sleep(2)
         self.assertIsNone(cache.get("key1"))
         self.assertIsNone(cache.get("key2"))
-
-    def test_delete_many(self):
-        # Multiple keys can be deleted using delete_many
-        cache.set("key1", "spam")
-        cache.set("key2", "eggs")
-        cache.set("key3", "ham")
-        cache.delete_many(["key1", "key2"])
-        self.assertIsNone(cache.get("key1"))
-        self.assertIsNone(cache.get("key2"))
-        self.assertEqual(cache.get("key3"), "ham")
 
     def test_clear(self):
         # The cache can be emptied using clear
@@ -773,7 +748,34 @@ class MySQLCacheTests(TransactionTestCase):
         transaction.rollback()
         self.assertIsNone(cache.get("key1"))
 
-    # Our tests
+    # Modified Django tests
+
+    def test_get_many(self):
+        # Multiple cache keys can be returned using get_many
+        cache.set('a', 'a')
+        cache.set('b', 'b')
+        cache.set('c', 'c')
+        cache.set('d', 'd')
+
+        with self.assertNumQueries(1):
+            value = cache.get_many(['a', 'c', 'd'])
+        self.assertEqual(value, {'a': 'a', 'c': 'c', 'd': 'd'})
+
+        with self.assertNumQueries(1):
+            value = cache.get_many(['a', 'b', 'e'])
+
+        self.assertEqual(value, {'a': 'a', 'b': 'b'})
+
+    def test_delete_many(self):
+        # Multiple keys can be deleted using delete_many
+        cache.set("key1", "spam")
+        cache.set("key2", "eggs")
+        cache.set("key3", "ham")
+        with self.assertNumQueries(1):
+            cache.delete_many(["key1", "key2"])
+        self.assertIsNone(cache.get("key1"))
+        self.assertIsNone(cache.get("key2"))
+        self.assertEqual(cache.get("key3"), "ham")
 
     def test_invalid_keys(self):
         # mimic custom ``make_key`` method being defined since the default will
@@ -800,6 +802,8 @@ class MySQLCacheTests(TransactionTestCase):
         finally:
             cache.key_func = old_func
 
+    # Original tests
+
     def test_add_with_expired(self):
         cache.add("mykey", "value", 1)
         self.assertEqual(cache.get("mykey"), "value")
@@ -813,18 +817,6 @@ class MySQLCacheTests(TransactionTestCase):
         result = cache.add("mykey", "newvalue", 1)
         self.assertTrue(result)
         self.assertEqual(cache.get("mykey"), "newvalue")
-
-    def test_with_table_without_datetime(self):
-        # It may be the case that `expires` is not a datetime in MySQL, and we
-        # need to cast in python
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                ALTER TABLE %s
-                    MODIFY `expires` varchar(20) NOT NULL
-                """ % self.table_name)
-
-        cache.set("key", "value")
-        self.assertEqual(cache.get("key"), "value")
 
 
 @override_settings(USE_TZ=True)
