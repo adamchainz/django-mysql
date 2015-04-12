@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.db import BaseDatabaseCache
 from django.db import connections, router
-from django.utils import timezone
+from django.utils import six, timezone
 from django.utils.encoding import force_bytes
 
 from django_mysql.utils import collapse_spaces
@@ -141,13 +141,15 @@ class MySQLCache(BaseDatabaseCache):
                 insert_id = mysqldb_connection.insert_id()
                 return (insert_id != 444)
 
-    _set_query = collapse_spaces("""
+    _set_many_query = collapse_spaces("""
         INSERT INTO {table_name} (cache_key, value, expires)
-        VALUES (%s, %s, %s)
+        VALUES {{VALUES_CLAUSE}}
         ON DUPLICATE KEY UPDATE
             value=VALUES(value),
             expires=VALUES(expires)
     """)
+
+    _set_query = _set_many_query.replace('{{VALUES_CLAUSE}}', '(%s, %s, %s)')
 
     # Uses the IFNULL / LEAST / LAST_INSERT_ID trick to communicate the special
     # value of 444 back to the client (LAST_INSERT_ID is otherwise 0, since
@@ -166,6 +168,35 @@ class MySQLCache(BaseDatabaseCache):
                 VALUES(expires)
             )
     """)
+
+    def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        timeout = self.get_backend_timeout(timeout)
+        db = router.db_for_write(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+
+        if timeout is None:
+            exp = datetime.max
+        elif settings.USE_TZ:
+            exp = datetime.utcfromtimestamp(timeout)
+        else:
+            exp = datetime.fromtimestamp(timeout)
+        exp = exp.replace(microsecond=0)
+        exp = connections[db].ops.value_to_db_datetime(exp)
+
+        params = []
+        for key, value in six.iteritems(data):
+            made_key = self.make_key(key, version=version)
+            self.validate_key(made_key)
+            blob = self._encode(value)
+            params.extend((made_key, blob, exp))
+
+        query = self._set_many_query.replace(
+            '{{VALUES_CLAUSE}}',
+            ','.join('(%s, %s, %s)' for key in data)
+        ).format(table_name=table)
+
+        with connections[db].cursor() as cursor:
+            cursor.execute(query, params)
 
     def delete(self, key, version=None):
         key = self.make_key(key, version=version)

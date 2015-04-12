@@ -302,19 +302,6 @@ class MySQLCacheTests(TransactionTestCase):
         self.assertEqual(compressed_value, compressed_result)
         self.assertEqual(value, decompress(compressed_result).decode())
 
-    def test_set_many(self):
-        # Multiple keys can be set using set_many
-        cache.set_many({"key1": "spam", "key2": "eggs"})
-        self.assertEqual(cache.get("key1"), "spam")
-        self.assertEqual(cache.get("key2"), "eggs")
-
-    def test_set_many_expiration(self):
-        # set_many takes a second ``timeout`` parameter
-        cache.set_many({"key1": "spam", "key2": "eggs"}, 1)
-        time.sleep(2)
-        self.assertIsNone(cache.get("key1"))
-        self.assertIsNone(cache.get("key2"))
-
     def test_clear(self):
         # The cache can be emptied using clear
         cache.set("key1", "spam")
@@ -765,6 +752,31 @@ class MySQLCacheTests(TransactionTestCase):
             value = cache.get_many(['a', 'b', 'e'])
 
         self.assertEqual(value, {'a': 'a', 'b': 'b'})
+
+    def test_set_many(self):
+        # Single keys can be set using set_many
+        with self.assertNumQueries(1):
+            cache.set_many({"key1": "spam"})
+
+        # Multiple keys can be set using set_many
+        with self.assertNumQueries(1):
+            cache.set_many({"key1": "spam", "key2": "eggs"})
+        self.assertEqual(cache.get("key1"), "spam")
+        self.assertEqual(cache.get("key2"), "eggs")
+
+    def test_set_many_expiration(self):
+        # set_many takes a second ``timeout`` parameter
+        with self.assertNumQueries(1):
+            cache.set_many({"key1": "spam", "key2": "eggs"}, 1)
+        time.sleep(2)
+        self.assertIsNone(cache.get("key1"))
+        self.assertIsNone(cache.get("key2"))
+
+        # set_many expired values can be replaced
+        with self.assertNumQueries(1):
+            cache.set_many({"key1": "spam", "key2": "eggs"}, 1)
+        self.assertEqual(cache.get("key1"), "spam")
+        self.assertEqual(cache.get("key2"), "eggs")
 
     def test_delete_many(self):
         # Multiple keys can be deleted using delete_many
