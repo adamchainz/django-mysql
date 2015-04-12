@@ -239,19 +239,6 @@ class MySQLCacheTests(TransactionTestCase):
         self.assertEqual(expensive_calculation.num_runs,
                          runs_before_cache_read)
 
-    def test_expiration(self):
-        # Cache values can be set to expire
-        cache.set('expire1', 'very quickly', 1)
-        cache.set('expire2', 'very quickly', 1)
-        cache.set('expire3', 'very quickly', 1)
-
-        time.sleep(2)
-        self.assertIsNone(cache.get("expire1"))
-
-        cache.add("expire2", "newvalue")
-        self.assertEqual(cache.get("expire2"), "newvalue")
-        self.assertFalse(cache.has_key("expire3"))  # noqa
-
     def test_unicode(self):
         # Unicode values can be cached
         stuff = {
@@ -737,6 +724,19 @@ class MySQLCacheTests(TransactionTestCase):
 
     # Modified Django tests
 
+    def test_expiration(self):
+        # Cache values can be set to expire
+        cache.set('expire1', 'very quickly', 0.1)
+        cache.set('expire2', 'very quickly', 0.1)
+        cache.set('expire3', 'very quickly', 0.1)
+
+        time.sleep(0.2)
+        self.assertIsNone(cache.get("expire1"))
+
+        cache.add("expire2", "newvalue")
+        self.assertEqual(cache.get("expire2"), "newvalue")
+        self.assertFalse(cache.has_key("expire3"))  # noqa
+
     def test_get_many(self):
         # Multiple cache keys can be returned using get_many
         cache.set('a', 'a')
@@ -755,8 +755,8 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_get_many_with_one_expired(self):
         # Multiple cache keys can be returned using get_many
-        cache.set('a', 'a', 1)
-        time.sleep(2)
+        cache.set('a', 'a', 0.1)
+        time.sleep(0.2)
 
         cache.set('b', 'b')
         cache.set('c', 'c')
@@ -785,10 +785,10 @@ class MySQLCacheTests(TransactionTestCase):
     def test_set_many_expiration(self):
         # set_many takes a second ``timeout`` parameter
         with self.assertNumQueries(1):
-            cache.set_many({"key1": "spam", "key2": "eggs"}, 1)
+            cache.set_many({"key1": "spam", "key2": "eggs"}, 0.1)
 
         cache.set("key3", "ham")
-        time.sleep(2)
+        time.sleep(0.2)
         self.assertIsNone(cache.get("key1"))
         self.assertIsNone(cache.get("key2"))
         self.assertEqual(cache.get("key3"), "ham")
@@ -844,14 +844,14 @@ class MySQLCacheTests(TransactionTestCase):
     # Original tests
 
     def test_add_with_expired(self):
-        cache.add("mykey", "value", 1)
+        cache.add("mykey", "value", 0.1)
         self.assertEqual(cache.get("mykey"), "value")
 
-        result = cache.add("mykey", "newvalue", 1)
+        result = cache.add("mykey", "newvalue", 0.1)
         self.assertFalse(result)
         self.assertEqual(cache.get("mykey"), "value")
 
-        time.sleep(2)
+        time.sleep(0.2)
 
         result = cache.add("mykey", "newvalue", 1)
         self.assertTrue(result)
