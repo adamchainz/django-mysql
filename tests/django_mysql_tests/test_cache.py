@@ -753,6 +753,24 @@ class MySQLCacheTests(TransactionTestCase):
 
         self.assertEqual(value, {'a': 'a', 'b': 'b'})
 
+    def test_get_many_with_one_expired(self):
+        # Multiple cache keys can be returned using get_many
+        cache.set('a', 'a', 1)
+        time.sleep(2)
+
+        cache.set('b', 'b')
+        cache.set('c', 'c')
+        cache.set('d', 'd')
+
+        with self.assertNumQueries(1):
+            value = cache.get_many(['a', 'c', 'd'])
+        self.assertEqual(value, {'c': 'c', 'd': 'd'})
+
+        with self.assertNumQueries(1):
+            value = cache.get_many(['a', 'b', 'e'])
+
+        self.assertEqual(value, {'b': 'b'})
+
     def test_set_many(self):
         # Single keys can be set using set_many
         with self.assertNumQueries(1):
