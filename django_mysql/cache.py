@@ -1,10 +1,9 @@
-from datetime import datetime
+import time
 
-from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.db import BaseDatabaseCache
 from django.db import connections, router
-from django.utils import six, timezone
+from django.utils import six
 from django.utils.encoding import force_bytes
 
 from django_mysql.utils import collapse_spaces
@@ -23,7 +22,12 @@ except ImportError:  # pragma: no cover
         pass
 
 
+BIGINT_UNSIGNED_MAX = 18446744073709551615
+
+
 class MySQLCache(BaseDatabaseCache):
+
+    FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
 
     def get(self, key, default=None, version=None):
         key = self.make_key(key, version=version)
@@ -34,19 +38,21 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             cursor.execute(self._get_query.format(table_name=table), (key,))
             row = cursor.fetchone()
+
         if row is None:
             return default
-        now = timezone.now()
-        expires = row[2]
+
+        now = int(time.time() * 1000)
+        expires = row[1]
 
         if expires < now:
             return default
 
-        blob = connections[db].ops.process_clob(row[1])
+        blob = connections[db].ops.process_clob(row[0])
         return self._decode(blob)
 
     _get_query = collapse_spaces("""
-        SELECT cache_key, value, expires
+        SELECT value, expires
         FROM {table_name}
         WHERE cache_key = %s
     """)
@@ -71,7 +77,7 @@ class MySQLCache(BaseDatabaseCache):
             rows = cursor.fetchall()
 
         d = {}
-        now = timezone.now()
+        now = int(time.time() * 1000)
 
         for made_key, value, expires in rows:
             if expires < now:
@@ -100,30 +106,20 @@ class MySQLCache(BaseDatabaseCache):
         return self._base_set('add', key, value, timeout)
 
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
-        timeout = self.get_backend_timeout(timeout)
+        exp = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
         with connections[db].cursor() as cursor:
-            now = timezone.now()
-            now = now.replace(microsecond=0)
-            if timeout is None:
-                exp = datetime.max
-            elif settings.USE_TZ:
-                exp = datetime.utcfromtimestamp(timeout)
-            else:
-                exp = datetime.fromtimestamp(timeout)
-            exp = exp.replace(microsecond=0)
-            blob = self._encode(value)
+            now = (time.time() * 1000)
 
-            exp = connections[db].ops.value_to_db_datetime(exp)
+            blob = self._encode(value)
 
             if mode == 'set':
                 query = self._set_query
                 params = (key, blob, exp)
             elif mode == 'add':
                 query = self._add_query
-                now = connections[db].ops.value_to_db_datetime(now)
                 params = (key, blob, exp, now)
 
             cursor.execute(
@@ -170,18 +166,9 @@ class MySQLCache(BaseDatabaseCache):
     """)
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
-        timeout = self.get_backend_timeout(timeout)
+        exp = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
-
-        if timeout is None:
-            exp = datetime.max
-        elif settings.USE_TZ:
-            exp = datetime.utcfromtimestamp(timeout)
-        else:
-            exp = datetime.fromtimestamp(timeout)
-        exp = exp.replace(microsecond=0)
-        exp = connections[db].ops.value_to_db_datetime(exp)
 
         params = []
         for key, value in six.iteritems(data):
@@ -234,17 +221,13 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_read(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
-        if settings.USE_TZ:
-            now = datetime.utcnow()
-        else:
-            now = datetime.now()
-        now = now.replace(microsecond=0)
+        now = int(time.time() * 1000)
 
         with connections[db].cursor() as cursor:
             cursor.execute(
                 """SELECT cache_key FROM %s
                    WHERE cache_key = %%s and expires > %%s""" % table,
-                (key, connections[db].ops.value_to_db_datetime(now))
+                (key, now)
             )
             return cursor.fetchone() is not None
 
@@ -270,3 +253,9 @@ class MySQLCache(BaseDatabaseCache):
 
     def _decode(self, value):
         return pickle.loads(force_bytes(value))
+
+    def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
+        if timeout is None:
+            return self.FOREVER_TIMEOUT
+        timeout = super(MySQLCache, self).get_backend_timeout(timeout)
+        return int(timeout * 1000)

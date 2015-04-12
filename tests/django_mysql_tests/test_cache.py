@@ -93,7 +93,7 @@ class MySQLCacheTests(TransactionTestCase):
                     `cache_key` varchar(255) CHARACTER SET utf8 NOT NULL
                         PRIMARY KEY,
                     `value` longblob NOT NULL,
-                    `expires` datetime NOT NULL
+                    `expires` BIGINT UNSIGNED NOT NULL
                 );
             """ % self.table_name)
 
@@ -795,10 +795,15 @@ class MySQLCacheTests(TransactionTestCase):
 
         # set_many expired values can be replaced
         with self.assertNumQueries(1):
-            cache.set_many({"key1": "spam", "key2": "eggs", "key3": "spam"}, 1)
-        self.assertEqual(cache.get("key1"), "spam")
-        self.assertEqual(cache.get("key2"), "eggs")
+            cache.set_many(
+                {"key1": "spam", "key2": "egg", "key3": "spam", "key4": "ham"},
+                1
+            )
+        v = cache.get("key1")
+        self.assertEqual(v, "spam")
+        self.assertEqual(cache.get("key2"), "egg")
         self.assertEqual(cache.get("key3"), "spam")
+        self.assertEqual(cache.get("key4"), "ham")
 
     def test_delete_many(self):
         # Multiple keys can be deleted using delete_many
