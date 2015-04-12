@@ -14,14 +14,6 @@ except ImportError:  # pragma: no cover
     import pickle
 
 
-try:
-    from MySQLdb import Warning as MySQLWarning
-except ImportError:  # pragma: no cover
-    # Uh-oh, we aren't using MySQLdb/mysqlclient, just fake it
-    class MySQLWarning(Warning):
-        pass
-
-
 BIGINT_UNSIGNED_MAX = 18446744073709551615
 
 
@@ -36,24 +28,23 @@ class MySQLCache(BaseDatabaseCache):
         table = connections[db].ops.quote_name(self._table)
 
         with connections[db].cursor() as cursor:
-            cursor.execute(self._get_query.format(table_name=table), (key,))
+            cursor.execute(self._get_query.format(table=table), (key,))
             row = cursor.fetchone()
 
         if row is None:
             return default
 
         now = int(time.time() * 1000)
-        expires = row[1]
+        value, expires = row
 
         if expires < now:
             return default
 
-        blob = connections[db].ops.process_clob(row[0])
-        return self._decode(blob)
+        return self._decode(value)
 
     _get_query = collapse_spaces("""
         SELECT value, expires
-        FROM {table_name}
+        FROM {table}
         WHERE cache_key = %s
     """)
 
@@ -71,7 +62,7 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                self._get_many_query.format(table_name=table),
+                self._get_many_query.format(table=table),
                 (made_keys,)
             )
             rows = cursor.fetchall()
@@ -83,7 +74,6 @@ class MySQLCache(BaseDatabaseCache):
             if expires < now:
                 continue
 
-            value = connections[db].ops.process_clob(value)
             key = made_key_to_key[made_key]
             d[key] = self._decode(value)
 
@@ -91,7 +81,7 @@ class MySQLCache(BaseDatabaseCache):
 
     _get_many_query = collapse_spaces("""
         SELECT cache_key, value, expires
-        FROM {table_name}
+        FROM {table}
         WHERE cache_key IN %s
     """)
 
@@ -111,21 +101,18 @@ class MySQLCache(BaseDatabaseCache):
         table = connections[db].ops.quote_name(self._table)
 
         with connections[db].cursor() as cursor:
-            now = (time.time() * 1000)
+            now = int(time.time() * 1000)
 
-            blob = self._encode(value)
+            value = self._encode(value)
 
             if mode == 'set':
                 query = self._set_query
-                params = (key, blob, exp)
+                params = (key, value, exp)
             elif mode == 'add':
                 query = self._add_query
-                params = (key, blob, exp, now)
+                params = (key, value, exp, now)
 
-            cursor.execute(
-                query.format(table_name=table),
-                params
-            )
+            cursor.execute(query.format(table=table), params)
 
             if mode == 'set':
                 return True
@@ -138,7 +125,7 @@ class MySQLCache(BaseDatabaseCache):
                 return (insert_id != 444)
 
     _set_many_query = collapse_spaces("""
-        INSERT INTO {table_name} (cache_key, value, expires)
+        INSERT INTO {table} (cache_key, value, expires)
         VALUES {{VALUES_CLAUSE}}
         ON DUPLICATE KEY UPDATE
             value=VALUES(value),
@@ -151,7 +138,7 @@ class MySQLCache(BaseDatabaseCache):
     # value of 444 back to the client (LAST_INSERT_ID is otherwise 0, since
     # there is no AUTO_INCREMENT column)
     _add_query = collapse_spaces("""
-        INSERT INTO {table_name} (cache_key, value, expires)
+        INSERT INTO {table} (cache_key, value, expires)
         VALUES (%s, %s, %s)
         ON DUPLICATE KEY UPDATE
             value=IF(expires > @tmp_now:=%s, value, VALUES(value)),
@@ -174,13 +161,13 @@ class MySQLCache(BaseDatabaseCache):
         for key, value in six.iteritems(data):
             made_key = self.make_key(key, version=version)
             self.validate_key(made_key)
-            blob = self._encode(value)
-            params.extend((made_key, blob, exp))
+            value = self._encode(value)
+            params.extend((made_key, value, exp))
 
         query = self._set_many_query.replace(
             '{{VALUES_CLAUSE}}',
             ','.join('(%s, %s, %s)' for key in data)
-        ).format(table_name=table)
+        ).format(table=table)
 
         with connections[db].cursor() as cursor:
             cursor.execute(query, params)
@@ -193,11 +180,12 @@ class MySQLCache(BaseDatabaseCache):
         table = connections[db].ops.quote_name(self._table)
 
         with connections[db].cursor() as cursor:
-            cursor.execute(
-                """DELETE FROM {table_name}
-                   WHERE cache_key = %s""".format(table_name=table),
-                (key,)
-            )
+            cursor.execute(self._delete_query.format(table=table), (key,))
+
+    _delete_query = collapse_spaces("""
+        DELETE FROM {table}
+        WHERE cache_key = %s
+    """)
 
     def delete_many(self, keys, version=None):
         made_keys = [self.make_key(key, version=version) for key in keys]
@@ -209,10 +197,14 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                """DELETE FROM {table_name}
-                   WHERE cache_key IN %s""".format(table_name=table),
+                self._delete_many_query.format(table=table),
                 (made_keys,)
             )
+
+    _delete_many_query = collapse_spaces("""
+        DELETE FROM {table}
+        WHERE cache_key IN %s
+    """)
 
     def has_key(self, key, version=None):
         key = self.make_key(key, version=version)
@@ -235,7 +227,7 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
-            cursor.execute('DELETE FROM %s' % table)
+            cursor.execute("DELETE FROM {table}".format(table=table))
 
     def validate_key(self, key):
         """
@@ -243,7 +235,7 @@ class MySQLCache(BaseDatabaseCache):
         """
         if len(key) > 250:
             raise ValueError(
-                'Cache key is longer than the maxmimum 250 characters: {}'
+                "Cache key is longer than the maxmimum 250 characters: {}"
                 .format(key)
             )
         return super(MySQLCache, self).validate_key(key)
