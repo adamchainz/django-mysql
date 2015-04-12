@@ -786,15 +786,19 @@ class MySQLCacheTests(TransactionTestCase):
         # set_many takes a second ``timeout`` parameter
         with self.assertNumQueries(1):
             cache.set_many({"key1": "spam", "key2": "eggs"}, 1)
+
+        cache.set("key3", "ham")
         time.sleep(2)
         self.assertIsNone(cache.get("key1"))
         self.assertIsNone(cache.get("key2"))
+        self.assertEqual(cache.get("key3"), "ham")
 
         # set_many expired values can be replaced
         with self.assertNumQueries(1):
-            cache.set_many({"key1": "spam", "key2": "eggs"}, 1)
+            cache.set_many({"key1": "spam", "key2": "eggs", "key3": "spam"}, 1)
         self.assertEqual(cache.get("key1"), "spam")
         self.assertEqual(cache.get("key2"), "eggs")
+        self.assertEqual(cache.get("key3"), "spam")
 
     def test_delete_many(self):
         # Multiple keys can be deleted using delete_many
