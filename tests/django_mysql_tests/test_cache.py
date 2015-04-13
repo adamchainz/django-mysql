@@ -899,8 +899,3 @@ class MySQLCacheTests(TransactionTestCase):
             set(ours.__dict__.keys()),
             set(theirs.__dict__.keys())
         )
-
-
-@override_settings(USE_TZ=True)
-class MySQLCacheWithTimezoneTests(MySQLCacheTests):
-    pass
