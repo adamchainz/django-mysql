@@ -890,6 +890,16 @@ class MySQLCacheTests(TransactionTestCase):
             self.assertEqual(cache.get("key"), "a" * 11)
         self.assertEqual(cache.get("key"), "a" * 11)
 
+    def test_our_options_quacks_like_djangos(self):
+        from django.core.cache.backends.db import Options
+        from django_mysql.cache import Options as OurOptions
+        theirs = Options('something')
+        ours = OurOptions('something')
+        self.assertEqual(
+            set(ours.__dict__.keys()),
+            set(theirs.__dict__.keys())
+        )
+
 
 @override_settings(USE_TZ=True)
 class MySQLCacheWithTimezoneTests(MySQLCacheTests):

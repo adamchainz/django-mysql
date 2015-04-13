@@ -1,8 +1,8 @@
 import time
 import zlib
 
-from django.core.cache.backends.base import DEFAULT_TIMEOUT
-from django.core.cache.backends.db import BaseDatabaseCache
+import django
+from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
 from django.db import connections, router
 from django.utils import six
 from django.utils.encoding import force_bytes
@@ -16,6 +16,40 @@ except ImportError:  # pragma: no cover
 
 
 BIGINT_UNSIGNED_MAX = 18446744073709551615
+
+
+# Slightly modified copies of Options/BaseDatabaseCache from django's
+# cache.backends.db - these allow us to act like a separate app for database
+# routers (django_mysql), and not appear on django's `createcachetable`
+# command
+
+class Options(object):
+    """A class that will quack like a Django model _meta class.
+
+    This allows cache operations to be controlled by the router
+    """
+    def __init__(self, table):
+        self.db_table = table
+        self.app_label = 'django_mysql'
+        self.model_name = 'cacheentry'
+        self.verbose_name = 'cache entry'
+        self.verbose_name_plural = 'cache entries'
+        self.object_name = 'CacheEntry'
+        self.abstract = False
+        self.managed = True
+        self.proxy = False
+        if django.VERSION >= (1, 8):
+            self.swapped = False
+
+
+class BaseDatabaseCache(BaseCache):
+    def __init__(self, table, params):
+        super(BaseDatabaseCache, self).__init__(params)
+        self._table = table
+
+        class CacheEntry(object):
+            _meta = Options(table)
+        self.cache_model_class = CacheEntry
 
 
 class MySQLCache(BaseDatabaseCache):
