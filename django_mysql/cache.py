@@ -1,5 +1,6 @@
 import time
 import zlib
+from random import random
 
 import django
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
@@ -54,6 +55,9 @@ class BaseDatabaseCache(BaseCache):
 
 class MySQLCache(BaseDatabaseCache):
 
+    # Got an error with the add() query using BIGINT_UNSIGNED_MAX, so use a
+    # value slightly 1 bit less (still an incalculable time into the future of
+    # 1970)
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
 
     def __init__(self, table, params):
@@ -61,6 +65,9 @@ class MySQLCache(BaseDatabaseCache):
         options = params.get('OPTIONS', {})
         self._compress_min_length = options.get('COMPRESS_MIN_LENGTH', 5000)
         self._compress_level = options.get('COMPRESS_LEVEL', 6)
+        self._cull_probability = options.get('CULL_PROBABILITY', 1)
+
+    # Django API + helpers
 
     def get(self, key, default=None, version=None):
         key = self.make_key(key, version=version)
@@ -141,7 +148,9 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
+        self._maybe_cull()
         with connections[db].cursor() as cursor:
+
             now = int(time.time() * 1000)
 
             value = self._encode(value)
@@ -197,6 +206,8 @@ class MySQLCache(BaseDatabaseCache):
         exp = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
+
+        self._maybe_cull()
 
         params = []
         for key, value in six.iteritems(data):
@@ -293,15 +304,58 @@ class MySQLCache(BaseDatabaseCache):
     def _decode(self, value):
         try:
             value = zlib.decompress(value)
-        except zlib.error as e:
-            # Not zlib data
-            if not str(e).endswith('incorrect header check'):
-                raise
+        except zlib.error:
+            # Assume the data was not compressed to begin with. If there was
+            # corruption or some other problem, it will be a pickle error.
+            pass
 
         return pickle.loads(force_bytes(value))
+
+    def _maybe_cull(self):
+        # Roll the dice, if it says yes then cull
+        if self._cull_probability and random() <= self._cull_probability:
+            self.cull()
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         if timeout is None:
             return self.FOREVER_TIMEOUT
         timeout = super(MySQLCache, self).get_backend_timeout(timeout)
         return int(timeout * 1000)
+
+    # Our API extensions
+
+    def cull(self):
+        db = router.db_for_write(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+
+        with connections[db].cursor() as cursor:
+            # First, try just deleting expired keys
+            now = int(time.time() * 1000)
+            cursor.execute(
+                "DELETE FROM {table} WHERE expires < %s".format(table=table),
+                (now,)
+            )
+
+            cursor.execute("SELECT COUNT(*) FROM {table}".format(table=table))
+            num = cursor.fetchone()[0]
+
+            if num < self._max_entries:
+                return
+
+            # Now do a key-based cull
+            if self._cull_frequency == 0:
+                cursor.execute("DELETE FROM {table}".format(table=table), ())
+            else:
+                cull_num = num // self._cull_frequency
+                cursor.execute(
+                    """SELECT cache_key FROM {table}
+                       ORDER BY cache_key
+                       LIMIT 1 OFFSET %s""".format(table=table),
+                    (cull_num,)
+                )
+                max_key = cursor.fetchone()[0]
+                cursor.execute(
+                    """DELETE FROM {table}
+                       WHERE cache_key < %s""".format(table=table),
+                    (max_key,)
+                )

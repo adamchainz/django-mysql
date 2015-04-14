@@ -52,6 +52,9 @@ _caches_setting_base = {
     },
     'cull': {'OPTIONS': {'MAX_ENTRIES': 30}},
     'zero_cull': {'OPTIONS': {'CULL_FREQUENCY': 0, 'MAX_ENTRIES': 30}},
+    'no_cull': {'OPTIONS': {'CULL_FREQUENCY': 2,
+                            'CULL_PROBABILITY': 0,
+                            'MAX_ENTRIES': 30}},
 }
 
 
@@ -65,7 +68,8 @@ def caches_setting_for_tests(options=None, **params):
         cache_params.update(_caches_setting_base[key])
         cache_params.update(params)
         if options is not None:
-            cache_params.setdefault("OPTIONS", {}).update(**options)
+            cache_params['OPTIONS'] = cache_params.get('OPTIONS', {}).copy()
+            cache_params['OPTIONS'].update(**options)
     return setting
 
 
@@ -73,8 +77,13 @@ def caches_setting_for_tests(options=None, **params):
 def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
                             LOCATION='test cache table',
                             **kwargs):
-    return override_settings(CACHES=caches_setting_for_tests(
-        BACKEND=BACKEND, LOCATION=LOCATION, **kwargs))
+    return override_settings(
+        CACHES=caches_setting_for_tests(
+            BACKEND=BACKEND,
+            LOCATION=LOCATION,
+            **kwargs
+        )
+    )
 
 
 @override_cache_settings()
@@ -761,37 +770,38 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_get_many_with_one_expired(self):
         # Multiple cache keys can be returned using get_many
-        cache.set('a', 'a', 0.1)
+        the_cache = caches['no_cull']
+        the_cache.set('a', 'a', 0.1)
         time.sleep(0.2)
 
-        cache.set('b', 'b')
-        cache.set('c', 'c')
-        cache.set('d', 'd')
+        the_cache.set('b', 'b')
+        the_cache.set('c', 'c')
+        the_cache.set('d', 'd')
 
         with self.assertNumQueries(1):
-            value = cache.get_many(['a', 'c', 'd'])
+            value = the_cache.get_many(['a', 'c', 'd'])
         self.assertEqual(value, {'c': 'c', 'd': 'd'})
 
         with self.assertNumQueries(1):
-            value = cache.get_many(['a', 'b', 'e'])
+            value = the_cache.get_many(['a', 'b', 'e'])
 
         self.assertEqual(value, {'b': 'b'})
 
     def test_set_many(self):
         # Single keys can be set using set_many
         with self.assertNumQueries(1):
-            cache.set_many({"key1": "spam"})
+            caches['no_cull'].set_many({"key1": "spam"})
 
         # Multiple keys can be set using set_many
         with self.assertNumQueries(1):
-            cache.set_many({"key1": "spam", "key2": "eggs"})
+            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"})
         self.assertEqual(cache.get("key1"), "spam")
         self.assertEqual(cache.get("key2"), "eggs")
 
     def test_set_many_expiration(self):
         # set_many takes a second ``timeout`` parameter
         with self.assertNumQueries(1):
-            cache.set_many({"key1": "spam", "key2": "eggs"}, 0.1)
+            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"}, 0.1)
 
         cache.set("key3", "ham")
         time.sleep(0.2)
@@ -801,7 +811,7 @@ class MySQLCacheTests(TransactionTestCase):
 
         # set_many expired values can be replaced
         with self.assertNumQueries(1):
-            cache.set_many(
+            caches['no_cull'].set_many(
                 {"key1": "spam", "key2": "egg", "key3": "spam", "key4": "ham"},
                 1
             )
@@ -882,13 +892,20 @@ class MySQLCacheTests(TransactionTestCase):
             self.assertIn("Bad compression level", str(cm.exception))
 
     @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10})
-    def test_removing_compressed_option_leaves_compressed_data_readable(self):
-        cache.set("key", "a" * 11)
+    def test_changing_compressed_option_leaves_compressed_data_readable(self):
+        a11 = "a" * 11
+        cache.set("key", a11)
+
+        # Turn it off - remains readable and settable
         with override_cache_settings(options={'COMPRESS_MIN_LENGTH': 0}):
-            self.assertEqual(cache.get("key"), "a" * 11)
-            cache.set("key", "a" * 11)
-            self.assertEqual(cache.get("key"), "a" * 11)
-        self.assertEqual(cache.get("key"), "a" * 11)
+            self.assertEqual(cache.get("key"), a11)
+            cache.set("key", a11)
+            self.assertEqual(cache.get("key"), a11)
+
+        # Back on, still readable
+        self.assertEqual(cache.get("key"), a11)
+        cache.set("key", a11)
+        self.assertEqual(cache.get("key"), a11)
 
     def test_our_options_quacks_like_djangos(self):
         from django.core.cache.backends.db import Options
@@ -899,3 +916,39 @@ class MySQLCacheTests(TransactionTestCase):
             set(ours.__dict__.keys()),
             set(theirs.__dict__.keys())
         )
+
+    def test_cull(self):
+        self._perform_cull_test(caches['cull'], 50, 30)
+
+    def test_zero_cull(self):
+        self._perform_cull_test(caches['zero_cull'], 50, 20)
+
+    def test_no_cull_only_deletes_when_told(self):
+        self._perform_cull_test(caches['no_cull'], 50, 50)
+        caches['no_cull'].cull()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM " + self.table_name)
+            num = cursor.fetchone()[0]
+        self.assertEqual(num, 25)
+
+    def test_cull_deletes_expired_first(self):
+        cull_cache = caches['cull']
+        cull_cache.set("key", "value", 0.1)
+        time.sleep(0.2)
+
+        # Add 30 more entries. The expired key should get deleted, leaving the
+        # 30 new keys
+        self._perform_cull_test(cull_cache, 30, 30)
+        self.assertIsNone(cull_cache.get('key'))
+
+    def _perform_cull_test(self, cull_cache, initial_count, final_count):
+        # Create initial cache key entries. This will overflow the cache,
+        # causing a cull.
+        for i in range(1, initial_count + 1):
+            cull_cache.set('cull%d' % i, 'value', 1000)
+        count = 0
+        # Count how many keys are left in the cache.
+        for i in range(1, initial_count + 1):
+            if cull_cache.has_key('cull%d' % i):  # noqa
+                count = count + 1
+        self.assertEqual(count, final_count)
