@@ -7,15 +7,19 @@ from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.functions import (
-    Abs, ConcatWS, Ceiling, CRC32, Floor, Greatest, Least, MD5, Round, SHA1,
-    SHA2, Sign
+    Abs, ConcatWS, Ceiling, CRC32, CRC64, Floor, Greatest, Least, MD5, Round,
+    SHA1, SHA2, Sign
 )
 
 from django_mysql_tests.models import Alphabet
 
+requiresDatabaseFunctions = skipIf(
+    django.VERSION <= (1, 8),
+    "Requires Database Functions from Django 1.8+"
+)
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+
+@requiresDatabaseFunctions
 class ComparisonFunctionTests(TestCase):
 
     def test_greatest(self):
@@ -33,8 +37,7 @@ class ComparisonFunctionTests(TestCase):
         self.assertEqual(ab.worst, -1)
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+@requiresDatabaseFunctions
 class NumericFunctionTests(TestCase):
 
     def test_abs(self):
@@ -60,6 +63,11 @@ class NumericFunctionTests(TestCase):
 
         with self.assertRaises(TypeError):
             CRC32('d', something='wrong')
+
+    def test_crc64(self):
+        Alphabet.objects.create(d='AAAAAA')
+        ab = Alphabet.objects.annotate(crc=CRC64('d')).first()
+        self.assertEqual(ab.crc, 3949738913324149874)
 
     def test_floor(self):
         Alphabet.objects.create(g=1.5)
@@ -93,8 +101,7 @@ class NumericFunctionTests(TestCase):
         self.assertEqual(ab.csign, -1)
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+@requiresDatabaseFunctions
 class StringFunctionTests(TestCase):
 
     def test_concat_ws(self):
@@ -155,8 +162,7 @@ class StringFunctionTests(TestCase):
         self.assertEqual(ab.de, 'AAA:BBB')
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+@requiresDatabaseFunctions
 class EncryptionFunctionTests(TestCase):
 
     def test_md5_string(self):
