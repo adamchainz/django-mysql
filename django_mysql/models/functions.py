@@ -47,6 +47,12 @@ class CRC32(SingleArgFunc):
     output_field_class = IntegerField
 
 
+class CRC64(SingleArgFunc):
+    # Nabbed from common_schema
+    template = 'CONV(LEFT(MD5(%(expressions)s), 16), 16, 10)'
+    output_field_class = IntegerField
+
+
 class Floor(SingleArgFunc):
     function = 'FLOOR'
     output_field_class = IntegerField
@@ -92,7 +98,6 @@ class ConcatWS(Func):
 
 
 # Encryption Functions
-
 
 class MD5(SingleArgFunc):
     function = 'MD5'
