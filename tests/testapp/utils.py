@@ -1,9 +1,12 @@
 import sys
 from contextlib import contextmanager
+from unittest import skipUnless
 
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
+
+requiresPython2 = skipUnless(six.PY2, "Python 2 only")
 
 
 # Copied from Django 1.8

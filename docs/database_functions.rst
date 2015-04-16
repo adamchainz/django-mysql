@@ -385,3 +385,94 @@ Information Functions
         1
         >>> Author.objects.get(id=2).age
         35
+
+
+Dynamic Columns Functions
+-------------------------
+
+These are MariaDB 10.0+ only, and for use with ``DynamicField``.
+
+
+.. class:: AsType(expression, data_type)
+
+    A partial function that should be used as part of a ``ColumnAdd``
+    expression when you want to ensure that ``expression`` will be stored as
+    a given type ``data_type``. The possible values for ``data_type`` are the
+    same as documented for the ``DynamicField`` lookups.
+
+    Note that this is not a valid standalone function and must be used as part
+    of ``ColumnAdd`` - see below.
+
+.. class:: ColumnAdd(expression, to_add)
+
+    Given ``expression`` that resolves to a ``DynamicField`` (most often a
+    field name), add/update with the dictionary ``to_add`` and return the new
+    Dynamic Columns value. This can be used for atomic single-query updates on
+    Dynamic Columns.
+
+    Note that you can add optional types (and you should!). These can not be
+    drawn from the ``spec`` of the ``DynamicField`` due to ORM restrictions, so
+    there are no guarantees about the types that will get used if you do not.
+    To add a type cast, wrap the value with an ``AsType`` (above) - see
+    examples below.
+
+    Docs:
+    `MariaDB <https://mariadb.com/kb/en/mariadb/column_add/>`_.
+
+    Usage examples::
+
+        >>> # Add default 'for_sale' as INTEGER 1 to every item
+        >>> ShopItem.objects.update(
+        ...     attrs=ColumnAdd('attrs', {'for_sale': AsType(1, 'INTEGER')})
+        ... )
+        >>> # Fix some data
+        >>> ShopItem.objects.filter(attrs__size='L').update(
+        ...     attrs=ColumnAdd('attrs', {'size': AsType('Large', 'CHAR')})
+        ... )
+
+
+.. class:: ColumnDelete(expression, *to_delete)
+
+    Given ``expression`` that resolves to a ``DynamicField`` (most often a
+    field name), delete the columns listed by the other expressions
+    ``to_delete``, and return the new Dynamic Columns value. This can be used
+    for atomic single-query deletions on Dynamic Columns.
+
+    Note that strings in ``to_delete`` will be wrapped with ``Value``
+    automatically and thus interpreted as the given string - if they weren't,
+    Django would interpret them as meaning "the value in this (non-dynamic)
+    column". If you do mean that, use ``F('fieldname')``.
+
+    Docs:
+    `MariaDB <https://mariadb.com/kb/en/mariadb/column_delete/>`_.
+
+    Usage examples::
+
+        >>> # Remove 'for_sail' and 'for_purchase' from every item
+        >>> ShopItem.objects.update(
+        ...     attrs=ColumnDelete('attrs', 'for_sail', 'for_purchase')
+        ... )
+
+
+.. class:: ColumnGet(expression, name, data_type)
+
+    Given ``expression`` that resolves to a ``DynamicField`` (most often a
+    field name), return the value of the column ``name`` when cast to the type
+    ``data_type``, or ``NULL`` / ``None`` if the column does not exist. This
+    can be used to select a subset of column values when you don't want to
+    fetch the whole blob. The possible values for ``data_type`` are the same as
+    documented for the ``DynamicField`` lookups.
+
+    Docs:
+    `MariaDB <https://mariadb.com/kb/en/mariadb/column_get/>`_.
+
+    Usage examples::
+
+        >>> # Fetch a list of tuples (id, size_or_None) for all items
+        >>> ShopItem.objects.annotate(
+        ...     size=ColumnGet('attrs', 'size', 'CHAR')
+        ... ).values_list('id', 'size')
+        >>> # Fetch the distinct values of attrs['seller']['url'] for all items
+        >>> ShopItem.objects.annotate(
+        ...     seller_url=ColumnGet(ColumnGet('attrs', 'seller', 'BINARY'), 'url', 'CHAR')
+        ... ).distinct().values_list('seller_url', flat=True)

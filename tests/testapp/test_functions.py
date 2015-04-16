@@ -8,12 +8,14 @@ from django.db import connection
 from django.db.models import F
 from django.test import TestCase
 
+from django_mysql.compat import Value
 from django_mysql.models.functions import (
-    CRC32, ELT, MD5, SHA1, SHA2, Abs, Ceiling, ConcatWS, Field, Floor,
-    Greatest, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
-    Round, Sign
+    CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
+    ColumnGet, ConcatWS, Field, Floor, Greatest, LastInsertId, Least,
+    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign
 )
-from testapp.models import Alphabet, Author
+from testapp.models import Alphabet, Author, DynamicModel
+from testapp.test_dynamicfield import DynColTestCase
 
 try:
     from django.db.models.functions import Length
@@ -346,6 +348,116 @@ class RegexpFunctionTests(TestCase):
             .order_by('id').values_list('name', flat=True)
         )
         assert qs == ['Euripides', 'Sophocles']
+
+
+@requiresDatabaseFunctions
+class DynamicColumnsFunctionTests(DynColTestCase):
+
+    def setUp(self):
+        super(DynamicColumnsFunctionTests, self).setUp()
+        DynamicModel.objects.create(attrs={
+            'flote': 1.0,
+            'sub': {
+                'document': 'store'
+            }
+        })
+
+    def test_get_float(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                x=ColumnGet('attrs', 'flote', 'DOUBLE')
+            ).values_list('x', flat=True)
+        )
+        assert results == [1.0]
+        assert isinstance(results[0], float)
+
+    def test_get_int(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                x=ColumnGet('attrs', 'flote', 'INTEGER')
+            ).values_list('x', flat=True)
+        )
+        assert results == [1]
+        assert isinstance(results[0], int)
+
+    def test_get_null(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                x=ColumnGet('attrs', 'nonexistent', 'INTEGER')
+            ).values_list('x', flat=True)
+        )
+        assert results == [None]
+
+    def test_get_nested(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                x=ColumnGet(
+                    ColumnGet('attrs', 'sub', 'BINARY'),
+                    'document',
+                    'CHAR'
+                )
+            ).values_list('x', flat=True)
+        )
+        assert results == ['store']
+
+    def test_get_invalid_data_type(self):
+        with pytest.raises(ValueError) as excinfo:
+            ColumnGet('bla', 'key', 'INTGRRR')
+        assert "Invalid data_type 'INTGRRR'" in str(excinfo.value)
+
+    def test_add(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                attrs2=ColumnAdd('attrs', {'another': 'key'})
+            ).values_list('attrs2', flat=True)
+        )
+        assert results == [{
+            'flote': 1.0,
+            'sub': {'document': 'store'},
+            'another': 'key'
+        }]
+
+    def test_add_nested(self):
+        with pytest.raises(ValueError) as excinfo:
+            list(
+                DynamicModel.objects.annotate(
+                    attrs2=ColumnAdd('attrs', {'sub2': {'document': 'store'}})
+                ).values_list('attrs2', flat=True)
+            )
+        assert "nested values is not supported" in str(excinfo.value)
+
+    def test_add_update(self):
+        DynamicModel.objects.update(attrs=ColumnAdd('attrs', {'over': 9000}))
+        m = DynamicModel.objects.get()
+        assert m.attrs == {
+            'flote': 1.0,
+            'sub': {'document': 'store'},
+            'over': 9000,
+        }
+
+    def test_as_type_instantiation(self):
+        with pytest.raises(ValueError) as excinfo:
+            AsType(1, 'PANTS')
+        assert "Invalid data_type 'PANTS'" in str(excinfo.value)
+
+    def test_add_update_typed(self):
+        DynamicModel.objects.update(
+            attrs=ColumnAdd('attrs', {'over': AsType(9000, 'DOUBLE')})
+        )
+        m = DynamicModel.objects.get()
+        assert isinstance(m.attrs['over'], float)
+        assert m.attrs['over'] == 9000.0
+
+    def test_delete(self):
+        DynamicModel.objects.update(attrs=ColumnDelete('attrs', 'sub'))
+        m = DynamicModel.objects.get()
+        assert m.attrs == {'flote': 1.0}
+
+    def test_delete_subfunc(self):
+        say_sub = ConcatWS(Value('s'), Value('ub'), separator='')
+        DynamicModel.objects.update(attrs=ColumnDelete('attrs', say_sub))
+        m = DynamicModel.objects.get()
+        assert m.attrs == {'flote': 1.0}
 
 
 @skipIf(django.VERSION[:2] >= (1, 8),

@@ -45,3 +45,13 @@ class SetContains(Lookup):
 
 class SetIContains(SetContains):
     lookup_name = 'icontains'
+
+
+class DynColHasKey(Lookup):
+    lookup_name = 'has_key'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return 'COLUMN_EXISTS(%s, %s)' % (lhs, rhs), params

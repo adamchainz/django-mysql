@@ -7,6 +7,8 @@ History
 -----------------------
 
 * Pending release
+* Added ``DynamicField`` for using MariaDB's Named Dynamic Columns, and related
+  database functions ``ColumnAdd``, ``ColumnDelete``, and ``ColumnGet``.
 * ``SmartChunkedIterator`` with ``report_progress=True`` correctly reports
   'lowest pk so far' when iterating in reverse.
 * Fix broken import paths during ``deconstruct()`` for subclasses of all

@@ -8,6 +8,7 @@ from django_mysql.models.query import (  # noqa
     QuerySet, QuerySetMixin
 )
 from django_mysql.models.fields import (  # noqa
-    Bit1BooleanField, ListCharField, ListTextField, NullBit1BooleanField,
-    SetCharField, SetTextField, SizedBinaryField, SizedTextField,
+    Bit1BooleanField, DynamicField, ListCharField, ListTextField,
+    NullBit1BooleanField, SetCharField, SetTextField, SizedBinaryField,
+    SizedTextField,
 )

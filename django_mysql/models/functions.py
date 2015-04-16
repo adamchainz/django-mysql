@@ -203,3 +203,95 @@ class RegexpSubstr(Func):
 
         super(RegexpSubstr, self).__init__(expression, regex,
                                            output_field=CharField())
+
+
+# MariaDB Dynamic Columns Functions
+
+class AsType(Func):
+    """
+    Helper for ColumnAdd when you want to add a column with a given type
+    """
+    function = ''
+    template = '%(expressions)s AS %(data_type)s'
+
+    def __init__(self, expression, data_type):
+        if not hasattr(expression, 'resolve_expression'):
+            expression = Value(expression)
+
+        if data_type not in self.TYPE_MAP:
+            raise ValueError("Invalid data_type '{}'".format(data_type))
+
+        super(AsType, self).__init__(expression, data_type=data_type)
+
+    @property
+    def TYPE_MAP(self):
+        from django_mysql.models.fields.dynamic import KeyTransform
+        return KeyTransform.TYPE_MAP
+
+
+class ColumnAdd(Func):
+    function = 'COLUMN_ADD'
+
+    def __init__(self, expression, to_add):
+        from django_mysql.models.fields import DynamicField
+
+        expressions = [expression]
+        for name, value in to_add.items():
+            if not hasattr(name, 'resolve_expression'):
+                name = Value(name)
+
+            if isinstance(value, dict):
+                raise ValueError(
+                    "ColumnAdd with nested values is not supported"
+                )
+            if not hasattr(value, 'resolve_expression'):
+                value = Value(value)
+
+            expressions.extend((name, value))
+
+        super(ColumnAdd, self).__init__(*expressions,
+                                        output_field=DynamicField())
+
+
+class ColumnDelete(Func):
+    function = 'COLUMN_DELETE'
+
+    def __init__(self, expression, *to_delete):
+        from django_mysql.models.fields import DynamicField
+
+        expressions = [expression]
+        for name in to_delete:
+            if not hasattr(name, 'resolve_expression'):
+                name = Value(name)
+            expressions.append(name)
+
+        super(ColumnDelete, self).__init__(*expressions,
+                                           output_field=DynamicField())
+
+
+class ColumnGet(Func):
+    function = 'COLUMN_GET'
+    template = 'COLUMN_GET(%(expressions)s AS %(data_type)s)'
+
+    def __init__(self, expression, column_name, data_type):
+        if not hasattr(column_name, 'resolve_expression'):
+            column_name = Value(column_name)
+
+        try:
+            output_field = self.TYPE_MAP[data_type]
+        except KeyError:
+            raise ValueError("Invalid data_type '{}'".format(data_type))
+
+        if data_type == 'BINARY':
+            output_field = output_field()  # no spec
+        else:
+            output_field = output_field
+
+        super(ColumnGet, self).__init__(expression, column_name,
+                                        output_field=output_field,
+                                        data_type=data_type)
+
+    @property
+    def TYPE_MAP(self):
+        from django_mysql.models.fields.dynamic import KeyTransform
+        return KeyTransform.TYPE_MAP

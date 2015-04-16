@@ -1,13 +1,15 @@
 # -*- coding:utf-8 -*-
+from datetime import date, datetime, time
+
 from django.db.models import Model as VanillaModel
 from django.db.models import (
     CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
     TextField
 )
-from django.utils import timezone
+from django.utils import six, timezone
 
 from django_mysql.models import (
-    Bit1BooleanField, ListCharField, ListTextField, Model,
+    Bit1BooleanField, DynamicField, ListCharField, ListTextField, Model,
     NullBit1BooleanField, SetCharField, SetTextField, SizedBinaryField,
     SizedTextField
 )
@@ -91,6 +93,28 @@ class BigIntSetModel(Model):
 
 class BigIntListModel(Model):
     field = ListTextField(base_field=IntegerField())
+
+
+class DynamicModel(Model):
+    attrs = DynamicField(
+        spec={
+            'datetimey': datetime,
+            'datey': date,
+            'floaty': float,
+            'inty': int,
+            'stry': six.text_type,
+            'timey': time,
+            'nesty': {
+                'level2': six.text_type
+            }
+        }
+    )
+
+    def __unicode__(self):
+        return ",".join(
+            '{}:{}'.format(key, value)
+            for key, value in six.iteritems(self.attrs)
+        )
 
 
 class Author(Model):
