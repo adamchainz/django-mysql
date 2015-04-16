@@ -336,10 +336,3 @@ Or with attribute assignment to a model::
 
             post.tags = SetF('tags').remove('pthyon')
             post.save()
-
-    .. warning::
-
-        Both of the above methods use SQL expressions with user variables in
-        their queries, all of which start with ``@tmp_``. This shouldn't affect
-        you much, but if you use user variables in your queries, beware for
-        any conflicts.
