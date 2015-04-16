@@ -317,6 +317,31 @@ class TestSetF(TestCase):
         model = IntSetModel.objects.get()
         self.assertEqual(model.field, {24})
 
+    def test_works_with_two_fields(self):
+        CharSetModel.objects.create(field={"snickers", "lion"},
+                                    field2={"apple", "orange"})
+
+        # Concurrent add
+        CharSetModel.objects.update(field=SetF('field').add("mars"),
+                                    field2=SetF('field2').add("banana"))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"snickers", "lion", "mars"})
+        self.assertEqual(model.field2, {"apple", "orange", "banana"})
+
+        # Concurrent add and remove
+        CharSetModel.objects.update(field=SetF('field').add("reeses"),
+                                    field2=SetF('field2').remove("banana"))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"snickers", "lion", "mars", "reeses"})
+        self.assertEqual(model.field2, {"apple", "orange"})
+
+        # Swap
+        CharSetModel.objects.update(field=SetF('field').remove("lion"),
+                                    field2=SetF('field2').remove("apple"))
+        model = CharSetModel.objects.get()
+        self.assertEqual(model.field, {"snickers", "mars", "reeses"})
+        self.assertEqual(model.field2, {"orange"})
+
 
 @skipIf(django.VERSION >= (1, 8),
         "Requires old Django version without Expressions")

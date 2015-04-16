@@ -14,6 +14,10 @@ class CharSetModel(Model):
         size=3,
         max_length=32,
     )
+    field2 = SetCharField(
+        base_field=CharField(max_length=8),
+        max_length=255
+    )
 
 
 class CharListModel(Model):
