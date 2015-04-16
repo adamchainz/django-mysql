@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
 import json
 import re
-from unittest import skip
+from unittest import skip, skipIf
 
+import django
 from django import forms
 from django.core import exceptions, serializers
 from django.core.management import call_command
@@ -13,8 +14,9 @@ from django.test import TestCase, override_settings
 
 import ddt
 
-from django_mysql.models import ListCharField
 from django_mysql.forms import SimpleListField
+from django_mysql.models import ListCharField, ListF
+from django_mysql.test.utils import override_mysql_variables
 
 from django_mysql_tests.models import (
     CharListModel, CharListDefaultModel, IntListModel
@@ -242,6 +244,153 @@ class TestSaveLoad(TestCase):
 
         one0two1 = IntListModel.objects.filter(field__0=1, field__1=2)
         self.assertEqual(list(one0two1), [onetwo])
+
+
+@skipIf(django.VERSION <= (1, 8),
+        "Requires Expressions from Django 1.8+")
+class TestListF(TestCase):
+
+    def test_append_to_none(self):
+        CharListModel.objects.create(field=[])
+        CharListModel.objects.update(field=ListF('field').append('first'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["first"])
+
+    def test_append_to_one(self):
+        CharListModel.objects.create(field=["big"])
+        CharListModel.objects.update(field=ListF('field').append('bad'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["big", "bad"])
+
+    def test_append_to_some(self):
+        CharListModel.objects.create(field=["big", "blue"])
+        CharListModel.objects.update(field=ListF('field').append('round'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["big", "blue", "round"])
+
+    def test_append_to_multiple_objects(self):
+        CharListModel.objects.create(field=["mouse"])
+        CharListModel.objects.create(field=["keyboard"])
+        CharListModel.objects.update(field=ListF('field').append("screen"))
+        first, second = tuple(CharListModel.objects.all())
+        self.assertEqual(first.field, ["mouse", "screen"])
+        self.assertEqual(second.field, ["keyboard", "screen"])
+
+    def test_append_exists(self):
+        CharListModel.objects.create(field=["nice"])
+        CharListModel.objects.update(field=ListF('field').append("nice"))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["nice", "nice"])
+
+    @override_mysql_variables(SQL_MODE="ANSI")
+    def test_append_works_in_ansi_mode(self):
+        CharListModel.objects.create()
+        CharListModel.objects.update(field=ListF('field').append('big'))
+        CharListModel.objects.update(field=ListF('field').append('bad'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["big", "bad"])
+
+    def test_append_assignment(self):
+        model = CharListModel.objects.create(field=["red"])
+        model.field = ListF('field').append('blue')
+        model.save()
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ['red', 'blue'])
+
+    def test_appendleft_to_none(self):
+        CharListModel.objects.create(field=[])
+        CharListModel.objects.update(field=ListF('field').appendleft('first'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["first"])
+
+    def test_appendleft_to_one(self):
+        CharListModel.objects.create(field=["big"])
+        CharListModel.objects.update(field=ListF('field').appendleft('bad'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["bad", "big"])
+
+    def test_appendleft_to_some(self):
+        CharListModel.objects.create(field=["big", "blue"])
+        CharListModel.objects.update(field=ListF('field').appendleft('round'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["round", "big", "blue"])
+
+    def test_appendleft_to_multiple_objects(self):
+        CharListModel.objects.create(field=["mouse"])
+        CharListModel.objects.create(field=["keyboard"])
+        CharListModel.objects.update(field=ListF('field').appendleft("screen"))
+        first, second = tuple(CharListModel.objects.all())
+        self.assertEqual(first.field, ["screen", "mouse"])
+        self.assertEqual(second.field, ["screen", "keyboard"])
+
+    def test_appendleft_exists(self):
+        CharListModel.objects.create(field=["nice"])
+        CharListModel.objects.update(field=ListF('field').appendleft("nice"))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["nice", "nice"])
+
+    @override_mysql_variables(SQL_MODE="ANSI")
+    def test_appendleft_works_in_ansi_mode(self):
+        CharListModel.objects.create()
+        CharListModel.objects.update(field=ListF('field').appendleft('big'))
+        CharListModel.objects.update(field=ListF('field').appendleft('bad'))
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["bad", "big"])
+
+    def test_appendleft_assignment(self):
+        model = CharListModel.objects.create(field=["red"])
+        model.field = ListF('field').appendleft('blue')
+        model.save()
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ['blue', 'red'])
+
+    def test_pop_none(self):
+        CharListModel.objects.create(field=[])
+        CharListModel.objects.update(field=ListF('field').pop())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, [])
+
+    def test_pop_one(self):
+        CharListModel.objects.create(field=["red"])
+        CharListModel.objects.update(field=ListF('field').pop())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, [])
+
+    def test_pop_two(self):
+        CharListModel.objects.create(field=["red", "blue"])
+        CharListModel.objects.update(field=ListF('field').pop())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["red"])
+
+    def test_pop_three(self):
+        CharListModel.objects.create(field=["green", "yellow", "p"])
+        CharListModel.objects.update(field=ListF('field').pop())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["green", "yellow"])
+
+    def test_popleft_none(self):
+        CharListModel.objects.create(field=[])
+        CharListModel.objects.update(field=ListF('field').popleft())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, [])
+
+    def test_popleft_one(self):
+        CharListModel.objects.create(field=["red"])
+        CharListModel.objects.update(field=ListF('field').popleft())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, [])
+
+    def test_popleft_two(self):
+        CharListModel.objects.create(field=["red", "blue"])
+        CharListModel.objects.update(field=ListF('field').popleft())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["blue"])
+
+    def test_popleft_three(self):
+        CharListModel.objects.create(field=["green", "yellow", "p"])
+        CharListModel.objects.update(field=ListF('field').popleft())
+        model = CharListModel.objects.get()
+        self.assertEqual(model.field, ["yellow", "p"])
 
 
 class TestValidation(TestCase):
