@@ -46,12 +46,12 @@ class AddSetF(BaseSetF):
     # expression[s]
     sql_expression = collapse_spaces("""
         IF(
-            FIND_IN_SET(@tmp_val:=%s, @tmp_f:=%s),
-            @tmp_f,
+            FIND_IN_SET({value}, {field}),
+            {field},
             CONCAT_WS(
                 ',',
-                IF(CHAR_LENGTH(@tmp_f), @tmp_f, NULL),
-                @tmp_val
+                IF(CHAR_LENGTH({field}), {field}, NULL),
+                {value}
             )
         )
     """)
@@ -60,11 +60,15 @@ class AddSetF(BaseSetF):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (value, field)
+        sql = self.sql_expression.format(value=value, field=field)
 
         params = []
         params.extend(value_params)
         params.extend(field_params)
+        params.extend(field_params)
+        params.extend(field_params)
+        params.extend(field_params)
+        params.extend(value_params)
 
         return sql, params
 
@@ -78,32 +82,32 @@ class RemoveSetF(BaseSetF):
     # but not use it in the output of CONCAT_WS
     sql_expression = collapse_spaces("""
         IF(
-            @tmp_pos:=FIND_IN_SET(%s, @tmp_f:=%s),
+            @tmp_pos:=FIND_IN_SET({value}, {field}),
             CONCAT_WS(
                 ',',
                 LEAST(
                     @tmp_len:=(
-                        CHAR_LENGTH(@tmp_f) -
-                        CHAR_LENGTH(REPLACE(@tmp_f, ',', '')) +
-                        IF(CHAR_LENGTH(@tmp_f), 1, 0)
+                        CHAR_LENGTH({field}) -
+                        CHAR_LENGTH(REPLACE({field}, ',', '')) +
+                        IF(CHAR_LENGTH({field}), 1, 0)
                     ),
                     NULL
                 ),
                 CASE WHEN
-                    (@tmp_before:=SUBSTRING_INDEX(@tmp_f, ',', @tmp_pos - 1))
+                    (@tmp_before:=SUBSTRING_INDEX({field}, ',', @tmp_pos - 1))
                     = ''
                     THEN NULL
                     ELSE @tmp_before
                 END,
                 CASE WHEN
                     (@tmp_after:=
-                        SUBSTRING_INDEX(@tmp_f, ',', - (@tmp_len - @tmp_pos)))
+                        SUBSTRING_INDEX({field}, ',', - (@tmp_len - @tmp_pos)))
                     = ''
                     THEN NULL
                     ELSE @tmp_after
                 END
             ),
-            @tmp_f
+            {field}
         )
     """)
 
@@ -111,10 +115,15 @@ class RemoveSetF(BaseSetF):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (value, field)
+        sql = self.sql_expression.format(value=value, field=field)
 
         params = []
         params.extend(value_params)
+        params.extend(field_params)
+        params.extend(field_params)
+        params.extend(field_params)
+        params.extend(field_params)
+        params.extend(field_params)
         params.extend(field_params)
 
         return sql, params
