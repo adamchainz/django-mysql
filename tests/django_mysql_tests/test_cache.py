@@ -6,6 +6,7 @@ import time
 import warnings
 
 from django.core.cache import cache, caches, CacheKeyWarning
+from django.core.management import call_command, CommandError
 from django.db import connection, transaction
 from django.http import HttpResponse
 from django.middleware.cache import (
@@ -13,6 +14,7 @@ from django.middleware.cache import (
 )
 from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
+from django.utils.six.moves import StringIO
 
 from django_mysql_tests.models import expensive_calculation, Poll
 
@@ -115,6 +117,11 @@ class MySQLCacheTests(TransactionTestCase):
     def drop_table(self):
         with connection.cursor() as cursor:
             cursor.execute('DROP TABLE %s' % self.table_name)
+
+    def table_count(self):
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM " + self.table_name)
+            return cursor.fetchone()[0]
 
     # These tests were copied from django's tests/cache/tests.py file
 
@@ -926,10 +933,7 @@ class MySQLCacheTests(TransactionTestCase):
     def test_no_cull_only_deletes_when_told(self):
         self._perform_cull_test(caches['no_cull'], 50, 50)
         caches['no_cull'].cull()
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT COUNT(*) FROM " + self.table_name)
-            num = cursor.fetchone()[0]
-        self.assertEqual(num, 25)
+        self.assertEqual(self.table_count(), 25)
 
     def test_cull_deletes_expired_first(self):
         cull_cache = caches['cull']
@@ -952,3 +956,31 @@ class MySQLCacheTests(TransactionTestCase):
             if cull_cache.has_key('cull%d' % i):  # noqa
                 count = count + 1
         self.assertEqual(count, final_count)
+
+    # Command tests
+
+    def test_cull_mysql_caches_basic(self):
+        cache.set('key', 'value', 0.1)
+        time.sleep(0.2)
+        self.assertEqual(self.table_count(), 1)
+        call_command('cull_mysql_caches', verbosity=0)
+        self.assertEqual(self.table_count(), 0)
+
+    def test_cull_mysql_caches_named_cache(self):
+        cache.set('key', 'value', 0.1)
+        time.sleep(0.2)
+        self.assertEqual(self.table_count(), 1)
+
+        out = StringIO()
+        call_command('cull_mysql_caches', 'default', verbosity=1, stdout=out)
+        output = out.getvalue()
+        self.assertEqual(
+            output.strip(),
+            "Deleting from cache 'default'... 1 entries deleted."
+        )
+        self.assertEqual(self.table_count(), 0)
+
+    def test_cull_mysql_caches_bad_cache_name(self):
+        with self.assertRaises(CommandError) as cm:
+            call_command('cull_mysql_caches', "NOTACACHE", verbosity=0)
+        self.assertEqual("Cache 'NOTACACHE' does not exist", str(cm.exception))

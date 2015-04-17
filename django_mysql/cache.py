@@ -331,7 +331,7 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             # First, try just deleting expired keys
             now = int(time.time() * 1000)
-            cursor.execute(
+            num_deleted = cursor.execute(
                 "DELETE FROM {table} WHERE expires < %s".format(table=table),
                 (now,)
             )
@@ -340,11 +340,13 @@ class MySQLCache(BaseDatabaseCache):
             num = cursor.fetchone()[0]
 
             if num < self._max_entries:
-                return
+                return num_deleted
 
             # Now do a key-based cull
             if self._cull_frequency == 0:
-                cursor.execute("DELETE FROM {table}".format(table=table), ())
+                num_deleted += cursor.execute(
+                    "DELETE FROM {table}".format(table=table)
+                )
             else:
                 cull_num = num // self._cull_frequency
                 cursor.execute(
@@ -354,8 +356,9 @@ class MySQLCache(BaseDatabaseCache):
                     (cull_num,)
                 )
                 max_key = cursor.fetchone()[0]
-                cursor.execute(
+                num_deleted += cursor.execute(
                     """DELETE FROM {table}
                        WHERE cache_key < %s""".format(table=table),
                     (max_key,)
                 )
+            return num_deleted
