@@ -3,6 +3,25 @@
 History
 =======
 
+0.1.9 (2015-04-20)
+------------------
+
+* ``pt_visual_explain`` no longer executes the given query before fetching its
+  ``EXPLAIN``
+* New ``pt_fingerprint`` function that wraps the ``pt-fingerprint`` tool
+  efficiently
+* For ``List`` fields, the new ``ListF`` class allows you to do atomic append
+  or pop operations from either end of the list in a single query
+* For ``Set`` fields, the new ``SetF`` class allows you to do atomic add or
+  remove operatiosn from the set in a single query
+* The ``@override_mysql_variables`` decorator has been introduced which makes
+  testing code with different MySQL configurations easy
+* The ``is_mariadb`` property gets added onto Django's MySQL ``connection``
+  class automatically
+* A race condition in determining the minimum and maximum primary key values
+  for smart iteration was fixed.
+
+
 0.1.8 (2015-03-31)
 ------------------
 
