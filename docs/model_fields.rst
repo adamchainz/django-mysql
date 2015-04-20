@@ -176,6 +176,92 @@ it exceeds the ``size`` of the list. For example::
     is because the field is not a native list type in MySQL.
 
 
+
+``ListF()`` expressions
+----------------------
+
+Similar to Django's :class:`~django.db.models.F` expression, this allows you to
+perform an atomic add and remove operations on list fields at the database
+level::
+
+    >>> from django_mysql.models import ListF
+    >>> Person.objects.filter(post_nominals__contains="PhD").update(
+    ...     post_nominals=ListF('post_nominals').append('Sr.')
+    ... )
+    2
+    >>> Person.objects.update(
+    ...     post_nominals=ListF('post_nominals').pop()
+    ... )
+    3
+
+Or with attribute assignment to a model::
+
+    >>> horatio = Person.objects.get(name='Horatio')
+    >>> horatio.post_nominals = ListF('post_nominals').append('DSocSci')
+    >>> horatio.save()
+
+.. class:: ListF(field_name)
+
+    You should instantiate this class with the name of the field to use, and
+    then call one of its methods.
+
+    Note that unlike :class:`~django.db.models.F`, you cannot chain the methods
+    - the SQL involved is a bit too complicated, and thus only single
+    operations are supported.
+
+    .. method:: append(value)
+
+        Adds the value of the given expression to the (right hand) end of the
+        list, like ``list.append``::
+
+            >>> Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.', 'III'])
+            >>> Person.objects.update(
+            ...     post_nominals=ListF('post_nominals').append('DSocSci')
+            ... )
+            >>> Person.objects.get().full_name
+            "Horatio Phd Esq. III DSocSci"
+
+    .. method:: appendleft(value)
+
+        Adds the value of the given expression to the (left hand) end of the
+        list, like ``deque.appendleft``::
+
+            >>> Person.objects.update(
+            ...     post_nominals=ListF('post_nominals').appendleft('BArch')
+            ... )
+            >>> Person.objects.get().full_name
+            "Horatio BArch Phd Esq. III DSocSci"
+
+    .. method:: pop()
+
+        Takes one value from the (right hand) end of the list, like
+        ``list.pop``::
+
+            >>> Person.objects.update(
+            ...     post_nominals=ListF('post_nominals').pop()
+            ... )
+            >>> Person.objects.get().full_name
+            "Horatio BArch Phd Esq. III"
+
+    .. method:: popleft()
+
+        Takes one value off the (left hand) end of the list, like
+        ``deque.popleft``::
+
+            >>> Person.objects.update(
+            ...     post_nominals=ListF('post_nominals').popleft()
+            ... )
+            >>> Person.objects.get().full_name
+            "Horatio Phd Esq. III"
+
+    .. warning::
+
+        All the above methods use SQL expressions with user variables in their
+        queries, all of which start with ``@tmp_``. This shouldn't affect you
+        much, but if you use user variables in your queries, beware for any
+        conflicts.
+
+
 .. _set-fields:
 
 ----------
@@ -313,7 +399,7 @@ Or with attribute assignment to a model::
 
 .. class:: SetF(field_name)
 
-    You shoudl instantiate this class with the name of the field to use, and
+    You should instantiate this class with the name of the field to use, and
     then call one of its two methods with a value to be added/removed.
 
     Note that unlike :class:`~django.db.models.F`, you cannot chain
