@@ -1,8 +1,11 @@
 # -*- coding:utf-8 -*-
 from unittest import skipUnless
 
+from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TransactionTestCase
+
+import mock
 
 from django_mysql.models import ApproximateInt, SmartIterator
 from django_mysql.utils import have_program
@@ -147,6 +150,26 @@ class SmartIteratorTests(TransactionTestCase):
         with self.assertRaises(ValueError) as cm:
             list(Author.objects.iter_smart(pk_range="My Bad Value"))
         self.assertIn("Unrecognized value for pk_range", str(cm.exception))
+
+    def test_pk_range_race_condition(self):
+        getitem = QuerySet.__getitem__
+
+        def fail_second_slice(*args, **kwargs):
+            # Simulate race condition by deleting all objects between first
+            # call (min_qs[0]) and second call (max_qs[0]) to
+            # QuerySet.__getitem__
+            fail_second_slice.calls += 1
+            if fail_second_slice.calls == 2:
+                Author.objects.all().delete()
+            return getitem(*args, **kwargs)
+
+        fail_second_slice.calls = 0
+
+        path = 'django.db.models.query.QuerySet.__getitem__'
+
+        with mock.patch(path, fail_second_slice):
+            seen = [author.id for author in Author.objects.iter_smart()]
+        self.assertEqual(seen, [])
 
     def test_objects_max_size(self):
         seen = [author.id for author in

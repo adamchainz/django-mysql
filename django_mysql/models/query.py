@@ -212,7 +212,13 @@ class SmartChunkedIterator(object):
             # We're working on an empty QuerySet, yield no chunks
             max_pk = min_pk = 0
         else:
-            max_pk = max_qs[0]
+            try:
+                max_pk = max_qs[0]
+            except IndexError:
+                # Fix possible race condition - max_qs could find nothing if
+                # all rows (including that with id min_pk) were processed
+                # between finding min_pk and the above [0]
+                max_pk = min_pk
 
         return (min_pk, max_pk)
 
