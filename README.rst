@@ -33,14 +33,17 @@ MySQL/MariaDB-specific features in the world of Django.
 What kind of features?
 ----------------------
 
-Here's a short list of what's inside:
+Includes:
 
 * ``QuerySet`` extensions - 'smart' iteration, ``approx_count`` for quick
   estimates of ``count()``, quick ``pt-visual-explain`` of the underlying
   query
-* Handler - quicker reads using MySQL's built-in NoSQL API
+* Model fields for storing lists and sets in comma-separated strings, with the
+  ability to query them
+* ORM expressions for MySQL-specific functions
+* Handler API for quicker-than-SQL reads using the 'NoSQL' HANDLER commands
 * Status variable inspection and utility methods
-* User locks - use MySQL as a locking server between your servers
+* Named locks for easy locking of e.g. external resources
 
 To see them all, check out the exposition at
 http://django-mysql.readthedocs.org/en/latest/exposition.html .
@@ -48,10 +51,10 @@ http://django-mysql.readthedocs.org/en/latest/exposition.html .
 Requirements
 ------------
 
-Tested with:
+Tested with all combinations of:
 
 * Python: 2.7, 3.3, 3.4
-* Django: 1.7, 1.8 RC
+* Django: 1.7, 1.8
 * MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
 * mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
 

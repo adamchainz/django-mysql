@@ -7,8 +7,8 @@ Django-MySQL Documentation
 Django-MySQL is a non-inventively named package that helps you use some
 MySQL/MariaDB-specific features in the world of Django.
 
-If you're new, check out the :doc:`exposition` to see all the features in action,
-or get started with :doc:`installation`. Otherwise, here's the full contents:
+If you're new, check out the :doc:`exposition` to see all the features in
+action, or get started with :doc:`installation`. Otherwise, take your pick:
 
 .. toctree::
    :maxdepth: 2
