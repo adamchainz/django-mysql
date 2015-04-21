@@ -22,6 +22,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    database_functions
    form_fields
    validators
+   cache
    locks
    status
    manage_commands
