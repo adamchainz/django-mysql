@@ -50,9 +50,9 @@ You'll need to copy that output into a migration in your project to get
 the storage engine to ``MEMORY`` if appropriate.
 
 
-.. warning:: max_allowed_packet
+.. warning::
 
-    Maximum size of a query!!
+    ``max_allowed_packet`` is the maximum size of a query to MySQL!!
 
 
 Separate Database connection

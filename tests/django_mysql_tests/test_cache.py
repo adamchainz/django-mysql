@@ -5,6 +5,8 @@ import os
 import time
 import warnings
 
+from flake8.run import check_code
+
 from django.core.cache import cache, caches, CacheKeyWarning
 from django.core.management import call_command, CommandError
 from django.db import connection, transaction
@@ -17,6 +19,7 @@ from django.test.utils import override_settings
 from django.utils.six.moves import StringIO
 
 from django_mysql_tests.models import expensive_calculation, Poll
+from django_mysql_tests.utils import captured_stdout
 
 try:    # Use the same idiom as in cache backends
     from django.utils.six.moves import cPickle as pickle
@@ -957,7 +960,46 @@ class MySQLCacheTests(TransactionTestCase):
                 count = count + 1
         self.assertEqual(count, final_count)
 
-    # Command tests
+    # mysql_cache_migration tests
+
+    def test_mysql_cache_migration(self):
+        out = StringIO()
+        call_command('mysql_cache_migration', stdout=out)
+        output = out.getvalue()
+
+        # Lint it
+        with captured_stdout() as stderr:
+            errors = check_code(output)
+        self.assertEqual(
+            errors,
+            0,
+            "Encountered {} errors whilst trying to lint the mysql cache "
+            "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
+            .format(errors, output, stderr.getvalue())
+        )
+
+    def test_mysql_cache_migration_alias(self):
+        out = StringIO()
+        call_command('mysql_cache_migration', 'default', stdout=out)
+        output = out.getvalue()
+
+        num_run_sqls = (len(output.split('RunSQL')) - 1)
+        self.assertEqual(num_run_sqls, 1)
+
+    def test_mysql_cache_migration_non_existent(self):
+        out = StringIO()
+        with self.assertRaises(CommandError):
+            call_command('mysql_cache_migration', 'nonexistent', stdout=out)
+
+    @override_cache_settings(
+        BACKEND='django.core.cache.backends.dummy.DummyCache'
+    )
+    def test_mysql_cache_migration_no_mysql_caches(self):
+        err = StringIO()
+        call_command('mysql_cache_migration', stderr=err)
+        self.assertIn("No MySQLCache instances in CACHES", err.getvalue())
+
+    # cull_mysql_caches tests
 
     def test_cull_mysql_caches_basic(self):
         cache.set('key', 'value', 0.1)

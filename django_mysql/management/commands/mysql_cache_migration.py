@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
-from django.template import Context, Template
 from django.core.management import BaseCommand, CommandError
+from django.template import Context, Template
 
 from django_mysql.cache import MySQLCache
 from django_mysql.utils import collapse_spaces
@@ -61,6 +61,6 @@ class Migration(migrations.Migration):
             );
             """
             "DROP TABLE `{{ table.name }}`;"
-        ),
-    {% endfor %}]
+        ),{% endfor %}
+    ]
 '''.lstrip())
