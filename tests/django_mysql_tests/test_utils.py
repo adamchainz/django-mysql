@@ -45,6 +45,10 @@ class WeightedAverageRateTests(TestCase):
         self.assertEqual(rate.update(50, 0.5), 50)
         self.assertEqual(rate.update(50, 0.5), 50)
 
+    def test_zero_division(self):
+        rate = WeightedAverageRate(0.5)
+        self.assertEqual(rate.update(1, 0.0), 500)
+
 
 @skipUnless(have_program('pt-fingerprint'),
             "pt-fingerprint must be installed")
