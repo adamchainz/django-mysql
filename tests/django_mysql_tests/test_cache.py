@@ -18,9 +18,7 @@ from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.six.moves import StringIO
 
-from django_mysql.management.commands.mysql_cache_migration import (
-    create_table_sql
-)
+from django_mysql.cache import MySQLCache
 from django_mysql_tests.models import expensive_calculation, Poll
 from django_mysql_tests.utils import captured_stdout
 
@@ -101,7 +99,6 @@ class MySQLCacheTests(TransactionTestCase):
         # The super calls needs to happen first for the settings override.
         super(MySQLCacheTests, self).setUp()
         self.table_name = 'test cache table'
-        self.table_name_q = connection.ops.quote_name(self.table_name)
         self.create_table()
         self.factory = RequestFactory()
 
@@ -111,17 +108,17 @@ class MySQLCacheTests(TransactionTestCase):
         self.drop_table()
 
     def create_table(self):
-        sql = create_table_sql.replace('{{ table.name }}', self.table_name)
+        sql = MySQLCache.create_table_sql.format(table_name=self.table_name)
         with connection.cursor() as cursor:
             cursor.execute(sql)
 
     def drop_table(self):
         with connection.cursor() as cursor:
-            cursor.execute('DROP TABLE %s' % self.table_name_q)
+            cursor.execute('DROP TABLE `%s`' % self.table_name)
 
     def table_count(self):
         with connection.cursor() as cursor:
-            cursor.execute("SELECT COUNT(*) FROM " + self.table_name_q)
+            cursor.execute("SELECT COUNT(*) FROM `%s`" % self.table_name)
             return cursor.fetchone()[0]
 
     # These tests were copied from django's tests/cache/tests.py file

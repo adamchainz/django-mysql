@@ -47,7 +47,7 @@ class Command(BaseCommand):
 create_table_sql = '\n'.join(
     '    ' * 3 + line
     for line in MySQLCache.create_table_sql.splitlines()
-)
+).format(table_name='{{ table.name }}')
 
 migration_template = Template('''
 from django.db import migrations

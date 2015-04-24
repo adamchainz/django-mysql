@@ -1,3 +1,6 @@
+# -*- coding:utf-8 -*-
+from __future__ import unicode_literals
+
 import time
 import zlib
 from random import random
@@ -62,11 +65,11 @@ class MySQLCache(BaseDatabaseCache):
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
 
     create_table_sql = create_table_sql = dedent('''
-        CREATE TABLE `{{ table.name }}` (
-            `cache_key` varchar(255) CHARACTER SET utf8 NOT NULL
-                        PRIMARY KEY,
-            `value` longblob NOT NULL,
-            `expires` BIGINT UNSIGNED NOT NULL
+        CREATE TABLE `{table_name}` (
+            cache_key varchar(255) CHARACTER SET utf8 NOT NULL PRIMARY KEY,
+            value longblob NOT NULL,
+            value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p',
+            expires BIGINT UNSIGNED NOT NULL
         );
     ''').strip()
 
@@ -92,16 +95,16 @@ class MySQLCache(BaseDatabaseCache):
         if row is None:
             return default
 
-        now = int(time.time() * 1000)
-        value, expires = row
+        value, value_type, expires = row
 
+        now = int(time.time() * 1000)
         if expires < now:
             return default
 
-        return self._decode(value)
+        return self._decode(value, value_type)
 
     _get_query = collapse_spaces("""
-        SELECT value, expires
+        SELECT value, value_type, expires
         FROM {table}
         WHERE cache_key = %s
     """)
@@ -128,17 +131,17 @@ class MySQLCache(BaseDatabaseCache):
         d = {}
         now = int(time.time() * 1000)
 
-        for made_key, value, expires in rows:
+        for made_key, value, value_type, expires in rows:
             if expires < now:
                 continue
 
             key = made_key_to_key[made_key]
-            d[key] = self._decode(value)
+            d[key] = self._decode(value, value_type)
 
         return d
 
     _get_many_query = collapse_spaces("""
-        SELECT cache_key, value, expires
+        SELECT cache_key, value, value_type, expires
         FROM {table}
         WHERE cache_key IN %s
     """)
@@ -163,14 +166,14 @@ class MySQLCache(BaseDatabaseCache):
 
             now = int(time.time() * 1000)
 
-            value = self._encode(value)
+            value, value_type = self._encode(value)
 
             if mode == 'set':
                 query = self._set_query
-                params = (key, value, exp)
+                params = (key, value, value_type, exp)
             elif mode == 'add':
                 query = self._add_query
-                params = (key, value, exp, now)
+                params = (key, value, value_type, exp, now)
 
             cursor.execute(query.format(table=table), params)
 
@@ -185,23 +188,26 @@ class MySQLCache(BaseDatabaseCache):
                 return (insert_id != 444)
 
     _set_many_query = collapse_spaces("""
-        INSERT INTO {table} (cache_key, value, expires)
+        INSERT INTO {table} (cache_key, value, value_type, expires)
         VALUES {{VALUES_CLAUSE}}
         ON DUPLICATE KEY UPDATE
             value=VALUES(value),
+            value_type=VALUES(value_type),
             expires=VALUES(expires)
     """)
 
-    _set_query = _set_many_query.replace('{{VALUES_CLAUSE}}', '(%s, %s, %s)')
+    _set_query = _set_many_query.replace('{{VALUES_CLAUSE}}',
+                                         '(%s, %s, %s, %s)')
 
     # Uses the IFNULL / LEAST / LAST_INSERT_ID trick to communicate the special
     # value of 444 back to the client (LAST_INSERT_ID is otherwise 0, since
     # there is no AUTO_INCREMENT column)
     _add_query = collapse_spaces("""
-        INSERT INTO {table} (cache_key, value, expires)
-        VALUES (%s, %s, %s)
+        INSERT INTO {table} (cache_key, value, value_type, expires)
+        VALUES (%s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE
             value=IF(expires > @tmp_now:=%s, value, VALUES(value)),
+            value_type=IF(expires > @tmp_now, value_type, VALUES(value_type)),
             expires=IF(
                 expires > @tmp_now,
                 IFNULL(
@@ -223,12 +229,12 @@ class MySQLCache(BaseDatabaseCache):
         for key, value in six.iteritems(data):
             made_key = self.make_key(key, version=version)
             self.validate_key(made_key)
-            value = self._encode(value)
-            params.extend((made_key, value, exp))
+            value, value_type = self._encode(value)
+            params.extend((made_key, value, value_type, exp))
 
         query = self._set_many_query.replace(
             '{{VALUES_CLAUSE}}',
-            ','.join('(%s, %s, %s)' for key in data)
+            ','.join('(%s, %s, %s, %s)' for key in data)
         ).format(table=table)
 
         with connections[db].cursor() as cursor:
@@ -303,15 +309,24 @@ class MySQLCache(BaseDatabaseCache):
         return super(MySQLCache, self).validate_key(key)
 
     def _encode(self, value):
+        """
+        Take a Python object and return it as a tuple (value, value_type), a
+        blob and a one-char code for what type it is
+        """
         value = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+        value_type = 'p'
         if (
             self._compress_min_length and
             len(value) >= self._compress_min_length
         ):
             value = zlib.compress(value, self._compress_level)
-        return value
+        return value, value_type
 
-    def _decode(self, value):
+    def _decode(self, value, value_type):
+        """
+        Take a value blob and its value_type one-char code and convert it back
+        to a python object
+        """
         try:
             value = zlib.decompress(value)
         except zlib.error:
