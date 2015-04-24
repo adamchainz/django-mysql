@@ -44,6 +44,11 @@ class Command(BaseCommand):
         self.stdout.write(migration)
 
 
+create_table_sql = '\n'.join(
+    '    ' * 3 + line
+    for line in MySQLCache.create_table_sql.splitlines()
+)
+
 migration_template = Template('''
 from django.db import migrations
 
@@ -53,14 +58,9 @@ class Migration(migrations.Migration):
     operations = [{% for table in tables %}
         migrations.RunSQL(
             """
-            CREATE TABLE `{{ table.name }}` (
-                `cache_key` varchar(255) CHARACTER SET utf8 NOT NULL
-                            PRIMARY KEY,
-                `value` longblob NOT NULL,
-                `expires` BIGINT UNSIGNED NOT NULL
-            );
+            {create_table}
             """
             "DROP TABLE `{{ table.name }}`;"
         ),{% endfor %}
     ]
-'''.lstrip())
+'''.lstrip().replace('{create_table}', create_table_sql))

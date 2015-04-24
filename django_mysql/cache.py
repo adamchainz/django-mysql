@@ -1,6 +1,7 @@
 import time
 import zlib
 from random import random
+from textwrap import dedent
 
 import django
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
@@ -59,6 +60,15 @@ class MySQLCache(BaseDatabaseCache):
     # value slightly 1 bit less (still an incalculable time into the future of
     # 1970)
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
+
+    create_table_sql = create_table_sql = dedent('''
+        CREATE TABLE `{{ table.name }}` (
+            `cache_key` varchar(255) CHARACTER SET utf8 NOT NULL
+                        PRIMARY KEY,
+            `value` longblob NOT NULL,
+            `expires` BIGINT UNSIGNED NOT NULL
+        );
+    ''').strip()
 
     def __init__(self, table, params):
         super(MySQLCache, self).__init__(table, params)
