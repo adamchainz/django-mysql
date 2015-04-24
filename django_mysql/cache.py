@@ -369,6 +369,7 @@ class MySQLCache(BaseDatabaseCache):
             len(value) >= self._compress_min_length
         ):
             value = zlib.compress(value, self._compress_level)
+            value_type = 'z'
         return value, value_type
 
     def _is_valid_mysql_bigint(self, value):
@@ -388,14 +389,17 @@ class MySQLCache(BaseDatabaseCache):
         if value_type == 'i':
             return int(value)
 
-        try:
+        if value_type == 'z':
             value = zlib.decompress(value)
-        except zlib.error:
-            # Assume the data was not compressed to begin with. If there was
-            # corruption or some other problem, it will be a pickle error.
-            pass
+            value_type = 'p'
 
-        return pickle.loads(force_bytes(value))
+        if value_type == 'p':
+            return pickle.loads(force_bytes(value))
+
+        raise ValueError(
+            "Unknown value_type '{}' read from the cache table."
+            .format(value_type)
+        )
 
     def _maybe_cull(self):
         # Roll the dice, if it says yes then cull

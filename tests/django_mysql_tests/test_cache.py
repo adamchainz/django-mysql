@@ -984,6 +984,20 @@ class MySQLCacheTests(TransactionTestCase):
         with self.assertRaises(ValueError):
             cache.incr('myint')
 
+    def test_unknown_value_type_errors(self):
+        # Unknown value_type values should be errors, since we don't know how
+        # to deserialize them. New value_types will probably be introduced by
+        # later versions or subclasses of MySQLCache
+
+        cache.set('mykey', 123)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "UPDATE `%s` SET value_type = '?'" % self.table_name
+            )
+
+        with self.assertRaises(ValueError):
+            cache.get('mykey')
+
     # mysql_cache_migration tests
 
     def test_mysql_cache_migration(self):
