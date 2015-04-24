@@ -178,7 +178,7 @@ it exceeds the ``size`` of the list. For example::
 
 
 ``ListF()`` expressions
-----------------------
+-----------------------
 
 Similar to Django's :class:`~django.db.models.F` expression, this allows you to
 perform an atomic add and remove operations on list fields at the database
