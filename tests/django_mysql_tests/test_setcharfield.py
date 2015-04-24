@@ -514,7 +514,7 @@ class TestSerialization(TestCase):
         '''
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object
-        self.assertEqual(instance.field, set(["big", "leather", "comfy"]))
+        self.assertEqual(instance.field, {"big", "leather", "comfy"})
 
 
 class TestDescription(TestCase):

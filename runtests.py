@@ -7,16 +7,13 @@ import sys
 import subprocess
 
 
-FLAKE8_ARGS = ['django_mysql', 'tests']
-
-
 def main():
     try:
         sys.argv.remove('--nolint')
     except ValueError:
-        run_flake8 = True
+        run_lint = True
     else:
-        run_flake8 = False
+        run_lint = False
 
     try:
         sys.argv.remove('--lintonly')
@@ -28,8 +25,9 @@ def main():
     if run_tests:
         tests_main()
 
-    if run_flake8:
-        exit_on_failure(flake8_main(FLAKE8_ARGS))
+    if run_lint:
+        exit_on_failure(run_flake8())
+        exit_on_failure(run_2to3())
 
 
 def tests_main():
@@ -40,11 +38,30 @@ def tests_main():
     return execute_from_command_line(sys.argv)
 
 
-def flake8_main(args):
+def run_flake8():
     print('Running flake8 code linting')
-    ret = subprocess.call(['flake8'] + args)
+    ret = subprocess.call(['flake8', 'django_mysql', 'tests'])
     print('flake8 failed' if ret else 'flake8 passed')
     return ret
+
+
+def run_2to3():
+    print('Running 2to3 checks')
+    output = subprocess.check_output([
+        '2to3',
+        '-f', 'idioms',
+        '-f', 'isinstance',
+        '-f', 'set_literal',
+        '-f', 'tuple_params',
+        'django_mysql', 'tests'
+    ]).strip()
+    if output > '':
+        print('2to3 failed')
+        print(output)
+        return 1
+    else:
+        print('2to3 passed')
+        return 0
 
 
 def exit_on_failure(ret, message=None):
