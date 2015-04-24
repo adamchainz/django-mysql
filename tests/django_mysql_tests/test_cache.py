@@ -10,7 +10,7 @@ from flake8.run import check_code
 
 from django.core.cache import cache, caches, CacheKeyWarning
 from django.core.management import call_command, CommandError
-from django.db import connection, transaction
+from django.db import connection, transaction, OperationalError
 from django.http import HttpResponse
 from django.middleware.cache import (
     FetchFromCacheMiddleware, UpdateCacheMiddleware
@@ -19,7 +19,7 @@ from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.six.moves import StringIO
 
-from django_mysql.cache import MySQLCache
+from django_mysql.cache import BIGINT_SIGNED_MIN, BIGINT_SIGNED_MAX, MySQLCache
 from django_mysql_tests.models import expensive_calculation, Poll
 from django_mysql_tests.utils import captured_stdout
 
@@ -960,6 +960,18 @@ class MySQLCacheTests(TransactionTestCase):
             if cull_cache.has_key('cull%d' % i):  # noqa
                 count = count + 1
         self.assertEqual(count, final_count)
+
+    def test_incr_range(self):
+        cache.set('overwhelm', BIGINT_SIGNED_MAX - 1)
+        cache.incr('overwhelm')
+        with self.assertRaises(OperationalError):
+            cache.incr('overwhelm')
+
+    def test_decr_range(self):
+        cache.set('underwhelm', BIGINT_SIGNED_MIN + 1)
+        cache.decr('underwhelm')
+        with self.assertRaises(OperationalError):
+            cache.decr('underwhelm')
 
     def test_cant_incr_decimals(self):
         # Cached values that aren't ints can't be incremented
