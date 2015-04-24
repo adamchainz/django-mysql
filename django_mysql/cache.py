@@ -20,6 +20,8 @@ except ImportError:  # pragma: no cover
     import pickle
 
 
+BIGINT_SIGNED_MIN = -9223372036854775808
+BIGINT_SIGNED_MAX = 9223372036854775807
 BIGINT_UNSIGNED_MAX = 18446744073709551615
 
 
@@ -291,6 +293,50 @@ class MySQLCache(BaseDatabaseCache):
             )
             return cursor.fetchone() is not None
 
+    def incr(self, key, delta=1, version=None):
+        return self._base_delta(key, delta, version, '+')
+
+    def decr(self, key, delta=1, version=None):
+        return self._base_delta(key, delta, version, '-')
+
+    def _base_delta(self, key, delta, version, operation):
+        key = self.make_key(key, version=version)
+        self.validate_key(key)
+
+        db = router.db_for_write(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+
+        with connections[db].cursor() as cursor:
+            updated = cursor.execute(
+                self._delta_query.format(table=table, operation=operation),
+                (delta, key)
+            )
+
+            if not updated:
+                raise ValueError("Key '%s' not found, or not an integer" % key)
+
+            # Unwrap the onion skin around MySQLdb to get the genuine
+            # connection
+            mysqldb_connection = cursor.cursor.cursor.connection()
+            # New value stored in insert_id
+            return mysqldb_connection.insert_id()
+
+    # Looks a bit tangled to turn the blob back into an int for updating, but
+    # it works. Stores the new value for insert_id() with LAST_INSERT_ID
+    _delta_query = collapse_spaces("""
+        UPDATE {table}
+        SET value = CAST(
+            LAST_INSERT_ID(
+                CAST(CAST(value AS CHAR) AS INT)
+                {operation}
+                %s
+            )
+            AS CHAR
+        )
+        WHERE cache_key = %s AND
+              value_type = 'i'
+    """)
+
     def clear(self):
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
@@ -313,6 +359,9 @@ class MySQLCache(BaseDatabaseCache):
         Take a Python object and return it as a tuple (value, value_type), a
         blob and a one-char code for what type it is
         """
+        if self._is_valid_mysql_bigint(value):
+            return str(value), 'i'
+
         value = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
         value_type = 'p'
         if (
@@ -322,11 +371,23 @@ class MySQLCache(BaseDatabaseCache):
             value = zlib.compress(value, self._compress_level)
         return value, value_type
 
+    def _is_valid_mysql_bigint(self, value):
+        return(
+            # Can't support int/long subclasses since they should are expected
+            # to decode back to the same object
+            (type(value) in six.integer_types) and
+            # Can't go beyond these ranges
+            BIGINT_SIGNED_MIN <= value <= BIGINT_SIGNED_MAX
+        )
+
     def _decode(self, value, value_type):
         """
         Take a value blob and its value_type one-char code and convert it back
         to a python object
         """
+        if value_type == 'i':
+            return int(value)
+
         try:
             value = zlib.decompress(value)
         except zlib.error:

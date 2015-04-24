@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import os
 import time
 import warnings
+from decimal import Decimal
 
 from flake8.run import check_code
 
@@ -41,6 +42,11 @@ class C:
 class Unpickable(object):
     def __getstate__(self):
         raise pickle.PickleError()
+
+
+class MyInt(int):
+    def times2(self):
+        return self * 2
 
 
 def custom_key_func(key, key_prefix, version):
@@ -954,6 +960,29 @@ class MySQLCacheTests(TransactionTestCase):
             if cull_cache.has_key('cull%d' % i):  # noqa
                 count = count + 1
         self.assertEqual(count, final_count)
+
+    def test_cant_incr_decimals(self):
+        # Cached values that aren't ints can't be incremented
+        cache.set('answer', Decimal('1.1'))
+        with self.assertRaises(ValueError):
+            cache.incr('answer')
+
+    def test_cant_decr_decimals(self):
+        # Cached values that aren't ints can't be decremented
+        cache.set('answer', Decimal('9.9'))
+        with self.assertRaises(ValueError):
+            cache.decr('answer')
+
+    def test_set_int_subclass(self):
+        # Storing an int subclass should return that int subclass
+        cache.set('myint', MyInt(2))
+        val = cache.get('myint')
+        self.assertEqual(val.times2(), 4)
+
+        # Can't increment it since it's a pickle object on the table, not an
+        # integer
+        with self.assertRaises(ValueError):
+            cache.incr('myint')
 
     # mysql_cache_migration tests
 
