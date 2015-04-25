@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             """
             {create_table}
-            """
+            """,
             "DROP TABLE `{{ table.name }}`;"
         ),{% endfor %}
     ]
