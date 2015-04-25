@@ -62,14 +62,15 @@ If you use this with multiple databases, you'll also need to set up routing
 instructions for your database cache table. This can be done the same way as
 described for ``DatabaseCache`` in the
 `Django manual
-<https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching`, apart
+<https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching>`_, apart
 from the application name is ``django_mysql``.
 
 .. note::
 
-    It may be useful/advisable to do database routing anyway, putitng all your
-    cache operations on a second connection. This way they won't be affected
-    by any transactions your main code runs.
+    Even if you aren't using multiple MySQL servers, it may be worth doing
+    database routing anyway to put all your cache operations on a second
+    connection - this way they won't be affected by transactions your main code
+    runs.
 
 
 Caveats
