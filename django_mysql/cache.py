@@ -103,7 +103,7 @@ class MySQLCache(BaseDatabaseCache):
         if expires < now:
             return default
 
-        return self._decode(value, value_type)
+        return self.decode(value, value_type)
 
     _get_query = collapse_spaces("""
         SELECT value, value_type, expires
@@ -138,7 +138,7 @@ class MySQLCache(BaseDatabaseCache):
                 continue
 
             key = made_key_to_key[made_key]
-            d[key] = self._decode(value, value_type)
+            d[key] = self.decode(value, value_type)
 
         return d
 
@@ -168,7 +168,7 @@ class MySQLCache(BaseDatabaseCache):
 
             now = int(time.time() * 1000)
 
-            value, value_type = self._encode(value)
+            value, value_type = self.encode(value)
 
             if mode == 'set':
                 query = self._set_query
@@ -231,7 +231,7 @@ class MySQLCache(BaseDatabaseCache):
         for key, value in six.iteritems(data):
             made_key = self.make_key(key, version=version)
             self.validate_key(made_key)
-            value, value_type = self._encode(value)
+            value, value_type = self.encode(value)
             params.extend((made_key, value, value_type, exp))
 
         query = self._set_many_query.replace(
@@ -354,15 +354,15 @@ class MySQLCache(BaseDatabaseCache):
             )
         return super(MySQLCache, self).validate_key(key)
 
-    def _encode(self, value):
+    def encode(self, obj):
         """
         Take a Python object and return it as a tuple (value, value_type), a
         blob and a one-char code for what type it is
         """
-        if self._is_valid_mysql_bigint(value):
-            return str(value), 'i'
+        if self._is_valid_mysql_bigint(obj):
+            return str(obj), 'i'
 
-        value = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+        value = pickle.dumps(obj, pickle.HIGHEST_PROTOCOL)
         value_type = 'p'
         if (
             self._compress_min_length and
@@ -381,7 +381,7 @@ class MySQLCache(BaseDatabaseCache):
             BIGINT_SIGNED_MIN <= value <= BIGINT_SIGNED_MAX
         )
 
-    def _decode(self, value, value_type):
+    def decode(self, value, value_type):
         """
         Take a value blob and its value_type one-char code and convert it back
         to a python object
