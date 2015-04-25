@@ -46,7 +46,12 @@ class WeightedAverageRate(object):
             self.avg_n = n
             self.avg_t = t
 
-        avg_rate = self.avg_n / self.avg_t
+        try:
+            avg_rate = self.avg_n / self.avg_t
+        except ZeroDivisionError:
+            # Assume a small amount of time, not 0
+            avg_rate = self.avg_n / 0.001
+
         new_n = int(avg_rate * self.target_t)
         return new_n
 
