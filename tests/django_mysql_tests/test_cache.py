@@ -62,8 +62,11 @@ _caches_setting_base = {
     'custom_key2': {
         'KEY_FUNCTION': 'django_mysql_tests.test_cache.custom_key_func'
     },
-    'cull': {'OPTIONS': {'MAX_ENTRIES': 30}},
-    'zero_cull': {'OPTIONS': {'CULL_FREQUENCY': 0, 'MAX_ENTRIES': 30}},
+    'cull': {'OPTIONS': {'CULL_PROBABILITY': 1,
+                         'MAX_ENTRIES': 30}},
+    'zero_cull': {'OPTIONS': {'CULL_FREQUENCY': 0,
+                              'CULL_PROBABILITY': 1,
+                              'MAX_ENTRIES': 30}},
     'no_cull': {'OPTIONS': {'CULL_FREQUENCY': 2,
                             'CULL_PROBABILITY': 0,
                             'MAX_ENTRIES': 30}},

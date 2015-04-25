@@ -80,7 +80,7 @@ class MySQLCache(BaseDatabaseCache):
         options = params.get('OPTIONS', {})
         self._compress_min_length = options.get('COMPRESS_MIN_LENGTH', 5000)
         self._compress_level = options.get('COMPRESS_LEVEL', 6)
-        self._cull_probability = options.get('CULL_PROBABILITY', 1)
+        self._cull_probability = options.get('CULL_PROBABILITY', 0.01)
 
     # Django API + helpers
 
