@@ -327,7 +327,7 @@ class MySQLCache(BaseDatabaseCache):
         UPDATE {table}
         SET value = CAST(
             LAST_INSERT_ID(
-                CAST(CAST(value AS CHAR) AS INT)
+                CAST(CAST(value AS CHAR) AS SIGNED INTEGER)
                 {operation}
                 %s
             )
