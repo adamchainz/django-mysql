@@ -325,13 +325,10 @@ class MySQLCache(BaseDatabaseCache):
     # it works. Stores the new value for insert_id() with LAST_INSERT_ID
     _delta_query = collapse_spaces("""
         UPDATE {table}
-        SET value = CAST(
-            LAST_INSERT_ID(
-                CAST(CAST(value AS CHAR) AS SIGNED INTEGER)
-                {operation}
-                %s
-            )
-            AS CHAR
+        SET value = LAST_INSERT_ID(
+            CAST(value AS SIGNED INTEGER)
+            {operation}
+            %s
         )
         WHERE cache_key = %s AND
               value_type = 'i'
@@ -360,7 +357,7 @@ class MySQLCache(BaseDatabaseCache):
         blob and a one-char code for what type it is
         """
         if self._is_valid_mysql_bigint(obj):
-            return str(obj), 'i'
+            return obj, 'i'
 
         value = pickle.dumps(obj, pickle.HIGHEST_PROTOCOL)
         value_type = 'p'
