@@ -175,6 +175,19 @@ MySQL-specific database functions for the ORM:
 
 
 -----
+Cache
+-----
+
+An efficient implementation of django's cache API for MySQL.
+
+    cache.set("my_key", "my_value")  # Only one query to do this
+    cache.get_many(["key1", "key2"])  # Only one query to do this too!
+    cache.set("another_key", some_big_value)  # Compressed above 5kb by default
+
+:ref:`Read more <cache>`
+
+
+-----
 Locks
 -----
 

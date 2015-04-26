@@ -1,6 +1,9 @@
 # -*- coding:utf-8 -*-
+from django.utils import timezone
+
 from django.db.models import (
-    CharField, DecimalField, ForeignKey, IntegerField, Model as VanillaModel
+    CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
+    Model as VanillaModel
 )
 
 from django_mysql.models import (
@@ -118,3 +121,19 @@ class Alphabet(Model):
     e = CharField(max_length=32, null=True)
     f = IntegerField(null=True)
     g = DecimalField(default=0, decimal_places=2, max_digits=10)
+
+
+# For cache tests
+
+def expensive_calculation():
+    expensive_calculation.num_runs += 1
+    return timezone.now()
+
+
+class Poll(VanillaModel):
+    question = CharField(max_length=200)
+    answer = CharField(max_length=200)
+    pub_date = DateTimeField(
+        'date published',
+        default=expensive_calculation
+    )
