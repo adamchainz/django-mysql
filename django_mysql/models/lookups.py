@@ -2,6 +2,16 @@
 from django.db.models import CharField, Lookup, Transform
 
 
+class CaseSensitiveExact(Lookup):
+    lookup_name = 'case_exact'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return 'BINARY (%s) = %s' % (lhs, rhs), params
+
+
 class SoundsLike(Lookup):
     lookup_name = 'sounds_like'
 
