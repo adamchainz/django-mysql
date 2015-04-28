@@ -17,7 +17,7 @@ More ways to store data! The following can be imported from
 List Fields
 -----------
 
-Two fields that store lists of data, grown-up versions of django's
+Two fields that store lists of data, grown-up versions of Django's
 :class:`~django.db.models.CommaSeparatedIntegerField`, cousins of
 ``django.contrib.postgres``'s
 :class:`~django.contrib.postgres.fields.ArrayField`. There are two versions:
@@ -80,9 +80,9 @@ Querying Set Fields
 
 .. warning::
 
-    These fields not built-in datatypes, and the filters use one or more SQL
-    functions to parse the underlying string representation. They may slow down
-    on large tables if your queries are not otherwise selective.
+    These fields are not built-in datatypes, and the filters use one or more
+    SQL functions to parse the underlying string representation. They may slow
+    down on large tables if your queries are not otherwise selective.
 
 contains
 ~~~~~~~~
@@ -136,7 +136,7 @@ Index lookups
 ~~~~~~~~~~~~~
 
 This class of lookups allows you to index into the list to check if the first
-occurence of a given element is at a given position. There are no errors if
+occurrence of a given element is at a given position. There are no errors if
 it exceeds the ``size`` of the list. For example::
 
     >>> Person.objects.filter(post_nominals__0='PhD')
@@ -153,7 +153,7 @@ it exceeds the ``size`` of the list. For example::
 
     The underlying function, ``FIND_IN_SET``, is designed for *sets*, i.e.
     comma-separated lists of unique elements. It therefore only allows you to
-    query about the *first* occurence of the given item. For example, this is
+    query about the *first* occurrence of the given item. For example, this is
     a non-match::
 
         >>> Person.objects.create(name='Cacistus', post_nominals=['MSc', 'MSc'])
@@ -170,7 +170,7 @@ it exceeds the ``size`` of the list. For example::
 
 .. note::
 
-    Unlike the similar feature on ``django.contrib.postgres``'s ArrayField,
+    Unlike the similar feature on ``django.contrib.postgres``'s ``ArrayField``,
     'Index transforms', these are lookups, and only allow direct value
     comparison rather than continued chaining with the base-field lookups. This
     is because the field is not a native list type in MySQL.
@@ -269,7 +269,7 @@ Set Fields
 ----------
 
 Two fields that store sets of a base field in comma-separated strings -
-cousins of django's :class:`~django.db.models.CommaSeparatedIntegerField`.
+cousins of Django's :class:`~django.db.models.CommaSeparatedIntegerField`.
 There are two versions: ``SetCharField``, which is based on ``CharField`` and
 appropriate for storing sets with a small maximum size, and ``SetTextField``,
 which is based on ``TextField`` and therefore suitable for sets of unbounded
@@ -328,9 +328,9 @@ Querying Set Fields
 
 .. warning::
 
-    These fields not built-in datatypes, and the filters use one or more SQL
-    functions to parse the underlying string representation. They may slow down
-    on large tables if your queries are not otherwise selective.
+    These fields are not built-in datatypes, and the filters use one or more
+    SQL functions to parse the underlying string representation. They may slow
+    down on large tables if your queries are not otherwise selective.
 
 contains
 ~~~~~~~~
@@ -420,7 +420,7 @@ Or with attribute assignment to a model::
         Takes an expression and returns a new expression that will remove the
         given item from the set field if it is present::
 
-            post.tags = SetF('tags').remove('pthyon')
+            post.tags = SetF('tags').remove('python')
             post.save()
 
     .. warning::

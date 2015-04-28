@@ -165,10 +165,11 @@ you to bring back the concatenation of values from a group in one query::
 Database Functions
 ------------------
 
-MySQL-specific database functions for the ORM:
+MySQL-specific database functions for the ORM::
 
-    >>> Author.objects.annotate(full_name=ConcatWS('first_name', 'last_name', separator=' ')) \
-    ...               .first().full_name
+    >>> Author.objects.annotate(
+    ...     full_name=ConcatWS('first_name', 'last_name', separator=' ')
+    ... ).first().full_name
     "Charles Dickens"
 
 :ref:`Read more <database_functions>`
@@ -178,9 +179,9 @@ MySQL-specific database functions for the ORM:
 Cache
 -----
 
-An efficient implementation of django's cache API for MySQL.
+An efficient backend for Django's cache framework using MySQL features::
 
-    cache.set("my_key", "my_value")  # Only one query to do this
+    cache.set("my_key", "my_value")  # Uses only one query
     cache.get_many(["key1", "key2"])  # Only one query to do this too!
     cache.set("another_key", some_big_value)  # Compressed above 5kb by default
 
@@ -191,7 +192,7 @@ An efficient implementation of django's cache API for MySQL.
 Locks
 -----
 
-Use MySQL as a locking server for arbitrarily named lock::
+Use MySQL as a locking server for arbitrarily named locks::
 
     with Lock("ExternalAPI", timeout=10.0):
         do_some_external_api_stuff()
@@ -215,8 +216,7 @@ Easy access to global or session status variables::
 Management Commands
 -------------------
 
-Easy inclusion of your database parameters from settings in commandline
-tools:
+Easy inclusion of your database parameters from settings in commandline tools::
 
 .. code-block:: console
 

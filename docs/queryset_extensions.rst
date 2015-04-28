@@ -21,7 +21,7 @@ Approximate Counting
     Whilst this is fast for ``MyISAM`` tables, for ``InnoDB`` it involves a
     full table scan to produce a consistent number, due to MVCC keeping several
     copies of rows when under transaction. If you have lots of rows, you will
-    notice this as a slow query - `percona have some more details
+    notice this as a slow query - `Percona have some more details
     <http://www.percona.com/blog/2006/12/01/count-for-innodb-tables/>`_.
 
     This method returns the approximate count found by running ``EXPLAIN SELECT
@@ -200,7 +200,7 @@ can be thought of in one of these two methods.
         maximum ``pk`` values before starting. On QuerySets that match few
         rows, or whose rows aren't evenly distributed, this can still execute a
         long blocking table scan to find these two rows.
-        You can remedy this by givnig a value for ``pk_range``:
+        You can remedy this by giving a value for ``pk_range``:
 
         * If set to ``'all'``, the range will be the minimum and maximum PK
           values of the entire table, excluding any filters you have set up -
@@ -208,7 +208,7 @@ can be thought of in one of these two methods.
           model.
 
         * If set to a 2-tuple, it will be unpacked and used as the minimum and
-          maxmimum values respectively.
+          maximum values respectively.
 
         .. note::
 
@@ -316,7 +316,7 @@ up doing.
 
     Can also be imported as a standalone function if you want to use it on a
     ``QuerySet`` that does not have the ``QuerySetMixin`` added, e.g. for
-    built-in django models::
+    built-in Django models::
 
         >>> from django_mysql.models import pt_visual_explain
         >>> pt_visual_explain(User.objects.all())
@@ -442,7 +442,7 @@ easily as well::
             The 'second form' of ``HANDLER .. READ`` supports paging over a
             table, fetching one batch of results at a time whilst the handler
             object on MySQL's end retains state, somewhat like a 'cursor'. This
-            is mututally exclusive with ``value__LOOKUP``, and if neither is
+            is mutually exclusive with ``value__LOOKUP``, and if neither is
             specified, this is the default.
 
             There are four modes::

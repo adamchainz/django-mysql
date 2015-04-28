@@ -4,9 +4,9 @@
 Cache
 =====
 
-Extensions for Django's cache framework.
-
 .. currentmodule:: django_mysql.cache
+
+A MySQL-specific backend for Django's cache framework.
 
 
 MySQLCache

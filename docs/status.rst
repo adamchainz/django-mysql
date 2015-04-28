@@ -4,10 +4,9 @@
 Status
 ======
 
-MySQL gives you metadata on the server status through its
-``SHOW GLOBAL STATUS`` and ``SHOW SESSION STATUS`` commands. These classes
-make it easy to get this data, as well as providing utility methods to react
-to it.
+MySQL gives you metadata on the server status through its ``SHOW GLOBAL
+STATUS`` and ``SHOW SESSION STATUS`` commands. These classes make it easy to
+get this data, as well as providing utility methods to react to it.
 
 The following can all be imported from ``django_mysql.status``.
 
@@ -39,7 +38,7 @@ The following can all be imported from ``django_mysql.status``.
         >>> GlobalStatus(using='replica1').get('Threads_running')
         47
 
-    To see the names of all the avaiable variables, refer to the documentation:
+    To see the names of all the available variables, refer to the documentation:
     `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_. They vary
     based upon server version, plugins installed, etc.
@@ -52,7 +51,7 @@ The following can all be imported from ``django_mysql.status``.
     .. method:: get(name)
 
         Returns the current value of the named status variable. The name may
-        not include SQJ wildcards (``%``). If it does not exist, ``KeyError``
+        not include SQL wildcards (``%``). If it does not exist, ``KeyError``
         will be raised.
 
         The result set for ``SHOW STATUS`` returns values in strings, so
@@ -99,10 +98,10 @@ The following can all be imported from ``django_mysql.status``.
 
 .. class:: SessionStatus(name, connection_name=None)
 
-    This class is the same as GlobalStatus apart from it runs
-    ``SHOW SESSION STATUS``, so *some* variables are restricted to the current
-    connection only, rather than the whole server. For which, you should refer
-    to the documentation:
+    This class is the same as GlobalStatus apart from it runs ``SHOW SESSION
+    STATUS``, so *some* variables are restricted to the current connection
+    only, rather than the whole server. For which, you should refer to the
+    documentation:
     `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_.
 
