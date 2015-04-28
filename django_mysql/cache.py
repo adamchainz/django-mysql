@@ -182,11 +182,8 @@ class MySQLCache(BaseDatabaseCache):
             if mode == 'set':
                 return True
             elif mode == 'add':
-                # Unwrap the onion skin around MySQLdb to get the genuine
-                # connection
-                mysqldb_connection = cursor.cursor.cursor.connection()
                 # Use a special code in the add query for "did insert"
-                insert_id = mysqldb_connection.insert_id()
+                insert_id = cursor.lastrowid
                 return (insert_id != 444)
 
     _set_many_query = collapse_spaces("""
@@ -315,11 +312,8 @@ class MySQLCache(BaseDatabaseCache):
             if not updated:
                 raise ValueError("Key '%s' not found, or not an integer" % key)
 
-            # Unwrap the onion skin around MySQLdb to get the genuine
-            # connection
-            mysqldb_connection = cursor.cursor.cursor.connection()
             # New value stored in insert_id
-            return mysqldb_connection.insert_id()
+            return cursor.lastrowid
 
     # Looks a bit tangled to turn the blob back into an int for updating, but
     # it works. Stores the new value for insert_id() with LAST_INSERT_ID
