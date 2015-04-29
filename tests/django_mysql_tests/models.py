@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from django.db.models import (
     CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
-    Model as VanillaModel
+    Model as VanillaModel, TextField
 )
 
 from django_mysql.models import (
@@ -75,6 +75,7 @@ class BigIntListModel(Model):
 class Author(Model):
     name = CharField(max_length=32, db_index=True)
     tutor = ForeignKey('self', null=True, related_name='tutees')
+    bio = TextField()
 
     def __unicode__(self):
         return "{} {}".format(self.id, self.name)
