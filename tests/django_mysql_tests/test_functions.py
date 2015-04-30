@@ -7,8 +7,8 @@ from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.functions import (
-    Abs, ConcatWS, Ceiling, CRC32, Floor, Greatest, Least, MD5, Round, SHA1,
-    SHA2, Sign
+    Abs, ConcatWS, Ceiling, CRC32, Field, Floor, Greatest, Least, MD5, Round,
+    SHA1, SHA2, Sign
 )
 
 from django_mysql_tests.models import Alphabet
@@ -156,6 +156,26 @@ class StringFunctionTests(TestCase):
                             .first()
         )
         self.assertEqual(ab.de, 'AAA:BBB')
+
+    def test_field_simple(self):
+        Alphabet.objects.create(d='a')
+        ab = Alphabet.objects.annotate(dp=Field('d', ['a', 'b'])).first()
+        self.assertEqual(ab.dp, 1)
+        ab = Alphabet.objects.annotate(dp=Field('d', ['b', 'a'])).first()
+        self.assertEqual(ab.dp, 2)
+        ab = Alphabet.objects.annotate(dp=Field('d', ['c', 'd'])).first()
+        self.assertEqual(ab.dp, 0)
+
+    def test_order_by(self):
+        Alphabet.objects.create(a=1, d='AAA')
+        Alphabet.objects.create(a=2, d='CCC')
+        Alphabet.objects.create(a=4, d='BBB')
+        Alphabet.objects.create(a=3, d='BBB')
+        avalues = list(
+            Alphabet.objects.order_by(Field('d', ['AAA', 'BBB']), 'a')
+                            .values_list('a', flat=True)
+        )
+        self.assertEqual(avalues, [2, 1, 3, 4])
 
 
 @requiresDatabaseFunctions
