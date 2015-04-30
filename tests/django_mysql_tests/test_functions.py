@@ -14,8 +14,13 @@ from django_mysql.models.functions import (
 from django_mysql_tests.models import Alphabet
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+requiresDatabaseFunctions = skipIf(
+    django.VERSION <= (1, 8),
+    "Requires Database Functions from Django 1.8+"
+)
+
+
+@requiresDatabaseFunctions
 class ComparisonFunctionTests(TestCase):
 
     def test_greatest(self):
@@ -33,8 +38,7 @@ class ComparisonFunctionTests(TestCase):
         self.assertEqual(ab.worst, -1)
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+@requiresDatabaseFunctions
 class NumericFunctionTests(TestCase):
 
     def test_abs(self):
@@ -93,8 +97,7 @@ class NumericFunctionTests(TestCase):
         self.assertEqual(ab.csign, -1)
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+@requiresDatabaseFunctions
 class StringFunctionTests(TestCase):
 
     def test_concat_ws(self):
@@ -155,8 +158,7 @@ class StringFunctionTests(TestCase):
         self.assertEqual(ab.de, 'AAA:BBB')
 
 
-@skipIf(django.VERSION <= (1, 8),
-        "Requires Database Functions from Django 1.8+")
+@requiresDatabaseFunctions
 class EncryptionFunctionTests(TestCase):
 
     def test_md5_string(self):
