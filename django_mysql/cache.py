@@ -66,14 +66,14 @@ class MySQLCache(BaseDatabaseCache):
     # 1970)
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
 
-    create_table_sql = create_table_sql = dedent('''
+    create_table_sql = dedent('''\
         CREATE TABLE `{table_name}` (
             cache_key varchar(255) CHARACTER SET utf8 NOT NULL PRIMARY KEY,
             value longblob NOT NULL,
             value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p',
             expires BIGINT UNSIGNED NOT NULL
         );
-    ''').strip()
+    ''')
 
     def __init__(self, table, params):
         super(MySQLCache, self).__init__(table, params)

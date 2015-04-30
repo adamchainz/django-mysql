@@ -50,17 +50,23 @@ create_table_sql = '\n'.join(
 ).format(table_name='{{ table.name }}')
 
 migration_template = Template('''
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.db import migrations
 
 
 class Migration(migrations.Migration):
 
+    dependencies = [
+    ]
+
     operations = [{% for table in tables %}
         migrations.RunSQL(
             """
-            {create_table}
+{create_table_sql}
             """,
             "DROP TABLE `{{ table.name }}`;"
         ),{% endfor %}
     ]
-'''.lstrip().replace('{create_table}', create_table_sql))
+'''.lstrip().replace('{create_table_sql}', create_table_sql))
