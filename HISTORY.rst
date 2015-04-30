@@ -3,6 +3,14 @@
 History
 =======
 
+0.1.10 (2015-04-30)
+-------------------
+
+* Added the ``MySQLCache`` backend for use with Django's caching framework, a
+  more efficient version of ``DatabaseCache``
+* Fix a ``ZeroDivision`` error in ``WeightedAverageRate``, which is used in
+  smart iteration
+
 0.1.9 (2015-04-20)
 ------------------
 
