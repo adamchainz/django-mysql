@@ -163,6 +163,28 @@ String Functions
 
         >>> Author.objects.annotate(sales_list=ConcatWS('sales_eu', 'sales_us'))
 
+.. class:: Field(expression, values)
+
+    Given an expression, and a list of strings, returns the 1-indexed
+    location of the expression's value in the list, or 0 if not found. This is
+    commonly used for ordering.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    if any of the values in the list are strings, they will be values wrapped
+    in ``Value``. This is for the most convenient usage patterns where you have
+    the list of things pre-loaded in python, e.g. in a field's ``choices``.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_field>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/field/>`_.
+
+    Usage examples::
+
+        >>> # All the people, ladies then men - but other values of gender (e.g. empty string) first.
+        >>> Person.objects.all().order_by(
+        ...     Field('gender', ['Female', 'Male'])
+        ... )
+
 
 Encryption Functions
 --------------------
