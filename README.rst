@@ -41,6 +41,7 @@ Includes:
 * Model fields for storing lists and sets in comma-separated strings, with the
   ability to query them
 * ORM expressions for MySQL-specific functions
+* A new cache backend that makes use of MySQL's upserts and does compression
 * Handler API for quicker-than-SQL reads using the 'NoSQL' HANDLER commands
 * Status variable inspection and utility methods
 * Named locks for easy locking of e.g. external resources
