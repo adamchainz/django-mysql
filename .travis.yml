@@ -5,8 +5,7 @@ language: python
 env:
   - "DB=mysql DB_VERSION=5.5"
   - "DB=mysql DB_VERSION=5.6"
-  # apt repo seems to be broken
-  # - "DB=mariadb DB_VERSION=5.5"
+  - "DB=mariadb DB_VERSION=5.5"
   - "DB=mariadb DB_VERSION=10.0"
   - "DB=mariadb DB_VERSION=10.1"
 
