@@ -7,8 +7,8 @@ from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.functions import (
-    Abs, ConcatWS, Ceiling, CRC32, Field, Floor, Greatest, Least, MD5, Round,
-    SHA1, SHA2, Sign
+    Abs, ConcatWS, Ceiling, CRC32, ELT, Field, Floor, Greatest, Least, MD5,
+    Round, SHA1, SHA2, Sign
 )
 
 from django_mysql_tests.models import Alphabet
@@ -156,6 +156,13 @@ class StringFunctionTests(TestCase):
                             .first()
         )
         self.assertEqual(ab.de, 'AAA:BBB')
+
+    def test_elt_simple(self):
+        Alphabet.objects.create(a=2)
+        ab = Alphabet.objects.annotate(elt=ELT('a', ['apple', 'orange'])).get()
+        self.assertEqual(ab.elt, 'orange')
+        ab = Alphabet.objects.annotate(elt=ELT('a', ['apple'])).get()
+        self.assertEqual(ab.elt, None)
 
     def test_field_simple(self):
         Alphabet.objects.create(d='a')

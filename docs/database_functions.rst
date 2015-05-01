@@ -163,6 +163,30 @@ String Functions
 
         >>> Author.objects.annotate(sales_list=ConcatWS('sales_eu', 'sales_us'))
 
+.. class:: ELT(number, values)
+
+    ``ELT`` is the 'element' function. Given a numerical expression, it returns
+    the Nth element from expressions (1-indexed); if number is less than 1 or
+    greater than the number of expressions, it will return 0. It is the
+    complement of ``Field``.
+
+    Note that if ``number`` is a string, it will refer to a field, whereas if
+    any of the values in the ``values`` list are strings, they will be wrapped
+    with ``Value`` automatically. This is for convenience with the most normal
+    usage pattern where you have the list pre-loaded in python, e.g. a
+    ``choices`` field.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_elt>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/elt/>`_.
+
+    Usage example::
+
+        >>> # Say Person.life_state is either 1 (alive), 2 (dead), or 3 (M.I.A.)
+        >>> Person.objects.annotate(
+        ...     state_name=ELT('life_state', ['Alive', 'Dead', 'M.I.A.'])
+        ... )
+
 .. class:: Field(expression, values)
 
     Given an expression, and a list of strings, returns the 1-indexed

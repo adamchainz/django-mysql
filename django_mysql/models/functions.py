@@ -91,6 +91,19 @@ class ConcatWS(Func):
                                        output_field=output_field)
 
 
+class ELT(Func):
+    function = 'ELT'
+
+    def __init__(self, num, expressions):
+        value_exprs = []
+        for v in expressions:
+            if not hasattr(v, 'resolve_expression'):
+                v = Value(v)
+            value_exprs.append(v)
+
+        super(ELT, self).__init__(num, *value_exprs, output_field=CharField())
+
+
 class Field(Func):
     function = 'FIELD'
 
