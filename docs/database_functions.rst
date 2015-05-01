@@ -163,6 +163,56 @@ String Functions
 
         >>> Author.objects.annotate(sales_list=ConcatWS('sales_eu', 'sales_us'))
 
+.. class:: ELT(number, values)
+
+    Given a numerical expression ``number``, it returns the ``number``th
+    element from ``values``, 1-indexed. If ``number`` is less than 1 or greater
+    than the number of expressions, it will return ``None``. It is the
+    complement of ``Field``.
+
+    Note that if ``number`` is a string, it will refer to a field, whereas
+    members of ``values`` that are strings will be wrapped with ``Value``
+    automatically and thus interpreted as the given string. This is for
+    convenience with the most common usage pattern where you have the list pre-
+    loaded in python, e.g. a ``choices`` field. If you want to refer to a
+    column, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_elt>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/elt/>`_.
+
+    Usage example::
+
+        >>> # Say Person.life_state is either 1 (alive), 2 (dead), or 3 (M.I.A.)
+        >>> Person.objects.annotate(
+        ...     state_name=ELT('life_state', ['Alive', 'Dead', 'M.I.A.'])
+        ... )
+
+.. class:: Field(expression, values)
+
+    Given an ``expression`` and a list of strings ``values``, returns the
+    1-indexed location of the ``expression``'s value in ``values``, or 0 if not
+    found. This is commonly used with ``order_by`` to keep groups of elements
+    together. It is the complement of ``ELT``.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    if any member of ``values`` is a string, it will automatically be wrapped
+    with ``Value`` and refer to the given string. This is for convenience with
+    the most common usage pattern where you have the list of things pre-loaded
+    in Python, e.g. in a field's ``choices``. If you want to refer to a column,
+    use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_field>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/field/>`_.
+
+    Usage example::
+
+        >>> # Females, then males - but other values of gender (e.g. empty string) first
+        >>> Person.objects.all().order_by(
+        ...     Field('gender', ['Female', 'Male'])
+        ... )
+
 
 Encryption Functions
 --------------------
