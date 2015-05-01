@@ -165,16 +165,17 @@ String Functions
 
 .. class:: ELT(number, values)
 
-    ``ELT`` is the 'element' function. Given a numerical expression, it returns
-    the Nth element from expressions (1-indexed); if number is less than 1 or
-    greater than the number of expressions, it will return 0. It is the
+    Given a numerical expression ``number``, it returns the ``number``th
+    element from ``values``, 1-indexed. If ``number`` is less than 1 or greater
+    than the number of expressions, it will return ``None``. It is the
     complement of ``Field``.
 
-    Note that if ``number`` is a string, it will refer to a field, whereas if
-    any of the values in the ``values`` list are strings, they will be wrapped
-    with ``Value`` automatically. This is for convenience with the most normal
-    usage pattern where you have the list pre-loaded in python, e.g. a
-    ``choices`` field.
+    Note that if ``number`` is a string, it will refer to a field, whereas
+    members of ``values`` that are strings will be wrapped with ``Value``
+    automatically and thus interpreted as the given string. This is for
+    convenience with the most common usage pattern where you have the list pre-
+    loaded in python, e.g. a ``choices`` field. If you want to refer to a
+    column, use Django's ``F()`` class.
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_elt>`_ /
@@ -189,22 +190,25 @@ String Functions
 
 .. class:: Field(expression, values)
 
-    Given an expression, and a list of strings, returns the 1-indexed
-    location of the expression's value in the list, or 0 if not found. This is
-    commonly used for ordering.
+    Given an ``expression`` and a list of strings ``values``, returns the
+    1-indexed location of the ``expression``'s value in ``values``, or 0 if not
+    found. This is commonly used with ``order_by`` to keep groups of elements
+    together. It is the complement of ``ELT``.
 
     Note that if ``expression`` is a string, it will refer to a field, whereas
-    if any of the values in the list are strings, they will be values wrapped
-    in ``Value``. This is for the most convenient usage patterns where you have
-    the list of things pre-loaded in python, e.g. in a field's ``choices``.
+    if any member of ``values`` is a string, it will automatically be wrapped
+    with ``Value`` and refer to the given string. This is for convenience with
+    the most common usage pattern where you have the list of things pre-loaded
+    in Python, e.g. in a field's ``choices``. If you want to refer to a column,
+    use Django's ``F()`` class.
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_field>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/field/>`_.
 
-    Usage examples::
+    Usage example::
 
-        >>> # All the people, ladies then men - but other values of gender (e.g. empty string) first.
+        >>> # Females, then males - but other values of gender (e.g. empty string) first
         >>> Person.objects.all().order_by(
         ...     Field('gender', ['Female', 'Male'])
         ... )
