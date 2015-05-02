@@ -1,5 +1,13 @@
 # -*- coding:utf-8 -*-
 from django.db.models import CharField, Lookup, Transform
+from django.db.models.lookups import BuiltinLookup
+
+
+class CaseSensitiveExact(BuiltinLookup):
+    lookup_name = 'case_exact'
+
+    def get_rhs_op(self, connection, rhs):
+        return '= BINARY %s' % rhs
 
 
 class SoundsLike(Lookup):

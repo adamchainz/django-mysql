@@ -20,9 +20,13 @@ class MySQLConfig(AppConfig):
 
     def add_lookups(self):
         from django.db.models import CharField, TextField
-        from django_mysql.models.lookups import Soundex, SoundsLike
+        from django_mysql.models.lookups import (
+            CaseSensitiveExact, Soundex, SoundsLike
+        )
 
+        CharField.register_lookup(CaseSensitiveExact)
         CharField.register_lookup(SoundsLike)
         CharField.register_lookup(Soundex)
+        TextField.register_lookup(CaseSensitiveExact)
         TextField.register_lookup(SoundsLike)
         TextField.register_lookup(Soundex)
