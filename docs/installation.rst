@@ -7,10 +7,10 @@ Requirements
 
 Tested with all combinations of:
 
-* Python: 2.7, 3.3, 3.4
+* Python: 2.7, 3.4
 * Django: 1.7, 1.8
 * MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
-* mysqlclient: 1.3.5 (Python 3 compatible version of ``MySQL-python``)
+* mysqlclient: 1.3.6 (Python 3 compatible version of ``MySQL-python``)
 
 Any combination of these should be good, and also ``MySQL-python`` should work
 since it's just an older version of ``mysqlclient``.
