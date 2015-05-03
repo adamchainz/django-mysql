@@ -175,6 +175,25 @@ MySQL-specific database functions for the ORM::
 :ref:`Read more <database_functions>`
 
 
+--------------------
+Migration Operations
+--------------------
+
+MySQL-specific operations for django migrations::
+
+    from django.db import migrations
+    from django_mysql.operations import InstallPlugin
+
+
+    class Migration(migrations.Migration):
+        dependencies = []
+
+        operations = [
+            InstallPlugin("metadata_lock_info", "metadata_lock_info.so")
+        ]
+
+:ref:`Read more <migration_operations>`
+
 -----
 Cache
 -----

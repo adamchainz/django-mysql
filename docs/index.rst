@@ -20,6 +20,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    field_lookups
    aggregates
    database_functions
+   migration_operations
    form_fields
    validators
    cache
