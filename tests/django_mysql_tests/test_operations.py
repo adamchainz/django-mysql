@@ -1,17 +1,20 @@
 from unittest import SkipTest
 
-from django.db import connection
+from django.db import connection, migrations, models, transaction
 from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
 
-from django_mysql.operations import InstallPlugin, InstallSOName
+from django_mysql.operations import (
+    AlterStorageEngine, InstallPlugin, InstallSOName
+)
+from django_mysql.test.utils import override_mysql_variables
 
 
-class OperationTests(TransactionTestCase):
+class PluginOperationTests(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(OperationTests, cls).setUpClass()
+        super(PluginOperationTests, cls).setUpClass()
         has_metadata_lock_plugin = (
             (connection.is_mariadb and connection.mysql_version >= (10, 0, 7))
         )
@@ -85,5 +88,177 @@ class OperationTests(TransactionTestCase):
                 """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
                    WHERE PLUGIN_NAME = %s""",
                 (plugin_name,)
+            )
+            return cursor.fetchone()[0]
+
+
+class AlterStorageEngineTests(TransactionTestCase):
+
+    def test_no_from_means_unreversible(self):
+        operation = AlterStorageEngine("mymodel", to_engine="InnoDB")
+        self.assertFalse(operation.reversible)
+
+        with self.assertRaises(NotImplementedError) as cm:
+            operation.database_backwards(None, None, None, None)
+
+        self.assertEqual(
+            str(cm.exception),
+            "You cannot reverse this operation"
+        )
+
+    def test_from_means_reversible(self):
+        operation = AlterStorageEngine("mymodel", from_engine="MyISAM",
+                                       to_engine="InnoDB")
+        self.assertTrue(operation.reversible)
+
+    def test_describe_without_from(self):
+        operation = AlterStorageEngine("Pony", "InnoDB")
+        self.assertEqual(operation.describe(),
+                         "Alter storage engine for Pony to InnoDB")
+
+    def test_describe_with_from(self):
+        operation = AlterStorageEngine("Pony", from_engine="MyISAM",
+                                       to_engine="InnoDB")
+        self.assertEqual(operation.describe(),
+                         "Alter storage engine for Pony from MyISAM to InnoDB")
+
+    @override_mysql_variables(storage_engine='MyISAM')  # Force default
+    def test_basic(self):
+        project_state = self.set_up_test_model("test_arstd")
+        operation = AlterStorageEngine("Pony", from_engine="MyISAM",
+                                       to_engine="InnoDB")
+
+        self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
+
+        # Forwards
+        new_state = project_state.clone()
+        operation.state_forwards("test_arstd", new_state)
+        with connection.schema_editor() as editor:
+            operation.database_forwards("test_arstd", editor, project_state,
+                                        new_state)
+        self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
+
+        # Backwards
+        with connection.schema_editor() as editor:
+            operation.database_backwards("test_arstd", editor, new_state,
+                                         project_state)
+        self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
+
+    # Copied from django core migration tests
+
+    def set_up_test_model(
+            self, app_label, second_model=False, third_model=False,
+            related_model=False, mti_model=False, proxy_model=False,
+            unique_together=False, options=False, db_table=None,
+            index_together=False):
+        """
+        Creates a test model state and database table.
+        """
+        # Delete the tables if they already exist
+        table_names = [
+            # Start with ManyToMany tables
+            '_pony_stables', '_pony_vans',
+            # Then standard model tables
+            '_pony', '_stable', '_van',
+        ]
+        tables = [(app_label + table_name) for table_name in table_names]
+        with connection.cursor() as cursor:
+            table_names = connection.introspection.table_names(cursor)
+            connection.disable_constraint_checking()
+            sql_delete_table = connection.schema_editor().sql_delete_table
+            with transaction.atomic():
+                for table in tables:
+                    if table in table_names:
+                        cursor.execute(sql_delete_table % {
+                            "table": connection.ops.quote_name(table),
+                        })
+            connection.enable_constraint_checking()
+
+        # Make the "current" state
+        model_options = {
+            "swappable": "TEST_SWAP_MODEL",
+            "index_together": [["weight", "pink"]] if index_together else [],
+            "unique_together": [["pink", "weight"]] if unique_together else [],
+        }
+        if options:
+            model_options["permissions"] = [("can_groom", "Can groom")]
+        if db_table:
+            model_options["db_table"] = db_table
+        operations = [migrations.CreateModel(
+            "Pony",
+            [
+                ("id", models.AutoField(primary_key=True)),
+                ("pink", models.IntegerField(default=3)),
+                ("weight", models.FloatField()),
+            ],
+            options=model_options,
+        )]
+        if second_model:
+            operations.append(migrations.CreateModel(
+                "Stable",
+                [
+                    ("id", models.AutoField(primary_key=True)),
+                ]
+            ))
+        if third_model:
+            operations.append(migrations.CreateModel(
+                "Van",
+                [
+                    ("id", models.AutoField(primary_key=True)),
+                ]
+            ))
+        if related_model:
+            operations.append(migrations.CreateModel(
+                "Rider",
+                [
+                    ("id", models.AutoField(primary_key=True)),
+                    ("pony", models.ForeignKey("Pony")),
+                    ("friend", models.ForeignKey("self"))
+                ],
+            ))
+        if mti_model:
+            operations.append(migrations.CreateModel(
+                "ShetlandPony",
+                fields=[
+                    ('pony_ptr', models.OneToOneField(
+                        auto_created=True,
+                        primary_key=True,
+                        to_field='id',
+                        serialize=False,
+                        to='Pony',
+                    )),
+                    ("cuteness", models.IntegerField(default=1)),
+                ],
+                bases=['%s.Pony' % app_label],
+            ))
+        if proxy_model:
+            operations.append(migrations.CreateModel(
+                "ProxyPony",
+                fields=[],
+                options={"proxy": True},
+                bases=['%s.Pony' % app_label],
+            ))
+
+        return self.apply_operations(app_label, ProjectState(), operations)
+
+    def apply_operations(self, app_label, project_state, operations):
+        migration = migrations.Migration('name', app_label)
+        migration.operations = operations
+        with connection.schema_editor() as editor:
+            return migration.apply(project_state, editor)
+
+    # Check functions
+
+    def assertTableStorageEngine(self, table_name, engine_name):
+        self.assertEqual(self.storage_engine(table_name), engine_name,
+                         "Table {} does not use the {} storage engine!"
+                         .format(table_name, engine_name))
+
+    def storage_engine(self, table_name):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES
+                   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s""",
+                (table_name,)
             )
             return cursor.fetchone()[0]
