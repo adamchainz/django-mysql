@@ -1,6 +1,7 @@
 import sys
 from contextlib import contextmanager
 
+from django.db import connection
 from django.utils import six
 
 
@@ -29,3 +30,14 @@ def captured_stdout():
        self.assertEqual(stdout.getvalue(), "hello\n")
     """
     return captured_output("stdout")
+
+
+def column_type(table_name, column_name):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND
+                     COLUMN_NAME = %s""",
+            (table_name, column_name)
+        )
+        return cursor.fetchone()[0]

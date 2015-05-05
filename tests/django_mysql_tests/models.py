@@ -7,7 +7,8 @@ from django.db.models import (
 from django.utils import timezone
 
 from django_mysql.models import (
-    ListCharField, ListTextField, Model, SetCharField, SetTextField
+    ListCharField, ListTextField, Model, SetCharField, SetTextField,
+    SizedBinaryField, SizedTextField
 )
 
 
@@ -122,6 +123,17 @@ class Alphabet(Model):
     e = CharField(max_length=32, null=True)
     f = IntegerField(null=True)
     g = DecimalField(default=0, decimal_places=2, max_digits=10)
+
+
+class SizeFieldModel(Model):
+    binary1 = SizedBinaryField(size_class=1)
+    binary2 = SizedBinaryField(size_class=2)
+    binary3 = SizedBinaryField(size_class=3)
+    binary4 = SizedBinaryField(size_class=4)
+    text1 = SizedTextField(size_class=1)
+    text2 = SizedTextField(size_class=2)
+    text3 = SizedTextField(size_class=3)
+    text4 = SizedTextField(size_class=4)
 
 
 # For cache tests

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import json
 import re
-from unittest import skip, skipIf
+from unittest import skipIf
 
 import ddt
 import django
@@ -12,7 +12,7 @@ from django.core.management import call_command
 from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
@@ -444,7 +444,7 @@ class TestCheck(TestCase):
         assert 'Field can overrun' in errors[0].msg
 
 
-class TestMigrations(TestCase):
+class TestMigrations(TransactionTestCase):
 
     def test_deconstruct(self):
         field = ListCharField(models.IntegerField(), max_length=32)
@@ -504,8 +504,6 @@ class TestMigrations(TestCase):
             re.VERBOSE
         ).match(statement)
 
-    @skip("Unforunately this and the SetCharField equivalent interfere with "
-          "each other - the migrations don't seem to roll back smoothly.")
     @override_settings(MIGRATION_MODULES={
         "django_mysql_tests": "django_mysql_tests.list_default_migrations",
     })

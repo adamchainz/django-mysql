@@ -9,7 +9,7 @@ from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
@@ -259,7 +259,7 @@ class TestCheck(TestCase):
         assert 'Base field for list must be' in errors[0].msg
 
 
-class TestMigrations(TestCase):
+class TestMigrations(TransactionTestCase):
 
     def test_deconstruct(self):
         field = ListTextField(models.IntegerField(), max_length=32)

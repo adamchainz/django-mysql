@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import migrations
+
+from django_mysql.models import SizedTextField
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('django_mysql_tests', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='sizedtextaltermodel',
+            name='field',
+            field=SizedTextField(size_class=1)
+        ),
+    ]

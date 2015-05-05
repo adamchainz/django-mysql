@@ -12,7 +12,7 @@ from django.core.management import call_command
 from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetCharField, SetF
@@ -403,7 +403,7 @@ class TestCheck(TestCase):
         assert 'Field can overrun' in errors[0].msg
 
 
-class TestMigrations(TestCase):
+class TestMigrations(TransactionTestCase):
 
     def test_deconstruct(self):
         field = SetCharField(models.IntegerField(), max_length=32)
