@@ -130,7 +130,7 @@ class AlterStorageEngineTests(TransactionTestCase):
         self.assertTrue(operation.references_model("pony"))
         self.assertFalse(operation.references_model("poony"))
 
-    @override_mysql_variables(storage_engine='MyISAM')  # Force default
+    @override_mysql_variables(default_storage_engine='MyISAM')
     def test_running_with_changes(self):
         project_state = self.set_up_test_model("test_arstd")
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
@@ -152,7 +152,7 @@ class AlterStorageEngineTests(TransactionTestCase):
                                          project_state)
         self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
 
-    @override_mysql_variables(storage_engine='InnoDB')  # Force default
+    @override_mysql_variables(default_storage_engine='InnoDB')
     def test_running_without_changes(self):
         project_state = self.set_up_test_model("test_arstd")
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
