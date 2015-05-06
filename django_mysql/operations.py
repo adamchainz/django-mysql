@@ -92,8 +92,22 @@ class AlterStorageEngine(Operation):
         else:
             allowed = self.allow_migrate_model  # Django 1.8+
 
+        qn = schema_editor.connection.ops.quote_name
+
         if allowed(schema_editor.connection.alias, new_model):
-            qn = schema_editor.connection.ops.quote_name
+            with schema_editor.connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+                       WHERE TABLE_SCHEMA=DATABASE() AND
+                             TABLE_NAME = %s AND
+                             ENGINE = %s""",
+                    (new_model._meta.db_table, engine)
+                )
+                uses_engine_already = (cursor.fetchone()[0] > 0)
+
+            if uses_engine_already:
+                return
+
             schema_editor.execute(
                 "ALTER TABLE {table} ENGINE={engine}".format(
                     table=qn(new_model._meta.db_table),

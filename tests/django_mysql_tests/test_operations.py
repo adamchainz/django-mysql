@@ -3,6 +3,7 @@ from unittest import SkipTest
 from django.db import connection, migrations, models, transaction
 from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
+from django.test.utils import CaptureQueriesContext
 
 from django_mysql.operations import (
     AlterStorageEngine, InstallPlugin, InstallSOName
@@ -146,6 +147,35 @@ class AlterStorageEngineTests(TransactionTestCase):
         self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
 
         # Backwards
+        with connection.schema_editor() as editor:
+            operation.database_backwards("test_arstd", editor, new_state,
+                                         project_state)
+        self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
+
+    @override_mysql_variables(storage_engine='InnoDB')  # Force default
+    def test_running_without_changes(self):
+        project_state = self.set_up_test_model("test_arstd")
+        operation = AlterStorageEngine("Pony", from_engine="MyISAM",
+                                       to_engine="InnoDB")
+
+        self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
+
+        # Forwards - shouldn't actually do an ALTER since it is already InnoDB
+        new_state = project_state.clone()
+        operation.state_forwards("test_arstd", new_state)
+        capturer = CaptureQueriesContext(connection)
+        with capturer, connection.schema_editor() as editor:
+            operation.database_forwards("test_arstd", editor, project_state,
+                                        new_state)
+        queries = [q['sql'] for q in capturer.captured_queries]
+        self.assertFalse(
+            any(q.startswith('ALTER TABLE ') for q in queries),
+            "One of the executed queries was an unexpected ALTER TABLE:\n{}"
+            .format("\n".join(queries))
+        )
+        self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
+
+        # Backwards - will actually ALTER since it is going 'back' to MyISAM
         with connection.schema_editor() as editor:
             operation.database_backwards("test_arstd", editor, new_state,
                                          project_state)
