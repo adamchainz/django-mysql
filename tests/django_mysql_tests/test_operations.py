@@ -122,8 +122,15 @@ class AlterStorageEngineTests(TransactionTestCase):
         self.assertEqual(operation.describe(),
                          "Alter storage engine for Pony from MyISAM to InnoDB")
 
+    def test_references_model(self):
+        operation = AlterStorageEngine("Pony", "InnoDB")
+        self.assertTrue(operation.references_model("PONY"))
+        self.assertTrue(operation.references_model("Pony"))
+        self.assertTrue(operation.references_model("pony"))
+        self.assertFalse(operation.references_model("poony"))
+
     @override_mysql_variables(storage_engine='MyISAM')  # Force default
-    def test_basic(self):
+    def test_running_with_changes(self):
         project_state = self.set_up_test_model("test_arstd")
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
                                        to_engine="InnoDB")
