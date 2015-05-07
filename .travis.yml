@@ -1,5 +1,8 @@
 sudo: required
 
+notifications:
+  email: false
+
 language: python
 
 env:
