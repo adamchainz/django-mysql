@@ -98,3 +98,52 @@ Install SOName
                 # Install https://mariadb.com/kb/en/mariadb/metadata_lock_info/
                 InstallSOName("metadata_lock_info")
             ]
+
+
+Alter Storage Engine
+--------------------
+
+.. class:: AlterStorageEngine(name, to_engine, from_engine=None)
+
+    An ``Operation`` subclass that alters the model's table's storage engine.
+    Because Django has no knowledge of storage engines, you must provide the
+    previous storage engine for the operation to be reversible.
+
+    .. attribute:: name
+
+        This is a required argument. The name of the model to alter.
+
+    .. attribute:: to_engine
+
+        This is a required argument. The storage engine to move the model to.
+
+    .. attribute:: from_engine
+
+        This is an optional argument. The storage engine the model is moving
+        from. If you do not provide this, the operation is not reversible.
+
+    .. note::
+
+        If you're using this to move from MyISAM to InnoDB, there's a page for
+        you in the MariaDB knowledge base - `Converting Tables from MyISAM to
+        InnoDB
+        <https://mariadb.com/kb/en/mariadb/converting-tables-from-myisam-to-innodb/>`_.
+
+    Example usage::
+
+        # -*- coding: utf-8 -*-
+        from __future__ import unicode_literals
+
+        from django.db import migrations
+
+        from django_mysql.operations import AlterStorageEngine
+
+
+        class Migration(migrations.Migration):
+
+            dependencies = [
+            ]
+
+            operations = [
+                AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")
+            ]
