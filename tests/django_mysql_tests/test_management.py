@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import mock
+
 from django.core.management import CommandError, call_command
 from django.db.utils import ConnectionHandler
 from django.test import TestCase

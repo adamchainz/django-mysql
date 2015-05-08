@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
+import mock
 from unittest import skipUnless
 
-import mock
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TransactionTestCase
