@@ -2,7 +2,6 @@
 from django.test import TestCase
 
 from django_mysql.models import GroupConcat
-
 from django_mysql_tests.models import Author
 
 

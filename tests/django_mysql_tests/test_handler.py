@@ -4,7 +4,6 @@ from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.handler import Handler
-
 from django_mysql_tests.models import (
     Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
 )

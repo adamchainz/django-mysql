@@ -3,23 +3,21 @@ import json
 import re
 from unittest import skip, skipIf
 
+import ddt
 import django
 from django import forms
 from django.core import exceptions, serializers
 from django.core.management import call_command
-from django.db import models, connection
-from django.db.models import Q
+from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
+from django.db.models import Q
 from django.test import TestCase, override_settings
-
-import ddt
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
-
 from django_mysql_tests.models import (
-    CharListModel, CharListDefaultModel, IntListModel
+    CharListDefaultModel, CharListModel, IntListModel
 )
 
 

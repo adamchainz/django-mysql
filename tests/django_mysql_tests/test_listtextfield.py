@@ -2,18 +2,16 @@
 import json
 import re
 
+import ddt
 from django import forms
 from django.core import exceptions, serializers
 from django.db import models
-from django.db.models import Q
 from django.db.migrations.writer import MigrationWriter
+from django.db.models import Q
 from django.test import TestCase
 
-import ddt
-
-from django_mysql.models import ListTextField
 from django_mysql.forms import SimpleListField
-
+from django_mysql.models import ListTextField
 from django_mysql_tests.models import BigCharListModel, BigIntListModel
 
 

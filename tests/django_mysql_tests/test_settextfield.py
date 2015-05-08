@@ -1,19 +1,17 @@
 # -*- coding:utf-8 -*-
 import json
 
+import ddt
 from django import forms
 from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.utils import six
 from django.test import TestCase
-
-import ddt
+from django.utils import six
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
-
 from django_mysql_tests.models import BigCharSetModel, BigIntSetModel
 
 

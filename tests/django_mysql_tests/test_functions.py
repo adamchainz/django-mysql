@@ -7,12 +7,10 @@ from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.functions import (
-    Abs, ConcatWS, Ceiling, CRC32, ELT, Field, Floor, Greatest, Least, MD5,
-    Round, SHA1, SHA2, Sign
+    CRC32, ELT, MD5, SHA1, SHA2, Abs, Ceiling, ConcatWS, Field, Floor,
+    Greatest, Least, Round, Sign
 )
-
 from django_mysql_tests.models import Alphabet
-
 
 requiresDatabaseFunctions = skipIf(
     django.VERSION <= (1, 8),
