@@ -28,6 +28,7 @@ def main():
     if run_lint:
         exit_on_failure(run_flake8())
         exit_on_failure(run_2to3())
+        exit_on_failure(run_isort())
 
 
 def tests_main():
@@ -62,6 +63,14 @@ def run_2to3():
     else:
         print('2to3 passed')
         return 0
+
+
+def run_isort():
+    print('Running isort check')
+    ret = subprocess.call([
+        'isort', '--recursive', '--check-only', 'django_mysql', 'tests'
+    ])
+    return ret
 
 
 def exit_on_failure(ret, message=None):
