@@ -1,8 +1,67 @@
 # -*- coding:utf-8 -*-
 from django.test import TestCase
 
-from django_mysql.models import GroupConcat
-from django_mysql_tests.models import Author
+from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
+from django_mysql_tests.models import Alphabet, Author
+
+
+class BitAndTests(TestCase):
+
+    def test_implicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=29), Alphabet(a=15)])
+        out = Alphabet.objects.all().aggregate(BitAnd('a'))
+        self.assertEqual(out, {'a__bitand': 13})
+
+    def test_explicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=11), Alphabet(a=24)])
+        out = Alphabet.objects.all().aggregate(aaa=BitAnd('a'))
+        self.assertEqual(out, {'aaa': 8})
+
+    def test_no_rows(self):
+        out = Alphabet.objects.all().aggregate(BitAnd('a'))
+        # Manual:
+        # "This function returns 18446744073709551615 if there were no matching
+        # rows. (This is the value of an unsigned BIGINT value with all bits
+        # set to 1.)"
+        self.assertEqual(out, {'a__bitand': 18446744073709551615})
+
+
+class BitOrTests(TestCase):
+
+    def test_implicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=1), Alphabet(a=84)])
+        out = Alphabet.objects.all().aggregate(BitOr('a'))
+        self.assertEqual(out, {'a__bitor': 85})
+
+    def test_explicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=29), Alphabet(a=15)])
+        out = Alphabet.objects.all().aggregate(aaa=BitOr('a'))
+        self.assertEqual(out, {'aaa': 31})
+
+    def test_no_rows(self):
+        out = Alphabet.objects.all().aggregate(BitOr('a'))
+        # Manual:
+        # "This function returns 0 if there were no matching rows."
+        self.assertEqual(out, {'a__bitor': 0})
+
+
+class BitXorTests(TestCase):
+
+    def test_implicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=11), Alphabet(a=3)])
+        out = Alphabet.objects.all().aggregate(BitXor('a'))
+        self.assertEqual(out, {'a__bitxor': 8})
+
+    def test_explicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=123), Alphabet(a=456)])
+        out = Alphabet.objects.all().aggregate(aaa=BitXor('a'))
+        self.assertEqual(out, {'aaa': 435})
+
+    def test_no_rows(self):
+        out = Alphabet.objects.all().aggregate(BitXor('a'))
+        # Manual:
+        # "This function returns 0 if there were no matching rows."
+        self.assertEqual(out, {'a__bitxor': 0})
 
 
 class GroupConcatTests(TestCase):
