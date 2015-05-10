@@ -64,9 +64,11 @@ class QuerySetMixin(object):
             query.low_mark == 0 and
             not query.select and
             not query.group_by and
-            not query.having and
             not query.distinct
         )
+
+        if hasattr(query, 'having'):  # Django < 1.9
+            can_approx_count = (can_approx_count and not query.having)
 
         if not can_approx_count:
             if not fall_back:
