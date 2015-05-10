@@ -223,13 +223,17 @@ class Handler(object):
         Inspect the internals of the Query and say if we think its WHERE clause
         can be used in a HANDLER statement
         """
-        return (
+        useable = (
             not query.low_mark and
             not query.high_mark and
             not query.select and
             not query.group_by and
-            not query.having and
             not query.distinct and
             not query.order_by and
             len(query.tables) <= 1
         )
+
+        if hasattr(query, 'having'):  # Django < 1.9
+            useable = (useable and not query.having)
+
+        return useable

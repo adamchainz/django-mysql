@@ -2,15 +2,14 @@
 from __future__ import absolute_import
 
 from django.core import checks
-from django.db.models import (
-    CharField, IntegerField, Lookup, SubfieldBase, TextField
-)
+from django.db.models import CharField, IntegerField, Lookup, TextField
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
+from django_mysql.shims.fields import field_class
 from django_mysql.validators import ListMaxLengthValidator
 
 __all__ = ('ListCharField', 'ListTextField')
@@ -26,6 +25,13 @@ class ListFieldMixin(object):
 
         if self.size:
             self.validators.append(ListMaxLengthValidator(int(self.size)))
+
+    def get_default(self):
+        default = super(ListFieldMixin, self).get_default()
+        if default == '':
+            return []
+        else:
+            return default
 
     def check(self, **kwargs):
         errors = super(ListFieldMixin, self).check(**kwargs)
@@ -75,6 +81,16 @@ class ListFieldMixin(object):
         return name, path, args, kwargs
 
     def to_python(self, value):
+        if isinstance(value, six.string_types):
+            if not len(value):
+                value = []
+            else:
+                value = [self.base_field.to_python(v) for
+                         v in value.split(',')]
+        return value
+
+    def from_db_value(self, value, expression, connection, context):
+        # Similar to to_python, for Django 1.8+
         if isinstance(value, six.string_types):
             if not len(value):
                 value = []
@@ -153,9 +169,7 @@ class ListFieldMixin(object):
         return super(ListFieldMixin, self).formfield(**defaults)
 
 
-class ListCharField(six.with_metaclass(SubfieldBase,
-                                       ListFieldMixin,
-                                       CharField)):
+class ListCharField(field_class(ListFieldMixin, CharField)):
     """
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
@@ -193,9 +207,7 @@ class ListCharField(six.with_metaclass(SubfieldBase,
         return errors
 
 
-class ListTextField(six.with_metaclass(SubfieldBase,
-                                       ListFieldMixin,
-                                       TextField)):
+class ListTextField(field_class(ListFieldMixin, TextField)):
     pass
 
 

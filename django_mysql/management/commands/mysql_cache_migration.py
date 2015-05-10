@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
-from django.template import Context, Template
 
 from django_mysql.cache import MySQLCache
 from django_mysql.utils import collapse_spaces
@@ -39,17 +38,23 @@ class Command(BaseCommand):
             self.stderr.write("No MySQLCache instances in CACHES")
             return
 
-        context = Context({'tables': tables})
-        migration = migration_template.render(context)
+        migration = self.render_migration(tables)
         self.stdout.write(migration)
 
+    def render_migration(self, tables):
+        # This used to use a Django template, but we can't instantiate them
+        # direct now, as the user may not have the django template engine
+        # defined in TEMPLATES
+        out = [header]
+        for table in tables:
+            out.append(
+                table_operation.replace('{{ table.name }}', table['name'])
+            )
+        out.append(footer)
+        return ''.join(out)
 
-create_table_sql = '\n'.join(
-    '    ' * 3 + line
-    for line in MySQLCache.create_table_sql.splitlines()
-).format(table_name='{{ table.name }}')
 
-migration_template = Template('''
+header = '''
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
@@ -61,12 +66,25 @@ class Migration(migrations.Migration):
     dependencies = [
     ]
 
-    operations = [{% for table in tables %}
+    operations = [
+'''.strip()
+
+create_table_sql = '\n'.join(
+    '    ' * 3 + line
+    for line in MySQLCache.create_table_sql.splitlines()
+).format(table_name='{{ table.name }}')
+
+
+table_operation = '''
         migrations.RunSQL(
             """
-{create_table_sql}
+''' + create_table_sql + '''
             """,
             "DROP TABLE `{{ table.name }}`;"
-        ),{% endfor %}
+        ),
+'''.rstrip()
+
+
+footer = '''
     ]
-'''.lstrip().replace('{create_table_sql}', create_table_sql))
+'''

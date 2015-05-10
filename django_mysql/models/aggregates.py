@@ -1,6 +1,5 @@
 import django
 from django.db.models import Aggregate, CharField
-from django.db.models.sql.aggregates import Aggregate as SQLAggregate
 from django.utils.functional import cached_property
 
 __all__ = ('BitAnd', 'BitOr', 'BitXor', 'GroupConcat',)
@@ -9,6 +8,8 @@ __all__ = ('BitAnd', 'BitOr', 'BitXor', 'GroupConcat',)
 # each twice than try fudge a class that works before and after
 
 if django.VERSION < (1, 8):
+
+    from django.db.models.sql.aggregates import Aggregate as SQLAggregate
 
     class BitAnd(Aggregate):
         name = 'BitAnd'
@@ -55,6 +56,47 @@ if django.VERSION < (1, 8):
         sql_function = 'BIT_XOR'
         is_ordinal = True  # is an integer
 
+    class GroupConcat(Aggregate):
+        def add_to_query(self, query, alias, col, source, is_summary):
+            query.aggregates[alias] = SQLGroupConcat(
+                col,
+                source=source,
+                is_summary=is_summary,
+                **self.extra
+            )
+
+    class SQLGroupConcat(SQLAggregate):
+
+        def __init__(self, col, distinct=False, separator=None, **extra):
+            super(SQLGroupConcat, self).__init__(col, **extra)
+
+            self.distinct = distinct
+            self.separator = separator
+
+            # This can/will be improved to SetTextField or ListTextField
+            self.field = CharField()
+
+        sql_function = 'GROUP_CONCAT'
+
+        @cached_property
+        def sql_template(self):
+            # Constructing a template...
+
+            template = ["%(function)s("]
+
+            if self.distinct:
+                template.append("DISTINCT ")
+
+            template.append("%(field)s")
+
+            if self.separator is not None:
+                template.append(' SEPARATOR "{}"'.format(self.separator))
+
+            template.append(")")
+
+            return "".join(template)
+
+
 else:
 
     class BitAnd(Aggregate):
@@ -69,44 +111,35 @@ else:
         function = 'BIT_XOR'
         name = 'bitxor'
 
+    class GroupConcat(Aggregate):
+        function = 'GROUP_CONCAT'
 
-class GroupConcat(Aggregate):
-    def add_to_query(self, query, alias, col, source, is_summary):
-        query.aggregates[alias] = SQLGroupConcat(
-            col,
-            source=source,
-            is_summary=is_summary,
-            **self.extra
-        )
+        def __init__(self, expression, distinct=False, separator=None,
+                     **extra):
 
+            if 'output_field' not in extra:
+                # This can/will be improved to SetTextField or ListTextField
+                extra['output_field'] = CharField()
 
-class SQLGroupConcat(SQLAggregate):
+            super(GroupConcat, self).__init__(expression, **extra)
 
-    def __init__(self, col, distinct=False, separator=None, **extra):
-        super(SQLGroupConcat, self).__init__(col, **extra)
+            self.distinct = distinct
+            self.separator = separator
 
-        self.distinct = distinct
-        self.separator = separator
+        @cached_property
+        def template(self):
+            # Constructing a template...
 
-        # This can/will be improved to SetTextField or ListTextField
-        self.field = CharField()
+            template = ["%(function)s("]
 
-    sql_function = 'GROUP_CONCAT'
+            if self.distinct:
+                template.append("DISTINCT ")
 
-    @cached_property
-    def sql_template(self):
-        # Constructing a template...
+            template.append("%(field)s")
 
-        template = ["%(function)s("]
+            if self.separator is not None:
+                template.append(' SEPARATOR "{}"'.format(self.separator))
 
-        if self.distinct:
-            template.append("DISTINCT ")
+            template.append(")")
 
-        template.append("%(field)s")
-
-        if self.separator is not None:
-            template.append(' SEPARATOR "{}"'.format(self.separator))
-
-        template.append(")")
-
-        return "".join(template)
+            return "".join(template)

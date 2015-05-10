@@ -79,3 +79,14 @@ except ImportError:
     pass
 
 TEST_RUNNER = 'django_mysql_tests.runner.MySQLTestRunner'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [],
+        },
+    },
+]
