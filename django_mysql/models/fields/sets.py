@@ -2,13 +2,14 @@
 from __future__ import absolute_import
 
 from django.core import checks
-from django.db.models import CharField, IntegerField, SubfieldBase, TextField
+from django.db.models import CharField, IntegerField, TextField
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
+from django_mysql.shims.fields import field_class
 from django_mysql.validators import SetMaxLengthValidator
 
 __all__ = ('SetCharField', 'SetTextField',)
@@ -23,6 +24,13 @@ class SetFieldMixin(object):
 
         if self.size:
             self.validators.append(SetMaxLengthValidator(int(self.size)))
+
+    def get_default(self):
+        default = super(SetFieldMixin, self).get_default()
+        if default == '':
+            return set()
+        else:
+            return default
 
     def check(self, **kwargs):
         errors = super(SetFieldMixin, self).check(**kwargs)
@@ -72,6 +80,16 @@ class SetFieldMixin(object):
         return name, path, args, kwargs
 
     def to_python(self, value):
+        if isinstance(value, six.string_types):
+            if not len(value):
+                value = set()
+            else:
+                value = {self.base_field.to_python(v) for
+                         v in value.split(',')}
+        return value
+
+    def from_db_value(self, value, expression, connection, context):
+        # Similar to to_python, for Django 1.8+
         if isinstance(value, six.string_types):
             if not len(value):
                 value = set()
@@ -134,7 +152,7 @@ class SetFieldMixin(object):
         return super(SetFieldMixin, self).formfield(**defaults)
 
 
-class SetCharField(six.with_metaclass(SubfieldBase, SetFieldMixin, CharField)):
+class SetCharField(field_class(SetFieldMixin, CharField)):
     """
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
@@ -172,7 +190,7 @@ class SetCharField(six.with_metaclass(SubfieldBase, SetFieldMixin, CharField)):
         return errors
 
 
-class SetTextField(six.with_metaclass(SubfieldBase, SetFieldMixin, TextField)):
+class SetTextField(field_class(SetFieldMixin, TextField)):
     pass
 
 
