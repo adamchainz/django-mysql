@@ -1,8 +1,29 @@
 # -*- coding:utf-8 -*-
 from django.test import TestCase
 
-from django_mysql.models import GroupConcat
-from django_mysql_tests.models import Author
+from django_mysql.models import BitAnd, GroupConcat
+from django_mysql_tests.models import Alphabet, Author
+
+
+class BitAndTests(TestCase):
+
+    def test_implicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=29), Alphabet(a=15)])
+        out = Alphabet.objects.all().aggregate(BitAnd('a'))
+        self.assertEqual(out, {'a__bitand': 13})
+
+    def test_explicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=11), Alphabet(a=24)])
+        out = Alphabet.objects.all().aggregate(aaa=BitAnd('a'))
+        self.assertEqual(out, {'aaa': 8})
+
+    def test_no_rows(self):
+        out = Alphabet.objects.all().aggregate(BitAnd('a'))
+        # Manual:
+        # "This function returns 18446744073709551615 if there were no matching
+        # rows. (This is the value of an unsigned BIGINT value with all bits
+        # set to 1.)"
+        self.assertEqual(out, {'a__bitand': 18446744073709551615})
 
 
 class GroupConcatTests(TestCase):

@@ -1,8 +1,35 @@
+import django
 from django.db.models import Aggregate, CharField
 from django.db.models.sql.aggregates import Aggregate as SQLAggregate
 from django.utils.functional import cached_property
 
-__all__ = ('GroupConcat',)
+__all__ = ('BitAnd', 'GroupConcat',)
+
+# Major aggregate simplification from 1.7 to 1.8. However it makes implementing
+# the one class for each side a pain, so do everything twice...
+
+if django.VERSION < (1, 8):
+
+    class BitAnd(Aggregate):
+        name = 'BitAnd'
+
+        def add_to_query(self, query, alias, col, source, is_summary):
+            query.aggregates[alias] = BitAndSQL(
+                col,
+                source=source,
+                is_summary=is_summary,
+                **self.extra
+            )
+
+    class BitAndSQL(SQLAggregate):
+        sql_function = 'BIT_AND'
+        is_ordinal = True  # is an integer
+
+else:
+
+    class BitAnd(Aggregate):
+        function = 'BIT_AND'
+        name = 'bitand'
 
 
 class GroupConcat(Aggregate):
