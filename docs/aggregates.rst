@@ -12,6 +12,62 @@ for the ORM.
 
 The following can be imported from ``django_mysql.models``.
 
+
+.. class:: BitAnd(column)
+
+    Returns an ``int`` of the bitwise ``AND`` of all input values, or
+    18446744073709551615 (a ``BIGINT UNSIGNED`` with all bits set to 1) if no
+    rows match.
+
+    Docs:
+    `MySQL
+    <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-and>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`_.
+
+    Example usage::
+
+        >>> Book.objects.create(bitfield=29)
+        >>> Book.objects.create(bitfield=15)
+        >>> Book.objects.all().aggregate(BitAnd('bitfield'))
+        {'bitfield__bitand': 13}
+
+
+.. class:: BitOr(column)
+
+    Returns an ``int`` of the bitwise ``OR`` of all input values, or 0 if no
+    rows match.
+
+    Docs:
+    `MySQL
+    <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-or>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`_.
+
+    Example usage::
+
+        >>> Book.objects.create(bitfield=29)
+        >>> Book.objects.create(bitfield=15)
+        >>> Book.objects.all().aggregate(BitOr('bitfield'))
+        {'bitfield__bitor': 31}
+
+
+.. class:: BitXor(column)
+
+    Returns an ``int`` of the bitwise ``XOR`` of all input values, or 0 if no
+    rows match.
+
+    Docs:
+    `MySQL
+    <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-xor>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`_.
+
+    Example usage::
+
+        >>> Book.objects.create(bitfield=11)
+        >>> Book.objects.create(bitfield=3)
+        >>> Book.objects.all().aggregate(BitXor('bitfield'))
+        {'bitfield__bitxor': 8}
+
+
 .. class:: GroupConcat(column, distinct=False, separator=',')
 
     An aggregate that concatenates values from a column of the grouped rows.
