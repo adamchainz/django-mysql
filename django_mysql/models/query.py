@@ -56,41 +56,22 @@ class QuerySetMixin(object):
 
     def approx_count(self, fall_back=True, return_approx_int=True,
                      min_size=1000):
-        query = self.query
-
-        can_approx_count = (
-            not query.where and
-            query.high_mark is None and
-            query.low_mark == 0 and
-            not query.select and
-            not query.group_by and
-            not query.distinct
-        )
-
-        if hasattr(query, 'having'):  # Django < 1.9
-            can_approx_count = (can_approx_count and not query.having)
-
-        if not can_approx_count:
+        try:
+            num = approx_count(self)
+        except ValueError:  # Cannot be approx-counted
             if not fall_back:
                 raise ValueError("Cannot use approx_count on this queryset.")
             # Always fall through to super class
             return super(QuerySetMixin, self).count()
 
-        connection = connections[self.db]
-        with connection.cursor() as cursor:
-            table_name = self.model._meta.db_table
-            query = "EXPLAIN SELECT COUNT(*) FROM `{0}`".format(table_name)
-            cursor.execute(query)
-            approx_count = cursor.fetchone()[8]  # 'rows' is the 9th column
-
-        if min_size and approx_count < min_size:
+        if min_size and num < min_size:
             # Always fall through to super class
             return super(QuerySetMixin, self).count()
 
         if return_approx_int:
-            return ApproximateInt(approx_count)
+            return ApproximateInt(num)
         else:
-            return approx_count
+            return num
 
     def iter_smart(self, **kwargs):
         assert 'queryset' not in kwargs, \
@@ -251,8 +232,12 @@ class SmartChunkedIterator(object):
         self.objects_done = 0
         self.chunks_done = 0
         if self.total is None:  # User didn't pass in a total
-            count_qs = self.queryset._clone(klass=QuerySet)
-            self.total = count_qs.approx_count(fall_back=True)
+            try:
+                self.total = approx_count(self.queryset)
+                if self.total < 1000:
+                    self.total = self.queryset.count()
+            except ValueError:  # Cannot be approximately counted
+                self.total = self.queryset.count()  # Fallback - will be slow
 
         self.update_progress()
 
@@ -314,6 +299,35 @@ class SmartIterator(SmartChunkedIterator):
         for chunk in super(SmartIterator, self).__iter__():
             for obj in chunk:
                 yield obj
+
+
+def approx_count(queryset):
+    # Returns the approximate count or raises a ValueError if this queryset
+    # cannot be approximately counted
+    query = queryset.query
+
+    can_approx_count = (
+        not query.where and
+        query.high_mark is None and
+        query.low_mark == 0 and
+        not query.select and
+        not query.group_by and
+        not query.distinct
+    )
+
+    if hasattr(query, 'having'):  # Django < 1.9
+        can_approx_count = (can_approx_count and not query.having)
+
+    if not can_approx_count:
+        raise ValueError("This QuerySet cannot be approximately counted")
+
+    connection = connections[queryset.db]
+    with connection.cursor() as cursor:
+        table_name = queryset.model._meta.db_table
+        query = "EXPLAIN SELECT COUNT(*) FROM `{0}`".format(table_name)
+        cursor.execute(query)
+        approx_count = cursor.fetchone()[8]  # 'rows' is the 9th column
+        return approx_count
 
 
 def pt_visual_explain(queryset, display=True):
