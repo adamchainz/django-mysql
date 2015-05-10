@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from django.test import TestCase
 
-from django_mysql.models import BitAnd, BitOr, GroupConcat
+from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
 from django_mysql_tests.models import Alphabet, Author
 
 
@@ -43,6 +43,25 @@ class BitOrTests(TestCase):
         # Manual:
         # "This function returns 0 if there were no matching rows."
         self.assertEqual(out, {'a__bitor': 0})
+
+
+class BitXorTests(TestCase):
+
+    def test_implicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=11), Alphabet(a=3)])
+        out = Alphabet.objects.all().aggregate(BitXor('a'))
+        self.assertEqual(out, {'a__bitxor': 8})
+
+    def test_explicit_name(self):
+        Alphabet.objects.bulk_create([Alphabet(a=123), Alphabet(a=456)])
+        out = Alphabet.objects.all().aggregate(aaa=BitXor('a'))
+        self.assertEqual(out, {'aaa': 435})
+
+    def test_no_rows(self):
+        out = Alphabet.objects.all().aggregate(BitXor('a'))
+        # Manual:
+        # "This function returns 0 if there were no matching rows."
+        self.assertEqual(out, {'a__bitxor': 0})
 
 
 class GroupConcatTests(TestCase):
