@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
-from django.utils import timezone
-
+from django.db.models import Model as VanillaModel
 from django.db.models import (
     CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
-    Model as VanillaModel, TextField
+    TextField
 )
+from django.utils import timezone
 
 from django_mysql.models import (
     ListCharField, ListTextField, Model, SetCharField, SetTextField

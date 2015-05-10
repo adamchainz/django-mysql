@@ -6,11 +6,9 @@ import time
 import warnings
 from decimal import Decimal
 
-from flake8.run import check_code
-
-from django.core.cache import cache, caches, CacheKeyWarning
-from django.core.management import call_command, CommandError
-from django.db import connection, transaction, OperationalError
+from django.core.cache import CacheKeyWarning, cache, caches
+from django.core.management import CommandError, call_command
+from django.db import OperationalError, connection, transaction
 from django.http import HttpResponse
 from django.middleware.cache import (
     FetchFromCacheMiddleware, UpdateCacheMiddleware
@@ -18,9 +16,10 @@ from django.middleware.cache import (
 from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.six.moves import StringIO
+from flake8.run import check_code
 
-from django_mysql.cache import BIGINT_SIGNED_MIN, BIGINT_SIGNED_MAX, MySQLCache
-from django_mysql_tests.models import expensive_calculation, Poll
+from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
+from django_mysql_tests.models import Poll, expensive_calculation
 from django_mysql_tests.utils import captured_stdout
 
 try:    # Use the same idiom as in cache backends

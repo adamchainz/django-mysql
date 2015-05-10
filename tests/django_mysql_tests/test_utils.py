@@ -7,7 +7,7 @@ from unittest import skipUnless
 from django.test import TestCase
 
 from django_mysql.utils import (
-    have_program, pt_fingerprint, PTFingerprintThread, WeightedAverageRate
+    PTFingerprintThread, WeightedAverageRate, have_program, pt_fingerprint
 )
 
 

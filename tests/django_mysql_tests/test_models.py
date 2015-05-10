@@ -1,15 +1,13 @@
 # -*- coding:utf-8 -*-
+import mock
 from unittest import skipUnless
 
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TransactionTestCase
 
-import mock
-
 from django_mysql.models import ApproximateInt, SmartIterator
 from django_mysql.utils import have_program
-
 from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
 from django_mysql_tests.utils import captured_stdout
 

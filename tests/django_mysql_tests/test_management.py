@@ -1,11 +1,10 @@
 # -*- coding:utf-8 -*-
-from django.core.management import call_command, CommandError
+import mock
+
+from django.core.management import CommandError, call_command
 from django.db.utils import ConnectionHandler
 from django.test import TestCase
 from django.utils.six.moves import StringIO
-
-import mock
-
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module

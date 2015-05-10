@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from django_mysql.exceptions import TimeoutError
 from django_mysql.status import (
-    global_status, GlobalStatus, session_status, SessionStatus
+    GlobalStatus, SessionStatus, global_status, session_status
 )
 
 

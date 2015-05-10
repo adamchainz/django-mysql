@@ -11,8 +11,9 @@ charset = utf-8
 end_of_line = lf
 
 [*.py]
-forced_separate=django_mysql
 multi_line_output=5
+known_standard_library=mock
+known_first_party=django_mysql
 
 [*.bat]
 indent_style = tab
