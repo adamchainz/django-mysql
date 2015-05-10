@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from optparse import make_option
 
+import django
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import ConnectionDoesNotExist
@@ -18,25 +19,48 @@ class Command(BaseCommand):
             "connection alias should be a name from DATABASES - defaults to "
             "'{default}'.").format(default=DEFAULT_DB_ALIAS)
 
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '--mysql',
-            action='store_true',
-            dest='mysql',
-            default=False,
-            help='Outputs flags for tools that take parameters in the same '
-                 'format as the mysql client, e.g. '
-                 'mysql $(./manage.py dbparams --mysql)'
-        ),
-        make_option(
-            '--dsn',
-            action='store_true',
-            dest='dsn',
-            default=False,
-            help='Output a DSN for e.g. percona tools, e.g. '
-                 'pt-online-schema-change $(./manage.py dbparams --dsn)'
-        ),
-    )
+    if django.VERSION < (1, 9):
+
+        option_list = BaseCommand.option_list + (
+            make_option(
+                '--mysql',
+                action='store_true',
+                dest='mysql',
+                default=False,
+                help='Outputs flags for tools that take parameters in the '
+                     'same format as the mysql client, e.g. mysql '
+                     '$(./manage.py dbparams --mysql)'
+            ),
+            make_option(
+                '--dsn',
+                action='store_true',
+                dest='dsn',
+                default=False,
+                help='Output a DSN for e.g. percona tools, e.g. '
+                     'pt-online-schema-change $(./manage.py dbparams --dsn)'
+            ),
+        )
+
+    else:
+
+        def add_arguments(self, parser):
+            parser.add_argument(
+                '--mysql',
+                action='store_true',
+                dest='mysql',
+                default=False,
+                help='Outputs flags for tools that take parameters in the '
+                     'same format as the mysql client, e.g. mysql '
+                     '$(./manage.py dbparams --mysql)'
+            )
+            parser.add_argument(
+                '--dsn',
+                action='store_true',
+                dest='dsn',
+                default=False,
+                help='Output a DSN for e.g. percona tools, e.g. '
+                     'pt-online-schema-change $(./manage.py dbparams --dsn)'
+            ),
 
     def handle(self, *args, **options):
         if len(args) > 1:
