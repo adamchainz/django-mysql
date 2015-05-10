@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db.models import F
 
-from django_mysql.shims.expressions import BaseExpression, Value
+from django_mysql.shims import BaseExpression, Value
 from django_mysql.utils import collapse_spaces
 
 __all__ = ('ListF', 'SetF',)

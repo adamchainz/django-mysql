@@ -1,6 +1,6 @@
 from django.db.models import CharField, IntegerField, TextField
 
-from django_mysql.shims.expressions import Func, Value
+from django_mysql.shims import Func, Value
 
 
 class SingleArgFunc(Func):
