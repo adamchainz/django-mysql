@@ -5,8 +5,8 @@ from django.utils.functional import cached_property
 
 __all__ = ('BitAnd', 'BitOr', 'BitXor', 'GroupConcat',)
 
-# Major aggregate simplification from 1.7 to 1.8. However it makes implementing
-# the one class for each side a pain, so do everything twice...
+# Major aggregate simplification from 1.7 to 1.8 - it's easier to implement
+# each twice than try fudge a class that works before and after
 
 if django.VERSION < (1, 8):
 
