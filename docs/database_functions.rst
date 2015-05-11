@@ -260,3 +260,52 @@ Encryption Functions
     Usage example::
 
         >>> Author.objects.annotate(description_sha256=SHA2('description', 256))
+
+
+Information Functions
+---------------------
+
+.. class:: LastInsertId(expression=None)
+
+    With no argument, returns the last value added to an auto-increment column,
+    or set by another call to ``LastInsertId`` with an argument. With an
+    argument, sets the 'last insert id' value to the value of the given
+    expression, and returns that value. This can be used to implement simple
+    ``UPDATE ... RETURNING`` style queries.
+
+    This function also has a class method:
+
+    .. method:: get(using=DEFAULT_DB_ALIAS)
+
+        Returns the value set by a call to ``LastInsertId()`` with an argument,
+        by performing a single query. It is stored per-connection, hence you
+        may need to pass the alias of the connection that set the
+        ``LastInsertId`` as ``using``.
+
+        .. note::
+
+            Any queries on the database connection between setting
+            ``LastInsertId`` and calling ``LastInsertId.get()`` can reset the
+            value. These might come from Django, which can issue multiple
+            queries for ``update()`` with multi-table inheritance, or for
+            ``delete()`` with cascading.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/information-functions.html#function_last-insert-id>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/last_insert_id/>`_.
+
+    Usage examples::
+
+        >>> Countable.objects.filter(id=1).update(counter=LastInsertId('counter') + 1)
+        1
+        >>> # Get the pre-increase value of 'counter' as stored on the server
+        >>> LastInsertId.get()
+        242
+
+        >>> Author.objects.filter(id=1, age=LastInsertId('age')).delete()
+        1
+        >>> # We can also use the stored value directly in a query
+        >>> Author.objects.filter(id=2).update(age=LastInsertId())
+        1
+        >>> Author.objects.get(id=2).age
+        35
