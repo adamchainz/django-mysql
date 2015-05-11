@@ -68,9 +68,11 @@ class MySQLCache(BaseDatabaseCache):
 
     create_table_sql = dedent('''\
         CREATE TABLE `{table_name}` (
-            cache_key varchar(255) CHARACTER SET utf8 NOT NULL PRIMARY KEY,
+            cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
+                                   NOT NULL PRIMARY KEY,
             value longblob NOT NULL,
-            value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p',
+            value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
+                               NOT NULL DEFAULT 'p',
             expires BIGINT UNSIGNED NOT NULL
         );
     ''')
