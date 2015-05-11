@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
+import imp
 import os
 import time
 import warnings
@@ -15,6 +16,7 @@ from django.middleware.cache import (
 )
 from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
+from django.utils import six
 from django.utils.six.moves import StringIO
 from flake8.run import check_code
 
@@ -1029,6 +1031,14 @@ class MySQLCacheTests(TransactionTestCase):
             "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
             .format(errors, output, stderr.getvalue())
         )
+
+        # Dynamic import and check
+        migration_mod = imp.new_module('0001_add_cache_tables')
+        six.exec_(output, migration_mod.__dict__)
+        self.assertTrue(hasattr(migration_mod, 'Migration'))
+        migration = migration_mod.Migration
+        self.assertTrue(hasattr(migration, 'dependencies'))
+        self.assertTrue(hasattr(migration, 'operations'))
 
     def test_mysql_cache_migration_alias(self):
         out = StringIO()
