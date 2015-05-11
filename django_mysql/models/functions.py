@@ -1,3 +1,4 @@
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import CharField, IntegerField, TextField
 
 from django_mysql.shims import Func, Value
@@ -141,3 +142,26 @@ class SHA2(Func):
                 .format(",".join(str(x) for x in self.hash_lens))
             )
         super(SHA2, self).__init__(expression, Value(hash_len))
+
+
+# Information Functions
+
+class LastInsertId(Func):
+    function = 'LAST_INSERT_ID'
+
+    def __init__(self, expression=None):
+        if expression is not None:
+            super(LastInsertId, self).__init__(expression)
+        else:
+            super(LastInsertId, self).__init__()
+
+        self.output_field = IntegerField()
+
+    @classmethod
+    def get(cls, using=DEFAULT_DB_ALIAS):
+        # N.B. did try getting it from connection.connection.insert_id() (The
+        # MySQLdb query-free method) but it did not work with non-default
+        # database connections in Django, and the reason was not clear
+        with connections[using].cursor() as cursor:
+            cursor.execute("SELECT LAST_INSERT_ID()")
+            return cursor.fetchone()[0]

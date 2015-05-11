@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, Ceiling, ConcatWS, Field, Floor,
-    Greatest, Least, Round, Sign
+    Greatest, LastInsertId, Least, Round, Sign
 )
 from django_mysql_tests.models import Alphabet
 
@@ -220,6 +220,33 @@ class EncryptionFunctionTests(TestCase):
     def test_sha2_bad_hash_len(self):
         with self.assertRaises(ValueError):
             SHA2('a', 123)
+
+
+@requiresDatabaseFunctions
+class InformationFunctionTests(TestCase):
+
+    def test_last_insert_id(self):
+        Alphabet.objects.create(a=7891)
+        Alphabet.objects.update(a=LastInsertId('a') + 1)
+        lid = LastInsertId.get()
+        self.assertEqual(lid, 7891)
+
+    def test_last_insert_id_secondary_connection(self):
+        Alphabet.objects.using('secondary').create(a=9191)
+        Alphabet.objects.using('secondary').update(a=LastInsertId('a') + 9)
+        lid = LastInsertId.get(using='secondary')
+        self.assertEqual(lid, 9191)
+
+    def test_last_insert_id_in_query(self):
+        ab1 = Alphabet.objects.create(a=3719, b=717612)
+        ab2 = Alphabet.objects.create(a=1838, b=12636)
+
+        # Delete but store value of b and re-assign it to first second Alphabet
+        Alphabet.objects.filter(id=ab1.id, b=LastInsertId('b')).delete()
+        Alphabet.objects.filter(id=ab2.id).update(b=LastInsertId())
+
+        ab = Alphabet.objects.get()
+        self.assertEqual(ab.b, 717612)
 
 
 @skipIf(django.VERSION >= (1, 8),
