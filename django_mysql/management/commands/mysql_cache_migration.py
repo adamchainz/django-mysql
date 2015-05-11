@@ -80,7 +80,7 @@ table_operation = '''
             """
 ''' + create_table_sql + '''
             """,
-            "DROP TABLE `{{ table }}`;"
+            "DROP TABLE `{{ table }}`"
         ),
 '''.rstrip()
 

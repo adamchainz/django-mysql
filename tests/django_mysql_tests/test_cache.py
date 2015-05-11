@@ -10,6 +10,7 @@ from decimal import Decimal
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
 from django.db import OperationalError, connection, transaction
+from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
     FetchFromCacheMiddleware, UpdateCacheMiddleware
@@ -1044,6 +1045,26 @@ class MySQLCacheTests(TransactionTestCase):
         # operation
         self.assertEqual(len(migration.operations), 1)
 
+        # Now run the migration forwards and backwards to check it works
+        operation = migration.operations[0]
+        self.drop_table()
+        self.assertTableNotExists(self.table_name)
+
+        state = ProjectState()
+        new_state = state.clone()
+        with connection.schema_editor() as editor:
+            operation.database_forwards("django_mysql_tests", editor,
+                                        state, new_state)
+        self.assertTableExists(self.table_name)
+
+        new_state = state.clone()
+        with connection.schema_editor() as editor:
+            operation.database_backwards("django_mysql_tests", editor,
+                                         new_state, state)
+        self.assertTableNotExists(self.table_name)
+
+        self.create_table()
+
     def test_mysql_cache_migration_alias(self):
         out = StringIO()
         call_command('mysql_cache_migration', 'default', stdout=out)
@@ -1092,3 +1113,21 @@ class MySQLCacheTests(TransactionTestCase):
         with self.assertRaises(CommandError) as cm:
             call_command('cull_mysql_caches', "NOTACACHE", verbosity=0)
         self.assertEqual("Cache 'NOTACACHE' does not exist", str(cm.exception))
+
+    def assertTableExists(self, table_name):
+        self.assertTrue(self.table_exists(table_name),
+                        "Table `%s` does not exist!" % table_name)
+
+    def assertTableNotExists(self, table_name):
+        self.assertFalse(self.table_exists(table_name),
+                         "Table `%s` does not exist!" % table_name)
+
+    def table_exists(self, table_name):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+                   WHERE TABLE_SCHEMA = DATABASE() AND
+                         TABLE_NAME = %s""",
+                (table_name,)
+            )
+            return bool(cursor.fetchone()[0])
