@@ -150,7 +150,7 @@ class LockTests(TestCase):
 
     def test_multi_connection(self):
         lock_a = Lock("a")
-        lock_b = Lock("b", using='secondary')
+        lock_b = Lock("b", using='other')
 
         with lock_a, lock_b:
             # Different connections = can hold > 1!

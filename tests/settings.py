@@ -23,7 +23,7 @@ DATABASES = {
             'CHARSET': "utf8mb4"
         }
     },
-    'secondary': {
+    'other': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_mysql2',
         'USER': '',
