@@ -754,11 +754,11 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_expiration(self):
         # Cache values can be set to expire
-        cache.set('expire1', 'very quickly', 0.1)
-        cache.set('expire2', 'very quickly', 0.1)
-        cache.set('expire3', 'very quickly', 0.1)
+        cache.set('expire1', 'very quickly', 0.3)
+        cache.set('expire2', 'very quickly', 0.3)
+        cache.set('expire3', 'very quickly', 0.3)
 
-        time.sleep(0.2)
+        time.sleep(0.4)
         self.assertIsNone(cache.get("expire1"))
 
         cache.add("expire2", "newvalue")
@@ -784,8 +784,8 @@ class MySQLCacheTests(TransactionTestCase):
     def test_get_many_with_one_expired(self):
         # Multiple cache keys can be returned using get_many
         the_cache = caches['no_cull']
-        the_cache.set('a', 'a', 0.1)
-        time.sleep(0.2)
+        the_cache.set('a', 'a', 0.3)
+        time.sleep(0.4)
 
         the_cache.set('b', 'b')
         the_cache.set('c', 'c')
@@ -814,10 +814,10 @@ class MySQLCacheTests(TransactionTestCase):
     def test_set_many_expiration(self):
         # set_many takes a second ``timeout`` parameter
         with self.assertNumQueries(1):
-            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"}, 0.1)
+            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"}, 0.3)
 
         cache.set("key3", "ham")
-        time.sleep(0.2)
+        time.sleep(0.4)
         self.assertIsNone(cache.get("key1"))
         self.assertIsNone(cache.get("key2"))
         self.assertEqual(cache.get("key3"), "ham")
@@ -873,14 +873,14 @@ class MySQLCacheTests(TransactionTestCase):
     # Original tests
 
     def test_add_with_expired(self):
-        cache.add("mykey", "value", 0.1)
+        cache.add("mykey", "value", 0.3)
         self.assertEqual(cache.get("mykey"), "value")
 
-        result = cache.add("mykey", "newvalue", 0.1)
+        result = cache.add("mykey", "newvalue", 0.3)
         self.assertFalse(result)
         self.assertEqual(cache.get("mykey"), "value")
 
-        time.sleep(0.2)
+        time.sleep(0.4)
 
         result = cache.add("mykey", "newvalue", 1)
         self.assertTrue(result)
@@ -943,8 +943,8 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_cull_deletes_expired_first(self):
         cull_cache = caches['cull']
-        cull_cache.set("key", "value", 0.1)
-        time.sleep(0.2)
+        cull_cache.set("key", "value", 0.3)
+        time.sleep(0.4)
 
         # Add 30 more entries. The expired key should get deleted, leaving the
         # 30 new keys
@@ -1054,15 +1054,15 @@ class MySQLCacheTests(TransactionTestCase):
     # cull_mysql_caches tests
 
     def test_cull_mysql_caches_basic(self):
-        cache.set('key', 'value', 0.1)
-        time.sleep(0.2)
+        cache.set('key', 'value', 0.3)
+        time.sleep(0.4)
         self.assertEqual(self.table_count(), 1)
         call_command('cull_mysql_caches', verbosity=0)
         self.assertEqual(self.table_count(), 0)
 
     def test_cull_mysql_caches_named_cache(self):
-        cache.set('key', 'value', 0.1)
-        time.sleep(0.2)
+        cache.set('key', 'value', 0.3)
+        time.sleep(0.4)
         self.assertEqual(self.table_count(), 1)
 
         out = StringIO()
