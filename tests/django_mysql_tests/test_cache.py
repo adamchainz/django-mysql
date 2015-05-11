@@ -1040,6 +1040,10 @@ class MySQLCacheTests(TransactionTestCase):
         self.assertTrue(hasattr(migration, 'dependencies'))
         self.assertTrue(hasattr(migration, 'operations'))
 
+        # Since they all have the same table name, there should only be one
+        # operation
+        self.assertEqual(len(migration.operations), 1)
+
     def test_mysql_cache_migration_alias(self):
         out = StringIO()
         call_command('mysql_cache_migration', 'default', stdout=out)
