@@ -11,6 +11,29 @@ from django_mysql.locks import Lock
 
 class LockTests(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super(LockTests, cls).setUpClass()
+
+        cls.supports_lock_info = (
+            connection.is_mariadb and connection.mysql_version >= (10, 0, 7)
+        )
+        if cls.supports_lock_info:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
+                       WHERE PLUGIN_NAME = 'metadata_lock_info'""")
+                cls.lock_info_preinstalled = (cursor.fetchone()[0] > 0)
+                if not cls.lock_info_preinstalled:
+                    cursor.execute("INSTALL SONAME 'metadata_lock_info'")
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.supports_lock_info and not cls.lock_info_preinstalled:
+            with connection.cursor() as cursor:
+                cursor.execute("UNINSTALL SONAME 'metadata_lock_info'")
+        super(LockTests, cls).tearDownClass()
+
     def test_simple(self):
         mylock = Lock("mylock")
         self.assertFalse(mylock.is_held())
@@ -156,3 +179,30 @@ class LockTests(TestCase):
             # Different connections = can hold > 1!
             self.assertTrue(lock_a.is_held())
             self.assertTrue(lock_b.is_held())
+
+    def test_held_with_prefix(self):
+        if not self.supports_lock_info:
+            self.skipTest(
+                "Only MariaDB 10.0.7+ has the metadata_lock_info plugin on "
+                "which held_with_prefix relies"
+            )
+
+        self.assertEqual(Lock.held_with_prefix(''), {})
+        self.assertEqual(Lock.held_with_prefix('mylock'), {})
+
+        with Lock('mylock-alpha') as lock:
+            self.assertEqual(
+                Lock.held_with_prefix(''),
+                {'mylock-alpha': lock.holding_connection_id()}
+            )
+            self.assertEqual(
+                Lock.held_with_prefix('mylock'),
+                {'mylock-alpha': lock.holding_connection_id()}
+            )
+            self.assertEqual(
+                Lock.held_with_prefix('mylock-beta'),
+                {}
+            )
+
+        self.assertEqual(Lock.held_with_prefix(''), {})
+        self.assertEqual(Lock.held_with_prefix('mylock'), {})
