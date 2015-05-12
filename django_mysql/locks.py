@@ -16,10 +16,20 @@ class Lock(object):
 
         # For multi-database servers, we prefix the name of the lock wth
         # the database, to protect against concurrent apps with the same locks
-        self.name = '.'.join((
-            connections[self.db].settings_dict['NAME'],
+        self.name = self.make_name(self.db, name)
+
+    @classmethod
+    def make_name(cls, db, name):
+        return '.'.join((
+            connections[db].settings_dict['NAME'],
             name
         ))
+
+    @classmethod
+    def unmake_name(cls, db, name):
+        # Cut off the 'dbname.' prefix
+        db_name = connections[db].settings_dict['NAME']
+        return name[len(db_name) + 1:]
 
     def get_cursor(self):
         return connections[self.db].cursor()
@@ -54,3 +64,22 @@ class Lock(object):
         with self.get_cursor() as cursor:
             cursor.execute("SELECT IS_USED_LOCK(%s)", (self.name,))
             return cursor.fetchone()[0]
+
+    @classmethod
+    def held_with_prefix(cls, prefix, using=DEFAULT_DB_ALIAS):
+        # Use the METADATA_LOCK_INFO table from the MariaDB plugin to show
+        # which locks of a given prefix are held
+        prefix = cls.make_name(using, prefix)
+
+        with connections[using].cursor() as cursor:
+            cursor.execute(
+                """SELECT TABLE_SCHEMA, THREAD_ID
+                   FROM INFORMATION_SCHEMA.METADATA_LOCK_INFO
+                   WHERE TABLE_SCHEMA LIKE %s AND
+                         LOCK_TYPE = 'User Lock'""",
+                (prefix + '%',)
+            )
+            return {
+                cls.unmake_name(using, row[0]): row[1]
+                for row in cursor.fetchall()
+            }
