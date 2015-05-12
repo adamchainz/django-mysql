@@ -22,7 +22,7 @@ class Command(BaseCommand):
         else:
             names = settings.CACHES
 
-        tables = []
+        tables = set()
         for alias in names:
             try:
                 cache = caches[alias]
@@ -32,7 +32,7 @@ class Command(BaseCommand):
             if not isinstance(cache, MySQLCache):  # pragma: no cover
                 continue
 
-            tables.append({'name': cache._table})
+            tables.add(cache._table)
 
         if not tables:
             self.stderr.write("No MySQLCache instances in CACHES")
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         out = [header]
         for table in tables:
             out.append(
-                table_operation.replace('{{ table.name }}', table['name'])
+                table_operation.replace('{{ table }}', table)
             )
         out.append(footer)
         return ''.join(out)
@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
 create_table_sql = '\n'.join(
     '    ' * 3 + line
     for line in MySQLCache.create_table_sql.splitlines()
-).format(table_name='{{ table.name }}')
+).format(table_name='{{ table }}')
 
 
 table_operation = '''
@@ -80,7 +80,7 @@ table_operation = '''
             """
 ''' + create_table_sql + '''
             """,
-            "DROP TABLE `{{ table.name }}`;"
+            "DROP TABLE `{{ table }}`"
         ),
 '''.rstrip()
 

@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
+import imp
 import os
 import time
 import warnings
@@ -9,12 +10,14 @@ from decimal import Decimal
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
 from django.db import OperationalError, connection, transaction
+from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
     FetchFromCacheMiddleware, UpdateCacheMiddleware
 )
 from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
+from django.utils import six
 from django.utils.six.moves import StringIO
 from flake8.run import check_code
 
@@ -1057,6 +1060,38 @@ class MySQLCacheTests(TransactionTestCase):
             .format(errors, output, stderr.getvalue())
         )
 
+        # Dynamic import and check
+        migration_mod = imp.new_module('0001_add_cache_tables')
+        six.exec_(output, migration_mod.__dict__)
+        self.assertTrue(hasattr(migration_mod, 'Migration'))
+        migration = migration_mod.Migration
+        self.assertTrue(hasattr(migration, 'dependencies'))
+        self.assertTrue(hasattr(migration, 'operations'))
+
+        # Since they all have the same table name, there should only be one
+        # operation
+        self.assertEqual(len(migration.operations), 1)
+
+        # Now run the migration forwards and backwards to check it works
+        operation = migration.operations[0]
+        self.drop_table()
+        self.assertTableNotExists(self.table_name)
+
+        state = ProjectState()
+        new_state = state.clone()
+        with connection.schema_editor() as editor:
+            operation.database_forwards("django_mysql_tests", editor,
+                                        state, new_state)
+        self.assertTableExists(self.table_name)
+
+        new_state = state.clone()
+        with connection.schema_editor() as editor:
+            operation.database_backwards("django_mysql_tests", editor,
+                                         new_state, state)
+        self.assertTableNotExists(self.table_name)
+
+        self.create_table()
+
     def test_mysql_cache_migration_alias(self):
         out = StringIO()
         call_command('mysql_cache_migration', 'default', stdout=out)
@@ -1105,3 +1140,21 @@ class MySQLCacheTests(TransactionTestCase):
         with self.assertRaises(CommandError) as cm:
             call_command('cull_mysql_caches', "NOTACACHE", verbosity=0)
         self.assertEqual("Cache 'NOTACACHE' does not exist", str(cm.exception))
+
+    def assertTableExists(self, table_name):
+        self.assertTrue(self.table_exists(table_name),
+                        "Table `%s` does not exist!" % table_name)
+
+    def assertTableNotExists(self, table_name):
+        self.assertFalse(self.table_exists(table_name),
+                         "Table `%s` does not exist!" % table_name)
+
+    def table_exists(self, table_name):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+                   WHERE TABLE_SCHEMA = DATABASE() AND
+                         TABLE_NAME = %s""",
+                (table_name,)
+            )
+            return bool(cursor.fetchone()[0])
