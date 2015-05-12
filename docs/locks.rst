@@ -87,3 +87,35 @@ The following can be imported from ``django_mysql.locks``.
 
         Returns the MySQL ``CONNECTION_ID()`` of the holder of the lock, or
         ``None`` if it is not currently held.
+
+    .. classmethod:: held_with_prefix(prefix, using=DEFAULT_DB_ALIAS)
+
+        Queries the held locks that match the given prefix, for the given
+        database connection. Returns a dict of lock names to the
+        ``CONNECTION_ID()`` that holds the given lock.
+
+        Example usage::
+
+            >>> Lock.held_with_prefix('Author')
+            {'Author.1': 451, 'Author.2': 457}
+
+        .. note::
+            Works with MariaDB 10.0.7+ only, when the ``metadata_lock_info``
+            plugin is loaded. You can install this in a migration using the
+            :class:`~django_mysql.operations.InstallSOName` operation, like
+            so::
+
+                # -*- coding: utf-8 -*-
+                from __future__ import unicode_literals
+
+                from django.db import migrations
+                from django_mysql.operations import InstallSOName
+
+
+                class Migration(migrations.Migration):
+                    dependencies = []
+
+                    operations = [
+                        # Install https://mariadb.com/kb/en/mariadb/metadata_lock_info/
+                        InstallSOName('metadata_lock_info')
+                    ]

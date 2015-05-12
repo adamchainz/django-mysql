@@ -4,7 +4,7 @@
 Migration Operations
 ====================
 
-.. currentmodule:: django_mysql.models.operations
+.. currentmodule:: django_mysql.operations
 
 MySQL-specific `migration operations
 <https://docs.djangoproject.com/en/dev/ref/migration-operations/>`_
@@ -41,14 +41,12 @@ Install Plugin
         from __future__ import unicode_literals
 
         from django.db import migrations
-
         from django_mysql.operations import InstallPlugin
 
 
         class Migration(migrations.Migration):
 
-            dependencies = [
-            ]
+            dependencies = []
 
             operations = [
                 # Install https://mariadb.com/kb/en/mariadb/metadata_lock_info/
@@ -85,14 +83,12 @@ Install SOName
         from __future__ import unicode_literals
 
         from django.db import migrations
-
         from django_mysql.operations import InstallSOName
 
 
         class Migration(migrations.Migration):
 
-            dependencies = [
-            ]
+            dependencies = []
 
             operations = [
                 # Install https://mariadb.com/kb/en/mariadb/metadata_lock_info/
@@ -135,14 +131,12 @@ Alter Storage Engine
         from __future__ import unicode_literals
 
         from django.db import migrations
-
         from django_mysql.operations import AlterStorageEngine
 
 
         class Migration(migrations.Migration):
 
-            dependencies = [
-            ]
+            dependencies = []
 
             operations = [
                 AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")
