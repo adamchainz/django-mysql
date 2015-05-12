@@ -1012,6 +1012,33 @@ class MySQLCacheTests(TransactionTestCase):
         with self.assertRaises(ValueError):
             cache.get('mykey')
 
+    def test_key_case_sensitivity(self):
+        """
+        Check that we can store both upper and lowercase keys separately
+
+        At first MySQLCache did not use a binary collation for cache_key, which
+        meant it was not case sensitive.
+        """
+        cache.set('akey', 123)
+        cache.set('Akey', 456)
+        self.assertEqual(cache.get('akey'), 123)
+        self.assertEqual(cache.get('Akey'), 456)
+
+    def test_value_type_case_sensitivity(self):
+        cache.set('akey', 123)
+        with connection.cursor() as cursor:
+            # Check that value_type is 'i' for integer
+            cursor.execute("SELECT value_type FROM `%s`" % self.table_name)
+            t = cursor.fetchone()[0]
+            self.assertEqual(t, 'i')
+
+            # Should be case-sensitive, so i != I
+            cursor.execute(
+                """SELECT COUNT(*) FROM `%s`
+                   WHERE value_type = 'I'""" % self.table_name)
+            n = cursor.fetchone()[0]
+            self.assertEqual(n, 0)
+
     # mysql_cache_migration tests
 
     def test_mysql_cache_migration(self):

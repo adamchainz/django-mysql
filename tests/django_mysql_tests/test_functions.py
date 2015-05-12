@@ -231,10 +231,10 @@ class InformationFunctionTests(TestCase):
         lid = LastInsertId.get()
         self.assertEqual(lid, 7891)
 
-    def test_last_insert_id_secondary_connection(self):
-        Alphabet.objects.using('secondary').create(a=9191)
-        Alphabet.objects.using('secondary').update(a=LastInsertId('a') + 9)
-        lid = LastInsertId.get(using='secondary')
+    def test_last_insert_id_other_db_connection(self):
+        Alphabet.objects.using('other').create(a=9191)
+        Alphabet.objects.using('other').update(a=LastInsertId('a') + 9)
+        lid = LastInsertId.get(using='other')
         self.assertEqual(lid, 9191)
 
     def test_last_insert_id_in_query(self):

@@ -25,10 +25,10 @@ class OverrideVarsClassTest(OverrideVarsMethodTest):
     def test_class_sets_ansi(self):
         self.check_sql_mode("ANSI")
 
-    @override_mysql_variables(using='secondary', SQL_MODE='MSSQL')
+    @override_mysql_variables(using='other', SQL_MODE='MSSQL')
     def test_other_connection(self):
         self.check_sql_mode("ANSI")
-        self.check_sql_mode("MSSQL", using='secondary')
+        self.check_sql_mode("MSSQL", using='other')
 
     def test_it_fails_on_non_test_classes(self):
         with self.assertRaises(Exception):

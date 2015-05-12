@@ -94,7 +94,7 @@ class GlobalStatusTests(TestCase):
         self.assertNotIn('1000000', message)
 
     def test_other_databases(self):
-        status = GlobalStatus(using='secondary')
+        status = GlobalStatus(using='other')
 
         running = status.get('Threads_running')
         self.assertTrue(isinstance(running, int))
@@ -131,7 +131,7 @@ class SessionStatusTests(TestCase):
         self.assertGreaterEqual(status_dict['Threads_running'], 1)
 
     def test_other_databases(self):
-        status = SessionStatus(using='secondary')
+        status = SessionStatus(using='other')
         running = status.get('Threads_running')
         self.assertTrue(isinstance(running, int))
         self.assertGreaterEqual(running, 1)
