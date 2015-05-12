@@ -7,4 +7,6 @@
 # our dependencies in one place.
 
 -r requirements/requirements-codestyle.txt
+-r requirements/requirements-dev.txt
+-r requirements/requirements-docs.txt
 -r requirements/requirements-testing.txt
