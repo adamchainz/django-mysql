@@ -7,6 +7,8 @@ History
 ------------------
 
 * Pending release
+* Added prefix methods to ``MySQLCache`` - ``delete_with_prefix``,
+  ``get_with_prefix``, ``keys_with_prefix``
 
 0.2.1 (2015-06-22)
 ------------------
