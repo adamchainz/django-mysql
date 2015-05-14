@@ -66,9 +66,11 @@ example::
             migrations.RunSQL(
                 """
                 CREATE TABLE `my_super_cache` (
-                    cache_key varchar(255) CHARACTER SET utf8 NOT NULL PRIMARY KEY,
+                    cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
+                                                       NOT NULL PRIMARY KEY,
                     value longblob NOT NULL,
-                    value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p',
+                    value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
+                                       NOT NULL DEFAULT 'p',
                     expires BIGINT UNSIGNED NOT NULL
                 );
                 """,
@@ -267,7 +269,7 @@ can upgrade by adding a migration with the following SQL, if you replace
 
     ALTER TABLE yourtablename
         MODIFY cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
-                                      NOT NULL PRIMARY KEY,
+                                      NOT NULL,
         MODIFY value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
                                   NOT NULL DEFAULT 'p';
 
@@ -288,13 +290,13 @@ Or as a reversible migration::
                 """
                 ALTER TABLE yourtablename
                     MODIFY cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
-                                                  NOT NULL PRIMARY KEY,
+                                                  NOT NULL,
                     MODIFY value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
                                               NOT NULL DEFAULT 'p'
                 """,
                 """
                 ALTER TABLE yourtablename
-                    MODIFY cache_key varchar(255) CHARACTER SET utf8 NOT NULL PRIMARY KEY,
+                    MODIFY cache_key varchar(255) CHARACTER SET utf8 NOT NULL,
                     MODIFY value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p'
                 """
             )
