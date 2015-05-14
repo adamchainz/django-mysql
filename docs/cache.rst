@@ -252,3 +252,50 @@ The methods you need to override (and probably call ``super()`` from) are:
 
 Studying the source of ``MySQLCache`` will probably give you the best way to
 extend these methods for your use case.
+
+
+Changes
+-------
+
+Versions 0.1.10 -> 0.2.0
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Initially, in Django-MySQL version 0.1.10, ``MySQLCache`` did not force the
+columns to use case sensitive collations; in version 0.2.0 this was fixed. You
+can upgrade by adding a migration with the following SQL, if you replace
+``yourtablename``::
+
+    ALTER TABLE yourtablename
+        MODIFY cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
+                                      NOT NULL PRIMARY KEY,
+        MODIFY value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
+                                  NOT NULL DEFAULT 'p';
+
+Or as a reversible migration::
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+
+    from django.db import migrations
+
+
+    class Migration(migrations.Migration):
+
+        dependencies = []
+
+        operations = [
+            migrations.RunSQL(
+                """
+                ALTER TABLE yourtablename
+                    MODIFY cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
+                                                  NOT NULL PRIMARY KEY,
+                    MODIFY value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
+                                              NOT NULL DEFAULT 'p'
+                """,
+                """
+                ALTER TABLE yourtablename
+                    MODIFY cache_key varchar(255) CHARACTER SET utf8 NOT NULL PRIMARY KEY,
+                    MODIFY value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p'
+                """
+            )
+        ]

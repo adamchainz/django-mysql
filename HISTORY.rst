@@ -3,6 +3,26 @@
 History
 =======
 
+0.2.0 (2015-05-14)
+------------------
+
+* More database functions added - ``Field`` and its complement ``ELT``,
+  and ``LastInsertId``
+* Case sensitive string lookup added as to the ORM for ``CharField`` and
+  ``TextField``
+* Migration operations added - ``InstallPlugin``, ``InstallSOName``, and
+  ``AlterStorageEngine``
+* Extra ORM aggregates added - ``BitAnd``, ``BitOr``, and ``BitXor``
+* ``MySQLCache`` is now case-sensitive. If you are already using it, an upgrade
+  ``ALTER TABLE`` and migration is provided at `the end of the cache docs
+  <http://django-mysql.readthedocs.org/en/latest/cache.html>`_.
+* (MariaDB only) The ``Lock`` class gained a class method ``held_with_prefix``
+  to query held locks matching a given prefix
+* ``SmartIterator`` bugfix for chunks with 0 objects slowing iteration; they
+  such chunks most often occur on tables with primary key "holes"
+* Now tested against Django master for cutting edge users and forwards
+  compatibility
+
 0.1.10 (2015-04-30)
 -------------------
 
