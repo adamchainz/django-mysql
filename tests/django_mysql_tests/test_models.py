@@ -186,6 +186,13 @@ class SmartIteratorTests(TransactionTestCase):
         seen = [author.id for author in Author.objects.iter_smart()]
         self.assertEqual(seen, [])
 
+    def test_pk_hole(self):
+        first = Author.objects.earliest('id')
+        last = Author.objects.latest('id')
+        Author.objects.filter(id__gt=first.id, id__lt=last.id).delete()
+        seen = [author.id for author in Author.objects.iter_smart()]
+        self.assertEqual(seen, [first.id, last.id])
+
     def test_reporting(self):
         with captured_stdout() as output:
             qs = Author.objects.all()
