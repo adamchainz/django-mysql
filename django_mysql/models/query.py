@@ -214,9 +214,12 @@ class SmartChunkedIterator(object):
         else:
             num_processed = len(chunk)
 
-        new_chunk_size = self.rate.update(num_processed, chunk_time)
+        if num_processed > 0:
+            new_chunk_size = self.rate.update(num_processed, chunk_time)
+        else:
+            new_chunk_size = self.chunk_size
 
-        if new_chunk_size < 1:
+        if new_chunk_size < 1:  # pragma: no cover
             new_chunk_size = 1
 
         if new_chunk_size > self.chunk_max:
