@@ -23,7 +23,9 @@ Two fields that store lists of data, grown-up versions of Django's
 :class:`~django.contrib.postgres.fields.ArrayField`. There are two versions:
 ``ListCharField``, which is based on ``CharField`` and appropriate for storing
 lists with a small maximum size, and ``ListTextField``, which is based on
-``TextField`` and therefore suitable for lists of unbounded size.
+``TextField`` and therefore suitable for lists of (near) unbounded size (the
+underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
+1 bytes).
 
 For the purposes of keeping documentation short, we'll describe
 ``ListCharField``, but everything below applies equally to ``ListTextField``,
@@ -53,6 +55,8 @@ except for ``max_length`` which is not needed.
     Example instantiation::
 
         from django.db.models import IntegerField
+        # Does not require django_mysql.models.Model - just using it for the
+        # QuerySet extensions
         from django_mysql.models import Model, ListCharField
 
         class Person(Model):
@@ -272,8 +276,9 @@ Two fields that store sets of a base field in comma-separated strings -
 cousins of Django's :class:`~django.db.models.CommaSeparatedIntegerField`.
 There are two versions: ``SetCharField``, which is based on ``CharField`` and
 appropriate for storing sets with a small maximum size, and ``SetTextField``,
-which is based on ``TextField`` and therefore suitable for sets of unbounded
-size.
+which is based on ``TextField`` and therefore suitable for sets of (near)
+unbounded size (the underlying ``LONGTEXT`` MySQL datatype has a maximum length
+of 2\ :sup:`32` - 1 bytes).
 
 For the purposes of keeping documentation short, we'll describe
 ``SetCharField``, but everything below applies equally to ``SetTextField``,
@@ -302,6 +307,8 @@ except for ``max_length`` which is not needed.
     Example instantiation::
 
         from django.db.models import IntegerField
+        # Does not require django_mysql.models.Model - just using it for the
+        # QuerySet extensions
         from django_mysql.models import Model, SetCharField
 
         class LotteryTicket(Model):
