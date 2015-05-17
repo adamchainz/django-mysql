@@ -82,6 +82,11 @@ class Author(Model):
         return "{} {}".format(self.id, self.name)
 
 
+class Book(Model):
+    title = CharField(max_length=32, db_index=True)
+    author = ForeignKey(Author, related_name='books')
+
+
 class VanillaAuthor(VanillaModel):
     name = CharField(max_length=32)
 

@@ -90,3 +90,6 @@ TEMPLATES = [
         },
     },
 ]
+
+
+DJANGO_MYSQL_REWRITE_QUERIES = True

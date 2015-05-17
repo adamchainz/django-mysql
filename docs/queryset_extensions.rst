@@ -103,6 +103,166 @@ Approximate Counting
         to apply the magical speed increase across your admin interface.
 
 
+.. _query_hints:
+
+Query Hints
+-----------
+
+The following methods add extra features to the ORM which allow you to access
+some MySQL-specific syntax. They do this by inserting special comments which
+pass through Django’s ORM layer and get re-written by a function that wraps the
+lower-level ``cursor.execute()``.
+
+Because not every user wants these features and there is a (small) overhead to
+every query, you must activate this feature by adding to your settings::
+
+    DJANGO_MYSQL_REWRITE_QUERIES = True
+
+Once you’ve done this, the following methods will work.
+
+.. method:: label(comment)
+
+    Allows you to add an arbitrary comment to the start of the query, as the
+    second thing after the keyword. This can be used to 'tag' queries so that
+    when they show in the `slow_log` or another monitoring tool, you can easily
+    back track to the python code generating the query. For example, imagine
+    constructing a QuerySet like this::
+
+        qs = Author.objects.label("AuthorListView").all()
+
+    When executed, this will have SQL starting::
+
+        SELECT /*AuthorListView*/ ...
+
+    You can add arbitrary labels, and as many of them as you wish - they will
+    appear in the order added. They will work in ``SELECT`` and ``UPDATE``
+    statements, but not in ``DELETE`` statements due to limitations in the way
+    Django performs deletes.
+
+    You should not pass user-supplied data in for the comment. As a basic
+    protection against accidental SQL injection, passing a comment featuring
+    ``*/`` will raise a ``ValueError``, since that would prematurely end the
+    comment. However due to `executable comments
+    <https://mariadb.com/kb/en/mariadb/comment-syntax/>`_, the comment is still
+    prone to some forms of injection.
+
+    However this is a feature - by not including spaces around your string,
+    you may use this injection to use `executable comments
+    <https://mariadb.com/kb/en/mariadb/comment-syntax/>`_ to add hints that are
+    otherwise not supported, or to use the `new MySQL 5.7 optimizer hints
+    <https://www.percona.com/blog/2015/04/30/optimizer-hints-mysql-5-7-7-missed-manual/>`_.
+
+.. method:: straight_join()
+
+    Adds the ``STRAIGHT_JOIN`` hint, which forces the join order during a
+    ``SELECT``. Note that you can’t force Django’s join order, but it tends to
+    be in the order that the tables get mentioned in the query.
+
+    Example usage::
+
+        # Note from Adam: sometimes the optimizer joined books -> author, which
+        # is slow. Force it to do author -> books.
+        Author.objects.distinct().straight_join().filter(books__age=12)[:10]
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/select/#straight_join>`_.
+
+    The MariaDB docs also have a good page `“How to Force Query Plans”
+    <https://mariadb.com/kb/en/mariadb/how-to-force-query-plans/>`_ which
+    covers some cases when you might want to use ``STRAIGHT_JOIN``.
+
+.. method:: sql_small_result()
+
+    Adds the ``SQL_SMALL_RESULT`` hint, which avoids using a temporary table in
+    the case of a ``GROUP BY`` or ``DISTINCT``.
+
+    Example usage::
+
+        # Note from Adam: we have very few distinct birthdays, so using a
+        # temporary table is slower
+        Author.objects.values('birthday').distinct().sql_small_result()
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB
+    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`_.
+
+.. method:: sql_big_result()
+
+    Adds the ``SQL_BIG_RESULT`` hint, which forces using a temporary table in
+    the case of a ``GROUP BY`` or ``DISTINCT``.
+
+    Example usage::
+
+        # Note from Adam: for some reason the optimizer didn’t use a temporary
+        # table for this, so we force it
+        Author.objects.distinct().sql_big_result()
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB
+    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`_.
+
+.. method:: sql_buffer_result()
+
+    Adds the ``SQL_BUFFER_RESULT`` hint, which forces the optimizer to use a
+    temporary table to process the result. This is useful to free locks as soon
+    as possible.
+
+    Example usage::
+
+        # Note from Adam: seeing a lot of throughput on this table. Buffering
+        # the results makes the queries less contentious.
+        HighThroughputModel.objects.filter(x=y).sql_buffer_result()
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB
+    <https://mariadb.com/kb/en/mariadb/select/#sql_buffer_result>`_.
+
+.. method:: sql_cache()
+
+    Adds the ``SQL_CACHE`` hint, which means the result set will be stored in
+    the `Query Cache
+    <https://dev.mysql.com/doc/refman/5.5/en/query-cache.html>`_. This only has
+    an effect when the MySQL system variable ``query_cache_type`` is set to
+    ``2`` or ``DEMAND``.
+
+    Example usage::
+
+        # Fetch recent posts, cached in MySQL for speed
+        recent_posts = BlogPost.objects.sql_cache().order_by('-created')[:5]
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB
+    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
+
+.. method:: sql_no_cache()
+
+    Adds the ``SQL_NO_CACHE`` hint, which means the result set will not be
+    fetched from or stored in the `Query Cache
+    <https://dev.mysql.com/doc/refman/5.5/en/query-cache.html>`_. This only has
+    an effect when the MySQL system variable ``query_cache_type`` is set to
+    ``1`` or ``ON``.
+
+    Example usage::
+
+        # Avoid caching all the expired sessions, since we’re about to delete
+        # them
+        deletable_session_ids = (
+            Session.objects.sql_no_cache()
+                           .filter(expiry__lt=now())
+                           .values_list('id', flat=True)
+        )
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB
+    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
+
+
 .. _smart-iteration:
 
 'Smart' Iteration

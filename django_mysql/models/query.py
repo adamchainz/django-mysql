@@ -31,6 +31,8 @@ class QuerySetMixin(object):
         clone._count_tries_approx = copy(self._count_tries_approx)
         return clone
 
+    # approx_count features
+
     def count(self):
         if self._count_tries_approx:
             return self.approx_count(**self._count_tries_approx)
@@ -69,6 +71,40 @@ class QuerySetMixin(object):
             return ApproximateInt(num)
         else:
             return num
+
+    # Query rewrite/hint API
+    # These specially constructed comments will be rewritten by rewrite_query
+    # into actual hints
+
+    def label(self, string):
+        """
+        Adds an arbitrary user-defined comment that will appear after
+        SELECT/UPDATE/DELETE which can be used to identify where the query was
+        generated, etc.
+        """
+        if '*/' in string:
+            raise ValueError("Bad label - cannot be embedded in SQL comment")
+        return self.extra(where=["/*QueryRewrite':label={}*/1".format(string)])
+
+    def straight_join(self):
+        return self.extra(where=["/*QueryRewrite':STRAIGHT_JOIN*/1"])
+
+    def sql_small_result(self):
+        return self.extra(where=["/*QueryRewrite':SQL_SMALL_RESULT*/1"])
+
+    def sql_big_result(self):
+        return self.extra(where=["/*QueryRewrite':SQL_BIG_RESULT*/1"])
+
+    def sql_buffer_result(self):
+        return self.extra(where=["/*QueryRewrite':SQL_BUFFER_RESULT*/1"])
+
+    def sql_cache(self):
+        return self.extra(where=["/*QueryRewrite':SQL_CACHE*/1"])
+
+    def sql_no_cache(self):
+        return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
+
+    # Features handled by extra classes/functions
 
     def iter_smart(self, **kwargs):
         assert 'queryset' not in kwargs, \
