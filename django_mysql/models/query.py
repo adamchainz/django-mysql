@@ -22,9 +22,6 @@ from django_mysql.utils import (
 
 class QuerySetMixin(object):
 
-    # Stop complaints about access to qs._count_tries_approx and model._meta
-    # pylint: disable=protected-access
-
     def __init__(self, *args, **kwargs):
         super(QuerySetMixin, self).__init__(*args, **kwargs)
         self._count_tries_approx = False
