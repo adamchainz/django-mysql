@@ -6,6 +6,8 @@ import os
 import sys
 import subprocess
 
+import pytest
+
 
 def main():
     try:
@@ -23,7 +25,7 @@ def main():
         run_tests = False
 
     if run_tests:
-        tests_main()
+        exit_on_failure(tests_main())
 
     if run_lint:
         exit_on_failure(run_flake8())
@@ -34,9 +36,10 @@ def main():
 def tests_main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
     sys.path.insert(0, "tests")
-    from django.core.management import execute_from_command_line
-    sys.argv.insert(1, "test")
-    return execute_from_command_line(sys.argv)
+
+    # pytest was picking up test_utilities as a doctest
+    sys.argv.append("--ignore=docs")
+    return pytest.main()
 
 
 def run_flake8():
