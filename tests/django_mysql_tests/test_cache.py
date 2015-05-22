@@ -7,6 +7,7 @@ import time
 import warnings
 from decimal import Decimal
 
+import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
 from django.db import OperationalError, connection, transaction
@@ -137,79 +138,81 @@ class MySQLCacheTests(TransactionTestCase):
     def test_simple(self):
         # Simple cache set/get works
         cache.set("key", "value")
-        self.assertEqual(cache.get("key"), "value")
+        assert cache.get("key") == "value"
 
     def test_add(self):
         # A key can be added to a cache
         result = cache.add("addkey1", "value")
-        self.assertEqual(result, True)
+        assert result
         result = cache.add("addkey1", "newvalue")
-        self.assertEqual(result, False)
-        self.assertEqual(cache.get("addkey1"), "value")
+        assert not result
+        assert cache.get("addkey1") == "value"
 
     def test_prefix(self):
         # Test for same cache key conflicts between shared backend
         cache.set('somekey', 'value')
 
         # should not be set in the prefixed cache
-        self.assertFalse(caches['prefix'].has_key('somekey'))  # noqa
+        assert not caches['prefix'].has_key('somekey')  # noqa
 
         caches['prefix'].set('somekey', 'value2')
 
-        self.assertEqual(cache.get('somekey'), 'value')
-        self.assertEqual(caches['prefix'].get('somekey'), 'value2')
+        assert cache.get('somekey') == 'value'
+        assert caches['prefix'].get('somekey') == 'value2'
 
     def test_non_existent(self):
         # Non-existent cache keys return as None/default
         # get with non-existent keys
-        self.assertIsNone(cache.get("does_not_exist"))
-        self.assertEqual(cache.get("does_not_exist", "bang!"), "bang!")
+        assert cache.get("does_not_exist") is None
+        assert cache.get("does_not_exist", "bang!") == "bang!"
 
     def test_delete(self):
         # Cache keys can be deleted
         cache.set("key1", "spam")
         cache.set("key2", "eggs")
-        self.assertEqual(cache.get("key1"), "spam")
+        assert cache.get("key1") == "spam"
         cache.delete("key1")
-        self.assertIsNone(cache.get("key1"))
-        self.assertEqual(cache.get("key2"), "eggs")
+        assert cache.get("key1") is None
+        assert cache.get("key2") == "eggs"
 
     def test_has_key(self):
         # The cache can be inspected for cache keys
         cache.set("hello1", "goodbye1")
-        self.assertTrue(cache.has_key("hello1"))  # noqa
-        self.assertFalse(cache.has_key("goodbye1"))  # noqa
+        assert cache.has_key("hello1")  # noqa
+        assert not cache.has_key("goodbye1")  # noqa
         cache.set("no_expiry", "here", None)
-        self.assertTrue(cache.has_key("no_expiry"))  # noqa
+        assert cache.has_key("no_expiry")  # noqa
 
     def test_in(self):
         # The in operator can be used to inspect cache contents
         cache.set("hello2", "goodbye2")
-        self.assertIn("hello2", cache)
-        self.assertNotIn("goodbye2", cache)
+        assert "hello2" in cache
+        assert "goodbye2" not in cache
 
     def test_incr(self):
         # Cache values can be incremented
         cache.set('answer', 41)
-        self.assertEqual(cache.incr('answer'), 42)
-        self.assertEqual(cache.get('answer'), 42)
-        self.assertEqual(cache.incr('answer', 10), 52)
-        self.assertEqual(cache.get('answer'), 52)
-        self.assertEqual(cache.incr('answer', -10), 42)
-        self.assertRaises(ValueError, cache.incr, 'does_not_exist')
+        assert cache.incr('answer') == 42
+        assert cache.get('answer') == 42
+        assert cache.incr('answer', 10) == 52
+        assert cache.get('answer') == 52
+        assert cache.incr('answer', -10) == 42
+        with pytest.raises(ValueError):
+            cache.incr('does_not_exist')
 
     def test_decr(self):
         # Cache values can be decremented
         cache.set('answer', 43)
-        self.assertEqual(cache.decr('answer'), 42)
-        self.assertEqual(cache.get('answer'), 42)
-        self.assertEqual(cache.decr('answer', 10), 32)
-        self.assertEqual(cache.get('answer'), 32)
-        self.assertEqual(cache.decr('answer', -10), 42)
-        self.assertRaises(ValueError, cache.decr, 'does_not_exist')
+        assert cache.decr('answer') == 42
+        assert cache.get('answer') == 42
+        assert cache.decr('answer', 10) == 32
+        assert cache.get('answer') == 32
+        assert cache.decr('answer', -10) == 42
+        with pytest.raises(ValueError):
+            cache.decr('does_not_exist')
 
     def test_close(self):
-        self.assertTrue(hasattr(cache, 'close'))
+        assert hasattr(cache, 'close')
         cache.close()
 
     def test_data_types(self):
@@ -224,20 +227,20 @@ class MySQLCacheTests(TransactionTestCase):
             'class': C,
         }
         cache.set("stuff", stuff)
-        self.assertEqual(cache.get("stuff"), stuff)
+        assert cache.get("stuff") == stuff
 
     def test_cache_read_for_model_instance(self):
         # Don't want fields with callable as default to be called on cache read
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         my_poll = Poll.objects.create(question="Well?")
-        self.assertEqual(Poll.objects.count(), 1)
+        assert Poll.objects.count() == 1
         pub_date = my_poll.pub_date
         cache.set('question', my_poll)
         cached_poll = cache.get('question')
-        self.assertEqual(cached_poll.pub_date, pub_date)
+        assert cached_poll.pub_date == pub_date
         # We only want the default expensive calculation run once
-        self.assertEqual(expensive_calculation.num_runs, 1)
+        assert expensive_calculation.num_runs == 1
 
     def test_cache_write_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache
@@ -245,30 +248,29 @@ class MySQLCacheTests(TransactionTestCase):
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
-        self.assertEqual(expensive_calculation.num_runs, 1)
+        assert expensive_calculation.num_runs == 1
         defer_qs = Poll.objects.all().defer('question')
-        self.assertEqual(defer_qs.count(), 1)
-        self.assertEqual(expensive_calculation.num_runs, 1)
+        assert defer_qs.count() == 1
+        assert expensive_calculation.num_runs == 1
         cache.set('deferred_queryset', defer_qs)
         # cache set should not re-evaluate default functions
-        self.assertEqual(expensive_calculation.num_runs, 1)
+        assert expensive_calculation.num_runs == 1
 
     def test_cache_read_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache read
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
-        self.assertEqual(expensive_calculation.num_runs, 1)
+        assert expensive_calculation.num_runs == 1
         defer_qs = Poll.objects.all().defer('question')
-        self.assertEqual(defer_qs.count(), 1)
+        assert defer_qs.count() == 1
         cache.set('deferred_queryset', defer_qs)
-        self.assertEqual(expensive_calculation.num_runs, 1)
+        assert expensive_calculation.num_runs == 1
         runs_before_cache_read = expensive_calculation.num_runs
         cache.get('deferred_queryset')
         # We only want the default expensive calculation run on creation and
         # set
-        self.assertEqual(expensive_calculation.num_runs,
-                         runs_before_cache_read)
+        assert expensive_calculation.num_runs == runs_before_cache_read
 
     def test_unicode(self):
         # Unicode values can be cached
@@ -281,20 +283,20 @@ class MySQLCacheTests(TransactionTestCase):
         # Test `set`
         for (key, value) in stuff.items():
             cache.set(key, value)
-            self.assertEqual(cache.get(key), value)
+            assert cache.get(key) == value
 
         # Test `add`
         for (key, value) in stuff.items():
             cache.delete(key)
             cache.add(key, value)
-            self.assertEqual(cache.get(key), value)
+            assert cache.get(key) == value
 
         # Test `set_many`
         for (key, value) in stuff.items():
             cache.delete(key)
         cache.set_many(stuff)
         for (key, value) in stuff.items():
-            self.assertEqual(cache.get(key), value)
+            assert cache.get(key) == value
 
     def test_binary_string(self):
         # Binary strings should be cacheable
@@ -305,28 +307,28 @@ class MySQLCacheTests(TransactionTestCase):
         # Test set
         cache.set('binary1', compressed_value)
         compressed_result = cache.get('binary1')
-        self.assertEqual(compressed_value, compressed_result)
-        self.assertEqual(value, decompress(compressed_result).decode())
+        assert compressed_value == compressed_result
+        assert value == decompress(compressed_result).decode()
 
         # Test add
         cache.add('binary1-add', compressed_value)
         compressed_result = cache.get('binary1-add')
-        self.assertEqual(compressed_value, compressed_result)
-        self.assertEqual(value, decompress(compressed_result).decode())
+        assert compressed_value == compressed_result
+        assert value == decompress(compressed_result).decode()
 
         # Test set_many
         cache.set_many({'binary1-set_many': compressed_value})
         compressed_result = cache.get('binary1-set_many')
-        self.assertEqual(compressed_value, compressed_result)
-        self.assertEqual(value, decompress(compressed_result).decode())
+        assert compressed_value == compressed_result
+        assert value == decompress(compressed_result).decode()
 
     def test_clear(self):
         # The cache can be emptied using clear
         cache.set("key1", "spam")
         cache.set("key2", "eggs")
         cache.clear()
-        self.assertIsNone(cache.get("key1"))
-        self.assertIsNone(cache.get("key2"))
+        assert cache.get("key1") is None
+        assert cache.get("key2") is None
 
     def test_long_timeout(self):
         '''
@@ -335,376 +337,353 @@ class MySQLCacheTests(TransactionTestCase):
         offset. Test that we honour this convention. Refs #12399.
         '''
         cache.set('key1', 'eggs', 60 * 60 * 24 * 30 + 1)  # 30 days + 1 second
-        self.assertEqual(cache.get('key1'), 'eggs')
+        assert cache.get('key1') == 'eggs'
 
         cache.add('key2', 'ham', 60 * 60 * 24 * 30 + 1)
-        self.assertEqual(cache.get('key2'), 'ham')
+        assert cache.get('key2') == 'ham'
 
         cache.set_many(
             {'key3': 'sausage', 'key4': 'lobster bisque'},
             60 * 60 * 24 * 30 + 1
         )
-        self.assertEqual(cache.get('key3'), 'sausage')
-        self.assertEqual(cache.get('key4'), 'lobster bisque')
+        assert cache.get('key3') == 'sausage'
+        assert cache.get('key4') == 'lobster bisque'
 
     def test_forever_timeout(self):
         '''
         Passing in None into timeout results in a value that is cached forever
         '''
         cache.set('key1', 'eggs', None)
-        self.assertEqual(cache.get('key1'), 'eggs')
+        assert cache.get('key1') == 'eggs'
 
         cache.add('key2', 'ham', None)
-        self.assertEqual(cache.get('key2'), 'ham')
+        assert cache.get('key2') == 'ham'
         added = cache.add('key1', 'new eggs', None)
-        self.assertEqual(added, False)
-        self.assertEqual(cache.get('key1'), 'eggs')
+        assert not added
+        assert cache.get('key1') == 'eggs'
 
         cache.set_many({'key3': 'sausage', 'key4': 'lobster bisque'}, None)
-        self.assertEqual(cache.get('key3'), 'sausage')
-        self.assertEqual(cache.get('key4'), 'lobster bisque')
+        assert cache.get('key3') == 'sausage'
+        assert cache.get('key4') == 'lobster bisque'
 
     def test_zero_timeout(self):
         '''
         Passing in zero into timeout results in a value that is not cached
         '''
         cache.set('key1', 'eggs', 0)
-        self.assertIsNone(cache.get('key1'))
+        assert cache.get('key1') is None
 
         cache.add('key2', 'ham', 0)
-        self.assertIsNone(cache.get('key2'))
+        assert cache.get('key2') is None
 
         cache.set_many({'key3': 'sausage', 'key4': 'lobster bisque'}, 0)
-        self.assertIsNone(cache.get('key3'))
-        self.assertIsNone(cache.get('key4'))
+        assert cache.get('key3') is None
+        assert cache.get('key4') is None
 
     def test_float_timeout(self):
         # Make sure a timeout given as a float doesn't crash anything.
         cache.set("key1", "spam", 100.2)
-        self.assertEqual(cache.get("key1"), "spam")
+        assert cache.get("key1") == "spam"
 
     def test_cache_versioning_get_set(self):
         # set, using default version = 1
         cache.set('answer1', 42)
-        self.assertEqual(cache.get('answer1'), 42)
-        self.assertEqual(cache.get('answer1', version=1), 42)
-        self.assertIsNone(cache.get('answer1', version=2))
+        assert cache.get('answer1') == 42
+        assert cache.get('answer1', version=1) == 42
+        assert cache.get('answer1', version=2) is None
 
-        self.assertIsNone(caches['v2'].get('answer1'))
-        self.assertEqual(caches['v2'].get('answer1', version=1), 42)
-        self.assertIsNone(caches['v2'].get('answer1', version=2))
+        assert caches['v2'].get('answer1') is None
+        assert caches['v2'].get('answer1', version=1) == 42
+        assert caches['v2'].get('answer1', version=2) is None
 
         # set, default version = 1, but manually override version = 2
         cache.set('answer2', 42, version=2)
-        self.assertIsNone(cache.get('answer2'))
-        self.assertIsNone(cache.get('answer2', version=1))
-        self.assertEqual(cache.get('answer2', version=2), 42)
+        assert cache.get('answer2') is None
+        assert cache.get('answer2', version=1) is None
+        assert cache.get('answer2', version=2) == 42
 
-        self.assertEqual(caches['v2'].get('answer2'), 42)
-        self.assertIsNone(caches['v2'].get('answer2', version=1))
-        self.assertEqual(caches['v2'].get('answer2', version=2), 42)
+        assert caches['v2'].get('answer2') == 42
+        assert caches['v2'].get('answer2', version=1) is None
+        assert caches['v2'].get('answer2', version=2) == 42
 
         # v2 set, using default version = 2
         caches['v2'].set('answer3', 42)
-        self.assertIsNone(cache.get('answer3'))
-        self.assertIsNone(cache.get('answer3', version=1))
-        self.assertEqual(cache.get('answer3', version=2), 42)
+        assert cache.get('answer3') is None
+        assert cache.get('answer3', version=1) is None
+        assert cache.get('answer3', version=2) == 42
 
-        self.assertEqual(caches['v2'].get('answer3'), 42)
-        self.assertIsNone(caches['v2'].get('answer3', version=1))
-        self.assertEqual(caches['v2'].get('answer3', version=2), 42)
+        assert caches['v2'].get('answer3') == 42
+        assert caches['v2'].get('answer3', version=1) is None
+        assert caches['v2'].get('answer3', version=2) == 42
 
         # v2 set, default version = 2, but manually override version = 1
         caches['v2'].set('answer4', 42, version=1)
-        self.assertEqual(cache.get('answer4'), 42)
-        self.assertEqual(cache.get('answer4', version=1), 42)
-        self.assertIsNone(cache.get('answer4', version=2))
+        assert cache.get('answer4') == 42
+        assert cache.get('answer4', version=1) == 42
+        assert cache.get('answer4', version=2) is None
 
-        self.assertIsNone(caches['v2'].get('answer4'))
-        self.assertEqual(caches['v2'].get('answer4', version=1), 42)
-        self.assertIsNone(caches['v2'].get('answer4', version=2))
+        assert caches['v2'].get('answer4') is None
+        assert caches['v2'].get('answer4', version=1) == 42
+        assert caches['v2'].get('answer4', version=2) is None
 
     def test_cache_versioning_add(self):
 
         # add, default version = 1, but manually override version = 2
         cache.add('answer1', 42, version=2)
-        self.assertIsNone(cache.get('answer1', version=1))
-        self.assertEqual(cache.get('answer1', version=2), 42)
+        assert cache.get('answer1', version=1) is None
+        assert cache.get('answer1', version=2) == 42
 
         cache.add('answer1', 37, version=2)
-        self.assertIsNone(cache.get('answer1', version=1))
-        self.assertEqual(cache.get('answer1', version=2), 42)
+        assert cache.get('answer1', version=1) is None
+        assert cache.get('answer1', version=2) == 42
 
         cache.add('answer1', 37, version=1)
-        self.assertEqual(cache.get('answer1', version=1), 37)
-        self.assertEqual(cache.get('answer1', version=2), 42)
+        assert cache.get('answer1', version=1) == 37
+        assert cache.get('answer1', version=2) == 42
 
         # v2 add, using default version = 2
         caches['v2'].add('answer2', 42)
-        self.assertIsNone(cache.get('answer2', version=1))
-        self.assertEqual(cache.get('answer2', version=2), 42)
+        assert cache.get('answer2', version=1) is None
+        assert cache.get('answer2', version=2) == 42
 
         caches['v2'].add('answer2', 37)
-        self.assertIsNone(cache.get('answer2', version=1))
-        self.assertEqual(cache.get('answer2', version=2), 42)
+        assert cache.get('answer2', version=1) is None
+        assert cache.get('answer2', version=2) == 42
 
         caches['v2'].add('answer2', 37, version=1)
-        self.assertEqual(cache.get('answer2', version=1), 37)
-        self.assertEqual(cache.get('answer2', version=2), 42)
+        assert cache.get('answer2', version=1) == 37
+        assert cache.get('answer2', version=2) == 42
 
         # v2 add, default version = 2, but manually override version = 1
         caches['v2'].add('answer3', 42, version=1)
-        self.assertEqual(cache.get('answer3', version=1), 42)
-        self.assertIsNone(cache.get('answer3', version=2))
+        assert cache.get('answer3', version=1) == 42
+        assert cache.get('answer3', version=2) is None
 
         caches['v2'].add('answer3', 37, version=1)
-        self.assertEqual(cache.get('answer3', version=1), 42)
-        self.assertIsNone(cache.get('answer3', version=2))
+        assert cache.get('answer3', version=1) == 42
+        assert cache.get('answer3', version=2) is None
 
         caches['v2'].add('answer3', 37)
-        self.assertEqual(cache.get('answer3', version=1), 42)
-        self.assertEqual(cache.get('answer3', version=2), 37)
+        assert cache.get('answer3', version=1) == 42
+        assert cache.get('answer3', version=2) == 37
 
     def test_cache_versioning_has_key(self):
         cache.set('answer1', 42)
 
         # has_key
-        self.assertTrue(cache.has_key('answer1'))  # noqa
-        self.assertTrue(cache.has_key('answer1', version=1))  # noqa
-        self.assertFalse(cache.has_key('answer1', version=2))  # noqa
+        assert cache.has_key('answer1')  # noqa
+        assert cache.has_key('answer1', version=1)  # noqa
+        assert not cache.has_key('answer1', version=2)  # noqa
 
-        self.assertFalse(caches['v2'].has_key('answer1'))  # noqa
-        self.assertTrue(caches['v2'].has_key('answer1', version=1))  # noqa
-        self.assertFalse(caches['v2'].has_key('answer1', version=2))  # noqa
+        assert not caches['v2'].has_key('answer1')  # noqa
+        assert caches['v2'].has_key('answer1', version=1)  # noqa
+        assert not caches['v2'].has_key('answer1', version=2)  # noqa
 
     def test_cache_versioning_delete(self):
         cache.set('answer1', 37, version=1)
         cache.set('answer1', 42, version=2)
         cache.delete('answer1')
-        self.assertIsNone(cache.get('answer1', version=1))
-        self.assertEqual(cache.get('answer1', version=2), 42)
+        assert cache.get('answer1', version=1) is None
+        assert cache.get('answer1', version=2) == 42
 
         cache.set('answer2', 37, version=1)
         cache.set('answer2', 42, version=2)
         cache.delete('answer2', version=2)
-        self.assertEqual(cache.get('answer2', version=1), 37)
-        self.assertIsNone(cache.get('answer2', version=2))
+        assert cache.get('answer2', version=1) == 37
+        assert cache.get('answer2', version=2) is None
 
         cache.set('answer3', 37, version=1)
         cache.set('answer3', 42, version=2)
         caches['v2'].delete('answer3')
-        self.assertEqual(cache.get('answer3', version=1), 37)
-        self.assertIsNone(cache.get('answer3', version=2))
+        assert cache.get('answer3', version=1) == 37
+        assert cache.get('answer3', version=2) is None
 
         cache.set('answer4', 37, version=1)
         cache.set('answer4', 42, version=2)
         caches['v2'].delete('answer4', version=1)
-        self.assertIsNone(cache.get('answer4', version=1))
-        self.assertEqual(cache.get('answer4', version=2), 42)
+        assert cache.get('answer4', version=1) is None
+        assert cache.get('answer4', version=2) == 42
 
     def test_cache_versioning_incr_decr(self):
         cache.set('answer1', 37, version=1)
         cache.set('answer1', 42, version=2)
         cache.incr('answer1')
-        self.assertEqual(cache.get('answer1', version=1), 38)
-        self.assertEqual(cache.get('answer1', version=2), 42)
+        assert cache.get('answer1', version=1) == 38
+        assert cache.get('answer1', version=2) == 42
         cache.decr('answer1')
-        self.assertEqual(cache.get('answer1', version=1), 37)
-        self.assertEqual(cache.get('answer1', version=2), 42)
+        assert cache.get('answer1', version=1) == 37
+        assert cache.get('answer1', version=2) == 42
 
         cache.set('answer2', 37, version=1)
         cache.set('answer2', 42, version=2)
         cache.incr('answer2', version=2)
-        self.assertEqual(cache.get('answer2', version=1), 37)
-        self.assertEqual(cache.get('answer2', version=2), 43)
+        assert cache.get('answer2', version=1) == 37
+        assert cache.get('answer2', version=2) == 43
         cache.decr('answer2', version=2)
-        self.assertEqual(cache.get('answer2', version=1), 37)
-        self.assertEqual(cache.get('answer2', version=2), 42)
+        assert cache.get('answer2', version=1) == 37
+        assert cache.get('answer2', version=2) == 42
 
         cache.set('answer3', 37, version=1)
         cache.set('answer3', 42, version=2)
         caches['v2'].incr('answer3')
-        self.assertEqual(cache.get('answer3', version=1), 37)
-        self.assertEqual(cache.get('answer3', version=2), 43)
+        assert cache.get('answer3', version=1) == 37
+        assert cache.get('answer3', version=2) == 43
         caches['v2'].decr('answer3')
-        self.assertEqual(cache.get('answer3', version=1), 37)
-        self.assertEqual(cache.get('answer3', version=2), 42)
+        assert cache.get('answer3', version=1) == 37
+        assert cache.get('answer3', version=2) == 42
 
         cache.set('answer4', 37, version=1)
         cache.set('answer4', 42, version=2)
         caches['v2'].incr('answer4', version=1)
-        self.assertEqual(cache.get('answer4', version=1), 38)
-        self.assertEqual(cache.get('answer4', version=2), 42)
+        assert cache.get('answer4', version=1) == 38
+        assert cache.get('answer4', version=2) == 42
         caches['v2'].decr('answer4', version=1)
-        self.assertEqual(cache.get('answer4', version=1), 37)
-        self.assertEqual(cache.get('answer4', version=2), 42)
+        assert cache.get('answer4', version=1) == 37
+        assert cache.get('answer4', version=2) == 42
 
     def test_cache_versioning_get_set_many(self):
         # set, using default version = 1
         cache.set_many({'ford1': 37, 'arthur1': 42})
-        self.assertDictEqual(
-            cache.get_many(['ford1', 'arthur1']),
+        assert (
+            cache.get_many(['ford1', 'arthur1']) ==
             {'ford1': 37, 'arthur1': 42}
         )
-        self.assertDictEqual(
-            cache.get_many(['ford1', 'arthur1'], version=1),
+        assert (
+            cache.get_many(['ford1', 'arthur1'], version=1) ==
             {'ford1': 37, 'arthur1': 42}
         )
-        self.assertDictEqual(
-            cache.get_many(['ford1', 'arthur1'], version=2),
-            {}
-        )
+        assert cache.get_many(['ford1', 'arthur1'], version=2) == {}
 
-        self.assertDictEqual(caches['v2'].get_many(['ford1', 'arthur1']), {})
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford1', 'arthur1'], version=1),
+        assert caches['v2'].get_many(['ford1', 'arthur1']) == {}
+        assert (
+            caches['v2'].get_many(['ford1', 'arthur1'], version=1) ==
             {'ford1': 37, 'arthur1': 42}
         )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford1', 'arthur1'], version=2),
-            {}
-        )
+        assert caches['v2'].get_many(['ford1', 'arthur1'], version=2) == {}
 
         # set, default version = 1, but manually override version = 2
         cache.set_many({'ford2': 37, 'arthur2': 42}, version=2)
-        self.assertDictEqual(cache.get_many(['ford2', 'arthur2']), {})
-        self.assertDictEqual(
-            cache.get_many(['ford2', 'arthur2'], version=1),
-            {}
-        )
-        self.assertDictEqual(
-            cache.get_many(['ford2', 'arthur2'], version=2),
+        assert cache.get_many(['ford2', 'arthur2']) == {}
+        assert cache.get_many(['ford2', 'arthur2'], version=1) == {}
+        assert (
+            cache.get_many(['ford2', 'arthur2'], version=2) ==
             {'ford2': 37, 'arthur2': 42}
         )
 
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford2', 'arthur2']),
+        assert (
+            caches['v2'].get_many(['ford2', 'arthur2']) ==
             {'ford2': 37, 'arthur2': 42}
         )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford2', 'arthur2'], version=1),
-            {}
-        )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford2', 'arthur2'], version=2),
+        assert caches['v2'].get_many(['ford2', 'arthur2'], version=1) == {}
+        assert (
+            caches['v2'].get_many(['ford2', 'arthur2'], version=2) ==
             {'ford2': 37, 'arthur2': 42}
         )
 
         # v2 set, using default version = 2
         caches['v2'].set_many({'ford3': 37, 'arthur3': 42})
-        self.assertDictEqual(cache.get_many(['ford3', 'arthur3']), {})
-        self.assertDictEqual(
-            cache.get_many(['ford3', 'arthur3'], version=1),
-            {}
-        )
-        self.assertDictEqual(
-            cache.get_many(['ford3', 'arthur3'], version=2),
+        assert cache.get_many(['ford3', 'arthur3']) == {}
+        assert cache.get_many(['ford3', 'arthur3'], version=1) == {}
+        assert (
+            cache.get_many(['ford3', 'arthur3'], version=2) ==
             {'ford3': 37, 'arthur3': 42}
         )
 
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford3', 'arthur3']),
+        assert (
+            caches['v2'].get_many(['ford3', 'arthur3']) ==
             {'ford3': 37, 'arthur3': 42}
         )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford3', 'arthur3'], version=1),
+        assert (
+            caches['v2'].get_many(['ford3', 'arthur3'], version=1) ==
             {}
         )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford3', 'arthur3'], version=2),
+        assert (
+            caches['v2'].get_many(['ford3', 'arthur3'], version=2) ==
             {'ford3': 37, 'arthur3': 42}
         )
 
         # v2 set, default version = 2, but manually override version = 1
         caches['v2'].set_many({'ford4': 37, 'arthur4': 42}, version=1)
-        self.assertDictEqual(
-            cache.get_many(['ford4', 'arthur4']),
+        assert (
+            cache.get_many(['ford4', 'arthur4']) ==
             {'ford4': 37, 'arthur4': 42}
         )
-        self.assertDictEqual(
-            cache.get_many(['ford4', 'arthur4'], version=1),
+        assert (
+            cache.get_many(['ford4', 'arthur4'], version=1) ==
             {'ford4': 37, 'arthur4': 42}
         )
-        self.assertDictEqual(
-            cache.get_many(['ford4', 'arthur4'], version=2),
-            {}
-        )
+        assert cache.get_many(['ford4', 'arthur4'], version=2) == {}
 
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford4', 'arthur4']),
-            {}
-        )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford4', 'arthur4'], version=1),
+        assert caches['v2'].get_many(['ford4', 'arthur4']) == {}
+        assert (
+            caches['v2'].get_many(['ford4', 'arthur4'], version=1) ==
             {'ford4': 37, 'arthur4': 42}
         )
-        self.assertDictEqual(
-            caches['v2'].get_many(['ford4', 'arthur4'], version=2),
-            {}
-        )
+        assert caches['v2'].get_many(['ford4', 'arthur4'], version=2) == {}
 
     def test_incr_version(self):
         cache.set('answer', 42, version=2)
-        self.assertIsNone(cache.get('answer'))
-        self.assertIsNone(cache.get('answer', version=1))
-        self.assertEqual(cache.get('answer', version=2), 42)
-        self.assertIsNone(cache.get('answer', version=3))
+        assert cache.get('answer') is None
+        assert cache.get('answer', version=1) is None
+        assert cache.get('answer', version=2) == 42
+        assert cache.get('answer', version=3) is None
 
-        self.assertEqual(cache.incr_version('answer', version=2), 3)
-        self.assertIsNone(cache.get('answer'))
-        self.assertIsNone(cache.get('answer', version=1))
-        self.assertIsNone(cache.get('answer', version=2))
-        self.assertEqual(cache.get('answer', version=3), 42)
+        assert cache.incr_version('answer', version=2) == 3
+        assert cache.get('answer') is None
+        assert cache.get('answer', version=1) is None
+        assert cache.get('answer', version=2) is None
+        assert cache.get('answer', version=3) == 42
 
         caches['v2'].set('answer2', 42)
-        self.assertEqual(caches['v2'].get('answer2'), 42)
-        self.assertIsNone(caches['v2'].get('answer2', version=1))
-        self.assertEqual(caches['v2'].get('answer2', version=2), 42)
-        self.assertIsNone(caches['v2'].get('answer2', version=3))
+        assert caches['v2'].get('answer2') == 42
+        assert caches['v2'].get('answer2', version=1) is None
+        assert caches['v2'].get('answer2', version=2) == 42
+        assert caches['v2'].get('answer2', version=3) is None
 
-        self.assertEqual(caches['v2'].incr_version('answer2'), 3)
-        self.assertIsNone(caches['v2'].get('answer2'))
-        self.assertIsNone(caches['v2'].get('answer2', version=1))
-        self.assertIsNone(caches['v2'].get('answer2', version=2))
-        self.assertEqual(caches['v2'].get('answer2', version=3), 42)
+        assert caches['v2'].incr_version('answer2') == 3
+        assert caches['v2'].get('answer2') is None
+        assert caches['v2'].get('answer2', version=1) is None
+        assert caches['v2'].get('answer2', version=2) is None
+        assert caches['v2'].get('answer2', version=3) == 42
 
-        self.assertRaises(ValueError, cache.incr_version, 'does_not_exist')
+        with pytest.raises(ValueError):
+            cache.incr_version('does_not_exist')
 
     def test_decr_version(self):
         cache.set('answer', 42, version=2)
-        self.assertIsNone(cache.get('answer'))
-        self.assertIsNone(cache.get('answer', version=1))
-        self.assertEqual(cache.get('answer', version=2), 42)
+        assert cache.get('answer') is None
+        assert cache.get('answer', version=1) is None
+        assert cache.get('answer', version=2) == 42
 
-        self.assertEqual(cache.decr_version('answer', version=2), 1)
-        self.assertEqual(cache.get('answer'), 42)
-        self.assertEqual(cache.get('answer', version=1), 42)
-        self.assertIsNone(cache.get('answer', version=2))
+        assert cache.decr_version('answer', version=2) == 1
+        assert cache.get('answer') == 42
+        assert cache.get('answer', version=1) == 42
+        assert cache.get('answer', version=2) is None
 
         caches['v2'].set('answer2', 42)
-        self.assertEqual(caches['v2'].get('answer2'), 42)
-        self.assertIsNone(caches['v2'].get('answer2', version=1))
-        self.assertEqual(caches['v2'].get('answer2', version=2), 42)
+        assert caches['v2'].get('answer2') == 42
+        assert caches['v2'].get('answer2', version=1) is None
+        assert caches['v2'].get('answer2', version=2) == 42
 
-        self.assertEqual(caches['v2'].decr_version('answer2'), 1)
-        self.assertIsNone(caches['v2'].get('answer2'))
-        self.assertEqual(caches['v2'].get('answer2', version=1), 42)
-        self.assertIsNone(caches['v2'].get('answer2', version=2))
+        assert caches['v2'].decr_version('answer2') == 1
+        assert caches['v2'].get('answer2') is None
+        assert caches['v2'].get('answer2', version=1) == 42
+        assert caches['v2'].get('answer2', version=2) is None
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cache.decr_version('does_not_exist', version=2)
 
     def test_custom_key_func(self):
         # Two caches with different key functions aren't visible to each other
         cache.set('answer1', 42)
-        self.assertEqual(cache.get('answer1'), 42)
-        self.assertIsNone(caches['custom_key'].get('answer1'))
-        self.assertIsNone(caches['custom_key2'].get('answer1'))
+        assert cache.get('answer1') == 42
+        assert caches['custom_key'].get('answer1') is None
+        assert caches['custom_key2'].get('answer1') is None
 
         caches['custom_key'].set('answer2', 42)
-        self.assertIsNone(cache.get('answer2'))
-        self.assertEqual(caches['custom_key'].get('answer2'), 42)
-        self.assertEqual(caches['custom_key2'].get('answer2'), 42)
+        assert cache.get('answer2') is None
+        assert caches['custom_key'].get('answer2') == 42
+        assert caches['custom_key2'].get('answer2') == 42
 
     def test_cache_write_unpickable_object(self):
         update_middleware = UpdateCacheMiddleware()
@@ -716,7 +695,7 @@ class MySQLCacheTests(TransactionTestCase):
         request = self.factory.get('/cache/test')
         request._cache_update_cache = True
         get_cache_data = FetchFromCacheMiddleware().process_request(request)
-        self.assertIsNone(get_cache_data)
+        assert get_cache_data is None
 
         response = HttpResponse()
         content = 'Testing cookie serialization.'
@@ -726,24 +705,24 @@ class MySQLCacheTests(TransactionTestCase):
         update_middleware.process_response(request, response)
 
         get_cache_data = fetch_middleware.process_request(request)
-        self.assertIsNotNone(get_cache_data)
-        self.assertEqual(get_cache_data.content, content.encode('utf-8'))
-        self.assertEqual(get_cache_data.cookies, response.cookies)
+        assert get_cache_data is not None
+        assert get_cache_data.content == content.encode('utf-8')
+        assert get_cache_data.cookies == response.cookies
 
         update_middleware.process_response(request, get_cache_data)
         get_cache_data = fetch_middleware.process_request(request)
-        self.assertIsNotNone(get_cache_data)
-        self.assertEqual(get_cache_data.content, content.encode('utf-8'))
-        self.assertEqual(get_cache_data.cookies, response.cookies)
+        assert get_cache_data is not None
+        assert get_cache_data.content == content.encode('utf-8')
+        assert get_cache_data.cookies == response.cookies
 
     def test_add_fail_on_pickleerror(self):
         "See https://code.djangoproject.com/ticket/21200"
-        with self.assertRaises(pickle.PickleError):
+        with pytest.raises(pickle.PickleError):
             cache.add('unpickable', Unpickable())
 
     def test_set_fail_on_pickleerror(self):
         "See https://code.djangoproject.com/ticket/21200"
-        with self.assertRaises(pickle.PickleError):
+        with pytest.raises(pickle.PickleError):
             cache.set('unpickable', Unpickable())
 
     def test_clear_commits_transaction(self):
@@ -751,7 +730,7 @@ class MySQLCacheTests(TransactionTestCase):
         cache.set("key1", "spam")
         cache.clear()
         transaction.rollback()
-        self.assertIsNone(cache.get("key1"))
+        assert cache.get("key1") is None
 
     # Modified Django tests
 
@@ -762,11 +741,11 @@ class MySQLCacheTests(TransactionTestCase):
         cache.set('expire3', 'very quickly', 0.3)
 
         time.sleep(0.4)
-        self.assertIsNone(cache.get("expire1"))
+        assert cache.get("expire1") is None
 
         cache.add("expire2", "newvalue")
-        self.assertEqual(cache.get("expire2"), "newvalue")
-        self.assertFalse(cache.has_key("expire3"))  # noqa
+        assert cache.get("expire2") == "newvalue"
+        assert not cache.has_key("expire3")  # noqa
 
     def test_get_many(self):
         # Multiple cache keys can be returned using get_many
@@ -777,12 +756,12 @@ class MySQLCacheTests(TransactionTestCase):
 
         with self.assertNumQueries(1):
             value = cache.get_many(['a', 'c', 'd'])
-        self.assertEqual(value, {'a': 'a', 'c': 'c', 'd': 'd'})
+        assert value == {'a': 'a', 'c': 'c', 'd': 'd'}
 
         with self.assertNumQueries(1):
             value = cache.get_many(['a', 'b', 'e'])
 
-        self.assertEqual(value, {'a': 'a', 'b': 'b'})
+        assert value == {'a': 'a', 'b': 'b'}
 
     def test_get_many_with_one_expired(self):
         # Multiple cache keys can be returned using get_many
@@ -796,12 +775,12 @@ class MySQLCacheTests(TransactionTestCase):
 
         with self.assertNumQueries(1):
             value = the_cache.get_many(['a', 'c', 'd'])
-        self.assertEqual(value, {'c': 'c', 'd': 'd'})
+        assert value == {'c': 'c', 'd': 'd'}
 
         with self.assertNumQueries(1):
             value = the_cache.get_many(['a', 'b', 'e'])
 
-        self.assertEqual(value, {'b': 'b'})
+        assert value == {'b': 'b'}
 
     def test_set_many(self):
         # Single keys can be set using set_many
@@ -811,8 +790,8 @@ class MySQLCacheTests(TransactionTestCase):
         # Multiple keys can be set using set_many
         with self.assertNumQueries(1):
             caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"})
-        self.assertEqual(cache.get("key1"), "spam")
-        self.assertEqual(cache.get("key2"), "eggs")
+        assert cache.get("key1") == "spam"
+        assert cache.get("key2") == "eggs"
 
     def test_set_many_expiration(self):
         # set_many takes a second ``timeout`` parameter
@@ -821,9 +800,9 @@ class MySQLCacheTests(TransactionTestCase):
 
         cache.set("key3", "ham")
         time.sleep(0.4)
-        self.assertIsNone(cache.get("key1"))
-        self.assertIsNone(cache.get("key2"))
-        self.assertEqual(cache.get("key3"), "ham")
+        assert cache.get("key1") is None
+        assert cache.get("key2") is None
+        assert cache.get("key3") == "ham"
 
         # set_many expired values can be replaced
         with self.assertNumQueries(1):
@@ -832,10 +811,10 @@ class MySQLCacheTests(TransactionTestCase):
                 1
             )
         v = cache.get("key1")
-        self.assertEqual(v, "spam")
-        self.assertEqual(cache.get("key2"), "egg")
-        self.assertEqual(cache.get("key3"), "spam")
-        self.assertEqual(cache.get("key4"), "ham")
+        assert v == "spam"
+        assert cache.get("key2") == "egg"
+        assert cache.get("key3") == "spam"
+        assert cache.get("key4") == "ham"
 
     def test_delete_many(self):
         # Multiple keys can be deleted using delete_many
@@ -844,9 +823,9 @@ class MySQLCacheTests(TransactionTestCase):
         cache.set("key3", "ham")
         with self.assertNumQueries(1):
             cache.delete_many(["key1", "key2"])
-        self.assertIsNone(cache.get("key1"))
-        self.assertIsNone(cache.get("key2"))
-        self.assertEqual(cache.get("key3"), "ham")
+        assert cache.get("key1") is None
+        assert cache.get("key2") is None
+        assert cache.get("key3") == "ham"
 
     def test_invalid_keys(self):
         # mimic custom ``make_key`` method being defined since the default will
@@ -863,10 +842,10 @@ class MySQLCacheTests(TransactionTestCase):
                 # memcached does not allow whitespace or control characters in
                 # keys
                 cache.set('key with spaces', 'value')
-                self.assertEqual(len(w), 2)
-                self.assertIsInstance(w[0].message, CacheKeyWarning)
+                assert len(w) == 2
+                assert isinstance(w[0].message, CacheKeyWarning)
 
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 # memcached limits key length to 250
                 # We have a 250 character max length on our table
                 cache.set('a' * 251, 'value')
@@ -877,35 +856,35 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_add_with_expired(self):
         cache.add("mykey", "value", 0.3)
-        self.assertEqual(cache.get("mykey"), "value")
+        assert cache.get("mykey") == "value"
 
         result = cache.add("mykey", "newvalue", 0.3)
-        self.assertFalse(result)
-        self.assertEqual(cache.get("mykey"), "value")
+        assert not result
+        assert cache.get("mykey") == "value"
 
         time.sleep(0.4)
 
         result = cache.add("mykey", "newvalue", 1)
-        self.assertTrue(result)
-        self.assertEqual(cache.get("mykey"), "newvalue")
+        assert result
+        assert cache.get("mykey") == "newvalue"
 
     @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10})
     def test_compressed(self):
         cache.set("key", "a" * 11)
-        self.assertEqual(cache.get("key"), "a" * 11)
+        assert cache.get("key") == "a" * 11
 
     @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10,
                                       'COMPRESS_LEVEL': 9})
     def test_compress_level(self):
         cache.set("key", "a" * 11)
-        self.assertEqual(cache.get("key"), "a" * 11)
+        assert cache.get("key") == "a" * 11
 
         # Check a bad compression level = zlib error
         with override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10,
                                               'COMPRESS_LEVEL': 123}):
-            with self.assertRaises(Exception) as cm:
+            with pytest.raises(Exception) as excinfo:
                 cache.set("key", "a" * 11)
-            self.assertIn("Bad compression level", str(cm.exception))
+            assert "Bad compression level" in str(excinfo.value)
 
     @override_cache_settings(options={'COMPRESS_MIN_LENGTH': 10})
     def test_changing_compressed_option_leaves_compressed_data_readable(self):
@@ -914,24 +893,21 @@ class MySQLCacheTests(TransactionTestCase):
 
         # Turn it off - remains readable and settable
         with override_cache_settings(options={'COMPRESS_MIN_LENGTH': 0}):
-            self.assertEqual(cache.get("key"), a11)
+            assert cache.get("key") == a11
             cache.set("key", a11)
-            self.assertEqual(cache.get("key"), a11)
+            assert cache.get("key") == a11
 
         # Back on, still readable
-        self.assertEqual(cache.get("key"), a11)
+        assert cache.get("key") == a11
         cache.set("key", a11)
-        self.assertEqual(cache.get("key"), a11)
+        assert cache.get("key") == a11
 
     def test_our_options_quacks_like_djangos(self):
         from django.core.cache.backends.db import Options
         from django_mysql.cache import Options as OurOptions
         theirs = Options('something')
         ours = OurOptions('something')
-        self.assertEqual(
-            set(ours.__dict__.keys()),
-            set(theirs.__dict__.keys())
-        )
+        assert set(ours.__dict__.keys()) == set(theirs.__dict__.keys())
 
     def test_cull(self):
         self._perform_cull_test(caches['cull'], 50, 30)
@@ -942,7 +918,7 @@ class MySQLCacheTests(TransactionTestCase):
     def test_no_cull_only_deletes_when_told(self):
         self._perform_cull_test(caches['no_cull'], 50, 50)
         caches['no_cull'].cull()
-        self.assertEqual(self.table_count(), 25)
+        assert self.table_count() == 25
 
     def test_cull_deletes_expired_first(self):
         cull_cache = caches['cull']
@@ -952,7 +928,7 @@ class MySQLCacheTests(TransactionTestCase):
         # Add 30 more entries. The expired key should get deleted, leaving the
         # 30 new keys
         self._perform_cull_test(cull_cache, 30, 30)
-        self.assertIsNone(cull_cache.get('key'))
+        assert cull_cache.get('key') is None
 
     def _perform_cull_test(self, cull_cache, initial_count, final_count):
         # Create initial cache key entries. This will overflow the cache,
@@ -964,41 +940,41 @@ class MySQLCacheTests(TransactionTestCase):
         for i in range(1, initial_count + 1):
             if cull_cache.has_key('cull%d' % i):  # noqa
                 count = count + 1
-        self.assertEqual(count, final_count)
+        assert count == final_count
 
     def test_incr_range(self):
         cache.set('overwhelm', BIGINT_SIGNED_MAX - 1)
         cache.incr('overwhelm')
-        with self.assertRaises(OperationalError):
+        with pytest.raises(OperationalError):
             cache.incr('overwhelm')
 
     def test_decr_range(self):
         cache.set('underwhelm', BIGINT_SIGNED_MIN + 1)
         cache.decr('underwhelm')
-        with self.assertRaises(OperationalError):
+        with pytest.raises(OperationalError):
             cache.decr('underwhelm')
 
     def test_cant_incr_decimals(self):
         # Cached values that aren't ints can't be incremented
         cache.set('answer', Decimal('1.1'))
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cache.incr('answer')
 
     def test_cant_decr_decimals(self):
         # Cached values that aren't ints can't be decremented
         cache.set('answer', Decimal('9.9'))
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cache.decr('answer')
 
     def test_set_int_subclass(self):
         # Storing an int subclass should return that int subclass
         cache.set('myint', MyInt(2))
         val = cache.get('myint')
-        self.assertEqual(val.times2(), 4)
+        assert val.times2() == 4
 
         # Can't increment it since it's a pickle object on the table, not an
         # integer
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cache.incr('myint')
 
     def test_unknown_value_type_errors(self):
@@ -1012,7 +988,7 @@ class MySQLCacheTests(TransactionTestCase):
                 "UPDATE `%s` SET value_type = '?'" % self.table_name
             )
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             cache.get('mykey')
 
     def test_key_case_sensitivity(self):
@@ -1024,8 +1000,8 @@ class MySQLCacheTests(TransactionTestCase):
         """
         cache.set('akey', 123)
         cache.set('Akey', 456)
-        self.assertEqual(cache.get('akey'), 123)
-        self.assertEqual(cache.get('Akey'), 456)
+        assert cache.get('akey') == 123
+        assert cache.get('Akey') == 456
 
     def test_value_type_case_sensitivity(self):
         cache.set('akey', 123)
@@ -1033,14 +1009,14 @@ class MySQLCacheTests(TransactionTestCase):
             # Check that value_type is 'i' for integer
             cursor.execute("SELECT value_type FROM `%s`" % self.table_name)
             t = cursor.fetchone()[0]
-            self.assertEqual(t, 'i')
+            assert t == 'i'
 
             # Should be case-sensitive, so i != I
             cursor.execute(
                 """SELECT COUNT(*) FROM `%s`
                    WHERE value_type = 'I'""" % self.table_name)
             n = cursor.fetchone()[0]
-            self.assertEqual(n, 0)
+            assert n == 0
 
     # mysql_cache_migration tests
 
@@ -1052,9 +1028,7 @@ class MySQLCacheTests(TransactionTestCase):
         # Lint it
         with captured_stdout() as stderr:
             errors = check_code(output)
-        self.assertEqual(
-            errors,
-            0,
+        assert errors == 0, (
             "Encountered {} errors whilst trying to lint the mysql cache "
             "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
             .format(errors, output, stderr.getvalue())
@@ -1063,32 +1037,32 @@ class MySQLCacheTests(TransactionTestCase):
         # Dynamic import and check
         migration_mod = imp.new_module('0001_add_cache_tables')
         six.exec_(output, migration_mod.__dict__)
-        self.assertTrue(hasattr(migration_mod, 'Migration'))
+        assert hasattr(migration_mod, 'Migration')
         migration = migration_mod.Migration
-        self.assertTrue(hasattr(migration, 'dependencies'))
-        self.assertTrue(hasattr(migration, 'operations'))
+        assert hasattr(migration, 'dependencies')
+        assert hasattr(migration, 'operations')
 
         # Since they all have the same table name, there should only be one
         # operation
-        self.assertEqual(len(migration.operations), 1)
+        assert len(migration.operations) == 1
 
         # Now run the migration forwards and backwards to check it works
         operation = migration.operations[0]
         self.drop_table()
-        self.assertTableNotExists(self.table_name)
+        assert not self.table_exists(self.table_name)
 
         state = ProjectState()
         new_state = state.clone()
         with connection.schema_editor() as editor:
             operation.database_forwards("django_mysql_tests", editor,
                                         state, new_state)
-        self.assertTableExists(self.table_name)
+        assert self.table_exists(self.table_name)
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
             operation.database_backwards("django_mysql_tests", editor,
                                          new_state, state)
-        self.assertTableNotExists(self.table_name)
+        assert not self.table_exists(self.table_name)
 
         self.create_table()
 
@@ -1098,11 +1072,11 @@ class MySQLCacheTests(TransactionTestCase):
         output = out.getvalue()
 
         num_run_sqls = (len(output.split('RunSQL')) - 1)
-        self.assertEqual(num_run_sqls, 1)
+        assert num_run_sqls == 1
 
     def test_mysql_cache_migration_non_existent(self):
         out = StringIO()
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command('mysql_cache_migration', 'nonexistent', stdout=out)
 
     @override_cache_settings(
@@ -1111,43 +1085,35 @@ class MySQLCacheTests(TransactionTestCase):
     def test_mysql_cache_migration_no_mysql_caches(self):
         err = StringIO()
         call_command('mysql_cache_migration', stderr=err)
-        self.assertIn("No MySQLCache instances in CACHES", err.getvalue())
+        assert "No MySQLCache instances in CACHES" in err.getvalue()
 
     # cull_mysql_caches tests
 
     def test_cull_mysql_caches_basic(self):
         cache.set('key', 'value', 0.3)
         time.sleep(0.4)
-        self.assertEqual(self.table_count(), 1)
+        assert self.table_count() == 1
         call_command('cull_mysql_caches', verbosity=0)
-        self.assertEqual(self.table_count(), 0)
+        assert self.table_count() == 0
 
     def test_cull_mysql_caches_named_cache(self):
         cache.set('key', 'value', 0.3)
         time.sleep(0.4)
-        self.assertEqual(self.table_count(), 1)
+        assert self.table_count() == 1
 
         out = StringIO()
         call_command('cull_mysql_caches', 'default', verbosity=1, stdout=out)
         output = out.getvalue()
-        self.assertEqual(
-            output.strip(),
+        assert (
+            output.strip() ==
             "Deleting from cache 'default'... 1 entries deleted."
         )
-        self.assertEqual(self.table_count(), 0)
+        assert self.table_count() == 0
 
     def test_cull_mysql_caches_bad_cache_name(self):
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as excinfo:
             call_command('cull_mysql_caches', "NOTACACHE", verbosity=0)
-        self.assertEqual("Cache 'NOTACACHE' does not exist", str(cm.exception))
-
-    def assertTableExists(self, table_name):
-        self.assertTrue(self.table_exists(table_name),
-                        "Table `%s` does not exist!" % table_name)
-
-    def assertTableNotExists(self, table_name):
-        self.assertFalse(self.table_exists(table_name),
-                         "Table `%s` does not exist!" % table_name)
+        assert "Cache 'NOTACACHE' does not exist" == str(excinfo.value)
 
     def table_exists(self, table_name):
         with connection.cursor() as cursor:
