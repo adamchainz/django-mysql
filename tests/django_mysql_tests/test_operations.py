@@ -1,5 +1,6 @@
 from unittest import SkipTest
 
+import pytest
 from django.db import connection, migrations, models, transaction
 from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
@@ -9,6 +10,26 @@ from django_mysql.operations import (
     AlterStorageEngine, InstallPlugin, InstallSOName
 )
 from django_mysql.test.utils import override_mysql_variables
+
+
+def plugin_exists(plugin_name):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
+               WHERE PLUGIN_NAME = %s""",
+            (plugin_name,)
+        )
+        return (cursor.fetchone()[0] > 0)
+
+
+def table_storage_engine(table_name):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s""",
+            (table_name,)
+        )
+        return cursor.fetchone()[0]
 
 
 class PluginOperationTests(TransactionTestCase):
@@ -27,13 +48,13 @@ class PluginOperationTests(TransactionTestCase):
         Test we can load the example plugin that every version of MySQL ships
         with.
         """
-        self.assertPluginNotExists("metadata_lock_info")
+        assert not plugin_exists("metadata_lock_info")
 
         state = ProjectState()
         operation = InstallPlugin("metadata_lock_info",
                                   "metadata_lock_info.so")
-        self.assertEqual(
-            operation.describe(),
+        assert (
+            operation.describe() ==
             "Installs plugin metadata_lock_info from metadata_lock_info.so"
         )
         new_state = state.clone()
@@ -41,94 +62,71 @@ class PluginOperationTests(TransactionTestCase):
             operation.database_forwards("django_mysql_tests", editor,
                                         state, new_state)
 
-        self.assertPluginExists("metadata_lock_info")
+        assert plugin_exists("metadata_lock_info")
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
             operation.database_backwards("django_mysql_tests", editor,
                                          new_state, state)
 
-        self.assertPluginNotExists("metadata_lock_info")
+        assert not plugin_exists("metadata_lock_info")
 
     def test_install_soname(self):
         """
         Test we can load the 'metadata_lock_info' library.
         """
-        self.assertPluginNotExists("metadata_lock_info")
+        assert not plugin_exists("metadata_lock_info")
 
         state = ProjectState()
         operation = InstallSOName("metadata_lock_info.so")
-        self.assertEqual(
-            operation.describe(),
-            "Installs library metadata_lock_info.so"
-        )
+        assert operation.describe() == "Installs library metadata_lock_info.so"
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
             operation.database_forwards("django_mysql_tests", editor,
                                         state, new_state)
-        self.assertPluginExists("metadata_lock_info")
+        assert plugin_exists("metadata_lock_info")
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
             operation.database_backwards("django_mysql_tests", editor,
                                          new_state, state)
-        self.assertPluginNotExists("metadata_lock_info")
-
-    def assertPluginExists(self, plugin_name):
-        self.assertEqual(self.plugin_count(plugin_name), 1,
-                         "Plugin %s is not loaded!" % plugin_name)
-
-    def assertPluginNotExists(self, plugin_name):
-        self.assertEqual(self.plugin_count(plugin_name), 0,
-                         "Plugin %s is loaded!" % plugin_name)
-
-    def plugin_count(self, plugin_name):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
-                   WHERE PLUGIN_NAME = %s""",
-                (plugin_name,)
-            )
-            return cursor.fetchone()[0]
+        assert not plugin_exists("metadata_lock_info")
 
 
 class AlterStorageEngineTests(TransactionTestCase):
 
     def test_no_from_means_unreversible(self):
         operation = AlterStorageEngine("mymodel", to_engine="InnoDB")
-        self.assertFalse(operation.reversible)
+        assert not operation.reversible
 
-        with self.assertRaises(NotImplementedError) as cm:
+        with pytest.raises(NotImplementedError) as excinfo:
             operation.database_backwards(None, None, None, None)
 
-        self.assertEqual(
-            str(cm.exception),
-            "You cannot reverse this operation"
-        )
+        assert str(excinfo.value) == "You cannot reverse this operation"
 
     def test_from_means_reversible(self):
         operation = AlterStorageEngine("mymodel", from_engine="MyISAM",
                                        to_engine="InnoDB")
-        self.assertTrue(operation.reversible)
+        assert operation.reversible
 
     def test_describe_without_from(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
-        self.assertEqual(operation.describe(),
-                         "Alter storage engine for Pony to InnoDB")
+        assert (operation.describe() ==
+                "Alter storage engine for Pony to InnoDB")
 
     def test_describe_with_from(self):
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
                                        to_engine="InnoDB")
-        self.assertEqual(operation.describe(),
-                         "Alter storage engine for Pony from MyISAM to InnoDB")
+        assert (operation.describe() ==
+                "Alter storage engine for Pony from MyISAM to InnoDB")
 
     def test_references_model(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
-        self.assertTrue(operation.references_model("PONY"))
-        self.assertTrue(operation.references_model("Pony"))
-        self.assertTrue(operation.references_model("pony"))
-        self.assertFalse(operation.references_model("poony"))
+        assert operation.references_model("PONY")
+        assert operation.references_model("Pony")
+        assert operation.references_model("pony")
+        assert not operation.references_model("poony")
 
     @override_mysql_variables(default_storage_engine='MyISAM')
     def test_running_with_changes(self):
@@ -136,7 +134,7 @@ class AlterStorageEngineTests(TransactionTestCase):
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
                                        to_engine="InnoDB")
 
-        self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
+        assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
         # Forwards
         new_state = project_state.clone()
@@ -144,13 +142,13 @@ class AlterStorageEngineTests(TransactionTestCase):
         with connection.schema_editor() as editor:
             operation.database_forwards("test_arstd", editor, project_state,
                                         new_state)
-        self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
+        assert table_storage_engine("test_arstd_pony") == "InnoDB"
 
         # Backwards
         with connection.schema_editor() as editor:
             operation.database_backwards("test_arstd", editor, new_state,
                                          project_state)
-        self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
+        assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
     @override_mysql_variables(default_storage_engine='InnoDB')
     def test_running_without_changes(self):
@@ -158,7 +156,7 @@ class AlterStorageEngineTests(TransactionTestCase):
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
                                        to_engine="InnoDB")
 
-        self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
+        assert table_storage_engine("test_arstd_pony") == "InnoDB"
 
         # Forwards - shouldn't actually do an ALTER since it is already InnoDB
         new_state = project_state.clone()
@@ -168,18 +166,18 @@ class AlterStorageEngineTests(TransactionTestCase):
             operation.database_forwards("test_arstd", editor, project_state,
                                         new_state)
         queries = [q['sql'] for q in capturer.captured_queries]
-        self.assertFalse(
-            any(q.startswith('ALTER TABLE ') for q in queries),
+        assert (
+            not any(q.startswith('ALTER TABLE ') for q in queries),
             "One of the executed queries was an unexpected ALTER TABLE:\n{}"
             .format("\n".join(queries))
         )
-        self.assertTableStorageEngine("test_arstd_pony", "InnoDB")
+        assert table_storage_engine("test_arstd_pony") == "InnoDB"
 
         # Backwards - will actually ALTER since it is going 'back' to MyISAM
         with connection.schema_editor() as editor:
             operation.database_backwards("test_arstd", editor, new_state,
                                          project_state)
-        self.assertTableStorageEngine("test_arstd_pony", "MyISAM")
+        assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
     # Copied from django core migration tests
 
@@ -283,19 +281,3 @@ class AlterStorageEngineTests(TransactionTestCase):
         migration.operations = operations
         with connection.schema_editor() as editor:
             return migration.apply(project_state, editor)
-
-    # Check functions
-
-    def assertTableStorageEngine(self, table_name, engine_name):
-        self.assertEqual(self.storage_engine(table_name), engine_name,
-                         "Table {} does not use the {} storage engine!"
-                         .format(table_name, engine_name))
-
-    def storage_engine(self, table_name):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES
-                   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s""",
-                (table_name,)
-            )
-            return cursor.fetchone()[0]
