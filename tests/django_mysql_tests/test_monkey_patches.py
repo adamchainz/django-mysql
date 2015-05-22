@@ -14,7 +14,7 @@ class IsMariaDBTests(TestCase):
                 version = cursor.fetchone()[0]
 
             is_mariadb = ('MariaDB' in version)
-            self.assertEqual(connection.is_mariadb, is_mariadb)
+            assert connection.is_mariadb == is_mariadb
 
             # Check it was cached by cached_property
-            self.assertIn('is_mariadb', connection.__dict__)
+            assert 'is_mariadb' in connection.__dict__
