@@ -17,37 +17,37 @@ class WeightedAverageRateTests(TestCase):
         # If we keep achieving a rate of 100 rows in 0.5 seconds, it should
         # recommend that we keep there
         rate = WeightedAverageRate(0.5)
-        self.assertEqual(rate.update(100, 0.5), 100)
-        self.assertEqual(rate.update(100, 0.5), 100)
-        self.assertEqual(rate.update(100, 0.5), 100)
+        assert rate.update(100, 0.5) == 100
+        assert rate.update(100, 0.5) == 100
+        assert rate.update(100, 0.5) == 100
 
     def test_slow(self):
         # If we keep achieving a rate of 100 rows in 1 seconds, it should
         # recommend that we move to 50
         rate = WeightedAverageRate(0.5)
-        self.assertEqual(rate.update(100, 1.0), 50)
-        self.assertEqual(rate.update(100, 1.0), 50)
-        self.assertEqual(rate.update(100, 1.0), 50)
+        assert rate.update(100, 1.0) == 50
+        assert rate.update(100, 1.0) == 50
+        assert rate.update(100, 1.0) == 50
 
     def test_fast(self):
         # If we keep achieving a rate of 100 rows in 0.25 seconds, it should
         # recommend that we move to 200
         rate = WeightedAverageRate(0.5)
-        self.assertEqual(rate.update(100, 0.25), 200)
-        self.assertEqual(rate.update(100, 0.25), 200)
-        self.assertEqual(rate.update(100, 0.25), 200)
+        assert rate.update(100, 0.25) == 200
+        assert rate.update(100, 0.25) == 200
+        assert rate.update(100, 0.25) == 200
 
     def test_good_guess(self):
         # If we are first slow then hit the target at 50, we should be good
         rate = WeightedAverageRate(0.5)
-        self.assertEqual(rate.update(100, 1.0), 50)
-        self.assertEqual(rate.update(50, 0.5), 50)
-        self.assertEqual(rate.update(50, 0.5), 50)
-        self.assertEqual(rate.update(50, 0.5), 50)
+        assert rate.update(100, 1.0) == 50
+        assert rate.update(50, 0.5) == 50
+        assert rate.update(50, 0.5) == 50
+        assert rate.update(50, 0.5) == 50
 
     def test_zero_division(self):
         rate = WeightedAverageRate(0.5)
-        self.assertEqual(rate.update(1, 0.0), 500)
+        assert rate.update(1, 0.0) == 500
 
 
 @skipUnless(have_program('pt-fingerprint'),
@@ -55,8 +55,8 @@ class WeightedAverageRateTests(TestCase):
 class PTFingerprintTests(TestCase):
 
     def test_basic(self):
-        self.assertEqual(pt_fingerprint('SELECT 5'), 'select ?')
-        self.assertEqual(pt_fingerprint('SELECT 5;'), 'select ?')
+        assert pt_fingerprint('SELECT 5') == 'select ?'
+        assert pt_fingerprint('SELECT 5;') == 'select ?'
 
     def test_long(self):
         query = """
@@ -79,8 +79,8 @@ class PTFingerprintTests(TestCase):
                 rental_date + INTERVAL film.rental_duration DAY <
                     CURRENT_DATE()
             LIMIT 5"""
-        self.assertEqual(
-            pt_fingerprint(query),
+        assert (
+            pt_fingerprint(query) ==
             "select concat(customer.last_name, ?, customer.first_name) as "
             "customer, address.phone, film.title from rental inner join "
             "customer on rental.customer_id = customer.customer_id inner join "
@@ -95,5 +95,5 @@ class PTFingerprintTests(TestCase):
         PTFingerprintThread.PROCESS_LIFETIME = 0.1
         pt_fingerprint("select 123")
         sleep(0.2)
-        self.assertIsNone(PTFingerprintThread.the_thread)
+        assert PTFingerprintThread.the_thread is None
         PTFingerprintThread.PROCESS_LIFETIME = 60

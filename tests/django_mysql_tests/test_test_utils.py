@@ -16,7 +16,7 @@ class OverrideVarsMethodTest(TestCase):
             mode = cursor.fetchone()[0]
 
         mode = mode.split(',')
-        self.assertIn(expected, mode)
+        assert expected in mode
 
 
 @override_mysql_variables(SQL_MODE="ANSI")
