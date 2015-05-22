@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import pytest
 from django.test import TestCase
 
 from django_mysql.exceptions import TimeoutError
@@ -18,11 +19,11 @@ class GlobalStatusTests(TestCase):
         assert isinstance(cost, float)
         assert cost >= 0.0
 
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             global_status.get('foo%')
-        assert 'wildcards' in str(cm.exception)
+        assert 'wildcards' in str(excinfo.value)
 
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             global_status.get('Does_not_exist')
 
     def test_get_many(self):
@@ -36,9 +37,9 @@ class GlobalStatusTests(TestCase):
         assert 'Uptime' in myvars
         assert isinstance(myvars['Uptime'], int)
 
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             global_status.get_many(['foo%'])
-        assert 'wildcards' in str(cm.exception)
+        assert 'wildcards' in str(excinfo.value)
 
     def test_as_dict(self):
         status_dict = global_status.as_dict()
@@ -70,24 +71,24 @@ class GlobalStatusTests(TestCase):
         global_status.wait_until_load_low({'Threads_running': 50,
                                            'Threads_connected': 100})
 
-        with self.assertRaises(TimeoutError) as cm:
+        with pytest.raises(TimeoutError) as excinfo:
             global_status.wait_until_load_low(
                 {'Threads_running': -1},  # obviously impossible
                 timeout=0.001,
                 sleep=0.0005
             )
-        message = str(cm.exception)
+        message = str(excinfo.value)
         assert 'Threads_running' in message
         assert '-1' in message
 
-        with self.assertRaises(TimeoutError) as cm:
+        with pytest.raises(TimeoutError) as excinfo:
             global_status.wait_until_load_low(
                 {'Threads_running': 1000000,
                  'Uptime': -1},  # obviously impossible
                 timeout=0.001,
                 sleep=0.0005
             )
-        message = str(cm.exception)
+        message = str(excinfo.value)
         assert 'Uptime' in message
         assert '-1' in message
         assert 'Threads_running' not in message
@@ -115,11 +116,11 @@ class SessionStatusTests(TestCase):
         assert isinstance(cost, float)
         assert cost >= 0.00
 
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             session_status.get('foo%')
-        assert 'wildcards' in str(cm.exception)
+        assert 'wildcards' in str(excinfo.value)
 
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             session_status.get('Does_not_exist')
 
     def test_as_dict(self):

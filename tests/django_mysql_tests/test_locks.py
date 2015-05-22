@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from threading import Thread
 
+import pytest
 from django.db import connection
 from django.test import TestCase
 from django.utils.six.moves import queue
@@ -55,9 +56,9 @@ class LockTests(TestCase):
     def test_error_on_unneeded_exit(self):
         mylock = Lock("mylock")
         assert not mylock.is_held()
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as excinfo:
             mylock.__exit__(None, None, None)
-        assert "unheld lock" in str(cm.exception)
+        assert "unheld lock" in str(excinfo.value)
 
     def test_defined_at_import_time(self):
         import_time_lock = self.import_time_lock
@@ -101,7 +102,7 @@ class LockTests(TestCase):
             assert threading_test.is_held()
             assert threading_test.holding_connection_id() != own_connection_id
 
-            with self.assertRaises(TimeoutError):
+            with pytest.raises(TimeoutError):
                 with threading_test:
                         pass
 
@@ -141,7 +142,7 @@ class LockTests(TestCase):
             assert the_lock.is_held()
             assert the_lock.holding_connection_id() != own_connection_id
 
-            with self.assertRaises(TimeoutError):
+            with pytest.raises(TimeoutError):
                 with the_lock:
                     pass
 

@@ -1,3 +1,4 @@
+import pytest
 from django.db import connections
 from django.test import TestCase
 
@@ -31,7 +32,7 @@ class OverrideVarsClassTest(OverrideVarsMethodTest):
         self.check_sql_mode("MSSQL", using='other')
 
     def test_it_fails_on_non_test_classes(self):
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             @override_mysql_variables(SQL_MODE="ANSI")
             class MyClass(object):
                 pass
