@@ -2,6 +2,7 @@
 import json
 
 import ddt
+import pytest
 from django import forms
 from django.core import exceptions, serializers
 from django.db import models
@@ -21,59 +22,59 @@ class TestSaveLoad(TestCase):
     def test_char_easy(self):
         big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
         s = BigCharSetModel.objects.create(field=big_set)
-        self.assertSetEqual(s.field, big_set)
+        assert s.field == big_set
         s = BigCharSetModel.objects.get(id=s.id)
-        self.assertSetEqual(s.field, big_set)
+        assert s.field == big_set
 
         letters = set('abcdefghi')
         bigger_set = big_set | letters
         s.field.update(letters)
-        self.assertEqual(s.field, bigger_set)
+        assert s.field == bigger_set
         s.save()
         s = BigCharSetModel.objects.get(id=s.id)
-        self.assertEqual(s.field, bigger_set)
+        assert s.field == bigger_set
 
     def test_char_string_direct(self):
         big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
         big_str = ','.join(big_set)
         s = BigCharSetModel.objects.create(field=big_str)
         s = BigCharSetModel.objects.get(id=s.id)
-        self.assertEqual(s.field, big_set)
+        assert s.field == big_set
 
     def test_is_a_set_immediately(self):
         s = BigCharSetModel()
-        self.assertEqual(s.field, set())
+        assert s.field == set()
         s.field.add("bold")
         s.field.add("brave")
         s.save()
-        self.assertEqual(s.field, {"bold", "brave"})
+        assert s.field == {"bold", "brave"}
         s = BigCharSetModel.objects.get(id=s.id)
-        self.assertEqual(s.field, {"bold", "brave"})
+        assert s.field == {"bold", "brave"}
 
     def test_empty(self):
         s = BigCharSetModel.objects.create()
-        self.assertEqual(s.field, set())
+        assert s.field == set()
         s = BigCharSetModel.objects.get(id=s.id)
-        self.assertEqual(s.field, set())
+        assert s.field == set()
 
     def test_char_cant_create_sets_with_commas(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             BigCharSetModel.objects.create(field={"co,mma", "contained"})
 
     def test_char_cant_create_sets_with_empty_string(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             BigCharSetModel.objects.create(field={""})
 
     def test_char_basic_lookup(self):
         mymodel = BigCharSetModel.objects.create()
         empty = BigCharSetModel.objects.filter(field="")
 
-        self.assertEqual(empty.count(), 1)
-        self.assertEqual(empty[0], mymodel)
+        assert empty.count() == 1
+        assert empty[0] == mymodel
 
         mymodel.delete()
 
-        self.assertEqual(empty.count(), 0)
+        assert empty.count() == 0
 
     @ddt.data('contains', 'icontains')
     def test_char_contains_lookup(self, lookup):
@@ -81,111 +82,111 @@ class TestSaveLoad(TestCase):
         mymodel = BigCharSetModel.objects.create(field={"mouldy", "rotten"})
 
         mouldy = BigCharSetModel.objects.filter(**{lname: "mouldy"})
-        self.assertEqual(mouldy.count(), 1)
-        self.assertEqual(mouldy[0], mymodel)
+        assert mouldy.count() == 1
+        assert mouldy[0] == mymodel
 
         rotten = BigCharSetModel.objects.filter(**{lname: "rotten"})
-        self.assertEqual(rotten.count(), 1)
-        self.assertEqual(rotten[0], mymodel)
+        assert rotten.count() == 1
+        assert rotten[0] == mymodel
 
         clean = BigCharSetModel.objects.filter(**{lname: "clean"})
-        self.assertEqual(clean.count(), 0)
+        assert clean.count() == 0
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             list(BigCharSetModel.objects.filter(**{lname: {"a", "b"}}))
 
         both = BigCharSetModel.objects.filter(
             Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
         )
-        self.assertEqual(both.count(), 1)
-        self.assertEqual(both[0], mymodel)
+        assert both.count() == 1
+        assert both[0] == mymodel
 
         either = BigCharSetModel.objects.filter(
             Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
         )
-        self.assertEqual(either.count(), 1)
+        assert either.count() == 1
 
         not_clean = BigCharSetModel.objects.exclude(**{lname: "clean"})
-        self.assertEqual(not_clean.count(), 1)
+        assert not_clean.count() == 1
 
         not_mouldy = BigCharSetModel.objects.exclude(**{lname: "mouldy"})
-        self.assertEqual(not_mouldy.count(), 0)
+        assert not_mouldy.count() == 0
 
     def test_char_len_lookup_empty(self):
         mymodel = BigCharSetModel.objects.create(field=set())
 
         empty = BigCharSetModel.objects.filter(field__len=0)
-        self.assertEqual(empty.count(), 1)
-        self.assertEqual(empty[0], mymodel)
+        assert empty.count() == 1
+        assert empty[0] == mymodel
 
         one = BigCharSetModel.objects.filter(field__len=1)
-        self.assertEqual(one.count(), 0)
+        assert one.count() == 0
 
         one_or_more = BigCharSetModel.objects.filter(field__len__gte=0)
-        self.assertEqual(one_or_more.count(), 1)
+        assert one_or_more.count() == 1
 
     def test_char_len_lookup(self):
         mymodel = BigCharSetModel.objects.create(field={"red", "expensive"})
 
         empty = BigCharSetModel.objects.filter(field__len=0)
-        self.assertEqual(empty.count(), 0)
+        assert empty.count() == 0
 
         one_or_more = BigCharSetModel.objects.filter(field__len__gte=1)
-        self.assertEqual(one_or_more.count(), 1)
-        self.assertEqual(one_or_more[0], mymodel)
+        assert one_or_more.count() == 1
+        assert one_or_more[0] == mymodel
 
         two = BigCharSetModel.objects.filter(field__len=2)
-        self.assertEqual(two.count(), 1)
-        self.assertEqual(two[0], mymodel)
+        assert two.count() == 1
+        assert two[0] == mymodel
 
         three = BigCharSetModel.objects.filter(field__len=3)
-        self.assertEqual(three.count(), 0)
+        assert three.count() == 0
 
     def test_int_easy(self):
         big_set = {i ** 2 for i in six.moves.range(1000)}
         mymodel = BigIntSetModel.objects.create(field=big_set)
-        self.assertSetEqual(mymodel.field, big_set)
+        assert mymodel.field == big_set
         mymodel = BigIntSetModel.objects.get(id=mymodel.id)
-        self.assertSetEqual(mymodel.field, big_set)
+        assert mymodel.field == big_set
 
     def test_int_contains_lookup(self):
         onetwo = BigIntSetModel.objects.create(field={1, 2})
 
         ones = BigIntSetModel.objects.filter(field__contains=1)
-        self.assertEqual(ones.count(), 1)
-        self.assertEqual(ones[0], onetwo)
+        assert ones.count() == 1
+        assert ones[0] == onetwo
 
         twos = BigIntSetModel.objects.filter(field__contains=2)
-        self.assertEqual(twos.count(), 1)
-        self.assertEqual(twos[0], onetwo)
+        assert twos.count() == 1
+        assert twos[0] == onetwo
 
         threes = BigIntSetModel.objects.filter(field__contains=3)
-        self.assertEqual(threes.count(), 0)
+        assert threes.count() == 0
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             list(BigIntSetModel.objects.filter(field__contains={1, 2}))
 
         ones_and_twos = BigIntSetModel.objects.filter(
             Q(field__contains=1) & Q(field__contains=2)
         )
-        self.assertEqual(ones_and_twos.count(), 1)
-        self.assertEqual(ones_and_twos[0], onetwo)
+        assert ones_and_twos.count() == 1
+        assert ones_and_twos[0] == onetwo
 
         ones_and_threes = BigIntSetModel.objects.filter(
             Q(field__contains=1) & Q(field__contains=3)
         )
-        self.assertEqual(ones_and_threes.count(), 0)
+        assert ones_and_threes.count() == 0
 
         ones_or_threes = BigIntSetModel.objects.filter(
             Q(field__contains=1) | Q(field__contains=3)
         )
-        self.assertEqual(ones_or_threes.count(), 1)
+        assert ones_or_threes.count() == 1
 
         no_three = BigIntSetModel.objects.exclude(field__contains=3)
-        self.assertEqual(no_three.count(), 1)
+        assert no_three.count() == 1
 
         no_one = BigIntSetModel.objects.exclude(field__contains=1)
-        self.assertEqual(no_one.count(), 0)
+        assert no_one.count() == 0
 
 
 class TestValidation(TestCase):
@@ -195,10 +196,10 @@ class TestValidation(TestCase):
 
         field.clean({'a', 'b', 'c'}, None)
 
-        with self.assertRaises(exceptions.ValidationError) as cm:
+        with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean({'a', 'b', 'c', 'd'}, None)
-        self.assertEqual(
-            cm.exception.messages[0],
+        assert (
+            excinfo.value.messages[0] ==
             'Set contains 4 items, it should contain no more than 3.'
         )
 
@@ -209,18 +210,18 @@ class TestCheck(TestCase):
         field = SetTextField(models.CharField())
         field.set_attributes_from_name('field')
         errors = field.check()
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, 'django_mysql.E001')
-        self.assertIn('Base field for set has errors', errors[0].msg)
-        self.assertIn('max_length', errors[0].msg)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E001'
+        assert 'Base field for set has errors' in errors[0].msg
+        assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
         field = SetTextField(models.ForeignKey('django_mysql_tests.Author'))
         field.set_attributes_from_name('field')
         errors = field.check()
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, 'django_mysql.E002')
-        self.assertIn('Base field for set must be', errors[0].msg)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E002'
+        assert 'Base field for set must be' in errors[0].msg
 
 
 class TestMigrations(TestCase):
@@ -229,29 +230,26 @@ class TestMigrations(TestCase):
         field = SetTextField(models.IntegerField(), max_length=32)
         name, path, args, kwargs = field.deconstruct()
         new = SetTextField(*args, **kwargs)
-        self.assertEqual(type(new.base_field), type(field.base_field))
+        assert new.base_field.__class__ == field.base_field.__class__
 
     def test_deconstruct_with_size(self):
         field = SetTextField(models.IntegerField(), size=3, max_length=32)
         name, path, args, kwargs = field.deconstruct()
         new = SetTextField(*args, **kwargs)
-        self.assertEqual(new.size, field.size)
+        assert new.size == field.size
 
     def test_deconstruct_args(self):
         field = SetTextField(models.CharField(max_length=5), max_length=32)
         name, path, args, kwargs = field.deconstruct()
         new = SetTextField(*args, **kwargs)
-        self.assertEqual(
-            new.base_field.max_length,
-            field.base_field.max_length
-        )
+        assert new.base_field.max_length == field.base_field.max_length
 
     def test_makemigrations(self):
         field = SetTextField(models.CharField(max_length=5))
         statement, imports = MigrationWriter.serialize(field)
 
-        self.assertEqual(
-            statement,
+        assert (
+            statement ==
             "django_mysql.models.SetTextField("
             "models.CharField(max_length=5), "
             "size=None"
@@ -262,8 +260,8 @@ class TestMigrations(TestCase):
         field = SetTextField(models.CharField(max_length=5), size=5)
         statement, imports = MigrationWriter.serialize(field)
 
-        self.assertEqual(
-            statement,
+        assert (
+            statement ==
             "django_mysql.models.SetTextField("
             "models.CharField(max_length=5), "
             "size=5"
@@ -278,7 +276,7 @@ class TestSerialization(TestCase):
         instance = BigCharSetModel(field=big_set)
         data = json.loads(serializers.serialize('json', [instance]))[0]
         field = data['fields']['field']
-        self.assertEqual(sorted(field.split(',')), sorted(big_set))
+        assert sorted(field.split(',')) == sorted(big_set)
 
     def test_loading(self):
         test_data = '''
@@ -287,21 +285,18 @@ class TestSerialization(TestCase):
         '''
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object
-        self.assertEqual(instance.field, {"big", "leather", "comfy"})
+        assert instance.field == {"big", "leather", "comfy"}
 
 
 class TestDescription(TestCase):
 
     def test_char(self):
         field = SetTextField(models.CharField(max_length=5), max_length=32)
-        self.assertEqual(
-            field.description,
-            "Set of String (up to %(max_length)s)"
-        )
+        assert field.description == "Set of String (up to %(max_length)s)"
 
     def test_int(self):
         field = SetTextField(models.IntegerField(), max_length=32)
-        self.assertEqual(field.description, "Set of Integer")
+        assert field.description == "Set of Integer"
 
 
 class TestFormField(TestCase):
@@ -309,12 +304,12 @@ class TestFormField(TestCase):
     def test_model_field_formfield(self):
         model_field = SetTextField(models.CharField(max_length=27))
         form_field = model_field.formfield()
-        self.assertIsInstance(form_field, SimpleSetField)
-        self.assertIsInstance(form_field.base_field, forms.CharField)
-        self.assertEqual(form_field.base_field.max_length, 27)
+        assert isinstance(form_field, SimpleSetField)
+        assert isinstance(form_field.base_field, forms.CharField)
+        assert form_field.base_field.max_length == 27
 
     def test_model_field_formfield_size(self):
         model_field = SetTextField(models.IntegerField(), size=400)
         form_field = model_field.formfield()
-        self.assertIsInstance(form_field, SimpleSetField)
-        self.assertEqual(form_field.max_length, 400)
+        assert isinstance(form_field, SimpleSetField)
+        assert form_field.max_length == 400
