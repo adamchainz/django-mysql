@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from threading import Thread
 
+import pytest
 from django.db import connection
 from django.test import TestCase
 from django.utils.six.moves import queue
@@ -36,45 +37,45 @@ class LockTests(TestCase):
 
     def test_simple(self):
         mylock = Lock("mylock")
-        self.assertFalse(mylock.is_held())
+        assert not mylock.is_held()
 
         with mylock:
-            self.assertTrue(mylock.is_held())
-            self.assertTrue(Lock("mylock").is_held())
+            assert mylock.is_held()
+            assert Lock("mylock").is_held()
 
             cursor = connection.cursor()
             cursor.execute("SELECT CONNECTION_ID();")
             own_connection_id = cursor.fetchone()[0]
-            self.assertEqual(mylock.holding_connection_id(),
-                             own_connection_id)
+            assert mylock.holding_connection_id() == own_connection_id
 
-        self.assertFalse(mylock.is_held())
-        self.assertFalse(Lock("mylock").is_held())
+        assert not mylock.is_held()
+        assert not Lock("mylock").is_held()
 
     import_time_lock = Lock('defined_at_import_time')
 
     def test_error_on_unneeded_exit(self):
         mylock = Lock("mylock")
-        self.assertFalse(mylock.is_held())
-        with self.assertRaises(ValueError) as cm:
+        assert not mylock.is_held()
+        with pytest.raises(ValueError) as excinfo:
             mylock.__exit__(None, None, None)
-        self.assertIn("unheld lock", str(cm.exception))
+        assert "unheld lock" in str(excinfo.value)
 
     def test_defined_at_import_time(self):
         import_time_lock = self.import_time_lock
 
-        self.assertFalse(import_time_lock.is_held())
+        assert not import_time_lock.is_held()
 
         with import_time_lock:
-            self.assertTrue(import_time_lock.is_held())
+            assert import_time_lock.is_held()
 
             cursor = connection.cursor()
             cursor.execute("SELECT CONNECTION_ID();")
             own_connection_id = cursor.fetchone()[0]
-            self.assertEqual(import_time_lock.holding_connection_id(),
-                             own_connection_id)
+            assert (
+                import_time_lock.holding_connection_id() == own_connection_id
+            )
 
-        self.assertFalse(import_time_lock.is_held())
+        assert not import_time_lock.is_held()
 
     def test_timeout_with_threads(self):
         to_me = queue.Queue()
@@ -86,23 +87,22 @@ class LockTests(TestCase):
                 to_you.get(True)
 
         threading_test = Lock('threading_test', 0.05)
-        self.assertTrue(not threading_test.is_held())
+        assert not threading_test.is_held()
 
         other_thread = Thread(target=lock_until_told)
         other_thread.start()
         try:
             item = to_me.get(True)
-            self.assertEqual(item, "Locked")
+            assert item == "Locked"
 
             cursor = connection.cursor()
             cursor.execute("SELECT CONNECTION_ID();")
             own_connection_id = cursor.fetchone()[0]
 
-            self.assertTrue(threading_test.is_held())
-            self.assertNotEqual(threading_test.holding_connection_id(),
-                                own_connection_id)
+            assert threading_test.is_held()
+            assert threading_test.holding_connection_id() != own_connection_id
 
-            with self.assertRaises(TimeoutError):
+            with pytest.raises(TimeoutError):
                 with threading_test:
                         pass
 
@@ -110,7 +110,7 @@ class LockTests(TestCase):
         finally:
             other_thread.join()
 
-        self.assertFalse(threading_test.is_held())
+        assert not threading_test.is_held()
         with threading_test:
             pass
 
@@ -124,7 +124,7 @@ class LockTests(TestCase):
         the_lock = Lock('THElock', 0.05)
 
         def check_it_lock_it():
-            self.assertFalse(the_lock.is_held())
+            assert not the_lock.is_held()
             with the_lock:
                 to_me.put("Locked")
                 to_you.get(True)
@@ -133,17 +133,16 @@ class LockTests(TestCase):
         other_thread.start()
         try:
             item = to_me.get(True)
-            self.assertEqual(item, "Locked")
+            assert item == "Locked"
 
             cursor = connection.cursor()
             cursor.execute("SELECT CONNECTION_ID()")
             own_connection_id = cursor.fetchone()[0]
 
-            self.assertTrue(the_lock.is_held())
-            self.assertNotEqual(the_lock.holding_connection_id(),
-                                own_connection_id)
+            assert the_lock.is_held()
+            assert the_lock.holding_connection_id() != own_connection_id
 
-            with self.assertRaises(TimeoutError):
+            with pytest.raises(TimeoutError):
                 with the_lock:
                     pass
 
@@ -169,7 +168,7 @@ class LockTests(TestCase):
         lock_a = Lock("a")
         lock_b = Lock("b")
         with lock_a, lock_b:
-            self.assertTrue(lock_a.is_held())
+            assert lock_a.is_held()
 
     def test_multi_connection(self):
         lock_a = Lock("a")
@@ -177,8 +176,8 @@ class LockTests(TestCase):
 
         with lock_a, lock_b:
             # Different connections = can hold > 1!
-            self.assertTrue(lock_a.is_held())
-            self.assertTrue(lock_b.is_held())
+            assert lock_a.is_held()
+            assert lock_b.is_held()
 
     def test_held_with_prefix(self):
         if not self.supports_lock_info:
@@ -187,22 +186,22 @@ class LockTests(TestCase):
                 "which held_with_prefix relies"
             )
 
-        self.assertEqual(Lock.held_with_prefix(''), {})
-        self.assertEqual(Lock.held_with_prefix('mylock'), {})
+        assert Lock.held_with_prefix('') == {}
+        assert Lock.held_with_prefix('mylock') == {}
 
         with Lock('mylock-alpha') as lock:
-            self.assertEqual(
-                Lock.held_with_prefix(''),
+            assert (
+                Lock.held_with_prefix('') ==
                 {'mylock-alpha': lock.holding_connection_id()}
             )
-            self.assertEqual(
-                Lock.held_with_prefix('mylock'),
+            assert (
+                Lock.held_with_prefix('mylock') ==
                 {'mylock-alpha': lock.holding_connection_id()}
             )
-            self.assertEqual(
-                Lock.held_with_prefix('mylock-beta'),
+            assert (
+                Lock.held_with_prefix('mylock-beta') ==
                 {}
             )
 
-        self.assertEqual(Lock.held_with_prefix(''), {})
-        self.assertEqual(Lock.held_with_prefix('mylock'), {})
+        assert Lock.held_with_prefix('') == {}
+        assert Lock.held_with_prefix('mylock') == {}

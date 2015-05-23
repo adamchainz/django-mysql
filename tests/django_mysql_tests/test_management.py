@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import mock
 
+import pytest
 from django.core.management import CommandError, call_command
 from django.db.utils import ConnectionHandler
 from django.test import TestCase
@@ -36,32 +37,32 @@ socket_db = ConnectionHandler({'default': {
 class DBParamsTests(TestCase):
 
     def test_invalid_number_of_databases(self):
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as excinfo:
             call_command('dbparams', 'default', 'default')
-        self.assertIn("more than one connection", str(cm.exception))
+        assert "more than one connection" in str(excinfo.value)
 
     def test_invalid_database(self):
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as excinfo:
             call_command('dbparams', 'nonexistent')
-        self.assertIn("does not exist", str(cm.exception))
+        assert "does not exist" in str(excinfo.value)
 
     def test_invalid_both(self):
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command('dbparams', dsn=True, mysql=True)
 
     @mock.patch(command_connections, sqlite)
     def test_invalid_not_mysql(self):
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as excinfo:
             call_command('dbparams')
-        self.assertIn("not a MySQL database connection", str(cm.exception))
+        assert "not a MySQL database connection" in str(excinfo.value)
 
     @mock.patch(command_connections, full_db)
     def test_mysql_full(self):
         out = StringIO()
         call_command('dbparams', stdout=out)
         output = out.getvalue()
-        self.assertEqual(
-            output,
+        assert (
+            output ==
             "--defaults-file=/tmp/defaults.cnf --user=ausername "
             "--password=apassword --host=ahost.example.com --port=12345 "
             "--ssl-ca=/tmp/mysql.cert mydatabase"
@@ -72,7 +73,7 @@ class DBParamsTests(TestCase):
         out = StringIO()
         call_command('dbparams', stdout=out)
         output = out.getvalue()
-        self.assertEqual(output, "--socket=/etc/mydb.sock")
+        assert output == "--socket=/etc/mydb.sock"
 
     @mock.patch(command_connections, full_db)
     def test_dsn_full(self):
@@ -80,14 +81,14 @@ class DBParamsTests(TestCase):
         err = StringIO()
         call_command('dbparams', 'default', dsn=True, stdout=out, stderr=err)
         output = out.getvalue()
-        self.assertEqual(
-            output,
+        assert (
+            output ==
             "F=/tmp/defaults.cnf,u=ausername,p=apassword,h=ahost.example.com,"
             "P=12345,D=mydatabase"
         )
 
         errors = err.getvalue()
-        self.assertIn("SSL params can't be", errors)
+        assert "SSL params can't be" in errors
 
     @mock.patch(command_connections, socket_db)
     def test_dsn_socket(self):
@@ -96,7 +97,7 @@ class DBParamsTests(TestCase):
         call_command('dbparams', dsn=True, stdout=out, stderr=err)
 
         output = out.getvalue()
-        self.assertEqual(output, 'S=/etc/mydb.sock')
+        assert output == 'S=/etc/mydb.sock'
 
         errors = err.getvalue()
-        self.assertEqual(errors, "")
+        assert errors == ""

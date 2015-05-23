@@ -3,6 +3,7 @@ import json
 import re
 
 import ddt
+import pytest
 from django import forms
 from django.core import exceptions, serializers
 from django.db import models
@@ -20,55 +21,55 @@ class TestSaveLoad(TestCase):
 
     def test_char_easy(self):
         s = BigCharListModel.objects.create(field=["comfy", "big"])
-        self.assertEqual(s.field, ["comfy", "big"])
+        assert s.field == ["comfy", "big"]
         s = BigCharListModel.objects.get(id=s.id)
-        self.assertEqual(s.field, ["comfy", "big"])
+        assert s.field == ["comfy", "big"]
 
         s.field.append("round")
         s.save()
-        self.assertEqual(s.field, ["comfy", "big", "round"])
+        assert s.field == ["comfy", "big", "round"]
         s = BigCharListModel.objects.get(id=s.id)
-        self.assertEqual(s.field, ["comfy", "big", "round"])
+        assert s.field == ["comfy", "big", "round"]
 
     def test_char_string_direct(self):
         s = BigCharListModel.objects.create(field="big,bad")
         s = BigCharListModel.objects.get(id=s.id)
-        self.assertEqual(s.field, ['big', 'bad'])
+        assert s.field == ['big', 'bad']
 
     def test_is_a_list_immediately(self):
         s = BigCharListModel()
-        self.assertEqual(s.field, [])
+        assert s.field == []
         s.field.append("bold")
         s.field.append("brave")
         s.save()
-        self.assertEqual(s.field, ["bold", "brave"])
+        assert s.field == ["bold", "brave"]
         s = BigCharListModel.objects.get(id=s.id)
-        self.assertEqual(s.field, ["bold", "brave"])
+        assert s.field == ["bold", "brave"]
 
     def test_empty(self):
         s = BigCharListModel.objects.create()
-        self.assertEqual(s.field, [])
+        assert s.field == []
         s = BigCharListModel.objects.get(id=s.id)
-        self.assertEqual(s.field, [])
+        assert s.field == []
 
     def test_char_cant_create_lists_with_empty_string(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             BigCharListModel.objects.create(field=[""])
 
     def test_char_cant_create_sets_with_commas(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             BigCharListModel.objects.create(field=["co,mma", "contained"])
 
     def test_char_basic_lookup(self):
         mymodel = BigCharListModel.objects.create()
         empty = BigCharListModel.objects.filter(field="")
 
-        self.assertEqual(empty.count(), 1)
-        self.assertEqual(empty[0], mymodel)
+        assert empty.count() == 1
+        assert empty[0] == mymodel
 
         mymodel.delete()
 
-        self.assertEqual(empty.count(), 0)
+        assert empty.count() == 0
 
     @ddt.data('contains', 'icontains')
     def test_char_lookup(self, lookup):
@@ -76,144 +77,144 @@ class TestSaveLoad(TestCase):
         mymodel = BigCharListModel.objects.create(field=["mouldy", "rotten"])
 
         mouldy = BigCharListModel.objects.filter(**{lname: "mouldy"})
-        self.assertEqual(mouldy.count(), 1)
-        self.assertEqual(mouldy[0], mymodel)
+        assert mouldy.count() == 1
+        assert mouldy[0] == mymodel
 
         rotten = BigCharListModel.objects.filter(**{lname: "rotten"})
-        self.assertEqual(rotten.count(), 1)
-        self.assertEqual(rotten[0], mymodel)
+        assert rotten.count() == 1
+        assert rotten[0] == mymodel
 
         clean = BigCharListModel.objects.filter(**{lname: "clean"})
-        self.assertEqual(clean.count(), 0)
+        assert clean.count() == 0
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             list(BigCharListModel.objects.filter(**{lname: ["a", "b"]}))
 
         both = BigCharListModel.objects.filter(
             Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
         )
-        self.assertEqual(both.count(), 1)
-        self.assertEqual(both[0], mymodel)
+        assert both.count() == 1
+        assert both[0] == mymodel
 
         either = BigCharListModel.objects.filter(
             Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
         )
-        self.assertEqual(either.count(), 1)
+        assert either.count() == 1
 
         not_clean = BigCharListModel.objects.exclude(**{lname: "clean"})
-        self.assertEqual(not_clean.count(), 1)
+        assert not_clean.count() == 1
 
         not_mouldy = BigCharListModel.objects.exclude(**{lname: "mouldy"})
-        self.assertEqual(not_mouldy.count(), 0)
+        assert not_mouldy.count() == 0
 
     def test_char_len_lookup_empty(self):
         mymodel = BigCharListModel.objects.create(field=[])
 
         empty = BigCharListModel.objects.filter(field__len=0)
-        self.assertEqual(empty.count(), 1)
-        self.assertEqual(empty[0], mymodel)
+        assert empty.count() == 1
+        assert empty[0] == mymodel
 
         one = BigCharListModel.objects.filter(field__len=1)
-        self.assertEqual(one.count(), 0)
+        assert one.count() == 0
 
         one_or_more = BigCharListModel.objects.filter(field__len__gte=0)
-        self.assertEqual(one_or_more.count(), 1)
+        assert one_or_more.count() == 1
 
     def test_char_len_lookup(self):
         mymodel = BigCharListModel.objects.create(field=["red", "expensive"])
 
         empty = BigCharListModel.objects.filter(field__len=0)
-        self.assertEqual(empty.count(), 0)
+        assert empty.count() == 0
 
         one_or_more = BigCharListModel.objects.filter(field__len__gte=1)
-        self.assertEqual(one_or_more.count(), 1)
-        self.assertEqual(one_or_more[0], mymodel)
+        assert one_or_more.count() == 1
+        assert one_or_more[0] == mymodel
 
         two = BigCharListModel.objects.filter(field__len=2)
-        self.assertEqual(two.count(), 1)
-        self.assertEqual(two[0], mymodel)
+        assert two.count() == 1
+        assert two[0] == mymodel
 
         three = BigCharListModel.objects.filter(field__len=3)
-        self.assertEqual(three.count(), 0)
+        assert three.count() == 0
 
     def test_char_position_lookup(self):
         mymodel = BigCharListModel.objects.create(field=["red", "blue"])
 
         blue0 = BigCharListModel.objects.filter(field__0="blue")
-        self.assertEqual(blue0.count(), 0)
+        assert blue0.count() == 0
 
         red0 = BigCharListModel.objects.filter(field__0="red")
-        self.assertEqual(list(red0), [mymodel])
+        assert list(red0) == [mymodel]
 
         red0_red1 = BigCharListModel.objects.filter(field__0="red",
                                                     field__1="red")
-        self.assertEqual(red0_red1.count(), 0)
+        assert red0_red1.count() == 0
 
         red0_blue1 = BigCharListModel.objects.filter(field__0="red",
                                                      field__1="blue")
-        self.assertEqual(list(red0_blue1), [mymodel])
+        assert list(red0_blue1) == [mymodel]
 
         red0_or_blue0 = BigCharListModel.objects.filter(
             Q(field__0="red") | Q(field__0="blue")
         )
-        self.assertEqual(list(red0_or_blue0), [mymodel])
+        assert list(red0_or_blue0) == [mymodel]
 
     def test_int_easy(self):
         mymodel = BigIntListModel.objects.create(field=[1, 2])
-        self.assertEqual(mymodel.field, [1, 2])
+        assert mymodel.field == [1, 2]
         mymodel = BigIntListModel.objects.get(id=mymodel.id)
-        self.assertEqual(mymodel.field, [1, 2])
+        assert mymodel.field == [1, 2]
 
     def test_int_contains_lookup(self):
         onetwo = BigIntListModel.objects.create(field=[1, 2])
 
         ones = BigIntListModel.objects.filter(field__contains=1)
-        self.assertEqual(ones.count(), 1)
-        self.assertEqual(ones[0], onetwo)
+        assert ones.count() == 1
+        assert ones[0] == onetwo
 
         twos = BigIntListModel.objects.filter(field__contains=2)
-        self.assertEqual(twos.count(), 1)
-        self.assertEqual(twos[0], onetwo)
+        assert twos.count() == 1
+        assert twos[0] == onetwo
 
         threes = BigIntListModel.objects.filter(field__contains=3)
-        self.assertEqual(threes.count(), 0)
+        assert threes.count() == 0
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             list(BigIntListModel.objects.filter(field__contains=[1, 2]))
 
         ones_and_twos = BigIntListModel.objects.filter(
             Q(field__contains=1) & Q(field__contains=2)
         )
-        self.assertEqual(ones_and_twos.count(), 1)
-        self.assertEqual(ones_and_twos[0], onetwo)
+        assert ones_and_twos.count() == 1
+        assert ones_and_twos[0] == onetwo
 
         ones_and_threes = BigIntListModel.objects.filter(
             Q(field__contains=1) & Q(field__contains=3)
         )
-        self.assertEqual(ones_and_threes.count(), 0)
+        assert ones_and_threes.count() == 0
 
         ones_or_threes = BigIntListModel.objects.filter(
             Q(field__contains=1) | Q(field__contains=3)
         )
-        self.assertEqual(ones_or_threes.count(), 1)
+        assert ones_or_threes.count() == 1
 
         no_three = BigIntListModel.objects.exclude(field__contains=3)
-        self.assertEqual(no_three.count(), 1)
+        assert no_three.count() == 1
 
         no_one = BigIntListModel.objects.exclude(field__contains=1)
-        self.assertEqual(no_one.count(), 0)
+        assert no_one.count() == 0
 
     def test_int_position_lookup(self):
         onetwo = BigIntListModel.objects.create(field=[1, 2])
 
         one0 = BigIntListModel.objects.filter(field__0=1)
-        self.assertEqual(list(one0), [onetwo])
+        assert list(one0) == [onetwo]
 
         two0 = BigIntListModel.objects.filter(field__0=2)
-        self.assertEqual(two0.count(), 0)
+        assert two0.count() == 0
 
         one0two1 = BigIntListModel.objects.filter(field__0=1, field__1=2)
-        self.assertEqual(list(one0two1), [onetwo])
+        assert list(one0two1) == [onetwo]
 
 
 class TestValidation(TestCase):
@@ -227,10 +228,10 @@ class TestValidation(TestCase):
 
         field.clean({'a', 'b', 'c'}, None)
 
-        with self.assertRaises(exceptions.ValidationError) as cm:
+        with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean({'a', 'b', 'c', 'd'}, None)
-        self.assertEqual(
-            cm.exception.messages[0],
+        assert (
+            excinfo.value.messages[0] ==
             'List contains 4 items, it should contain no more than 3.'
         )
 
@@ -241,10 +242,10 @@ class TestCheck(TestCase):
         field = ListTextField(models.CharField(), max_length=32)
         field.set_attributes_from_name('field')
         errors = field.check()
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, 'django_mysql.E004')
-        self.assertIn('Base field for list has errors', errors[0].msg)
-        self.assertIn('max_length', errors[0].msg)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E004'
+        assert 'Base field for list has errors' in errors[0].msg
+        assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
         field = ListTextField(
@@ -253,9 +254,9 @@ class TestCheck(TestCase):
         )
         field.set_attributes_from_name('field')
         errors = field.check()
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, 'django_mysql.E005')
-        self.assertIn('Base field for list must be', errors[0].msg)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E005'
+        assert 'Base field for list must be' in errors[0].msg
 
 
 class TestMigrations(TestCase):
@@ -264,22 +265,19 @@ class TestMigrations(TestCase):
         field = ListTextField(models.IntegerField(), max_length=32)
         name, path, args, kwargs = field.deconstruct()
         new = ListTextField(*args, **kwargs)
-        self.assertEqual(type(new.base_field), type(field.base_field))
+        assert new.base_field.__class__ == field.base_field.__class__
 
     def test_deconstruct_with_size(self):
         field = ListTextField(models.IntegerField(), size=3, max_length=32)
         name, path, args, kwargs = field.deconstruct()
         new = ListTextField(*args, **kwargs)
-        self.assertEqual(new.size, field.size)
+        assert new.size == field.size
 
     def test_deconstruct_args(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
         name, path, args, kwargs = field.deconstruct()
         new = ListTextField(*args, **kwargs)
-        self.assertEqual(
-            new.base_field.max_length,
-            field.base_field.max_length
-        )
+        assert new.base_field.max_length == field.base_field.max_length
 
     def test_makemigrations(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
@@ -287,20 +285,17 @@ class TestMigrations(TestCase):
 
         # The order of the output max_length/size statements varies by
         # python version, hence a little regexp to match them
-        self.assertRegexpMatches(
-            statement,
-            re.compile(
-                r"""^django_mysql\.models\.ListTextField\(
-                    models\.CharField\(max_length=5\),\ # space here
-                    (
-                        max_length=32,\ size=None|
-                        size=None,\ max_length=32
-                    )
-                    \)$
-                """,
-                re.VERBOSE
-            )
-        )
+        assert re.compile(
+            r"""^django_mysql\.models\.ListTextField\(
+                models\.CharField\(max_length=5\),\ # space here
+                (
+                    max_length=32,\ size=None|
+                    size=None,\ max_length=32
+                )
+                \)$
+            """,
+            re.VERBOSE
+        ).match(statement)
 
     def test_makemigrations_with_size(self):
         field = ListTextField(
@@ -312,20 +307,17 @@ class TestMigrations(TestCase):
 
         # The order of the output max_length/size statements varies by
         # python version, hence a little regexp to match them
-        self.assertRegexpMatches(
-            statement,
-            re.compile(
-                r"""^django_mysql\.models\.ListTextField\(
-                    models\.CharField\(max_length=5\),\ # space here
-                    (
-                        max_length=32,\ size=5|
-                        size=5,\ max_length=32
-                    )
-                    \)$
-                """,
-                re.VERBOSE
-            )
-        )
+        assert re.compile(
+            r"""^django_mysql\.models\.ListTextField\(
+                models\.CharField\(max_length=5\),\ # space here
+                (
+                    max_length=32,\ size=5|
+                    size=5,\ max_length=32
+                )
+                \)$
+            """,
+            re.VERBOSE
+        ).match(statement)
 
 
 class TestSerialization(TestCase):
@@ -334,7 +326,7 @@ class TestSerialization(TestCase):
         instance = BigCharListModel(field=["big", "comfy"])
         data = json.loads(serializers.serialize('json', [instance]))[0]
         field = data['fields']['field']
-        self.assertEqual(sorted(field.split(',')), ["big", "comfy"])
+        assert sorted(field.split(',')) == ["big", "comfy"]
 
     def test_loading(self):
         test_data = '''
@@ -343,21 +335,18 @@ class TestSerialization(TestCase):
         '''
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object
-        self.assertEqual(instance.field, ["big", "leather", "comfy"])
+        assert instance.field == ["big", "leather", "comfy"]
 
 
 class TestDescription(TestCase):
 
     def test_char(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
-        self.assertEqual(
-            field.description,
-            "List of String (up to %(max_length)s)"
-        )
+        assert field.description == "List of String (up to %(max_length)s)"
 
     def test_int(self):
         field = ListTextField(models.IntegerField(), max_length=32)
-        self.assertEqual(field.description, "List of Integer")
+        assert field.description == "List of Integer"
 
 
 class TestFormField(TestCase):
@@ -365,12 +354,12 @@ class TestFormField(TestCase):
     def test_model_field_formfield(self):
         model_field = ListTextField(models.CharField(max_length=27))
         form_field = model_field.formfield()
-        self.assertIsInstance(form_field, SimpleListField)
-        self.assertIsInstance(form_field.base_field, forms.CharField)
-        self.assertEqual(form_field.base_field.max_length, 27)
+        assert isinstance(form_field, SimpleListField)
+        assert isinstance(form_field.base_field, forms.CharField)
+        assert form_field.base_field.max_length == 27
 
     def test_model_field_formfield_size(self):
         model_field = ListTextField(models.IntegerField(), size=4)
         form_field = model_field.formfield()
-        self.assertIsInstance(form_field, SimpleListField)
-        self.assertEqual(form_field.max_length, 4)
+        assert isinstance(form_field, SimpleListField)
+        assert form_field.max_length == 4

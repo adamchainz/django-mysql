@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import pytest
 from django.db import connection
 from django.db.models import F
 from django.test import TestCase
@@ -29,17 +30,17 @@ class HandlerCreationTests(TestCase):
 
     def test_bad_creation_joins_not_allowed(self):
         qs = Author.objects.filter(tutor__name='A')
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             qs.handler()
 
     def test_bad_creation_limit_not_allowed(self):
         qs = Author.objects.all()[:100]
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             qs.handler()
 
     def test_bad_creation_ordering_not_allowed(self):
         qs = Author.objects.order_by('name')
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             qs.handler()
 
     def test_can_open_close_with_huge_table_name(self):
@@ -49,13 +50,13 @@ class HandlerCreationTests(TestCase):
     def test_cannot_open_twice(self):
         handler = Author.objects.handler()
         with handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 with handler:
                     pass
 
     def test_cannot_close_unopened(self):
         handler = Author.objects.handler()
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             handler.__exit__(None, None, None)
 
 
@@ -70,46 +71,46 @@ class HandlerReadTests(BaseAuthorTestCase):
 
     def test_bad_read_unopened(self):
         handler = Author.objects.all().handler()
-        with self.assertRaises(RuntimeError):
+        with pytest.raises(RuntimeError):
             handler.read()
 
     def test_bad_read_mode(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(mode='non-existent')
 
     def test_read_does_single_by_default(self):
         with Author.objects.handler() as handler:
             handler_all = list(handler.read())
-        self.assertEqual(handler_all, [self.jk])
+        assert handler_all == [self.jk]
 
     def test_read_limit_first(self):
         with Author.objects.handler() as handler:
             handler_first = handler.read(limit=1)[0]
         qs_first = Author.objects.earliest('id')
 
-        self.assertEqual(handler_first, qs_first)
+        assert handler_first == qs_first
 
     def test_read_limit_last(self):
         with Author.objects.handler() as handler:
             handler_last = handler.read(mode='last', limit=1)[0]
         qs_last = Author.objects.latest('id')
 
-        self.assertEqual(handler_last, qs_last)
+        assert handler_last == qs_last
 
     def test_read_limit_all(self):
         with Author.objects.handler() as handler:
             handler_all = list(handler.read(limit=2))
         qs_all = list(Author.objects.all())
 
-        self.assertEqual(handler_all, qs_all)
+        assert handler_all == qs_all
 
     def test_read_index_primary(self):
         with Author.objects.handler() as handler:
             handler_all = list(handler.read(index='PRIMARY', limit=2))
         qs_all = list(Author.objects.order_by('id'))
 
-        self.assertEqual(handler_all, qs_all)
+        assert handler_all == qs_all
 
     def test_read_index_different(self):
         index_name = [name for name in get_index_names(Author)
@@ -119,7 +120,7 @@ class HandlerReadTests(BaseAuthorTestCase):
             handler_all = list(handler.read(index=index_name, limit=2))
         qs_all = list(Author.objects.order_by('name').all())
 
-        self.assertEqual(handler_all, qs_all)
+        assert handler_all == qs_all
 
     def test_read_where_filter_read(self):
         qs = Author.objects.filter(name__startswith='John')
@@ -128,7 +129,7 @@ class HandlerReadTests(BaseAuthorTestCase):
             handler_all = list(handler.read())
         qs_all = list(qs)
 
-        self.assertEqual(handler_all, qs_all)
+        assert handler_all == qs_all
 
     def test_read_where_filter_f_expression(self):
         qs = Author.objects.filter(name=F('name'))
@@ -136,7 +137,7 @@ class HandlerReadTests(BaseAuthorTestCase):
         with qs.handler() as handler:
             handler_all = list(handler.read(limit=100))
 
-        self.assertEqual(len(handler_all), 2)
+        assert len(handler_all) == 2
 
     def test_read_where_exclude(self):
         qs = Author.objects.filter(name__contains='JK')
@@ -145,7 +146,7 @@ class HandlerReadTests(BaseAuthorTestCase):
             handler_all = list(handler.read())
         qs_all = list(qs)
 
-        self.assertEqual(handler_all, qs_all)
+        assert handler_all == qs_all
 
     def test_read_where_filter_params_not_injected_or_modified(self):
         table_col = "`looks_like`.`table_column`"
@@ -155,7 +156,7 @@ class HandlerReadTests(BaseAuthorTestCase):
         with qs.handler() as handler:
             handler_first = handler.read()[0]
 
-        self.assertEqual(handler_first, author)
+        assert handler_first == author
 
     def test_read_where_passed_in(self):
         qs = Author.objects.filter(name__startswith='John')
@@ -163,7 +164,7 @@ class HandlerReadTests(BaseAuthorTestCase):
         with Author.objects.handler() as handler:
             handler_author = handler.read(where=qs)[0]
 
-        self.assertEqual(handler_author, qs[0])
+        assert handler_author == qs[0]
 
     def test_read_where_passed_in_overrides_completely(self):
         qs = Author.objects.filter(name='JK Rowling')
@@ -173,67 +174,67 @@ class HandlerReadTests(BaseAuthorTestCase):
             handler_default = handler.read()[0]
             handler_where = handler.read(where=qs2)[0]
 
-        self.assertEqual(handler_default, qs[0])
-        self.assertEqual(handler_where, qs2[0])
+        assert handler_default == qs[0]
+        assert handler_where == qs2[0]
 
     def test_read_bad_where_passed_in(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(where=Author.objects.filter(tutor__name='A'))
 
     def test_read_index_value_and_mode_invalid(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(value=1, mode='first')
 
     def test_read_index_equal(self):
         with Author.objects.handler() as handler:
             handler_result = handler.read(value=self.jk.id)[0]
-        self.assertEqual(handler_result, self.jk)
+        assert handler_result == self.jk
 
     def test_read_index_equal_exact(self):
         with Author.objects.handler() as handler:
             handler_result = handler.read(value__exact=self.jk.id)[0]
-        self.assertEqual(handler_result, self.jk)
+        assert handler_result == self.jk
 
     def test_read_index_less_than(self):
         with Author.objects.handler() as handler:
             handler_result = handler.read(value__lt=self.jk.id + 1)[0]
-        self.assertEqual(handler_result, self.jk)
+        assert handler_result == self.jk
 
     def test_read_index_less_than_equal(self):
         with Author.objects.handler() as handler:
             handler_result = handler.read(value__lte=self.jk.id)[0]
-        self.assertEqual(handler_result, self.jk)
+        assert handler_result == self.jk
 
     def test_read_index_greater_than_equal(self):
         with Author.objects.handler() as handler:
             handler_result = handler.read(value__gte=self.jk.id)[0]
-        self.assertEqual(handler_result, self.jk)
+        assert handler_result == self.jk
 
     def test_read_index_greater_than(self):
         with Author.objects.handler() as handler:
             handler_result = handler.read(value__gt=self.jk.id)[0]
-        self.assertEqual(handler_result, self.grisham)
+        assert handler_result == self.grisham
 
     def test_read_index_too_many_filters(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(value__lte=1, value__gte=1)
 
     def test_read_index_bad_operator(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(value__flange=1)
 
     def test_read_bad_argument(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(pk=1)
 
     def test_read_bad_argument_underscores(self):
         with Author.objects.handler() as handler:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 handler.read(value_exact=1)
 
 
@@ -243,30 +244,30 @@ class HandlerIterTests(BaseAuthorTestCase):
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in handler.iter()]
 
-        self.assertEqual(seen_ids, [self.jk.id, self.grisham.id])
+        assert seen_ids == [self.jk.id, self.grisham.id]
 
     def test_iter_chunk_size_1(self):
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in handler.iter(chunk_size=1)]
 
-        self.assertEqual(seen_ids, [self.jk.id, self.grisham.id])
+        assert seen_ids == [self.jk.id, self.grisham.id]
 
     def test_iter_reverse(self):
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in handler.iter(reverse=True)]
 
-        self.assertEqual(seen_ids, [self.grisham.id, self.jk.id])
+        assert seen_ids == [self.grisham.id, self.jk.id]
 
     def test_iter_reverse_chunk_size_1(self):
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in
                         handler.iter(chunk_size=1, reverse=True)]
 
-        self.assertEqual(seen_ids, [self.grisham.id, self.jk.id])
+        assert seen_ids == [self.grisham.id, self.jk.id]
 
     def test_bad_iter_unopened(self):
         handler = Author.objects.all().handler()
-        with self.assertRaises(RuntimeError):
+        with pytest.raises(RuntimeError):
             sum(1 for x in handler.iter())
 
     def test_iter_where_preset(self):
@@ -275,7 +276,7 @@ class HandlerIterTests(BaseAuthorTestCase):
         with where_qs.handler() as handler:
             seen_ids = [author.id for author in handler.iter()]
 
-        self.assertEqual(seen_ids, [self.grisham.id])
+        assert seen_ids == [self.grisham.id]
 
     def test_iter_where_passed_in(self):
         where_qs = Author.objects.filter(name__startswith='John')
@@ -283,24 +284,24 @@ class HandlerIterTests(BaseAuthorTestCase):
         with Author.objects.handler() as handler:
             seen_ids = [author.id for author in handler.iter(where=where_qs)]
 
-        self.assertEqual(seen_ids, [self.grisham.id])
+        assert seen_ids == [self.grisham.id]
 
     def test_iter_loses_its_place(self):
         portis = Author.objects.create(name='Charles Portis')
 
         with Author.objects.handler() as handler:
             iterator = handler.iter(chunk_size=1)
-            self.assertEqual(next(iterator), self.jk)
-            self.assertEqual(next(iterator), self.grisham)
+            assert next(iterator) == self.jk
+            assert next(iterator) == self.grisham
 
             iterator2 = handler.iter(chunk_size=1, reverse=True)
-            self.assertEqual(next(iterator2), portis)
+            assert next(iterator2) == portis
 
             # This SHOULD be portis, but it thinks it's exhausted already
             # because iterator2 reset the iteration in reverse, and now for the
             # NEXT page after the LAST
-            with self.assertRaises(StopIteration):
-                self.assertEqual(next(iterator), portis)
+            with pytest.raises(StopIteration):
+                assert next(iterator) == portis
 
 
 class HandlerMultipartIndexTests(TestCase):
@@ -317,14 +318,14 @@ class HandlerMultipartIndexTests(TestCase):
         with AuthorMultiIndex.objects.handler() as handler:
             handler_all = list(handler.read(index=self.index_name, limit=2))
         qs_all = list(AuthorMultiIndex.objects.order_by('name', 'country'))
-        self.assertEqual(handler_all, qs_all)
+        assert handler_all == qs_all
 
     def test_read_index_multipart(self):
         with AuthorMultiIndex.objects.handler() as handler:
             value = ('John Smith', 'England')
             result = handler.read(index=self.index_name, value=value)[0]
 
-        self.assertEqual(result, self.smith2)
+        assert result == self.smith2
 
 
 class HandlerNestingTests(BaseAuthorTestCase):
@@ -342,8 +343,8 @@ class HandlerNestingTests(BaseAuthorTestCase):
             handler_plain = ahandler.read()[0]
             handler_name = bhandler.read()[0]
 
-        self.assertEqual(handler_plain, self.jk)
-        self.assertEqual(handler_name, self.jk_name)
+        assert handler_plain == self.jk
+        assert handler_name == self.jk_name
 
     def test_can_nest_two_for_same_table(self):
         ahandler = Author.objects.handler()
@@ -353,8 +354,8 @@ class HandlerNestingTests(BaseAuthorTestCase):
             first = ahandler.read()[0]
             second = bhandler.read()[0]
 
-        self.assertEqual(first, self.jk)
-        self.assertEqual(second, self.jk)
+        assert first == self.jk
+        assert second == self.jk
 
 
 class HandlerStandaloneTests(TestCase):
@@ -368,14 +369,14 @@ class HandlerStandaloneTests(TestCase):
         with handler:
             first = handler.read()[0]
 
-        self.assertEqual(first, self.jk)
+        assert first == self.jk
 
     def test_vanilla_filters(self):
         qs = VanillaAuthor.objects.filter(name__startswith='John')
         with Handler(qs) as handler:
             first = handler.read()[0]
 
-        self.assertEqual(first, self.grisham)
+        assert first == self.grisham
 
 
 class HandlerMultiDBTests(TestCase):
@@ -389,4 +390,4 @@ class HandlerMultiDBTests(TestCase):
         with handler:
             handler_result = handler.read()[0]
 
-        self.assertEqual(handler_result, self.jk)
+        assert handler_result == self.jk
