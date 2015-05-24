@@ -37,9 +37,9 @@ test:
 test-all:
 	tox
 
-coverage:
+coverage: clean-pyc
 	coverage erase
-	tox
+	tox $(tox_args)
 	coverage combine
 	coverage report -m
 	coverage html
