@@ -62,7 +62,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Django MySQL'
+project = u'Django-MySQL'
 copyright = u'2015, Adam Johnson'
 
 # The version info for the project you're documenting, acts as replacement
@@ -221,7 +221,7 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'django-mysql.tex',
-     u'Django MySQL Documentation',
+     u'Django-MySQL Documentation',
      u'Adam Johnson', 'manual'),
 ]
 
@@ -252,7 +252,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'django-mysql',
-     u'Django MySQL Documentation',
+     u'Django-MySQL Documentation',
      [u'Adam Johnson'], 1)
 ]
 
@@ -267,7 +267,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'django-mysql',
-     u'Django MySQL Documentation',
+     u'Django-MySQL Documentation',
      u'Adam Johnson',
      'django-mysql',
      'One line description of project.',

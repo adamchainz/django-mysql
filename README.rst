@@ -1,5 +1,5 @@
 ============
-Django MySQL
+Django-MySQL
 ============
 
 .. image:: https://badge.fury.io/py/django-mysql.png
