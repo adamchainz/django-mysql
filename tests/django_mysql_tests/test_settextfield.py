@@ -8,7 +8,7 @@ from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils import six
 
 from django_mysql.forms import SimpleSetField
@@ -224,7 +224,7 @@ class TestCheck(TestCase):
         assert 'Base field for set must be' in errors[0].msg
 
 
-class TestMigrations(TestCase):
+class TestMigrations(TransactionTestCase):
 
     def test_deconstruct(self):
         field = SetTextField(models.IntegerField(), max_length=32)
