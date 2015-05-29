@@ -7,6 +7,8 @@ History
 ------------------
 
 * Pending release
+* Added Regexp database functions for MariaDB - ``RegexpInstr``,
+  ``RegexpReplace``, and ``RegexpSubstr``
 
 0.2.0 (2015-05-14)
 ------------------

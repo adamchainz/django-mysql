@@ -1,17 +1,24 @@
 # -*- coding:utf-8 -*-
 import hashlib
-from unittest import skipIf
+from unittest import SkipTest, skipIf
 
 import django
 import pytest
+from django.db import connection
 from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, Ceiling, ConcatWS, Field, Floor,
-    Greatest, LastInsertId, Least, Round, Sign
+    Greatest, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
+    Round, Sign
 )
-from django_mysql_tests.models import Alphabet
+from django_mysql_tests.models import Alphabet, Author
+
+try:
+    from django.db.models.functions import Length
+except ImportError:
+    Length = None
 
 requiresDatabaseFunctions = skipIf(
     django.VERSION <= (1, 8),
@@ -248,6 +255,97 @@ class InformationFunctionTests(TestCase):
 
         ab = Alphabet.objects.get()
         assert ab.b == 717612
+
+
+@requiresDatabaseFunctions
+class RegexpFunctionTests(TestCase):
+
+    def setUp(self):
+        super(RegexpFunctionTests, self).setUp()
+        have_regex_functions = (
+            (connection.is_mariadb and connection.mysql_version >= (10, 0, 5))
+        )
+        if not have_regex_functions:
+            raise SkipTest("MariaDB 10.0.5+ is required")
+
+    def test_regex_instr(self):
+        Alphabet.objects.create(d="ABC")
+        Alphabet.objects.create(d="ABBC")
+        ab = (
+            Alphabet.objects.annotate(d_double_pos=RegexpInstr('d', r'[b]{2}'))
+                            .filter(d_double_pos__gt=0)
+                            .get()
+        )
+        assert ab.d == "ABBC"
+        assert ab.d_double_pos == 2
+
+    def test_regex_instr_update(self):
+        Alphabet.objects.create(d="A string to search")
+        Alphabet.objects.create(d="Something to query")
+        Alphabet.objects.create(d="Please do inspect me")
+        Alphabet.objects.update(
+            a=RegexpInstr('d', r'search|query|inspect') - 1
+        )
+        all_abs = Alphabet.objects.all().order_by('id')
+        assert all_abs[0].a == 12
+        assert all_abs[1].a == 13
+        assert all_abs[2].a == 10
+
+    def test_regex_replace_update(self):
+        Alphabet.objects.create(d="I'm feeling sad")
+        n = Alphabet.objects.update(d=RegexpReplace('d', r'\bsad\b', 'happy'))
+        assert n == 1
+        ab = Alphabet.objects.get()
+        assert ab.d == "I'm feeling happy"
+
+    def test_regex_replace_update_groups(self):
+        Alphabet.objects.create(d="A,,List,with,,empty,,,,strings, ")
+        n = Alphabet.objects.update(d=RegexpReplace('d', r',{2,}', ','))
+        assert n == 1
+        ab = Alphabet.objects.get()
+        assert ab.d == "A,List,with,empty,strings, "
+
+    def test_regex_replace_filter_backref(self):
+        Author.objects.create(name="Charles Dickens")
+        Author.objects.create(name="Roald Dahl")
+        qs = (
+            Author.objects.annotate(
+                surname_first=RegexpReplace('name', r'^(.*) (.*)$', r'\2, \1')
+            ).order_by('surname_first')
+        )
+        assert qs[0].name == "Roald Dahl"
+        assert qs[1].name == "Charles Dickens"
+
+    def test_regex_substr(self):
+        Alphabet.objects.create(d='The <tag> is there')
+        qs = (
+            Alphabet.objects.annotate(d_tag=RegexpSubstr('d', r'<[^>]+>'))
+                            .filter(d_tag__gt='')
+        )
+        ab = qs.get()
+        assert ab.d_tag == '<tag>'
+
+    def test_regex_substr_field(self):
+        Alphabet.objects.create(d='This is the string', e=r'\bis\b')
+        qs = (
+            Alphabet.objects.annotate(substr=RegexpSubstr('d', F('e')))
+                            .filter(substr__gt='')
+                            .values_list('substr', flat=True)
+        )
+        substr = qs[0]
+        assert substr == 'is'
+
+    def test_regex_substr_filter(self):
+        Author.objects.create(name="Euripides")
+        Author.objects.create(name="Frank Miller")
+        Author.objects.create(name="Sophocles")
+        qs = list(
+            Author.objects.annotate(
+                name_has_space=Length(RegexpSubstr('name', r'\s'))
+            ).filter(name_has_space=0)
+            .order_by('id').values_list('name', flat=True)
+        )
+        assert qs == ['Euripides', 'Sophocles']
 
 
 @skipIf(django.VERSION >= (1, 8),
