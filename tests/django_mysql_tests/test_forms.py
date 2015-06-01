@@ -339,3 +339,66 @@ class TestSimpleSetField(TestCase):
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean('')
         assert excinfo.value.messages[0] == 'This field is required.'
+
+
+class CustomSetField(SimpleSetField):
+
+    default_error_messages = dict(
+        SimpleSetField.default_error_messages,
+        items_no_commas="Commas are not allowed.",
+        items_no_empty="Empty items are not allowed."
+    )
+
+    def prepare_value_serialize(self, values):
+        return "&".join(values)
+
+    def to_python_deserialize(self, value):
+        if not value:
+            return []
+        else:
+            return [v for v in value.split('&')]
+
+
+class CustomSetFieldTests(TestCase):
+    """
+    Check that we can subclass SimpleListField and replace how data is
+    converted back and forth from the form easily
+    """
+    def test_valid(self):
+        field = CustomSetField(forms.CharField())
+        value = field.clean('a&b&c')
+        assert value == {'a', 'b', 'c'}
+
+    def test_to_python_no_empties(self):
+        field = CustomSetField(forms.IntegerField())
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean('1&')
+        assert (
+            excinfo.value.messages[0] ==
+            'Empty items are not allowed.'
+        )
+
+    def test_to_python_no_commas(self):
+        field = CustomSetField(forms.IntegerField())
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean(',1')
+        assert (
+            excinfo.value.messages[0] ==
+            'Commas are not allowed.'
+        )
+
+    def test_to_python_base_field_does_not_validate(self):
+        field = CustomSetField(forms.IntegerField())
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean('a&b&9')
+        assert (
+            excinfo.value.messages[0] ==
+            'Item 1 in the set did not validate: Enter a whole number.'
+        )
+
+    def test_prepare_value(self):
+        field = CustomSetField(forms.CharField())
+        value = field.prepare_value({'a', 'b', 'c'})
+        assert set(value.split('&')) == {'a', 'b', 'c'}
+
+        assert field.prepare_value('1&a') == '1&a'
