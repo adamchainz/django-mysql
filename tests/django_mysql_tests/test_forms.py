@@ -130,6 +130,69 @@ class TestSimpleListField(TestCase):
         assert excinfo.value.messages[0] == 'This field is required.'
 
 
+class CustomListField(SimpleListField):
+
+    default_error_messages = dict(
+        SimpleListField.default_error_messages,
+        items_no_commas="Commas are not allowed.",
+        items_no_empty="Empty lines are not allowed."
+    )
+
+    def prepare_value_serialize(self, values):
+        return "\n".join(values)
+
+    def to_python_deserialize(self, value):
+        if not value:
+            return []
+        else:
+            return value.splitlines()
+
+
+class CustomListFieldTests(TestCase):
+    """
+    Check that we can subclass SimpleListField and replace how data is
+    converted back and forth from the form easily
+    """
+    def test_valid(self):
+        field = CustomListField(forms.CharField())
+        value = field.clean('a\nb\nc')
+        assert value == ['a', 'b', 'c']
+
+    def test_to_python_no_empties(self):
+        field = CustomListField(forms.IntegerField())
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean('\n\n')
+        assert (
+            excinfo.value.messages[0] ==
+            'Empty lines are not allowed.'
+        )
+
+    def test_to_python_no_commas(self):
+        field = CustomListField(forms.IntegerField())
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean(',1')
+        assert (
+            excinfo.value.messages[0] ==
+            'Commas are not allowed.'
+        )
+
+    def test_to_python_base_field_does_not_validate(self):
+        field = CustomListField(forms.IntegerField())
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean('a\nb\n9')
+        assert (
+            excinfo.value.messages[0] ==
+            'Item 1 in the list did not validate: Enter a whole number.'
+        )
+
+    def test_prepare_value(self):
+        field = CustomListField(forms.CharField())
+        value = field.prepare_value(['a', 'b', 'c'])
+        assert value.split('\n') == ['a', 'b', 'c']
+
+        assert field.prepare_value('1\na') == '1\na'
+
+
 class TestSimpleSetField(TestCase):
 
     def test_valid(self):
