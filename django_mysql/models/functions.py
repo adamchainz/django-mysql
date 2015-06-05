@@ -165,3 +165,41 @@ class LastInsertId(Func):
         with connections[using].cursor() as cursor:
             cursor.execute("SELECT LAST_INSERT_ID()")
             return cursor.fetchone()[0]
+
+
+# MariaDB Regexp Functions
+
+class RegexpInstr(Func):
+    function = 'REGEXP_INSTR'
+
+    def __init__(self, expression, regex):
+        if not hasattr(regex, 'resolve_expression'):
+            regex = Value(regex)
+
+        super(RegexpInstr, self).__init__(expression, regex,
+                                          output_field=IntegerField())
+
+
+class RegexpReplace(Func):
+    function = 'REGEXP_REPLACE'
+
+    def __init__(self, expression, regex, replace):
+        if not hasattr(regex, 'resolve_expression'):
+            regex = Value(regex)
+
+        if not hasattr(replace, 'resolve_expression'):
+            replace = Value(replace)
+
+        super(RegexpReplace, self).__init__(expression, regex, replace,
+                                            output_field=CharField())
+
+
+class RegexpSubstr(Func):
+    function = 'REGEXP_SUBSTR'
+
+    def __init__(self, expression, regex):
+        if not hasattr(regex, 'resolve_expression'):
+            regex = Value(regex)
+
+        super(RegexpSubstr, self).__init__(expression, regex,
+                                           output_field=CharField())

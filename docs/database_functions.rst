@@ -140,7 +140,6 @@ Numeric Functions
 String Functions
 ----------------
 
-
 .. class:: ConcatWS(*expressions, separator=',')
 
     ``ConcatWS`` stands for Concatenate With Separator and is a special form of
@@ -213,6 +212,83 @@ String Functions
         ...     Field('gender', ['Female', 'Male'])
         ... )
 
+
+Regexp Functions
+----------------
+
+.. note::
+    These work with MariaDB 10.0.5+ only, which includes PCRE regular
+    expressions and these extra functions to use them. More information can be
+    found in `its documentation
+    <https://mariadb.com/kb/en/mariadb/regular-expressions-overview/>`_.
+
+
+.. class:: RegexpInstr(expression, regex)
+
+    Returns the 1-indexed position of the first occurrence of the regular
+    expression ``regex`` in the string value of ``expression``, or 0 if it was
+    not found.
+
+    Note that if ``expression`` is given as a string, it will refer to a
+    column, whilst if ``regex`` is a string, it will be used as a string. If
+    you want ``regex`` to refer to a column, use Django's ``F()`` class.
+
+    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_instr/>`_.
+
+    Usage example::
+
+        >>> Author.objects.annotate(name_pos=RegexpInstr('name', r'ens')) \
+        ...               .filter(name_pos__gt=0)
+        [<Author: Charles Dickens>, <Author: Robert Louis Stevenson>]
+
+
+.. class:: RegexpReplace(expression, regex, replace)
+
+    Returns the string value of ``expression`` with all occurrences of the
+    regular expression ``regex`` replaced by the string ``replace``. If no
+    occurrences are found, then subject is returned as is.
+
+    Note that if ``expression`` is given as a string, it will refer to a
+    column, whilst if either ``regex`` or ``replace`` are strings, they will be
+    used as strings. If you want ``regex`` or ``replace`` to refer to columns,
+    use Django's ``F()`` class.
+
+    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_replace/>`_.
+
+    Usage example::
+
+        >>> Author.objects.create(name="Charles Dickens")
+        >>> Author.objects.create(name="Roald Dahl")
+        >>> qs = Author.objects.annotate(
+        ...     surname_first=RegexpReplace('name', r'^(.*) (.*)$', r'\2, \1')
+        ... ).order_by('surname_first')
+        >>> qs
+        [<Author: Roald Dahl>, <Author: Charles Dickens>]
+        >>> qs[0].surname_first
+        "Dahl, Roald"
+
+
+.. class:: RegexpSubstr(expression, regex)
+
+    Returns the part of the string value of ``expression`` that matches the
+    regular expression ``regex``, or an empty string if ``regex`` was not
+    found.
+
+    Note that if ``expression`` is given as a string, it will refer to a
+    column, whilst if ``regex`` is a string, it will be used as a string. If
+    you want ``regex`` to refer to a column, use Django's ``F()`` class.
+
+    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_substr/>`_.
+
+    Usage example::
+
+        >>> Author.objects.create(name="Euripides")
+        >>> Author.objects.create(name="Frank Miller")
+        >>> Author.objects.create(name="Sophocles")
+        >>> Author.objects.annotate(
+        ...     name_has_space=CharLength(RegexpSubstr('name', r'\s'))
+        ... ).filter(name_has_space=0)
+        [<Author: Euripides>, <Author: Sophocles>]
 
 Encryption Functions
 --------------------
