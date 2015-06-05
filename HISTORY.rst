@@ -11,6 +11,7 @@ History
   ``RegexpReplace``, and ``RegexpSubstr``
 * Added the option to not limit the size of a ``MySQLCache`` by setting
   ``MAX_ENTRIES`` = -1.
+* `MySQLCache` performance improvements in `get`, `get_many`, and `has_key`
 
 0.2.0 (2015-05-14)
 ------------------

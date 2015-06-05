@@ -92,25 +92,22 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_read(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
+        now = int(time.time() * 1000)
         with connections[db].cursor() as cursor:
-            cursor.execute(self._get_query.format(table=table), (key,))
+            cursor.execute(self._get_query.format(table=table), (key, now))
             row = cursor.fetchone()
 
         if row is None:
             return default
-
-        value, value_type, expires = row
-
-        now = int(time.time() * 1000)
-        if expires < now:
-            return default
-
-        return self.decode(value, value_type)
+        else:
+            value, value_type = row
+            return self.decode(value, value_type)
 
     _get_query = collapse_spaces("""
-        SELECT value, value_type, expires
+        SELECT value, value_type
         FROM {table}
-        WHERE cache_key = %s
+        WHERE cache_key = %s AND
+              expires >= %s
     """)
 
     def get_many(self, keys, version=None):
@@ -125,29 +122,28 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_read(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
+        now = int(time.time() * 1000)
+
         with connections[db].cursor() as cursor:
             cursor.execute(
                 self._get_many_query.format(table=table),
-                (made_keys,)
+                (made_keys, now)
             )
             rows = cursor.fetchall()
 
-        d = {}
-        now = int(time.time() * 1000)
+        data = {}
 
-        for made_key, value, value_type, expires in rows:
-            if expires < now:
-                continue
-
+        for made_key, value, value_type in rows:
             key = made_key_to_key[made_key]
-            d[key] = self.decode(value, value_type)
+            data[key] = self.decode(value, value_type)
 
-        return d
+        return data
 
     _get_many_query = collapse_spaces("""
-        SELECT cache_key, value, value_type, expires
+        SELECT cache_key, value, value_type
         FROM {table}
-        WHERE cache_key IN %s
+        WHERE cache_key IN %s AND
+              expires >= %s
     """)
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
@@ -286,11 +282,15 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                """SELECT cache_key FROM %s
-                   WHERE cache_key = %%s and expires > %%s""" % table,
+                self._has_key_query.format(table=table),
                 (key, now)
             )
             return cursor.fetchone() is not None
+
+    _has_key_query = collapse_spaces("""
+        SELECT 1 FROM {table}
+        WHERE cache_key = %s and expires > %s
+    """)
 
     def incr(self, key, delta=1, version=None):
         return self._base_delta(key, delta, version, '+')
