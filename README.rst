@@ -2,8 +2,8 @@
 Django-MySQL
 ============
 
-.. image:: https://badge.fury.io/py/django-mysql.png
-    :target: http://badge.fury.io/py/django-mysql
+.. image:: https://img.shields.io/pypi/v/django-mysql.svg
+    :target: https://pypi.python.org/pypi/django-mysql
 
 .. image:: https://travis-ci.org/adamchainz/django-mysql.png?branch=master
         :target: https://travis-ci.org/adamchainz/django-mysql
@@ -11,7 +11,7 @@ Django-MySQL
 .. image:: https://coveralls.io/repos/adamchainz/django-mysql/badge.svg
         :target: https://coveralls.io/r/adamchainz/django-mysql
 
-.. image:: https://pypip.in/d/django-mysql/badge.png
+.. image:: https://img.shields.io/pypi/dm/django-mysql.svg
         :target: https://pypi.python.org/pypi/django-mysql
 
 .. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
