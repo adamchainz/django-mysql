@@ -1089,6 +1089,25 @@ class MySQLCacheTests(TransactionTestCase):
 
     # cull_mysql_caches tests
 
+    @override_cache_settings(options={'MAX_ENTRIES': -1})
+    def test_cull_max_entries_minus_one(self):
+        # cull with MAX_ENTRIES = -1 should never clear anything that is not
+        # expired
+
+        # one expired key
+        cache.set('key', 'value', 0.1)
+        time.sleep(0.2)
+
+        # 9k non-expired keys
+        for n in six.moves.range(9):
+            cache.set_many({
+                str(n * 1000 + i): True
+                for i in six.moves.range(1000)
+            })
+
+        cache.cull()
+        assert self.table_count() == 9000
+
     def test_cull_mysql_caches_basic(self):
         cache.set('key', 'value', 0.3)
         time.sleep(0.4)

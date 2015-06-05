@@ -188,6 +188,22 @@ ways:
    ...will call ``caches['default'].cull()`` and
    ``caches['other_cache'].cull()``.
 
+You can also disable the ``MAX_ENTRIES`` behaviour, which avoids the ``SELECT
+COUNT(*)`` entirely, and makes ``cull()`` only delete expired keys. To do this,
+set ``MAX_ENTRIES`` to -1::
+
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_mysql.cache.MySQLCache',
+            'LOCATION': 'some_table_name',
+            'OPTIONS': {
+                'MAX_ENTRIES': -1
+            }
+        }
+    }
+
+Note that you should then of course monitor the size of your cache table well,
+since it has no bounds on its growth.
 
 compression
 ~~~~~~~~~~~
