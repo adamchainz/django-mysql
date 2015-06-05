@@ -9,6 +9,8 @@ History
 * Pending release
 * Added Regexp database functions for MariaDB - ``RegexpInstr``,
   ``RegexpReplace``, and ``RegexpSubstr``
+* Added the option to not limit the size of a ``MySQLCache`` by setting
+  ``MAX_ENTRIES`` = -1.
 
 0.2.0 (2015-05-14)
 ------------------

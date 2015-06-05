@@ -419,6 +419,10 @@ class MySQLCache(BaseDatabaseCache):
                 (now,)
             )
 
+            # -1 means "Don't limit size"
+            if self._max_entries == -1:
+                return
+
             cursor.execute("SELECT COUNT(*) FROM {table}".format(table=table))
             num = cursor.fetchone()[0]
 
