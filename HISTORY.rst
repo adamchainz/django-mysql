@@ -12,6 +12,9 @@ History
 * Added the option to not limit the size of a ``MySQLCache`` by setting
   ``MAX_ENTRIES`` = -1.
 * `MySQLCache` performance improvements in `get`, `get_many`, and `has_key`
+* Added query-rewriting layer added which allows the use of MySQL query hints
+  such as ``STRAIGHT_JOIN`` via QuerySet methods, as well as adding label
+  comments to track where queries are generated.
 
 0.2.0 (2015-05-14)
 ------------------

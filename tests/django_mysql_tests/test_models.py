@@ -7,11 +7,12 @@ import pytest
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TransactionTestCase
+from django.test.utils import override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator
 from django_mysql.utils import have_program
-from django_mysql_tests.models import Author, NameAuthor, VanillaAuthor
-from django_mysql_tests.utils import captured_stdout
+from django_mysql_tests.models import Author, Book, NameAuthor, VanillaAuthor
+from django_mysql_tests.utils import CaptureLastQuery, captured_stdout
 
 
 class ApproximateCountTests(TransactionTestCase):
@@ -80,6 +81,123 @@ class ApproximateCountTests(TransactionTestCase):
         assert Author.objects.distinct().approx_count() == 10
         with pytest.raises(ValueError):
             Author.objects.distinct().approx_count(fall_back=False)
+
+
+class QueryHintTests(TransactionTestCase):
+
+    def test_label(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.label("QueryHintTests.test_label").all())
+        assert cap.query.startswith("SELECT /*QueryHintTests.test_label*/ ")
+
+    def test_label_twice(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.label("QueryHintTests")
+                               .label("test_label_twice")
+                               .all())
+        assert cap.query.startswith(
+            "SELECT /*QueryHintTests*/ /*test_label_twice*/ "
+        )
+
+    def test_label_star(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.label("I'ma*").label("*").all())
+        assert cap.query.startswith("SELECT /*I'ma**/ /***/ ")
+
+    def test_label_update(self):
+        Author.objects.create(name='UPDATEME')
+        with CaptureLastQuery() as cap:
+            Author.objects.label("QueryHintTests").update(name='UPDATED')
+        assert cap.query.startswith("UPDATE /*QueryHintTests*/ ")
+
+    def test_label_bad(self):
+        with self.assertRaises(ValueError):
+            Author.objects.label("badlabel*/")
+
+    def test_label_and_straight_join(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.label("QueryHintTests.test_label_and")
+                               .straight_join()
+                               .all())
+        assert cap.query.startswith(
+            "SELECT /*QueryHintTests.test_label_and*/ STRAIGHT_JOIN "
+        )
+
+    def test_straight_join(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.filter(books__title__startswith='A')
+                               .straight_join())
+
+        assert cap.query.startswith("SELECT STRAIGHT_JOIN ")
+
+    def test_straight_join_with_distinct(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.filter(tutor=None)
+                               .distinct()
+                               .values('books__title')
+                               .straight_join())
+
+        assert cap.query.startswith("SELECT DISTINCT STRAIGHT_JOIN ")
+
+    @override_settings(DJANGO_MYSQL_REWRITE_QUERIES=False)
+    def test_can_disable_setting(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.all().straight_join())
+
+        assert not cap.query.startswith("SELECT STRAIGHT_JOIN ")
+
+    def test_sql_cache(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.sql_cache().all())
+        assert cap.query.startswith("SELECT SQL_CACHE ")
+
+    def test_sql_no_cache(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.sql_no_cache().all())
+        assert cap.query.startswith("SELECT SQL_NO_CACHE ")
+
+    def test_sql_small_result(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.sql_small_result().all())
+        assert cap.query.startswith("SELECT SQL_SMALL_RESULT ")
+
+    def test_sql_big_result(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.sql_big_result().all())
+        assert cap.query.startswith("SELECT SQL_BIG_RESULT ")
+
+    def test_sql_buffer_result(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.sql_buffer_result().all())
+        assert cap.query.startswith("SELECT SQL_BUFFER_RESULT ")
+
+    def test_adding_many(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.straight_join()
+                               .sql_cache()
+                               .sql_big_result()
+                               .sql_buffer_result())
+        assert cap.query.startswith(
+            "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT SQL_CACHE "
+        )
+
+    def test_complex_query_1(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.distinct()
+                               .straight_join()
+                               .filter(books__title__startswith="A")
+                               .exclude(books__id__lte=1)
+                               .prefetch_related('tutees')
+                               .filter(bio__gt='')
+                               .exclude(bio__startswith='Once upon'))
+        assert cap.query.startswith("SELECT DISTINCT STRAIGHT_JOIN ")
+
+    def test_complex_query_2(self):
+        subq = Book.objects.straight_join().filter(title__startswith="A")
+        with CaptureLastQuery() as cap:
+            list(Author.objects.straight_join()
+                               .filter(books__in=subq))
+        assert cap.query.startswith("SELECT STRAIGHT_JOIN ")
 
 
 class SmartIteratorTests(TransactionTestCase):

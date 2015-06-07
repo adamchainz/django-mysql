@@ -2,6 +2,7 @@ import sys
 from contextlib import contextmanager
 
 from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.utils import six
 
 
@@ -41,3 +42,23 @@ def column_type(table_name, column_name):
             (table_name, column_name)
         )
         return cursor.fetchone()[0]
+
+
+class CaptureLastQuery(object):
+    def __init__(self, conn=None):
+        if conn is None:
+            self.conn = connection
+        else:
+            self.conn = conn
+
+    def __enter__(self):
+        self.capturer = CaptureQueriesContext(self.conn)
+        self.capturer.__enter__()
+        return self
+
+    def __exit__(self, a, b, c):
+        self.capturer.__exit__(a, b, c)
+
+    @property
+    def query(self):
+        return self.capturer.captured_queries[-1]['sql']
