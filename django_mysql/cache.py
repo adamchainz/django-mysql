@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
-import time
 import zlib
 from random import random
 from textwrap import dedent
+from time import time
 
 import django
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
@@ -77,6 +77,11 @@ class MySQLCache(BaseDatabaseCache):
         );
     ''')
 
+    @classmethod
+    def _now(cls):
+        # Values in the expires column are milliseconds since unix epoch (UTC)
+        return int(time() * 1000)
+
     def __init__(self, table, params):
         super(MySQLCache, self).__init__(table, params)
         options = params.get('OPTIONS', {})
@@ -92,9 +97,11 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_read(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
-        now = int(time.time() * 1000)
         with connections[db].cursor() as cursor:
-            cursor.execute(self._get_query.format(table=table), (key, now))
+            cursor.execute(
+                self._get_query.format(table=table),
+                (key, self._now())
+            )
             row = cursor.fetchone()
 
         if row is None:
@@ -122,12 +129,10 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_read(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
-        now = int(time.time() * 1000)
-
         with connections[db].cursor() as cursor:
             cursor.execute(
                 self._get_many_query.format(table=table),
-                (made_keys, now)
+                (made_keys, self._now())
             )
             rows = cursor.fetchall()
 
@@ -164,8 +169,6 @@ class MySQLCache(BaseDatabaseCache):
         self._maybe_cull()
         with connections[db].cursor() as cursor:
 
-            now = int(time.time() * 1000)
-
             value, value_type = self.encode(value)
 
             if mode == 'set':
@@ -173,7 +176,7 @@ class MySQLCache(BaseDatabaseCache):
                 params = (key, value, value_type, exp)
             elif mode == 'add':
                 query = self._add_query
-                params = (key, value, value_type, exp, now)
+                params = (key, value, value_type, exp, self._now())
 
             cursor.execute(query.format(table=table), params)
 
@@ -278,12 +281,10 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_read(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
-        now = int(time.time() * 1000)
-
         with connections[db].cursor() as cursor:
             cursor.execute(
                 self._has_key_query.format(table=table),
-                (key, now)
+                (key, self._now())
             )
             return cursor.fetchone() is not None
 
@@ -413,10 +414,9 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             # First, try just deleting expired keys
-            now = int(time.time() * 1000)
             num_deleted = cursor.execute(
                 "DELETE FROM {table} WHERE expires < %s".format(table=table),
-                (now,)
+                (self._now(),)
             )
 
             # -1 means "Don't limit size"
