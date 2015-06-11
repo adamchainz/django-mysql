@@ -864,7 +864,7 @@ class MySQLCacheTests(TransactionTestCase):
 
         time.sleep(0.4)
 
-        result = cache.add("mykey", "newvalue", 1)
+        result = cache.add("mykey", "newvalue", 60)
         assert result
         assert cache.get("mykey") == "newvalue"
 
