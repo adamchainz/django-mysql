@@ -2,12 +2,17 @@
 from threading import Thread
 
 import pytest
-from django.db import connection
-from django.test import TestCase
+from django.db import OperationalError, connection
+from django.db.transaction import TransactionManagementError, atomic
+from django.test import TestCase, TransactionTestCase
 from django.utils.six.moves import queue
 
 from django_mysql.exceptions import TimeoutError
-from django_mysql.locks import Lock
+from django_mysql.locks import Lock, TableLock
+from django_mysql.models import Model
+from django_mysql_tests.models import (
+    AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer
+)
 
 
 class LockTests(TestCase):
@@ -205,3 +210,183 @@ class LockTests(TestCase):
 
         assert Lock.held_with_prefix('') == {}
         assert Lock.held_with_prefix('mylock') == {}
+
+
+class TableLockTests(TransactionTestCase):
+    def tearDown(self):
+        Alphabet.objects.all().delete()
+        Alphabet.objects.using('other').all().delete()
+        Customer.objects.all().delete()
+        Customer.objects.using('other').all().delete()
+
+    def test_write(self):
+        Alphabet.objects.create(a=12345)
+        with TableLock(write=[Alphabet]):
+            assert Alphabet.objects.count() == 1
+
+            Alphabet.objects.all().delete()
+            assert Alphabet.objects.count() == 0
+
+        assert Alphabet.objects.count() == 0
+
+    def test_write_with_table_name(self):
+        Alphabet.objects.create(a=71718)
+        with TableLock(write=[Alphabet._meta.db_table]):
+            assert Alphabet.objects.count() == 1
+
+            Alphabet.objects.all().delete()
+            assert Alphabet.objects.count() == 0
+
+        assert Alphabet.objects.count() == 0
+
+    def test_write_with_using(self):
+        Alphabet.objects.using('other').create(a=878787)
+        with TableLock(write=[Alphabet], using='other'):
+            assert Alphabet.objects.using('other').count() == 1
+
+            Alphabet.objects.using('other').all().delete()
+            assert Alphabet.objects.using('other').count() == 0
+
+        assert Alphabet.objects.using('other').count() == 0
+
+    def test_write_twice(self):
+        with TableLock(write=[Alphabet]):
+            Alphabet.objects.create(a=1)
+
+        with TableLock(write=[Alphabet]):
+            Alphabet.objects.create(a=2)
+
+    def test_write_fails_touching_other_table(self):
+        with pytest.raises(OperationalError) as excinfo:
+            with TableLock(write=[Alphabet]):
+                Customer.objects.create(name="Lizzy")
+
+        assert "was not locked with LOCK TABLES" in str(excinfo.value)
+
+    def test_read_and_write(self):
+        Customer.objects.create(name="Fred")
+        with TableLock(read=[Customer], write=[Alphabet]):
+            ab = Alphabet.objects.create(a=Customer.objects.count())
+            assert ab.a == 1
+
+    def test_creates_an_atomic(self):
+        assert connection.get_autocommit() == 1
+        assert not connection.in_atomic_block
+        with TableLock(read=[Alphabet]):
+            assert connection.get_autocommit() == 0
+            assert connection.in_atomic_block
+        assert connection.get_autocommit() == 1
+        assert not connection.in_atomic_block
+
+    def test_fails_in_atomic(self):
+        with atomic(), pytest.raises(TransactionManagementError) as excinfo:
+            with TableLock(read=[Alphabet]):
+                pass
+
+        assert str(excinfo.value).startswith("InnoDB requires that we not be")
+
+    def test_fail_nested(self):
+        with pytest.raises(TransactionManagementError) as excinfo:
+            with TableLock(write=[Alphabet]), TableLock(write=[Customer]):
+                pass
+
+        assert str(excinfo.value).startswith("InnoDB requires that we not be")
+
+    def test_atomic_works_in_lock(self):
+        Alphabet.objects.create(a=4567)
+        with TableLock(write=[Alphabet]):
+            assert Alphabet.objects.count() == 1
+
+            try:
+                with atomic():
+                    raise ValueError("Hi")
+            except ValueError:
+                pass
+
+            Alphabet.objects.all().delete()
+            assert Alphabet.objects.count() == 0
+
+    def test_writes_fail_under_read(self):
+        with TableLock(read=[Alphabet]):
+            with pytest.raises(OperationalError) as excinfo:
+                Alphabet.objects.update(a=2)
+
+            assert (
+                "was locked with a READ lock and can't be updated" in
+                str(excinfo.value)
+            )
+
+    def test_fails_with_abstract_model(self):
+        with pytest.raises(ValueError) as excinfo:
+            with TableLock(read=[Model]):
+                pass
+
+        assert "Can't lock abstract model Model" in str(excinfo.value)
+
+    def test_proxy_model(self):
+        Alphabet.objects.create(a=2, b=3)
+
+        with TableLock(read=[ProxyAlphabet]):
+            ab = ProxyAlphabet.objects.get()
+            assert ab.a_times_b == 6
+
+        with TableLock(write=[ProxyAlphabet]):
+            assert ProxyAlphabet.objects.count() == 1
+            ProxyAlphabet.objects.all().delete()
+            assert ProxyAlphabet.objects.count() == 0
+
+        assert ProxyAlphabet.objects.count() == 0
+
+    def test_inherited_model(self):
+        TitledAgedCustomer.objects.create(title="Sir", name="Knighty")
+
+        with TableLock(write=[TitledAgedCustomer]):
+            assert Customer.objects.count() == 1
+
+            TitledAgedCustomer.objects.create(name="Grandpa Potts", age=99)
+            assert Customer.objects.count() == 2
+            assert TitledAgedCustomer.objects.count() == 2
+
+            TitledAgedCustomer.objects.all().delete()
+            assert Customer.objects.count() == 0
+            assert AgedCustomer.objects.count() == 0
+            assert TitledAgedCustomer.objects.count() == 0
+
+        assert Customer.objects.count() == 0
+        assert AgedCustomer.objects.count() == 0
+        assert TitledAgedCustomer.objects.count() == 0
+
+    def test_inherited_model_top_parent_fails(self):
+        AgedCustomer.objects.create(age=99999, name="Methuselah")
+        with pytest.raises(OperationalError) as excinfo:
+            with TableLock(write=[Customer]):
+                # Django automatically follows down to children which aren't
+                # locked
+                Customer.objects.all().delete()
+        assert "was not locked with LOCK TABLES" in str(excinfo.value)
+
+    def test_read_and_write_with_threads(self):
+        to_me = queue.Queue()
+
+        def get_read_lock():
+            with TableLock(read=[Alphabet]):
+                to_me.put("Reading")
+
+        try:
+            # Thread can obtain lock alone
+            other_thread = Thread(target=get_read_lock)
+            other_thread.start()
+            assert to_me.get() == "Reading"
+
+            with TableLock(write=[Alphabet]):
+                other_thread = Thread(target=get_read_lock)
+                other_thread.start()
+
+                # Doesn't lock now
+                with pytest.raises(queue.Empty):
+                    to_me.get(timeout=0.2)
+
+            # Gets now
+            assert to_me.get() == "Reading"
+        finally:
+            other_thread.join()

@@ -130,6 +130,29 @@ class Alphabet(Model):
     g = DecimalField(default=0, decimal_places=2, max_digits=10)
 
 
+class ProxyAlphabet(Alphabet):
+    class Meta:
+        proxy = True
+
+    @property
+    def a_times_b(self):
+        return self.a * self.b
+
+
+class Customer(Model):
+    name = CharField(max_length=32)
+
+
+class AgedCustomer(Customer):
+    age = IntegerField(default=21)
+
+
+class TitledAgedCustomer(AgedCustomer):
+    class Meta:
+        db_table = 'titled aged customer'  # Test name quoting
+    title = CharField(max_length=16)
+
+
 class SizeFieldModel(Model):
     binary1 = SizedBinaryField(size_class=1)
     binary2 = SizedBinaryField(size_class=2)

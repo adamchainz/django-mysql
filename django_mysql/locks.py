@@ -1,5 +1,8 @@
 # -*- coding:utf-8 -*-
+from collections import OrderedDict
+
 from django.db import connections
+from django.db.transaction import TransactionManagementError, atomic
 from django.db.utils import DEFAULT_DB_ALIAS
 
 from django_mysql.exceptions import TimeoutError
@@ -83,3 +86,67 @@ class Lock(object):
                 cls.unmake_name(using, row[0]): row[1]
                 for row in cursor.fetchall()
             }
+
+
+class TableLock(object):
+    def __init__(self, read=None, write=None, using=None):
+        self.read = self._process_names(read)
+        self.write = self._process_names(write)
+        self.db = DEFAULT_DB_ALIAS if using is None else using
+
+    def _process_names(self, names):
+        """
+        Convert a list of models/table names into a list of table names. Deals
+        with cases of model inheritance, etc.
+        """
+        if names is None:
+            return []
+
+        table_names = OrderedDict()  # Preserve order and ignore duplicates
+        while len(names):
+            name = names.pop(0)
+            if hasattr(name, '_meta'):
+                if name._meta.abstract:
+                    raise ValueError("Can't lock abstract model {}"
+                                     .format(name.__name__))
+
+                table_names[name._meta.db_table] = True
+                # Include all parent models - the keys are the model classes
+                if name._meta.parents:
+                    names.extend(name._meta.parents.keys())
+            else:
+                table_names[name] = True
+        return table_names.keys()
+
+    def __enter__(self):
+        self.lock()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.unlock(exc_type, exc_value, traceback)
+
+    def lock(self):
+        connection = connections[self.db]
+        qn = connection.ops.quote_name
+        with connection.cursor() as cursor:
+            if not connection.get_autocommit():
+                raise TransactionManagementError(
+                    "InnoDB requires that we not be in a transaction when "
+                    "gaining a table lock.")
+
+            # Begin transaction - does 'SET autocommit = 0'
+            self._atomic = atomic(using=self.db)
+            self._atomic.__enter__()
+
+            locks = []
+            for name in self.read:
+                locks.append("{} READ".format(qn(name)))
+            for name in self.write:
+                locks.append("{} WRITE".format(qn(name)))
+            cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
+
+    def unlock(self, exc_type, exc_value, traceback):
+        connection = connections[self.db]
+        with connection.cursor() as cursor:
+            self._atomic.__exit__(exc_type, exc_value, traceback)
+            self._atomic = None
+            cursor.execute("UNLOCK TABLES")

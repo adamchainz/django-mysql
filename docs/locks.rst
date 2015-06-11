@@ -119,3 +119,57 @@ The following can be imported from ``django_mysql.locks``.
                         # Install https://mariadb.com/kb/en/mariadb/metadata_lock_info/
                         InstallSOName('metadata_lock_info')
                     ]
+
+.. class:: TableLock(write=None, read=none, using=None)
+
+    MySQL allows you to gain a table lock to prevent modifications to the data
+    during reads or writes. Most applications don't need to do this since
+    transaction isolation should provide enough separation between operations,
+    but occasionally this can be useful, especially in data migrations or if
+    you are using a non-transactional storage such as MyISAM.
+
+    This class implements table locking as a context manager, using the
+    transactional pattern from the manual to ensure all the necessary steps are
+    taken to lock tables properly. Note that locking has no timeout and blocks
+    until held.
+
+    Basic usage::
+
+        from django_mysql.locks import TableLock
+
+        with TableLock(read=[MyModel1], write=[MyModel2]):
+            fix_bad_instances_of_my_model2_using_my_model1_data()
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/lock-tables.html>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/lock-tables-and-unlock-tables/>`_.
+
+    .. attribute:: read
+
+        A list of models or raw table names to lock at the ``READ`` level. Any
+        models using multi-table inheritance will also lock their parents.
+
+    .. attribute:: write
+
+        A list of models or raw table names to lock at the ``WRITE`` level. Any
+        models using multi-table inheritance will also lock their parents.
+
+    .. attribute:: using=None
+
+        The connection alias from ``DATABASES`` to use. Defaults to Django's
+        ``DEFAULT_DB_ALIAS`` to use your main database connection.
+
+    .. note::
+
+        Transactions are not allowed around table locks, and an error will be
+        raised if you try and use one inside of a transaction. A transaction is
+        created to hold the locks in order to cooperate with InnoDB. There are
+        a number of things you can't do whilst holding a table lock, for
+        example accessing tables other than those you have locked - see the
+        MySQL/MariaDB documentation for more details.
+
+    .. note::
+
+        Table locking works on InnoDB tables only if the ``innodb_table_locks``
+        is set to 1. This is the default, but may have been changed for your
+        environment.
