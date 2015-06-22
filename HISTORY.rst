@@ -3,15 +3,19 @@
 History
 =======
 
-0.2.1 (unreleased)
+0.2.2 (unreleased)
 ------------------
 
 * Pending release
+
+0.2.1 (2015-06-22)
+------------------
+
 * Added Regexp database functions for MariaDB - ``RegexpInstr``,
   ``RegexpReplace``, and ``RegexpSubstr``
 * Added the option to not limit the size of a ``MySQLCache`` by setting
   ``MAX_ENTRIES`` = -1.
-* `MySQLCache` performance improvements in `get`, `get_many`, and `has_key`
+* ``MySQLCache`` performance improvements in `get`, `get_many`, and `has_key`
 * Added query-rewriting layer added which allows the use of MySQL query hints
   such as ``STRAIGHT_JOIN`` via QuerySet methods, as well as adding label
   comments to track where queries are generated.
