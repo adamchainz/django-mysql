@@ -353,6 +353,30 @@ class SmartIteratorTests(TransactionTestCase):
         seen = [author.id for author in Author.objects.iter_smart()]
         assert seen == [first.id, last.id]
 
+    def test_iter_smart_pk_range(self):
+        seen = []
+        for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
+            seen.extend(
+                Author.objects.filter(id__gte=start_pk, id__lt=end_pk)
+                              .values_list('id', flat=True)
+            )
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
+
+    def test_iter_smart_pk_range_with_raw(self):
+        seen = []
+        for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
+            authors = Author.objects.raw("""
+                SELECT id FROM {}
+                WHERE id >= %s AND id < %s
+            """.format(Author._meta.db_table), (start_pk, end_pk))
+            seen.extend(author.id for author in authors)
+
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
+
     def test_reporting(self):
         with captured_stdout() as output:
             qs = Author.objects.all()
@@ -411,7 +435,7 @@ class SmartIteratorTests(TransactionTestCase):
 
         assert lines[1] == 'Finished!'
 
-    def test_running_on_non_mysql_model(self):
+    def test_filter_and_delete(self):
         VanillaAuthor.objects.create(name="Alpha")
         VanillaAuthor.objects.create(name="pants")
         VanillaAuthor.objects.create(name="Beta")
