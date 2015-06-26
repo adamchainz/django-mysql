@@ -426,7 +426,9 @@ can be thought of in one of these two methods.
 
     A convenience subclass of ``SmartChunkedIterator`` that simply unpacks the
     chunks for you. Can be accessed via the ``iter_smart`` method of
-    ``QuerySetMixin``. For example, rather than doing this::
+    ``QuerySetMixin``.
+
+    For example, rather than doing this::
 
         bad_authors = Author.objects.filter(address="Nowhere")
         for authors_chunk in bad_authors.iter_smart_chunks():
@@ -439,8 +441,47 @@ can be thought of in one of these two methods.
         for author in bad_authors.iter_smart():
             author.send_apology_email()
 
-    All the same arguments are accepted.
+    All the same arguments as ``SmartChunkedIterator`` are accepted.
 
+
+.. class:: SmartPKRangeIterator
+
+    A subclass of ``SmartChunkedIterator`` that doesn't return the chunk's
+    ``QuerySet`` but instead returns the start and end primary keys for the
+    chunk. This may be useful when you want to iterate but the slices need to
+    be used in a raw SQL query. Can be accessed via the ``iter_smart`` method
+    of ``QuerySetMixin``.
+
+    For example, rather than doing this::
+
+        for authors_chunk in Author.objects.iter_smart_chunks():
+            limits = author_chunk.aggregate(min_pk=Min('pk'), max_pk=Max('pk'))
+            authors = Author.objects.raw("""
+                SELECT name from app_author
+                WHERE id >= %s AND id <= %s
+            """, (limits['min_pk'], limits['max_pk']))
+            # etc...
+
+    You can do this::
+
+        for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
+            authors = Author.objects.raw("""
+                SELECT name from app_author
+                WHERE id >= %s AND id < %s
+            """, (start_pk, end_pk))
+            # etc...
+
+    In the first format we were forced to perform a dumb query to determine the
+    primary key limits set by ``SmartChunkedIterator``, due to the ``QuerySet``
+    not otherwise exposing this information.
+
+    .. note::
+         There is a **subtle** difference between the two versions. In the
+         first the end boundary, ``max_pk``, is a closed bound, whereas in the
+         second, the ``end_pk`` from ``iter_smart_pk_ranges`` is an open bound.
+         Thus the ``<=`` changes to a ``<``.
+
+    All the same arguments as ``SmartChunkedIterator`` are accepted.
 
 .. _pt-visual-explain:
 

@@ -116,6 +116,11 @@ class QuerySetMixin(object):
             "You can't pass another queryset in through iter_smart_chunks!"
         return SmartChunkedIterator(queryset=self, **kwargs)
 
+    def iter_smart_pk_ranges(self, **kwargs):
+        assert 'queryset' not in kwargs, \
+            "You can't pass another queryset in through iter_smart_pk_ranges!"
+        return SmartPKRangeIterator(queryset=self, **kwargs)
+
     def pt_visual_explain(self, display=True):
         return pt_visual_explain(self, display)
 
@@ -180,6 +185,9 @@ class SmartChunkedIterator(object):
 
             with StopWatch() as timer, self.maybe_atomic(using=db_alias):
                 chunk = self.queryset.filter(pk__gte=start_pk, pk__lt=end_pk)
+                # Attach the start_pk, end_pk onto the chunk queryset so they
+                # can be read by SmartRangeIterator or other client code
+                chunk._smart_iterator_pks = (start_pk, end_pk)
                 yield chunk
                 self.update_progress(chunk=chunk, end_pk=end_pk)
 
@@ -335,6 +343,13 @@ class SmartIterator(SmartChunkedIterator):
         for chunk in super(SmartIterator, self).__iter__():
             for obj in chunk:
                 yield obj
+
+
+class SmartPKRangeIterator(SmartChunkedIterator):
+    def __iter__(self):
+        for chunk in super(SmartPKRangeIterator, self).__iter__():
+            start_pk, end_pk = chunk._smart_iterator_pks
+            yield start_pk, end_pk
 
 
 def approx_count(queryset):

@@ -7,6 +7,8 @@ History
 ------------------
 
 * Pending release
+* Added ``iter_smart_pk_ranges`` which is similar to ``iter_smart_chunks`` but
+  yields only the start and end primary keys for each chunks, in a tuple.
 
 0.2.1 (2015-06-22)
 ------------------
