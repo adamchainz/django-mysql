@@ -300,8 +300,9 @@ can be thought of in one of these two methods.
 
 .. class:: SmartChunkedIterator(queryset, atomically=True, \
                                 status_thresholds=None, pk_range=None, \
-                                chunk_time=0.5, chunk_max=10000, \
-                                report_progress=False, total=None)
+                                chunk_time=0.5, chunk_size=2, \
+                                chunk_max=10000, report_progress=False, \
+                                total=None)
 
     Implements a smart iteration strategy over the given ``queryset``. There is
     a method ``iter_smart_chunks`` that takes the same arguments on the
@@ -388,6 +389,11 @@ can be thought of in one of these two methods.
         is taken from the analogous ``pt-online-schema-change`` flag
         `--chunk-time <http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--chunk-time>`_.
 
+    .. attribute:: chunk_size=2
+
+        The initial size of the chunk that will be used. As this will be
+        dynamically scaled and can grow fairly quickly, the initial size of 2
+        should be appropriate for most use cases.
 
     .. attribute:: chunk_max=100000
 
