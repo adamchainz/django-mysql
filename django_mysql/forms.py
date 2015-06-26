@@ -18,10 +18,29 @@ __all__ = ('SimpleListField', 'SimpleSetField')
 
 class SimpleListField(forms.CharField):
 
+    # These bits can be overridden to change the way the field serializes and
+    # deserializes for the user, e.g. line-delimited, json, etc.
+
     default_error_messages = {
         'item_n_invalid': _('Item %(nth)s in the list did not validate: '),
-        'no_double_commas': _('No leading, trailing, or double commas.'),
+        'items_no_commas': _('No leading, trailing, or double commas.'),
+        # The 'empty' message is the same as 'no commas' by default, since the
+        # only reason empty strings could arise with the basic comma-splitting
+        # logic is with extra commas. This may not be true in custom subclasses
+        # however.
+        'items_no_empty': _('No leading, trailing, or double commas.'),
     }
+
+    def prepare_value_serialize(self, values):
+        return ",".join(values)
+
+    def to_python_deserialize(self, value):
+        if not value:
+            return []
+        else:
+            return value.split(",")
+
+    # Internals
 
     def __init__(self, base_field, max_length=None, min_length=None,
                  *args, **kwargs):
@@ -36,25 +55,29 @@ class SimpleListField(forms.CharField):
 
     def prepare_value(self, value):
         if isinstance(value, list):
-            return ",".join(
-                six.text_type(self.base_field.prepare_value(v))
-                for v in value
+            return self.prepare_value_serialize(
+                (six.text_type(self.base_field.prepare_value(v))
+                 for v in value)
             )
         return value
 
     def to_python(self, value):
-        if value and len(value):
-            items = value.split(",")
-        else:
-            items = []
+        items = self.to_python_deserialize(value)
 
         errors = []
         values = []
         for i, item in enumerate(items, start=1):
             if not len(item):
                 errors.append(ValidationError(
-                    self.error_messages['no_double_commas'],
-                    code='no_double_commas',
+                    self.error_messages['items_no_empty'],
+                    code='items_no_empty',
+                ))
+                continue
+
+            if ',' in item:
+                errors.append(ValidationError(
+                    self.error_messages['items_no_commas'],
+                    code='items_no_commas',
                 ))
                 continue
 
@@ -116,15 +139,35 @@ class SimpleListField(forms.CharField):
 
 
 class SimpleSetField(forms.CharField):
-    empty_values = list(validators.EMPTY_VALUES) + [set()]
+
+    # These bits can be overridden to change the way the field serializes and
+    # deserializes for the user, e.g. line-delimited, json, etc.
 
     default_error_messages = {
         'item_invalid': _('Item "%(item)s" in the set did not validate: '),
         'item_n_invalid': _('Item %(nth)s in the set did not validate: '),
-        'no_double_commas': _('No leading, trailing, or double commas.'),
         'no_duplicates': _("Duplicates are not supported. "
-                           "'%(item)s' appears twice or more.")
+                           "'%(item)s' appears twice or more."),
+        'items_no_commas': _('No leading, trailing, or double commas.'),
+        # The 'empty' message is the same as 'no commas' by default, since the
+        # only reason empty strings could arise with the basic comma-splitting
+        # logic is with extra commas. This may not be true in custom subclasses
+        # however.
+        'items_no_empty': _('No leading, trailing, or double commas.'),
     }
+
+    def prepare_value_serialize(self, values):
+        return ",".join(values)
+
+    def to_python_deserialize(self, value):
+        if not value:
+            return []
+        else:
+            return value.split(",")
+
+    # Internals
+
+    empty_values = list(validators.EMPTY_VALUES) + [set()]
 
     def __init__(self, base_field, max_length=None, min_length=None,
                  *args, **kwargs):
@@ -139,25 +182,29 @@ class SimpleSetField(forms.CharField):
 
     def prepare_value(self, value):
         if isinstance(value, set):
-            return ",".join(
-                six.text_type(self.base_field.prepare_value(v))
-                for v in value
+            return self.prepare_value_serialize(
+                (six.text_type(self.base_field.prepare_value(v))
+                 for v in value)
             )
         return value
 
     def to_python(self, value):
-        if value and len(value):
-            items = value.split(",")
-        else:
-            items = []
+        items = self.to_python_deserialize(value)
 
         errors = []
         values = set()
         for i, item in enumerate(items, start=1):
             if not len(item):
                 errors.append(ValidationError(
-                    self.error_messages['no_double_commas'],
-                    code='no_double_commas',
+                    self.error_messages['items_no_empty'],
+                    code='items_no_empty',
+                ))
+                continue
+
+            if ',' in item:
+                errors.append(ValidationError(
+                    self.error_messages['items_no_commas'],
+                    code='items_no_commas',
                 ))
                 continue
 
