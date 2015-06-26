@@ -206,6 +206,11 @@ class SmartIteratorTests(TransactionTestCase):
         super(SmartIteratorTests, self).setUp()
         Author.objects.bulk_create([Author() for i in range(10)])
 
+    def tearDown(self):
+        super(SmartIteratorTests, self).tearDown()
+        Author.objects.all().delete()
+        VanillaAuthor.objects.all().delete()
+
     def test_bad_querysets(self):
         with pytest.raises(ValueError) as excinfo:
             Author.objects.all().order_by('name').iter_smart_chunks()
@@ -288,9 +293,45 @@ class SmartIteratorTests(TransactionTestCase):
             seen = [author.id for author in Author.objects.iter_smart()]
         assert seen == []
 
+    def test_objects_chunk_size(self):
+        smart = iter(Author.objects.iter_smart_chunks(chunk_size=3))
+        chunk = next(smart)
+        assert len(list(chunk)) == 3
+
+    def test_objects_chunk_size_1(self):
+        smart = iter(Author.objects.iter_smart_chunks(chunk_size=1))
+        chunk = next(smart)
+        assert len(list(chunk)) == 1
+
     def test_objects_max_size(self):
-        seen = [author.id for author in
-                Author.objects.iter_smart(chunk_max=1)]
+        seen = []
+        for chunk in Author.objects.iter_smart_chunks(chunk_max=3):
+            ids = [author.id for author in chunk]
+            assert len(ids) <= 3
+            seen.extend(ids)
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
+
+    def test_objects_max_size_1(self):
+        seen = []
+        for chunk in Author.objects.iter_smart_chunks(chunk_max=1):
+            ids = [author.id for author in chunk]
+            assert len(ids) == 1
+            seen.extend(ids)
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
+
+    def test_objects_max_size_bounds_chunk_size(self):
+        smart = iter(Author.objects.iter_smart_chunks(chunk_max=5,
+                                                      chunk_size=1000))
+
+        seen = []
+        for chunk in smart:
+            ids = [author.id for author in chunk]
+            assert len(ids) <= 5
+            seen.extend(ids)
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
         assert seen == all_ids

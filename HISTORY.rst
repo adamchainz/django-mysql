@@ -7,6 +7,8 @@ History
 ------------------
 
 * Pending release
+* ``SmartChunkedIterator`` now takes an argument ``chunk_size`` as the initial
+  chunk size
 
 0.2.1 (2015-06-22)
 ------------------
