@@ -1,16 +1,20 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
+import re
 import zlib
 from random import random
 from textwrap import dedent
 from time import time
 
 import django
-from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
+from django.core.cache.backends.base import (
+    DEFAULT_TIMEOUT, BaseCache, default_key_func
+)
 from django.db import connections, router
 from django.utils import six
 from django.utils.encoding import force_bytes
+from django.utils.module_loading import import_string
 
 from django_mysql.utils import collapse_spaces
 
@@ -59,6 +63,36 @@ class BaseDatabaseCache(BaseCache):
         self.cache_model_class = CacheEntry
 
 
+reverse_key_re = re.compile(r'^([^:]*):(\d+):(.*)')
+
+
+def default_reverse_key_func(full_key):
+    """
+    Reverse of Django's default_key_func, i.e. undoing:
+
+        def default_key_func(key, key_prefix, version):
+            return '%s:%s:%s' % (key_prefix, version, key)
+    """
+    match = reverse_key_re.match(full_key)
+    return match.group(3), match.group(1), int(match.group(2))
+
+
+def get_reverse_key_func(reverse_key_func):
+    """
+    Function to decide which reverse key function to use
+
+    Defaults to ``None``, as any other value might not apply to the given
+    KEY_FUNCTION. Also the user may not use any of the operations that require
+    reversing the key_func.
+    """
+    if reverse_key_func is not None:
+        if callable(reverse_key_func):
+            return reverse_key_func
+        else:
+            return import_string(reverse_key_func)
+    return None
+
+
 class MySQLCache(BaseDatabaseCache):
 
     # Got an error with the add() query using BIGINT_UNSIGNED_MAX, so use a
@@ -88,6 +122,19 @@ class MySQLCache(BaseDatabaseCache):
         self._compress_min_length = options.get('COMPRESS_MIN_LENGTH', 5000)
         self._compress_level = options.get('COMPRESS_LEVEL', 6)
         self._cull_probability = options.get('CULL_PROBABILITY', 0.01)
+
+        # Figure out our *reverse* key function
+        if self.key_func is default_key_func:
+            self.reverse_key_func = default_reverse_key_func
+            if ':' in self.key_prefix:
+                raise ValueError(
+                    "Cannot use the default KEY_FUNCTION and "
+                    "REVERSE_KEY_FUNCTION if you have a colon in your "
+                    "KEY_PREFIX."
+                )
+        else:
+            reverse_key_func = params.get('REVERSE_KEY_FUNCTION', None)
+            self.reverse_key_func = get_reverse_key_func(reverse_key_func)
 
     # Django API + helpers
 
@@ -407,6 +454,88 @@ class MySQLCache(BaseDatabaseCache):
         return int(timeout * 1000)
 
     # Our API extensions
+
+    def keys_with_prefix(self, prefix, version=None):
+        if self.reverse_key_func is None:
+            raise ValueError(
+                "To use the _with_prefix commands with a custom KEY_FUNCTION, "
+                "you need to specify a custom REVERSE_KEY_FUNCTION too."
+            )
+
+        if version is None:
+            version = self.version
+
+        db = router.db_for_read(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+
+        prefix = self.make_key(prefix + '%', version=version)
+
+        with connections[db].cursor() as cursor:
+            cursor.execute(
+                """SELECT cache_key FROM {table}
+                   WHERE cache_key LIKE %s AND
+                         expires >= %s""".format(table=table),
+                (prefix, self._now())
+            )
+            rows = cursor.fetchall()
+            full_keys = {row[0] for row in rows}
+
+            keys = {}
+            for full_key in full_keys:
+                key, key_prefix, key_version = self.reverse_key_func(full_key)
+
+                if key_version == version:
+                    keys[key] = key_version
+            return set(six.iterkeys(keys))
+
+    def get_with_prefix(self, prefix, version=None):
+        if self.reverse_key_func is None:
+            raise ValueError(
+                "To use the _with_prefix commands with a custom KEY_FUNCTION, "
+                "you need to specify a custom REVERSE_KEY_FUNCTION too."
+            )
+
+        if version is None:
+            version = self.version
+
+        db = router.db_for_read(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+
+        prefix = self.make_key(prefix + '%', version=version)
+        version = six.text_type(version)
+
+        with connections[db].cursor() as cursor:
+            cursor.execute(
+                """SELECT cache_key, value, value_type
+                   FROM {table}
+                   WHERE cache_key LIKE %s AND
+                         expires >= %s""".format(table=table),
+                (prefix, self._now())
+            )
+            rows = cursor.fetchall()
+
+            data = {}
+            for made_key, value, value_type in rows:
+                key, key_prefix, key_version = self.reverse_key_func(made_key)
+                data[key] = self.decode(value, value_type)
+
+            return data
+
+    def delete_with_prefix(self, prefix, version=None):
+        if version is None:
+            version = self.version
+
+        db = router.db_for_write(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+
+        prefix = self.make_key(prefix + '%', version=version)
+
+        with connections[db].cursor() as cursor:
+            return cursor.execute(
+                """DELETE FROM {table}
+                   WHERE cache_key LIKE %s""".format(table=table),
+                (prefix,)
+            )
 
     def cull(self):
         db = router.db_for_write(self.cache_model_class)

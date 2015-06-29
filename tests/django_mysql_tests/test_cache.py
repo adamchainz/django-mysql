@@ -7,6 +7,7 @@ import time
 import warnings
 from decimal import Decimal
 
+import ddt
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
@@ -57,13 +58,33 @@ def custom_key_func(key, key_prefix, version):
     return 'CUSTOM-' + '-'.join([key_prefix, str(version), key])
 
 
+def reverse_custom_key_func(full_key):
+    "The reverse of custom_key_func"
+    # Remove CUSTOM-
+    full_key = full_key[len('CUSTOM-'):]
+
+    first_dash = full_key.find('-')
+    key_prefix = full_key[:first_dash]
+
+    second_dash = full_key.find('-', first_dash + 1)
+    version = int(full_key[first_dash + 1:second_dash])
+
+    key = full_key[second_dash + 1:]
+
+    return key, key_prefix, version
+
+
 _caches_setting_base = {
     'default': {},
     'prefix': {'KEY_PREFIX': 'cacheprefix{}'.format(os.getpid())},
     'v2': {'VERSION': 2},
-    'custom_key': {'KEY_FUNCTION': custom_key_func},
+    'custom_key': {'KEY_FUNCTION': custom_key_func,
+                   'REVERSE_KEY_FUNCTION': reverse_custom_key_func},
     'custom_key2': {
-        'KEY_FUNCTION': 'django_mysql_tests.test_cache.custom_key_func'
+        'KEY_FUNCTION':
+            'django_mysql_tests.test_cache.custom_key_func',
+        'REVERSE_KEY_FUNCTION':
+            'django_mysql_tests.test_cache.reverse_custom_key_func',
     },
     'cull': {'OPTIONS': {'CULL_PROBABILITY': 1,
                          'MAX_ENTRIES': 30}},
@@ -105,6 +126,7 @@ def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
 
 
 @override_cache_settings()
+@ddt.ddt
 class MySQLCacheTests(TransactionTestCase):
 
     def setUp(self):
@@ -1017,6 +1039,156 @@ class MySQLCacheTests(TransactionTestCase):
                    WHERE value_type = 'I'""" % self.table_name)
             n = cursor.fetchone()[0]
             assert n == 0
+
+    def test_bad_key_prefix_for_reverse_function(self):
+        override = override_cache_settings(KEY_PREFIX='a:bad:prefix')
+        with override, pytest.raises(ValueError) as excinfo:
+            caches['default']
+        assert str(excinfo.value).startswith(
+            "Cannot use the default KEY_FUNCTION")
+
+    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    def test_keys_with_prefix(self, cache_name):
+        cache = caches[cache_name]
+        assert cache.keys_with_prefix('') == set()
+        assert cache.keys_with_prefix('K') == set()
+
+        cache.set('A2', True)
+        cache.set('K1', True)
+        cache.set('K23', True, 1000)
+        cache.set('K99', True, 0.1)
+        time.sleep(0.2)
+        assert cache.keys_with_prefix('') == {'A2', 'K1', 'K23'}
+        assert cache.keys_with_prefix('K') == {'K1', 'K23'}
+
+        cache.delete('K1')
+        assert cache.keys_with_prefix('K') == {'K23'}
+
+        cache.clear()
+        assert cache.keys_with_prefix('') == set()
+        assert cache.keys_with_prefix('K') == set()
+
+    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    def test_keys_with_prefix_version(self, cache_name):
+        cache = caches[cache_name]
+
+        cache.set('V12', True, version=1)
+        cache.set('V12', True, version=2)
+        cache.set('V2', True, version=2)
+        cache.set('V3', True, version=3)
+        assert cache.keys_with_prefix('V', version=1) == {'V12'}
+        assert cache.keys_with_prefix('V', version=2) == {'V12', 'V2'}
+        assert cache.keys_with_prefix('V', version=3) == {'V3'}
+
+    @override_cache_settings(KEY_FUNCTION=custom_key_func)
+    def test_keys_with_prefix_with_bad_cache(self):
+        with pytest.raises(ValueError) as excinfo:
+            cache.keys_with_prefix('')
+        assert str(excinfo.value).startswith(
+            "To use the _with_prefix commands")
+
+    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    def test_get_with_prefix(self, cache_name):
+        cache = caches[cache_name]
+        assert cache.get_with_prefix('') == {}
+        assert cache.get_with_prefix('K') == {}
+
+        cache.set('A2', [True])
+        cache.set('K1', "Value1")
+        cache.set('K23', 2, 1000)
+        cache.set('K99', ["Value", 99], 0.1)
+        time.sleep(0.2)
+        assert (
+            cache.get_with_prefix('') ==
+            {'A2': [True], 'K1': "Value1", 'K23': 2}
+        )
+        assert (
+            cache.get_with_prefix('K') ==
+            {'K1': "Value1", 'K23': 2}
+        )
+
+        cache.delete('K1')
+        assert cache.get_with_prefix('K') == {'K23': 2}
+
+        cache.clear()
+        assert cache.get_with_prefix('') == {}
+        assert cache.get_with_prefix('K') == {}
+
+    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    def test_get_with_prefix_version(self, cache_name):
+        cache = caches[cache_name]
+
+        cache.set('V12', ('version1',), version=1)
+        cache.set('V12', "str", version=2)
+        cache.set('V2', 2, version=2)
+        cache.set('V3', object, version=3)
+        assert cache.get_with_prefix('V', version=1) == {'V12': ('version1',)}
+        assert cache.get_with_prefix('V', version=2) == {'V12': "str", 'V2': 2}
+        assert cache.get_with_prefix('V', version=3) == {'V3': object}
+
+    @override_cache_settings(KEY_FUNCTION=custom_key_func)
+    def test_get_with_prefix_with_bad_cache(self):
+        with pytest.raises(ValueError) as excinfo:
+            cache.get_with_prefix('')
+        assert str(excinfo.value).startswith(
+            "To use the _with_prefix commands")
+
+    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    def test_delete_with_prefix(self, cache_name):
+        cache = caches[cache_name]
+
+        # Check it runs on an empty cache
+        assert cache.delete_with_prefix('') == 0
+        assert cache.delete_with_prefix('K') == 0
+
+        cache.set('A1', True)
+        cache.set('A2', True)
+        cache.set('K2', True)
+        cache.set('K44', True)
+
+        assert cache.keys_with_prefix('') == {'A1', 'A2', 'K2', 'K44'}
+        assert cache.delete_with_prefix('A') == 2
+        assert cache.keys_with_prefix('') == {'K2', 'K44'}
+        assert cache.delete_with_prefix('A') == 0
+        assert cache.keys_with_prefix('') == {'K2', 'K44'}
+        assert cache.delete_with_prefix('K') == 2
+        assert cache.keys_with_prefix('K') == set()
+        assert cache.keys_with_prefix('') == set()
+
+    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    def test_delete_with_prefix_version(self, cache_name):
+        cache = caches[cache_name]
+
+        cache.set('V12', True, version=1)
+        cache.set('V12', True, version=2)
+        cache.set('V2', True, version=2)
+        cache.set('V3', True, version=3)
+
+        has_key = cache.has_key  # avoid lint error
+
+        assert cache.delete_with_prefix('V', version=1) == 1
+        assert not has_key('V12', version=1)
+        assert has_key('V12', version=2)
+        assert has_key('V2', version=2)
+        assert has_key('V3', version=3)
+
+        assert cache.delete_with_prefix('V', version=2) == 2
+        assert not has_key('V12', version=1)
+        assert not has_key('V12', version=2)
+        assert not has_key('V2', version=2)
+        assert has_key('V3', version=3)
+
+        assert cache.delete_with_prefix('V', version=3) == 1
+        assert not has_key('V12', version=1)
+        assert not has_key('V12', version=2)
+        assert not has_key('V2', version=2)
+        assert not has_key('V3', version=3)
+
+    @override_cache_settings(KEY_FUNCTION=custom_key_func)
+    def test_delete_with_prefix_with_no_reverse_works(self):
+        cache.set_many({'K1': 'value', 'K2': 'value2', 'B2': 'Anothervalue'})
+        assert cache.delete_with_prefix('K') == 2
+        assert cache.get_many(['K1', 'K2', 'B2']) == {'B2': 'Anothervalue'}
 
     # mysql_cache_migration tests
 

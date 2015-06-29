@@ -272,6 +272,88 @@ Studying the source of ``MySQLCache`` will probably give you the best way to
 extend these methods for your use case.
 
 
+prefix methods
+~~~~~~~~~~~~~~
+
+Three extension methods are available to work with sets of keys sharing a
+common prefix. Whilst these would not be efficient on other cache backends such
+as memcached, in an InnoDB table the keys are stored in order so range scans
+are easy.
+
+To use these methods, it must be possible to reverse-map the "full" key stored
+in the databse to the key you would provide to ``cache.get``, via a 'reverse
+key function'. If you have not set ``KEY_FUNCTION``, ``MySQLCache`` will use
+Django’s default key function, and can therefore default the reverse key
+function too, so you will not need to add anything.
+
+However, if you have set ``KEY_FUNCTION``, you will also need to supply
+``REVERSE_KEY_FUNCTION`` before the prefix methods can work. For example,
+with a simple custom key function that ignores ``key_prefix`` and ``version``,
+you might do this::
+
+    def my_key_func(key, key_prefix, version):
+        return key  # Ignore key_prefix and version
+
+
+    def my_reverse_key_func(full_key):
+        # key_prefix and version still need to be returned
+        key_prefix = None
+        version = None
+        return key, key_prefix, version
+
+
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_mysql.cache.MySQLCache',
+            'LOCATION': 'some_table_name',
+            'KEY_FUNCTION': my_key_func,
+            'REVERSE_KEY_FUNCTION': my_reverse_key_func
+        }
+    }
+
+Once you’re set up, the following prefix methods can be used:
+
+.. method:: delete_with_prefix(prefix, version=None)
+
+    Deletes all keys that start with the string ``prefix``. If ``version`` is
+    not provided, it will default to the ``VERSION`` setting. Returns the
+    number of keys that were deleted. For example::
+
+        >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
+        >>> cache.delete_with_prefix('Truck')
+        1
+        >>> cache.get('Truck3')
+        None
+
+    .. note::
+
+        This method does not require you to set the reverse key function.
+
+.. method:: get_with_prefix(prefix, version=None)
+
+    Like ``get_many``, returns a dict of key to value for all keys that start
+    with the string ``prefix``. If ``version`` is not provided, it will default
+    to the ``VERSION`` setting. For example::
+
+        >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
+        >>> cache.get_with_prefix('Truck')
+        {'Truck3': 'Yellow'}
+        >>> cache.get_with_prefix('Ca')
+        {'Car1': 'Blue', 'Car4': 'Red'}
+        >>> cache.get_with_prefix('')
+        {'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'}
+
+.. method:: keys_with_prefix(prefix, version=None)
+
+    Returns a set of all the keys that start with the string ``prefix``. If
+    ``version`` is not provided, it will default to the ``VERSION`` setting.
+    For example::
+
+        >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
+        >>> cache.keys_with_prefix('Car')
+        set(['Car1', 'Car2'])
+
+
 Changes
 -------
 
