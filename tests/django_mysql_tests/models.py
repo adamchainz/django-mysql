@@ -7,8 +7,9 @@ from django.db.models import (
 from django.utils import timezone
 
 from django_mysql.models import (
-    ListCharField, ListTextField, Model, SetCharField, SetTextField,
-    SizedBinaryField, SizedTextField
+    Bit1BooleanField, ListCharField, ListTextField, Model,
+    NullBit1BooleanField, SetCharField, SetTextField, SizedBinaryField,
+    SizedTextField
 )
 
 
@@ -167,6 +168,15 @@ class SizeFieldModel(Model):
     text2 = SizedTextField(size_class=2)
     text3 = SizedTextField(size_class=3)
     text4 = SizedTextField(size_class=4)
+
+
+class Bit1Model(Model):
+    flag_a = Bit1BooleanField(default=True)
+    flag_b = Bit1BooleanField(default=False)
+
+
+class NullBit1Model(Model):
+    flag = NullBit1BooleanField()
 
 
 # For cache tests

@@ -15,6 +15,9 @@ History
   yields only the start and end primary keys for each chunks, in a tuple.
 * Added prefix methods to ``MySQLCache`` - ``delete_with_prefix``,
   ``get_with_prefix``, ``keys_with_prefix``
+* Added ``Bit1BooleanField`` and ``NullBit1BooleanField`` model fields that
+  work with boolean fields built by other databases that use the ``BIT(1)``
+  column type
 
 0.2.1 (2015-06-22)
 ------------------
