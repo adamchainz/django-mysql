@@ -94,6 +94,11 @@ class VanillaAuthor(VanillaModel):
         return "{} {}".format(self.id, self.name)
 
 
+class AuthorExtra(Model):
+    author = ForeignKey(Author, primary_key=True)
+    legs = IntegerField(default=2)
+
+
 class NameAuthor(Model):
     name = CharField(max_length=32, primary_key=True)
 

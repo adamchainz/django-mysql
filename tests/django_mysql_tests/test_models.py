@@ -11,7 +11,9 @@ from django.test.utils import override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator
 from django_mysql.utils import have_program
-from django_mysql_tests.models import Author, Book, NameAuthor, VanillaAuthor
+from django_mysql_tests.models import (
+    Author, AuthorExtra, Book, NameAuthor, VanillaAuthor
+)
 from django_mysql_tests.utils import CaptureLastQuery, captured_stdout
 
 
@@ -376,6 +378,16 @@ class SmartIteratorTests(TransactionTestCase):
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
         assert seen == all_ids
+
+    def test_iter_smart_fk_primary_key(self):
+        author, author2 = Author.objects.all()[:2]
+        AuthorExtra.objects.create(author=author, legs=2)
+        AuthorExtra.objects.create(author=author2, legs=1)
+
+        seen_author_ids = []
+        for extra in AuthorExtra.objects.iter_smart():
+            seen_author_ids.append(extra.author_id)
+        assert seen_author_ids == [author.id, author2.id]
 
     def test_reporting(self):
         with captured_stdout() as output:

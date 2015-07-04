@@ -9,6 +9,8 @@ History
 * Pending release
 * ``SmartChunkedIterator`` now takes an argument ``chunk_size`` as the initial
   chunk size
+* ``SmartChunkedIterator`` now allows models whose primary key is a
+  ``ForeignKey``
 * Added ``iter_smart_pk_ranges`` which is similar to ``iter_smart_chunks`` but
   yields only the start and end primary keys for each chunks, in a tuple.
 * Added prefix methods to ``MySQLCache`` - ``delete_with_prefix``,
