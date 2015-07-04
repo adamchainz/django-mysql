@@ -209,13 +209,21 @@ class SmartChunkedIterator(object):
             )
 
         pk = queryset.model._meta.pk
-        if not isinstance(pk, (models.IntegerField, models.AutoField)):
+        if not isinstance(pk, self.ALLOWED_PK_FIELD_CLASSES):
+            # If your custom field class should be allowed, just add it to
+            # ALLOWED_PK_FIELD_CLASSES
             raise ValueError(
                 "You can't use %s on a model with a non-integer primary key." %
                 self.__class__.__name__
             )
 
         return queryset.order_by('pk')
+
+    ALLOWED_PK_FIELD_CLASSES = (
+        models.IntegerField,  # Also covers e.g. PositiveIntegerField
+        models.AutoField,  # Is an integer field but doesn't subclass it :(
+        models.ForeignKey  # Should always point to an integer
+    )
 
     def get_min_and_max(self):
         if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
