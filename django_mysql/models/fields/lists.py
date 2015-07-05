@@ -6,10 +6,10 @@ from django.db.models import CharField, IntegerField, Lookup, TextField
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
+from django_mysql.compat import field_class
 from django_mysql.forms import SimpleListField
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
-from django_mysql.shims import field_class
 from django_mysql.validators import ListMaxLengthValidator
 
 __all__ = ('ListCharField', 'ListTextField')

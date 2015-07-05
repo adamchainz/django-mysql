@@ -1,6 +1,7 @@
 """
-Helpers ("shims") that deal with the changes in Django over time, by either
-working before and after, or just not failing at import time.
+Helpers that deal with the changes in Django over time, by either working
+before and after the change, or just failing at usage time rather than import
+time.
 """
 import functools
 

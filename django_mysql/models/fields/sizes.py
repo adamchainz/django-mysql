@@ -1,7 +1,7 @@
 from django.core import checks
 from django.db.models import BinaryField, TextField
 
-from django_mysql.shims import field_class
+from django_mysql.compat import field_class
 
 __all__ = ('SizedBinaryField', 'SizedTextField',)
 

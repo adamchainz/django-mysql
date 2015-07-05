@@ -2,7 +2,7 @@
 from django.db.models import BooleanField, NullBooleanField
 from django.utils import six
 
-from django_mysql.shims import field_class
+from django_mysql.compat import field_class
 
 __all__ = ('Bit1BooleanField', 'NullBit1BooleanField',)
 
