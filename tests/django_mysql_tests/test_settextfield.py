@@ -8,7 +8,7 @@ from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.utils import six
 
 from django_mysql.forms import SimpleSetField
@@ -189,7 +189,7 @@ class TestSaveLoad(TestCase):
         assert no_one.count() == 0
 
 
-class TestValidation(TestCase):
+class TestValidation(SimpleTestCase):
 
     def test_max_length(self):
         field = SetTextField(models.CharField(max_length=32), size=3)
@@ -204,7 +204,7 @@ class TestValidation(TestCase):
         )
 
 
-class TestCheck(TestCase):
+class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
         field = SetTextField(models.CharField())
@@ -269,7 +269,7 @@ class TestMigrations(TransactionTestCase):
         )
 
 
-class TestSerialization(TestCase):
+class TestSerialization(SimpleTestCase):
 
     def test_dumping(self):
         big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
@@ -288,7 +288,7 @@ class TestSerialization(TestCase):
         assert instance.field == {"big", "leather", "comfy"}
 
 
-class TestDescription(TestCase):
+class TestDescription(SimpleTestCase):
 
     def test_char(self):
         field = SetTextField(models.CharField(max_length=5), max_length=32)
@@ -299,7 +299,7 @@ class TestDescription(TestCase):
         assert field.description == "Set of Integer"
 
 
-class TestFormField(TestCase):
+class TestFormField(SimpleTestCase):
 
     def test_model_field_formfield(self):
         model_field = SetTextField(models.CharField(max_length=27))

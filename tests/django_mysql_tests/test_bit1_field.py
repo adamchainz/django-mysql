@@ -3,7 +3,7 @@ import json
 
 from django.core import serializers
 from django.db.models import F
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
 from django_mysql_tests.models import Bit1Model, NullBit1Model
 
@@ -69,7 +69,7 @@ class TestSaveLoad(TestCase):
         assert list(Bit1Model.objects.filter(flag_a=False)) == [m]
 
 
-class TestSerialization(TestCase):
+class TestSerialization(SimpleTestCase):
 
     def test_dumping(self):
         instance = Bit1Model(flag_a=True, flag_b=False)
@@ -155,7 +155,7 @@ class TestNullSaveLoad(TestCase):
         assert list(NullBit1Model.objects.filter(flag=False)) == [m]
 
 
-class TestNullSerialization(TestCase):
+class TestNullSerialization(SimpleTestCase):
 
     def test_dumping(self):
         instance = NullBit1Model(flag=None)

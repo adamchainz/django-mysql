@@ -12,7 +12,9 @@ from django.core.management import call_command
 from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase, TransactionTestCase, override_settings
+from django.test import (
+    SimpleTestCase, TestCase, TransactionTestCase, override_settings
+)
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
@@ -392,7 +394,7 @@ class TestListF(TestCase):
         assert model.field == ["yellow", "p"]
 
 
-class TestValidation(TestCase):
+class TestValidation(SimpleTestCase):
 
     def test_max_length(self):
         field = ListCharField(
@@ -411,7 +413,7 @@ class TestValidation(TestCase):
         )
 
 
-class TestCheck(TestCase):
+class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
         field = ListCharField(models.CharField(), max_length=32)
@@ -522,7 +524,7 @@ class TestMigrations(TransactionTestCase):
             assert table_name not in table_names(cursor)
 
 
-class TestSerialization(TestCase):
+class TestSerialization(SimpleTestCase):
 
     def test_dumping(self):
         instance = CharListModel(field=["big", "comfy"])
@@ -540,7 +542,7 @@ class TestSerialization(TestCase):
         assert instance.field == ["big", "leather", "comfy"]
 
 
-class TestDescription(TestCase):
+class TestDescription(SimpleTestCase):
 
     def test_char(self):
         field = ListCharField(models.CharField(max_length=5), max_length=32)
@@ -551,7 +553,7 @@ class TestDescription(TestCase):
         assert field.description == "List of Integer"
 
 
-class TestFormField(TestCase):
+class TestFormField(SimpleTestCase):
 
     def test_model_field_formfield(self):
         model_field = ListCharField(models.CharField(max_length=27))

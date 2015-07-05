@@ -4,14 +4,14 @@ from __future__ import unicode_literals
 from time import sleep
 from unittest import skipUnless
 
-from django.test import TestCase
+from django.test import SimpleTestCase
 
 from django_mysql.utils import (
     PTFingerprintThread, WeightedAverageRate, have_program, pt_fingerprint
 )
 
 
-class WeightedAverageRateTests(TestCase):
+class WeightedAverageRateTests(SimpleTestCase):
 
     def test_constant(self):
         # If we keep achieving a rate of 100 rows in 0.5 seconds, it should
@@ -52,7 +52,7 @@ class WeightedAverageRateTests(TestCase):
 
 @skipUnless(have_program('pt-fingerprint'),
             "pt-fingerprint must be installed")
-class PTFingerprintTests(TestCase):
+class PTFingerprintTests(SimpleTestCase):
 
     def test_basic(self):
         assert pt_fingerprint('SELECT 5') == 'select ?'

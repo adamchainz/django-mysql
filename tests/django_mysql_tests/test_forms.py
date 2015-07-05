@@ -2,12 +2,12 @@
 import pytest
 from django import forms
 from django.core import exceptions
-from django.test import TestCase
+from django.test import SimpleTestCase
 
 from django_mysql.forms import SimpleListField, SimpleSetField
 
 
-class TestSimpleListField(TestCase):
+class TestSimpleListField(SimpleTestCase):
 
     def test_valid(self):
         field = SimpleListField(forms.CharField())
@@ -130,7 +130,7 @@ class TestSimpleListField(TestCase):
         assert excinfo.value.messages[0] == 'This field is required.'
 
 
-class TestSimpleSetField(TestCase):
+class TestSimpleSetField(SimpleTestCase):
 
     def test_valid(self):
         field = SimpleSetField(forms.CharField())

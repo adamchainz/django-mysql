@@ -4,7 +4,7 @@ import mock
 import pytest
 from django.core.management import CommandError, call_command
 from django.db.utils import ConnectionHandler
-from django.test import TestCase
+from django.test import SimpleTestCase
 from django.utils.six.moves import StringIO
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
@@ -34,7 +34,7 @@ socket_db = ConnectionHandler({'default': {
 }})
 
 
-class DBParamsTests(TestCase):
+class DBParamsTests(SimpleTestCase):
 
     def test_invalid_number_of_databases(self):
         with pytest.raises(CommandError) as excinfo:

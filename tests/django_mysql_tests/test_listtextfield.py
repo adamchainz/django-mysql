@@ -9,7 +9,7 @@ from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
@@ -217,7 +217,7 @@ class TestSaveLoad(TestCase):
         assert list(one0two1) == [onetwo]
 
 
-class TestValidation(TestCase):
+class TestValidation(SimpleTestCase):
 
     def test_max_length(self):
         field = ListTextField(
@@ -236,7 +236,7 @@ class TestValidation(TestCase):
         )
 
 
-class TestCheck(TestCase):
+class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
         field = ListTextField(models.CharField(), max_length=32)
@@ -320,7 +320,7 @@ class TestMigrations(TransactionTestCase):
         ).match(statement)
 
 
-class TestSerialization(TestCase):
+class TestSerialization(SimpleTestCase):
 
     def test_dumping(self):
         instance = BigCharListModel(field=["big", "comfy"])
@@ -338,7 +338,7 @@ class TestSerialization(TestCase):
         assert instance.field == ["big", "leather", "comfy"]
 
 
-class TestDescription(TestCase):
+class TestDescription(SimpleTestCase):
 
     def test_char(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
@@ -349,7 +349,7 @@ class TestDescription(TestCase):
         assert field.description == "List of Integer"
 
 
-class TestFormField(TestCase):
+class TestFormField(SimpleTestCase):
 
     def test_model_field_formfield(self):
         model_field = ListTextField(models.CharField(max_length=27))
