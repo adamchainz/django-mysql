@@ -758,11 +758,11 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_expiration(self):
         # Cache values can be set to expire
-        cache.set('expire1', 'very quickly', 0.3)
-        cache.set('expire2', 'very quickly', 0.3)
-        cache.set('expire3', 'very quickly', 0.3)
+        cache.set('expire1', 'very quickly', 0.1)
+        cache.set('expire2', 'very quickly', 0.1)
+        cache.set('expire3', 'very quickly', 0.1)
 
-        time.sleep(0.4)
+        time.sleep(0.2)
         assert cache.get("expire1") is None
 
         cache.add("expire2", "newvalue")
@@ -788,8 +788,8 @@ class MySQLCacheTests(TransactionTestCase):
     def test_get_many_with_one_expired(self):
         # Multiple cache keys can be returned using get_many
         the_cache = caches['no_cull']
-        the_cache.set('a', 'a', 0.3)
-        time.sleep(0.4)
+        the_cache.set('a', 'a', 0.1)
+        time.sleep(0.2)
 
         the_cache.set('b', 'b')
         the_cache.set('c', 'c')
@@ -806,6 +806,9 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_set_many(self):
         # Single keys can be set using set_many
+        # Perform a single query first to avoid spurious on-connect queries
+        caches['no_cull'].get('nonexistent')
+
         with self.assertNumQueries(1):
             caches['no_cull'].set_many({"key1": "spam"})
 
@@ -817,11 +820,13 @@ class MySQLCacheTests(TransactionTestCase):
 
     def test_set_many_expiration(self):
         # set_many takes a second ``timeout`` parameter
+        # Perform a single query first to avoid spurious on-connect queries
+        caches['no_cull'].get('nonexistent')
         with self.assertNumQueries(1):
-            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"}, 0.3)
-
+            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"}, 0.1)
         cache.set("key3", "ham")
-        time.sleep(0.4)
+        time.sleep(0.2)
+
         assert cache.get("key1") is None
         assert cache.get("key2") is None
         assert cache.get("key3") == "ham"
@@ -1270,26 +1275,26 @@ class MySQLCacheTests(TransactionTestCase):
         cache.set('key', 'value', 0.1)
         time.sleep(0.2)
 
-        # 9k non-expired keys
+        # 90 non-expired keys
         for n in six.moves.range(9):
             cache.set_many({
-                str(n * 1000 + i): True
-                for i in six.moves.range(1000)
+                str(n * 10 + i): True
+                for i in six.moves.range(10)
             })
 
         cache.cull()
         assert self.table_count() == 9000
 
     def test_cull_mysql_caches_basic(self):
-        cache.set('key', 'value', 0.3)
-        time.sleep(0.4)
+        cache.set('key', 'value', 0.1)
+        time.sleep(0.2)
         assert self.table_count() == 1
         call_command('cull_mysql_caches', verbosity=0)
         assert self.table_count() == 0
 
     def test_cull_mysql_caches_named_cache(self):
-        cache.set('key', 'value', 0.3)
-        time.sleep(0.4)
+        cache.set('key', 'value', 0.1)
+        time.sleep(0.2)
         assert self.table_count() == 1
 
         out = StringIO()
