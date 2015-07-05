@@ -129,23 +129,34 @@ def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
 @ddt.ddt
 class MySQLCacheTests(TransactionTestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         # The super calls needs to happen first for the settings override.
+        super(MySQLCacheTests, cls).setUpClass()
+        cls.table_name = 'test cache table'
+        cls.create_table()
+
+    @classmethod
+    def tearDownClass(cls):
+        # The super call needs to happen first because it uses the database.
+        super(MySQLCacheTests, cls).tearDownClass()
+        cls.drop_table()
+
+    def setUp(self):
         super(MySQLCacheTests, self).setUp()
-        self.table_name = 'test cache table'
-        self.create_table()
-        self.factory = RequestFactory()
 
     def tearDown(self):
-        # The super call needs to happen first because it uses the database.
         super(MySQLCacheTests, self).tearDown()
-        self.drop_table()
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM `{}`".format(self.table_name))
 
+    @classmethod
     def create_table(self):
         sql = MySQLCache.create_table_sql.format(table_name=self.table_name)
         with connection.cursor() as cursor:
             cursor.execute(sql)
 
+    @classmethod
     def drop_table(self):
         with connection.cursor() as cursor:
             cursor.execute('DROP TABLE `%s`' % self.table_name)
@@ -714,7 +725,8 @@ class MySQLCacheTests(TransactionTestCase):
         fetch_middleware = FetchFromCacheMiddleware()
         fetch_middleware.cache = cache
 
-        request = self.factory.get('/cache/test')
+        factory = RequestFactory()
+        request = factory.get('/cache/test')
         request._cache_update_cache = True
         get_cache_data = FetchFromCacheMiddleware().process_request(request)
         assert get_cache_data is None
@@ -1226,22 +1238,23 @@ class MySQLCacheTests(TransactionTestCase):
         # Now run the migration forwards and backwards to check it works
         operation = migration.operations[0]
         self.drop_table()
-        assert not self.table_exists(self.table_name)
+        try:
+            assert not self.table_exists(self.table_name)
 
-        state = ProjectState()
-        new_state = state.clone()
-        with connection.schema_editor() as editor:
-            operation.database_forwards("django_mysql_tests", editor,
-                                        state, new_state)
-        assert self.table_exists(self.table_name)
+            state = ProjectState()
+            new_state = state.clone()
+            with connection.schema_editor() as editor:
+                operation.database_forwards("django_mysql_tests", editor,
+                                            state, new_state)
+            assert self.table_exists(self.table_name)
 
-        new_state = state.clone()
-        with connection.schema_editor() as editor:
-            operation.database_backwards("django_mysql_tests", editor,
-                                         new_state, state)
-        assert not self.table_exists(self.table_name)
-
-        self.create_table()
+            new_state = state.clone()
+            with connection.schema_editor() as editor:
+                operation.database_backwards("django_mysql_tests", editor,
+                                             new_state, state)
+            assert not self.table_exists(self.table_name)
+        finally:
+            self.create_table()
 
     def test_mysql_cache_migration_alias(self):
         out = StringIO()
@@ -1283,7 +1296,7 @@ class MySQLCacheTests(TransactionTestCase):
             })
 
         cache.cull()
-        assert self.table_count() == 9000
+        assert self.table_count() == 90
 
     def test_cull_mysql_caches_basic(self):
         cache.set('key', 'value', 0.1)
