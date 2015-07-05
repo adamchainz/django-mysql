@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import pytest
-from django.test import SimpleTestCase
+from django.test import TestCase
 
 from django_mysql.exceptions import TimeoutError
 from django_mysql.status import (
@@ -8,7 +8,7 @@ from django_mysql.status import (
 )
 
 
-class GlobalStatusTests(SimpleTestCase):
+class GlobalStatusTests(TestCase):
 
     def test_get(self):
         running = global_status.get('Threads_running')
@@ -102,7 +102,7 @@ class GlobalStatusTests(SimpleTestCase):
         assert running >= 1
 
 
-class SessionStatusTests(SimpleTestCase):
+class SessionStatusTests(TestCase):
 
     def test_get(self):
         bytes_received = session_status.get('Bytes_received')

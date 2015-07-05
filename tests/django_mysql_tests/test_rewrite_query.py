@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from django.db import connection
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from django_mysql.monkey_patches import patch_CursorWrapper_execute
@@ -8,7 +8,7 @@ from django_mysql.rewrite_query import rewrite_query
 from django_mysql_tests.utils import CaptureLastQuery
 
 
-class RewriteQueryTests(SimpleTestCase):
+class RewriteQueryTests(TestCase):
 
     def test_it_doesnt_touch_normal_queries(self):
         self.check_identity("SELECT 1")
