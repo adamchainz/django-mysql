@@ -1,6 +1,6 @@
 ddt==1.0.0
 flake8==2.4.0
-mock==1.0.1
+mock==1.2.0
 mysqlclient==1.3.6
 py==1.4.27
 pytest-django==2.8.0

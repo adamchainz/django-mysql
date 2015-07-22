@@ -1,6 +1,6 @@
 # Import sorting
 enum34==1.0.4
-ipaddress==1.0.7
+ipaddress==1.0.14
 isort==3.9.6
 natsort==3.5.5
 pies2overrides==2.6.5
