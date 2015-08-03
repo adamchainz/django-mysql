@@ -3,7 +3,7 @@
 History
 =======
 
-0.2.2 (unreleased)
+0.2.2 (2015-09-03)
 ------------------
 
 * Pending release
