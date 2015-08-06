@@ -8,7 +8,8 @@ import functools
 import django
 from django.utils import six
 
-__all__ = ('BaseExpression', 'Func', 'Value', 'field_class')
+__all__ = ('BaseExpression', 'Func', 'Value', 'field_class',
+           'add_raw_condition')
 
 
 # Handle the deprecation of SubfieldBase
@@ -38,3 +39,19 @@ if django.VERSION < (1, 8):
     Value = tuple
 else:
     from django.db.models.expressions import BaseExpression, Func, Value
+
+
+# QuerySet.extra is ugly and deprecated, maybe there is a way of replacing it
+# with an Expression in Django 1.8+.. experimenting but not finding anything...
+
+if django.VERSION < (1, 8):
+
+    def add_raw_condition(queryset, condition):
+        return queryset.extra(where=[condition])
+
+else:
+
+    from django.db.models.expressions import RawSQL
+
+    def add_raw_condition(queryset, condition):
+        return queryset.filter(RawSQL(condition, ()))
