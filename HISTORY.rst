@@ -3,10 +3,14 @@
 History
 =======
 
+0.2.3 (pending release)
+-----------------------
+
+* Pending release
+
 0.2.2 (2015-09-03)
 ------------------
 
-* Pending release
 * ``SmartChunkedIterator`` now takes an argument ``chunk_size`` as the initial
   chunk size
 * ``SmartChunkedIterator`` now allows models whose primary key is a
