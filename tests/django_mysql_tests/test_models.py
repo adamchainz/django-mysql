@@ -84,6 +84,23 @@ class ApproximateCountTests(TransactionTestCase):
         with pytest.raises(ValueError):
             Author.objects.distinct().approx_count(fall_back=False)
 
+    def test_fallback_with_arbitrary_extra(self):
+        assert Author.objects.extra(where=['1=1']).approx_count() == 10
+        with pytest.raises(ValueError):
+            Author.objects.extra(where=['1=1']).approx_count(fall_back=False)
+
+    def test_approx_count_with_label(self):
+        # It should be possible to approx count a query set with a query hint
+        # as none of them affect the result
+        assert Author.objects.label('bla').approx_count(fall_back=False) == 10
+
+    def test_approx_count_with_straight_join(self):
+        # It should be possible to approx count a query set with a query hint
+        # as none of them affect the result
+        assert (
+            Author.objects.straight_join().approx_count(fall_back=False) == 10
+        )
+
 
 class QueryHintTests(TransactionTestCase):
 

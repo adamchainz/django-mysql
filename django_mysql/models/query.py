@@ -6,6 +6,7 @@ from copy import copy
 from subprocess import PIPE, Popen
 
 from django.db import connections, models
+from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
@@ -13,6 +14,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
 from django_mysql.models.handler import Handler
+from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
     StopWatch, WeightedAverageRate, have_program, noop_context,
@@ -363,30 +365,37 @@ class SmartPKRangeIterator(SmartChunkedIterator):
 def approx_count(queryset):
     # Returns the approximate count or raises a ValueError if this queryset
     # cannot be approximately counted
-    query = queryset.query
-
-    can_approx_count = (
-        not query.where and
-        query.high_mark is None and
-        query.low_mark == 0 and
-        not query.select and
-        not query.group_by and
-        not query.distinct
-    )
-
-    if hasattr(query, 'having'):  # Django < 1.9
-        can_approx_count = (can_approx_count and not query.having)
-
-    if not can_approx_count:
+    if not can_approx_count(queryset):
         raise ValueError("This QuerySet cannot be approximately counted")
 
     connection = connections[queryset.db]
     with connection.cursor() as cursor:
         table_name = queryset.model._meta.db_table
-        query = "EXPLAIN SELECT COUNT(*) FROM `{0}`".format(table_name)
-        cursor.execute(query)
+        sql = "EXPLAIN SELECT COUNT(*) FROM `{0}`".format(table_name)
+        cursor.execute(sql)
         approx_count = cursor.fetchone()[8]  # 'rows' is the 9th column
         return approx_count
+
+
+def can_approx_count(queryset):
+    query = queryset.query
+
+    if query.select or query.group_by or query.distinct:
+        return False
+    elif query.high_mark is not None or query.low_mark != 0:
+        return False
+
+    # Visit parts of the where clause - if any is not a query hint, fail
+    for child in query.where.children:
+        if not isinstance(child, ExtraWhere):
+            return False
+        elif not all((REWRITE_MARKER in sql) for sql in child.sqls):
+            return False
+
+    if hasattr(query, 'having') and query.having:  # Django < 1.9
+        return False  # pragma: no cover
+
+    return True
 
 
 def pt_visual_explain(queryset, display=True):
