@@ -38,28 +38,28 @@ class DBParamsTests(SimpleTestCase):
 
     def test_invalid_number_of_databases(self):
         with pytest.raises(CommandError) as excinfo:
-            call_command('dbparams', 'default', 'default')
+            call_command('dbparams', 'default', 'default', skip_checks=True)
         assert "more than one connection" in str(excinfo.value)
 
     def test_invalid_database(self):
         with pytest.raises(CommandError) as excinfo:
-            call_command('dbparams', 'nonexistent')
+            call_command('dbparams', 'nonexistent', skip_checks=True)
         assert "does not exist" in str(excinfo.value)
 
     def test_invalid_both(self):
         with pytest.raises(CommandError):
-            call_command('dbparams', dsn=True, mysql=True)
+            call_command('dbparams', dsn=True, mysql=True, skip_checks=True)
 
     @mock.patch(command_connections, sqlite)
     def test_invalid_not_mysql(self):
         with pytest.raises(CommandError) as excinfo:
-            call_command('dbparams')
+            call_command('dbparams', skip_checks=True)
         assert "not a MySQL database connection" in str(excinfo.value)
 
     @mock.patch(command_connections, full_db)
     def test_mysql_full(self):
         out = StringIO()
-        call_command('dbparams', stdout=out)
+        call_command('dbparams', stdout=out, skip_checks=True)
         output = out.getvalue()
         assert (
             output ==
@@ -71,7 +71,7 @@ class DBParamsTests(SimpleTestCase):
     @mock.patch(command_connections, socket_db)
     def test_mysql_socket(self):
         out = StringIO()
-        call_command('dbparams', stdout=out)
+        call_command('dbparams', stdout=out, skip_checks=True)
         output = out.getvalue()
         assert output == "--socket=/etc/mydb.sock"
 
@@ -79,7 +79,8 @@ class DBParamsTests(SimpleTestCase):
     def test_dsn_full(self):
         out = StringIO()
         err = StringIO()
-        call_command('dbparams', 'default', dsn=True, stdout=out, stderr=err)
+        call_command('dbparams', 'default', dsn=True,
+                     stdout=out, stderr=err, skip_checks=True)
         output = out.getvalue()
         assert (
             output ==
@@ -94,7 +95,8 @@ class DBParamsTests(SimpleTestCase):
     def test_dsn_socket(self):
         out = StringIO()
         err = StringIO()
-        call_command('dbparams', dsn=True, stdout=out, stderr=err)
+        call_command('dbparams', dsn=True,
+                     stdout=out, stderr=err, skip_checks=True)
 
         output = out.getvalue()
         assert output == 'S=/etc/mydb.sock'

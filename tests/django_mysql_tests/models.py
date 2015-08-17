@@ -13,6 +13,25 @@ from django_mysql.models import (
 )
 
 
+class TemporaryModel(Model):
+    """
+    Used for temporary, mostly invalid models created in tests - check() is
+    disabled unless an extra parameter is provided, in case the checks get run
+    during tests, e.g. from call_command.
+    """
+    class Meta:
+        app_label = 'django_mysql_tests'
+        abstract = True
+
+    @classmethod
+    def check(cls, **kwargs):
+        actually_check = kwargs.pop('actually_check', False)
+        if actually_check:
+            return super(TemporaryModel, cls).check(**kwargs)
+        else:
+            return []
+
+
 class CharSetModel(Model):
     field = SetCharField(
         base_field=CharField(max_length=8),

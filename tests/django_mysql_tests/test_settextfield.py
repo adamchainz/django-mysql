@@ -13,7 +13,9 @@ from django.utils import six
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
-from django_mysql_tests.models import BigCharSetModel, BigIntSetModel
+from django_mysql_tests.models import (
+    BigCharSetModel, BigIntSetModel, TemporaryModel
+)
 
 
 @ddt.ddt
@@ -206,19 +208,30 @@ class TestValidation(SimpleTestCase):
 
 class TestCheck(SimpleTestCase):
 
-    def test_field_checks(self):
-        field = SetTextField(models.CharField())
-        field.set_attributes_from_name('field')
-        errors = field.check()
+    def test_model_set(self):
+        field = BigIntSetModel._meta.get_field('field')
+        assert field.model == BigIntSetModel
+        # I think this is a side effect of migrations being run in tests -
+        # the base_field.model is the __fake__ model
+        assert field.base_field.model.__name__ == 'BigIntSetModel'
+
+    def test_base_field_checks(self):
+        class InvalidSetTextModel(TemporaryModel):
+            field = SetTextField(models.CharField())
+
+        errors = InvalidSetTextModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E001'
         assert 'Base field for set has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        field = SetTextField(models.ForeignKey('django_mysql_tests.Author'))
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidSetTextModel(TemporaryModel):
+            field = SetTextField(
+                models.ForeignKey('django_mysql_tests.Author')
+            )
+
+        errors = InvalidSetTextModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E002'
         assert 'Base field for set must be' in errors[0].msg

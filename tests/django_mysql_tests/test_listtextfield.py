@@ -13,7 +13,9 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
-from django_mysql_tests.models import BigCharListModel, BigIntListModel
+from django_mysql_tests.models import (
+    BigCharListModel, BigIntListModel, TemporaryModel
+)
 
 
 @ddt.ddt
@@ -239,21 +241,23 @@ class TestValidation(SimpleTestCase):
 class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
-        field = ListTextField(models.CharField(), max_length=32)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidListTextModel(TemporaryModel):
+            field = ListTextField(models.CharField(), max_length=32)
+
+        errors = InvalidListTextModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E004'
         assert 'Base field for list has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        field = ListTextField(
-            models.ForeignKey('django_mysql_tests.Author'),
-            max_length=32
-        )
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidListTextModel(TemporaryModel):
+            field = ListTextField(
+                models.ForeignKey('django_mysql_tests.Author'),
+                max_length=32
+            )
+
+        errors = InvalidListTextModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E005'
         assert 'Base field for list must be' in errors[0].msg

@@ -13,7 +13,7 @@ from django.utils import six
 
 from django_mysql.models import SizedBinaryField, SizedTextField
 from django_mysql.test.utils import override_mysql_variables
-from django_mysql_tests.models import SizeFieldModel
+from django_mysql_tests.models import SizeFieldModel, TemporaryModel
 from django_mysql_tests.utils import column_type
 
 # Ensure we aren't just warned about the data truncation
@@ -21,16 +21,18 @@ forceDataError = override_mysql_variables(SQL_MODE='STRICT_TRANS_TABLES')
 
 
 def migrate(name):
-    call_command('migrate', 'django_mysql_tests', name, verbosity=0)
+    call_command('migrate', 'django_mysql_tests', name,
+                 verbosity=0, skip_checks=True)
 
 
 @forceDataError
 class SizedBinaryFieldTests(TestCase):
 
     def test_binaryfield_checks(self):
-        field = SizedBinaryField(size_class=5)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidSizedBinaryModel(TemporaryModel):
+            field = SizedBinaryField(size_class=5)
+
+        errors = InvalidSizedBinaryModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E007'
         assert errors[0].msg == 'size_class must be 1, 2, 3, or 4'
@@ -121,9 +123,10 @@ class SizedBinaryFieldMigrationTests(TransactionTestCase):
 class SizedTextFieldTests(TestCase):
 
     def test_check_max_length(self):
-        field = SizedTextField(size_class=5)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidSizedTextModel(TemporaryModel):
+            field = SizedTextField(size_class=5)
+
+        errors = InvalidSizedTextModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E008'
         assert errors[0].msg == 'size_class must be 1, 2, 3, or 4'

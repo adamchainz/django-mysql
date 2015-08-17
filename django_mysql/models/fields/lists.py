@@ -168,6 +168,10 @@ class ListFieldMixin(object):
         defaults.update(kwargs)
         return super(ListFieldMixin, self).formfield(**defaults)
 
+    def contribute_to_class(self, cls, name, **kwargs):
+        super(ListFieldMixin, self).contribute_to_class(cls, name, **kwargs)
+        self.base_field.model = cls
+
 
 class ListCharField(field_class(ListFieldMixin, CharField)):
     """

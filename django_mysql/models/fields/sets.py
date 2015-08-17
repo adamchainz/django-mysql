@@ -151,6 +151,10 @@ class SetFieldMixin(object):
         defaults.update(kwargs)
         return super(SetFieldMixin, self).formfield(**defaults)
 
+    def contribute_to_class(self, cls, name, **kwargs):
+        super(SetFieldMixin, self).contribute_to_class(cls, name, **kwargs)
+        self.base_field.model = cls
+
 
 class SetCharField(field_class(SetFieldMixin, CharField)):
     """

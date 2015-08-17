@@ -20,7 +20,7 @@ from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetCharField, SetF
 from django_mysql.test.utils import override_mysql_variables
 from django_mysql_tests.models import (
-    CharSetDefaultModel, CharSetModel, IntSetModel
+    CharSetDefaultModel, CharSetModel, IntSetModel, TemporaryModel
 )
 
 
@@ -374,32 +374,42 @@ class TestValidation(SimpleTestCase):
 
 class TestCheck(SimpleTestCase):
 
-    def test_field_checks(self):
-        field = SetCharField(models.CharField(), max_length=32)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+    def test_model_set(self):
+        field = IntSetModel._meta.get_field('field')
+        assert field.model == IntSetModel
+        # I think this is a side effect of migrations being run in tests -
+        # the base_field.model is the __fake__ model
+        assert field.base_field.model.__name__ == 'IntSetModel'
+
+    def test_base_field_checks(self):
+        class InvalidSetCharFieldModel(TemporaryModel):
+            field = SetCharField(models.CharField(), max_length=32)
+
+        errors = InvalidSetCharFieldModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E001'
         assert 'Base field for set has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        field = SetCharField(
-            models.ForeignKey('django_mysql_tests.Author'),
-            max_length=32
-        )
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidSetCharFieldModel(TemporaryModel):
+            field = SetCharField(
+                models.ForeignKey('django_mysql_tests.Author'),
+                max_length=32
+            )
+
+        errors = InvalidSetCharFieldModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E002'
         assert 'Base field for set must be' in errors[0].msg
 
     def test_max_length_including_base(self):
-        field = SetCharField(
-            models.CharField(max_length=32),
-            size=2, max_length=32)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidSetCharFieldModel(TemporaryModel):
+            field = SetCharField(
+                models.CharField(max_length=32),
+                size=2, max_length=32)
+
+        errors = InvalidSetCharFieldModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E003'
         assert 'Field can overrun' in errors[0].msg
@@ -474,11 +484,13 @@ class TestMigrations(TransactionTestCase):
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
-        call_command('migrate', 'django_mysql_tests', verbosity=0)
+        call_command('migrate', 'django_mysql_tests',
+                     verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name in table_names(cursor)
 
-        call_command('migrate', 'django_mysql_tests', 'zero', verbosity=0)
+        call_command('migrate', 'django_mysql_tests', 'zero',
+                     verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 

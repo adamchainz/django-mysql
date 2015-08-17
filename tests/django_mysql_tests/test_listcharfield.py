@@ -20,7 +20,7 @@ from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
 from django_mysql_tests.models import (
-    CharListDefaultModel, CharListModel, IntListModel
+    CharListDefaultModel, CharListModel, IntListModel, TemporaryModel
 )
 
 
@@ -416,31 +416,34 @@ class TestValidation(SimpleTestCase):
 class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
-        field = ListCharField(models.CharField(), max_length=32)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidListCharModel(TemporaryModel):
+            field = ListCharField(models.CharField(), max_length=32)
+
+        errors = InvalidListCharModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E004'
         assert 'Base field for list has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        field = ListCharField(
-            models.ForeignKey('django_mysql_tests.Author'),
-            max_length=32
-        )
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidListCharModel(TemporaryModel):
+            field = ListCharField(
+                models.ForeignKey('django_mysql_tests.Author'),
+                max_length=32
+            )
+
+        errors = InvalidListCharModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E005'
         assert 'Base field for list must be' in errors[0].msg
 
     def test_max_length_including_base(self):
-        field = ListCharField(
-            models.CharField(max_length=32),
-            size=2, max_length=32)
-        field.set_attributes_from_name('field')
-        errors = field.check()
+        class InvalidListCharModel(TemporaryModel):
+            field = ListCharField(
+                models.CharField(max_length=32),
+                size=2, max_length=32)
+
+        errors = InvalidListCharModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E006'
         assert 'Field can overrun' in errors[0].msg
@@ -515,11 +518,13 @@ class TestMigrations(TransactionTestCase):
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
-        call_command('migrate', 'django_mysql_tests', verbosity=0)
+        call_command('migrate', 'django_mysql_tests',
+                     verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name in table_names(cursor)
 
-        call_command('migrate', 'django_mysql_tests', 'zero', verbosity=0)
+        call_command('migrate', 'django_mysql_tests', 'zero',
+                     verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
