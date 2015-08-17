@@ -71,7 +71,8 @@ def run_2to3():
 def run_isort():
     print('Running isort check')
     ret = subprocess.call([
-        'isort', '--recursive', '--check-only', 'django_mysql', 'tests'
+        'isort', '--recursive', '--check-only', '--diff',
+        'django_mysql', 'tests'
     ])
     return ret
 
