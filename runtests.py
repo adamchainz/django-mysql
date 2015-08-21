@@ -31,6 +31,7 @@ def main():
         exit_on_failure(run_flake8())
         exit_on_failure(run_2to3())
         exit_on_failure(run_isort())
+        exit_on_failure(run_setup_py_check())
 
 
 def tests_main():
@@ -70,11 +71,18 @@ def run_2to3():
 
 def run_isort():
     print('Running isort check')
-    ret = subprocess.call([
+    return subprocess.call([
         'isort', '--recursive', '--check-only', '--diff',
         'django_mysql', 'tests'
     ])
-    return ret
+
+
+def run_setup_py_check():
+    print('Running setup.py check')
+    return subprocess.call([
+        'python', 'setup.py', 'check',
+        '-s', '--restructuredtext', '--metadata'
+    ])
 
 
 def exit_on_failure(ret, message=None):

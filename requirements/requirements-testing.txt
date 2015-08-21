@@ -1,4 +1,5 @@
 ddt==1.0.0
+docutils==0.12
 flake8==2.4.1
 mock==1.2.0
 mysqlclient==1.3.6
