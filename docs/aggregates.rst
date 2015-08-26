@@ -68,7 +68,7 @@ The following can be imported from ``django_mysql.models``.
         {'bitfield__bitxor': 8}
 
 
-.. class:: GroupConcat(column, distinct=False, separator=',')
+.. class:: GroupConcat(column, distinct=False, separator=',', ordering=None)
 
     An aggregate that concatenates values from a column of the grouped rows.
     Useful mostly for bringing back lists of ids in a single query.
@@ -96,7 +96,7 @@ The following can be imported from ``django_mysql.models``.
         `MySQL <https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html#sysvar_group_concat_max_len>`_ /
         `MariaDB <https://mariadb.com/kb/en/server-system-variables/#group_concat_max_len>`_.
 
-    Has two optional arguments:
+    Optional arguments:
 
     .. attribute:: distinct=False
 
@@ -112,3 +112,13 @@ The following can be imported from ``django_mysql.models``.
             Due to limitations in the Django aggregate API, this is not
             protected against SQL injection. Don't pass in user input for the
             separator.
+
+    .. attribute:: ordering=None
+
+        By default no guarantee is made on the order the values will be in
+        pre-concatenation. Set ordering to ``'asc'`` to sort them in ascending
+        order, and ``'desc'`` for descending order. For example::
+
+            >>> Author.objects.annotate(
+            ...     book_ids=GroupConcat('books__id', ordering='asc')
+            ... )

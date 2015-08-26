@@ -8,6 +8,8 @@ History
 
 * Pending release
 * Added index query hints to ``QuerySet`` methods, via qurey-rewriting layer
+* Add ``ordering`` parameter to ``GroupConcat`` to specify the ``ORDER BY``
+  clause
 
 0.2.2 (2015-09-03)
 ------------------

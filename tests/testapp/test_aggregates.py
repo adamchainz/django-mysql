@@ -1,7 +1,13 @@
 # -*- coding:utf-8 -*-
+from unittest import skipIf
+
+import django
+import pytest
+from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
+from django_mysql.test.utils import override_mysql_variables
 from testapp.models import Alphabet, Author
 
 
@@ -102,10 +108,46 @@ class GroupConcatTests(TestCase):
         concatted_ids = "BIG".join(self.str_tutee_ids)
         assert out == {'tids': concatted_ids}
 
-    def test_order(self):
+    @skipIf(django.VERSION <= (1, 8), "Requires Expressions from Django 1.8+")
+    def test_expression(self):
+        concat = GroupConcat(F('id') + 1)
+        out = self.shakes.tutees.aggregate(tids=concat)
+        concatted_ids = ",".join([
+            str(self.jk.id + 1),
+            str(self.grisham.id + 1),
+        ])
+        assert out == {'tids': concatted_ids}
+
+    def test_application_order(self):
         out = (
             Author.objects
                   .exclude(id=self.shakes.id)
                   .aggregate(tids=GroupConcat('tutor_id', distinct=True))
         )
         assert out == {'tids': str(self.shakes.id)}
+
+    @override_mysql_variables(SQL_MODE="ANSI")
+    def test_separator_ansi_mode(self):
+        concat = GroupConcat('id', separator='>>')
+        out = self.shakes.tutees.aggregate(tids=concat)
+        concatted_ids = ">>".join(self.str_tutee_ids)
+        assert out == {'tids': concatted_ids}
+
+    def test_ordering_invalid(self):
+        with pytest.raises(ValueError) as excinfo:
+            self.shakes.tutees.aggregate(
+                tids=GroupConcat('id', ordering='asceding')
+            )
+        assert "'ordering' must be one of" in str(excinfo.value)
+
+    def test_ordering_asc(self):
+        out = self.shakes.tutees.aggregate(
+            tids=GroupConcat('id', ordering='asc')
+        )
+        assert out == {'tids': ",".join(self.str_tutee_ids)}
+
+    def test_ordering_desc(self):
+        out = self.shakes.tutees.aggregate(
+            tids=GroupConcat('id', ordering='desc')
+        )
+        assert out == {'tids': ",".join(reversed(self.str_tutee_ids))}
