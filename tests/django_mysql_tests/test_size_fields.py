@@ -55,10 +55,6 @@ class SizedBinaryFieldTests(TestCase):
             m.save()
         assert excinfo.value.args[0] == 1406
 
-
-@forceDataError
-class SizedBinaryFieldMigrationTests(TransactionTestCase):
-
     def test_deconstruct_size_class_4(self):
         field = SizedBinaryField(size_class=4)
         name, path, args, kwargs = field.deconstruct()
@@ -88,6 +84,10 @@ class SizedBinaryFieldMigrationTests(TransactionTestCase):
             statement ==
             "django_mysql.models.SizedBinaryField(size_class=4)"
         )
+
+
+@forceDataError
+class SizedBinaryFieldMigrationTests(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
         "django_mysql_tests": "django_mysql_tests.sizedbinaryfield_migrations",
@@ -137,7 +137,6 @@ class SizedTextFieldTests(TestCase):
         assert field.size_class == 4
         assert field.db_type(None) == 'longtext'
 
-    @atomic
     def test_tinytext_max_length(self):
         # Okay
         m = SizeFieldModel(text1='a' * (2**8 - 1))
@@ -145,13 +144,9 @@ class SizedTextFieldTests(TestCase):
 
         # Bad - Data too long
         m = SizeFieldModel(text1='a' * (2**8))
-        with pytest.raises(DataError) as excinfo:
+        with atomic(), pytest.raises(DataError) as excinfo:
             m.save()
         assert excinfo.value.args[0] == 1406
-
-
-@forceDataError
-class SizedTextFieldMigrationTests(TransactionTestCase):
 
     def test_deconstruct_size_class_4(self):
         field = SizedTextField(size_class=4)
@@ -182,6 +177,10 @@ class SizedTextFieldMigrationTests(TransactionTestCase):
             statement ==
             "django_mysql.models.SizedTextField(size_class=4)"
         )
+
+
+@forceDataError
+class SizedTextFieldMigrationTests(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
         "django_mysql_tests": "django_mysql_tests.sizedtextfield_migrations",
