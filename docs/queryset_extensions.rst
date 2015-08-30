@@ -28,14 +28,16 @@ Approximate Counting
     COUNT(*) ...``. It can be out by 30-50% in the worst case, but in many
     applications it is closer, and is good enough, such as when presenting many
     pages of results but users will only practically scroll through the first
-    few. For example::
+    few. For example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.count()  # slow
         509741
         >>> Author.objects.approx_count()  # fast, with some error
         531140
 
-    Three arguments are taken:
+    Three arguments are accepted:
 
     .. attribute:: fall_back=True
 
@@ -53,7 +55,9 @@ Approximate Counting
         intents and purposes an ``int``, apart from when cast to ``str``, it
         renders as e.g. **'Approximately 12345'** (internationalization
         ready). Useful for templates you can't edit (e.g. the admin) and you
-        want to communicate that the number is not 100% accurate. For example::
+        want to communicate that the number is not 100% accurate. For example:
+
+        .. code-block:: pycon
 
             >>> print(Author.objects.approx_count())  # ApproximateInt
             Approximately 531140
@@ -130,7 +134,9 @@ Once you’ve done this, the following methods will work.
 
         qs = Author.objects.label("AuthorListView").all()
 
-    When executed, this will have SQL starting::
+    When executed, this will have SQL starting:
+
+    .. code-block:: mysql
 
         SELECT /*AuthorListView*/ ...
 
@@ -283,7 +289,9 @@ it will require MySQL to read all the rows and to hold write locks on them in
 a single query.
 
 To solve this, we could try updating a chunk of authors at a time; such code
-tends to get ugly/complicated pretty quickly::
+tends to get ugly/complicated pretty quickly:
+
+.. code-block:: python
 
     min_id = 0
     max_id = 1000
@@ -455,8 +463,8 @@ can be thought of in one of these two methods.
     A subclass of ``SmartChunkedIterator`` that doesn't return the chunk's
     ``QuerySet`` but instead returns the start and end primary keys for the
     chunk. This may be useful when you want to iterate but the slices need to
-    be used in a raw SQL query. Can be accessed via the ``iter_smart`` method
-    of ``QuerySetMixin``.
+    be used in a raw SQL query. Can be accessed via the
+    ``iter_smart_pk_ranges`` method of ``QuerySetMixin``.
 
     For example, rather than doing this::
 
@@ -468,7 +476,7 @@ can be thought of in one of these two methods.
             """, (limits['min_pk'], limits['max_pk']))
             # etc...
 
-    You can do this::
+    ...you can do this::
 
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             authors = Author.objects.raw("""
@@ -639,7 +647,8 @@ easily as well::
                 * ``value__gt=x`` - index value ``>`` x
 
             For single-column indexes, specify the value; for multi-column
-            indexes, specify the tuple of values. For example::
+            indexes, specify an iterable of values, one for each column, in
+            index order. For example::
 
                 grisham = handler.read(index='full_name_idx',
                                        value=('John', 'Grisham'))
@@ -652,7 +661,7 @@ easily as well::
             is mutually exclusive with ``value__LOOKUP``, and if neither is
             specified, this is the default.
 
-            There are four modes::
+            There are four modes:
 
                 * ``first`` - commence iteration at the start
                 * ``next`` - continue ascending/go forward one page
@@ -677,8 +686,8 @@ easily as well::
 
                 with Author.objects.handler() as handler:
 
-                    old = Author.objects.filter(age__gte=50) first_old_author =
-                    handler.read(where=old)[0]
+                    old = Author.objects.filter(age__gte=50)
+                    first_old_author = handler.read(where=old)[0]
 
                     young = Author.objects.filter(age__lte=50)
                     first_young_author = handler.read(where=young)[0]

@@ -164,10 +164,10 @@ String Functions
 
 .. class:: ELT(number, values)
 
-    Given a numerical expression ``number``, it returns the ``number``th
+    Given a numerical expression ``number``, it returns the ``number``\th
     element from ``values``, 1-indexed. If ``number`` is less than 1 or greater
     than the number of expressions, it will return ``None``. It is the
-    complement of ``Field``.
+    complement of the ``Field`` function.
 
     Note that if ``number`` is a string, it will refer to a field, whereas
     members of ``values`` that are strings will be wrapped with ``Value``
@@ -192,7 +192,7 @@ String Functions
     Given an ``expression`` and a list of strings ``values``, returns the
     1-indexed location of the ``expression``'s value in ``values``, or 0 if not
     found. This is commonly used with ``order_by`` to keep groups of elements
-    together. It is the complement of ``ELT``.
+    together. It is the complement of the ``ELT`` function.
 
     Note that if ``expression`` is a string, it will refer to a field, whereas
     if any member of ``values`` is a string, it will automatically be wrapped

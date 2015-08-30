@@ -19,17 +19,23 @@ since it's just an older version of ``mysqlclient``.
 Installation
 ------------
 
-At the command line::
+At the command line:
+
+.. code-block:: console
 
     $ pip install django-mysql
 
 Or add it to your project's ``requirements.txt``.
 
-...or if you're really still using it::
+...or if you're really still using it:
+
+.. code-block:: console
 
     $ easy_install django-mysql
 
-Add ``'django_mysql'`` to your ``INSTALLED_APPS`` setting::
+Add ``'django_mysql'`` to your ``INSTALLED_APPS`` setting:
+
+.. code-block:: python
 
     INSTALLED_APPS = (
         ...

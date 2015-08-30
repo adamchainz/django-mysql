@@ -54,7 +54,9 @@ Match a given soundex string::
     >>> Author.objects.filter(name__soundex='R163')
     [<Author: Robert>, <Author: Rupert>]
 
-SQL equivalent::
+SQL equivalent:
+
+.. code-block:: mysql
 
     SELECT ... WHERE SOUNDEX(`name`) = 'R163'
 
@@ -67,6 +69,8 @@ Match the ``SOUNDEX`` of the given string::
     >>> Author.objects.filter(name__sounds_like='Robert')
     [<Author: Robert>, <Author: Rupert>]
 
-SQL equivalent::
+SQL equivalent:
+
+.. code-block:: mysql
 
     SELECT ... WHERE `name` SOUNDS LIKE 'Robert'

@@ -54,7 +54,9 @@ table.
 
 Use the management command ``mysql_cache_migration`` to output a migration that
 creates tables for all the ``MySQLCache`` instances you have configured. For
-example::
+example:
+
+.. code-block:: console
 
     $ python manage.py mysql_cache_migration
     from django.db import migrations
@@ -363,7 +365,9 @@ Versions 0.1.10 -> 0.2.0
 Initially, in Django-MySQL version 0.1.10, ``MySQLCache`` did not force the
 columns to use case sensitive collations; in version 0.2.0 this was fixed. You
 can upgrade by adding a migration with the following SQL, if you replace
-``yourtablename``::
+``yourtablename``:
+
+.. code-block:: mysql
 
     ALTER TABLE yourtablename
         MODIFY cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
