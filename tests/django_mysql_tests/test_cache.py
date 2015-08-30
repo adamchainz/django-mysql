@@ -11,13 +11,13 @@ import ddt
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
-from django.db import OperationalError, connection, transaction
+from django.db import OperationalError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
     FetchFromCacheMiddleware, UpdateCacheMiddleware
 )
-from django.test import RequestFactory, TransactionTestCase
+from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six.moves import StringIO
@@ -125,30 +125,9 @@ def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
     )
 
 
-@override_cache_settings()
-@ddt.ddt
-class MySQLCacheTests(TransactionTestCase):
+class MySQLCacheTableMixin(object):
 
-    @classmethod
-    def setUpClass(cls):
-        # The super calls needs to happen first for the settings override.
-        super(MySQLCacheTests, cls).setUpClass()
-        cls.table_name = 'test cache table'
-        cls.create_table()
-
-    @classmethod
-    def tearDownClass(cls):
-        # The super call needs to happen first because it uses the database.
-        super(MySQLCacheTests, cls).tearDownClass()
-        cls.drop_table()
-
-    def setUp(self):
-        super(MySQLCacheTests, self).setUp()
-
-    def tearDown(self):
-        super(MySQLCacheTests, self).tearDown()
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM `{}`".format(self.table_name))
+    table_name = 'test cache table'
 
     @classmethod
     def create_table(self):
@@ -160,6 +139,21 @@ class MySQLCacheTests(TransactionTestCase):
     def drop_table(self):
         with connection.cursor() as cursor:
             cursor.execute('DROP TABLE `%s`' % self.table_name)
+
+
+@override_cache_settings()
+@ddt.ddt
+class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.create_table()
+        super(MySQLCacheTests, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        super(MySQLCacheTests, cls).tearDownClass()
+        cls.drop_table()
 
     def table_count(self):
         with connection.cursor() as cursor:
@@ -759,13 +753,6 @@ class MySQLCacheTests(TransactionTestCase):
         with pytest.raises(pickle.PickleError):
             cache.set('unpickable', Unpickable())
 
-    def test_clear_commits_transaction(self):
-        # Ensure the database transaction is committed (#19896)
-        cache.set("key1", "spam")
-        cache.clear()
-        transaction.rollback()
-        assert cache.get("key1") is None
-
     # Modified Django tests
 
     def test_expiration(self):
@@ -1207,55 +1194,6 @@ class MySQLCacheTests(TransactionTestCase):
         assert cache.delete_with_prefix('K') == 2
         assert cache.get_many(['K1', 'K2', 'B2']) == {'B2': 'Anothervalue'}
 
-    # mysql_cache_migration tests
-
-    def test_mysql_cache_migration(self):
-        out = StringIO()
-        call_command('mysql_cache_migration', stdout=out)
-        output = out.getvalue()
-
-        # Lint it
-        with captured_stdout() as stderr:
-            errors = check_code(output)
-        assert errors == 0, (
-            "Encountered {} errors whilst trying to lint the mysql cache "
-            "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
-            .format(errors, output, stderr.getvalue())
-        )
-
-        # Dynamic import and check
-        migration_mod = imp.new_module('0001_add_cache_tables')
-        six.exec_(output, migration_mod.__dict__)
-        assert hasattr(migration_mod, 'Migration')
-        migration = migration_mod.Migration
-        assert hasattr(migration, 'dependencies')
-        assert hasattr(migration, 'operations')
-
-        # Since they all have the same table name, there should only be one
-        # operation
-        assert len(migration.operations) == 1
-
-        # Now run the migration forwards and backwards to check it works
-        operation = migration.operations[0]
-        self.drop_table()
-        try:
-            assert not self.table_exists(self.table_name)
-
-            state = ProjectState()
-            new_state = state.clone()
-            with connection.schema_editor() as editor:
-                operation.database_forwards("django_mysql_tests", editor,
-                                            state, new_state)
-            assert self.table_exists(self.table_name)
-
-            new_state = state.clone()
-            with connection.schema_editor() as editor:
-                operation.database_backwards("django_mysql_tests", editor,
-                                             new_state, state)
-            assert not self.table_exists(self.table_name)
-        finally:
-            self.create_table()
-
     def test_mysql_cache_migration_alias(self):
         out = StringIO()
         call_command('mysql_cache_migration', 'default', stdout=out)
@@ -1323,6 +1261,53 @@ class MySQLCacheTests(TransactionTestCase):
         with pytest.raises(CommandError) as excinfo:
             call_command('cull_mysql_caches', "NOTACACHE", verbosity=0)
         assert "Cache 'NOTACACHE' does not exist" == str(excinfo.value)
+
+
+@override_cache_settings()
+class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
+
+    def test_mysql_cache_migration(self):
+        out = StringIO()
+        call_command('mysql_cache_migration', stdout=out)
+        output = out.getvalue()
+
+        # Lint it
+        with captured_stdout() as stderr:
+            errors = check_code(output)
+        assert errors == 0, (
+            "Encountered {} errors whilst trying to lint the mysql cache "
+            "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
+            .format(errors, output, stderr.getvalue())
+        )
+
+        # Dynamic import and check
+        migration_mod = imp.new_module('0001_add_cache_tables')
+        six.exec_(output, migration_mod.__dict__)
+        assert hasattr(migration_mod, 'Migration')
+        migration = migration_mod.Migration
+        assert hasattr(migration, 'dependencies')
+        assert hasattr(migration, 'operations')
+
+        # Since they all have the same table name, there should only be one
+        # operation
+        assert len(migration.operations) == 1
+
+        # Now run the migration forwards and backwards to check it works
+        operation = migration.operations[0]
+        assert not self.table_exists(self.table_name)
+
+        state = ProjectState()
+        new_state = state.clone()
+        with connection.schema_editor() as editor:
+            operation.database_forwards("django_mysql_tests", editor,
+                                        state, new_state)
+        assert self.table_exists(self.table_name)
+
+        new_state = state.clone()
+        with connection.schema_editor() as editor:
+            operation.database_backwards("django_mysql_tests", editor,
+                                         new_state, state)
+        assert not self.table_exists(self.table_name)
 
     def table_exists(self, table_name):
         with connection.cursor() as cursor:

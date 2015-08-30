@@ -6,7 +6,7 @@ from unittest import skipUnless
 import pytest
 from django.db.models.query import QuerySet
 from django.template import Context, Template
-from django.test import TransactionTestCase
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator
@@ -17,18 +17,11 @@ from django_mysql_tests.models import (
 from django_mysql_tests.utils import CaptureLastQuery, captured_stdout
 
 
-class ApproximateCountTests(TransactionTestCase):
+class ApproximateCountTests(TestCase):
 
     def setUp(self):
         super(ApproximateCountTests, self).setUp()
         Author.objects.bulk_create([Author() for i in range(10)])
-
-    def test_approx_count(self):
-        # Theoretically this varies 30-50% of the table size
-        # For a fresh table with 10 items we seem to always get back the actual
-        # count, but to be sure we'll just assert it's within 55%
-        approx_count = Author.objects.approx_count(min_size=1)
-        assert 4 <= approx_count <= 16
 
     def test_activation_deactivation(self):
         qs = Author.objects.all()
@@ -102,7 +95,7 @@ class ApproximateCountTests(TransactionTestCase):
         )
 
 
-class QueryHintTests(TransactionTestCase):
+class QueryHintTests(TestCase):
 
     def test_label(self):
         with CaptureLastQuery() as cap:
@@ -219,16 +212,11 @@ class QueryHintTests(TransactionTestCase):
         assert cap.query.startswith("SELECT STRAIGHT_JOIN ")
 
 
-class SmartIteratorTests(TransactionTestCase):
+class SmartIteratorTests(TestCase):
 
     def setUp(self):
         super(SmartIteratorTests, self).setUp()
         Author.objects.bulk_create([Author() for i in range(10)])
-
-    def tearDown(self):
-        super(SmartIteratorTests, self).tearDown()
-        Author.objects.all().delete()
-        VanillaAuthor.objects.all().delete()
 
     def test_bad_querysets(self):
         with pytest.raises(ValueError) as excinfo:
@@ -483,7 +471,7 @@ class SmartIteratorTests(TransactionTestCase):
 
 @skipUnless(have_program('pt-visual-explain'),
             "pt-visual-explain must be installed")
-class VisualExplainTests(TransactionTestCase):
+class VisualExplainTests(TestCase):
 
     def test_basic(self):
         with captured_stdout() as capture:
