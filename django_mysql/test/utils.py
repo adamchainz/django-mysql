@@ -5,6 +5,8 @@ from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils import six
 
+from django_mysql.status import GlobalStatus
+
 
 class override_mysql_variables(object):
     """
@@ -81,3 +83,34 @@ class override_mysql_variables(object):
                            @overridden_{prefix}_{name} = NULL
                     """.format(name=key, prefix=self.prefix)
                 )
+
+
+class assert_mysql_queries(object):
+    def __init__(self, using=DEFAULT_DB_ALIAS, full_joins=0):
+        self.status = GlobalStatus(using)
+        self.full_joins = full_joins
+
+    def __enter__(self):
+        self._before = self.status.get_many(self.names)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None:
+            return
+
+        before = self._before
+        after = self.status.get_many(self.names)
+
+        count = after['Select_full_join'] - before['Select_full_join']
+        if self.full_joins is not None and count > self.full_joins:
+            raise AssertionError(
+                "{count} full {joins_were} executed - expected 0. Check for "
+                "any queries that are joining on non-indexed columns."
+                .format(
+                    count=count,
+                    joins_were='joins were' if count > 1 else 'join was'
+                )
+            )
+
+    @property
+    def names(self):
+        return {'Select_full_join'}

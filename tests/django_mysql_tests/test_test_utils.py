@@ -1,8 +1,10 @@
 import pytest
-from django.db import connections
+from django.db import connection, connections
 from django.test import TestCase
 
-from django_mysql.test.utils import override_mysql_variables
+from django_mysql.test.utils import (
+    assert_mysql_queries, override_mysql_variables
+)
 
 
 class OverrideVarsMethodTest(TestCase):
@@ -36,3 +38,28 @@ class OverrideVarsClassTest(OverrideVarsMethodTest):
             @override_mysql_variables(SQL_MODE="ANSI")
             class MyClass(object):
                 pass
+
+
+class AssertMySQLQueriesTests(TestCase):
+
+    def test_nothing(self):
+        with connection.cursor() as cursor, assert_mysql_queries():
+            cursor.execute("SELECT 1")
+
+    def test_detects_full_joins(self):
+        with pytest.raises(AssertionError) as excinfo:
+            with connection.cursor() as cursor, assert_mysql_queries():
+                cursor.execute(self.full_join_query)
+        assert '1 full join was executed - expected 0' in str(excinfo.value)
+
+    def test_allows_full_joins_when_None(self):
+        checker = assert_mysql_queries(full_joins=None)
+        with connection.cursor() as cursor, checker:
+            cursor.execute(self.full_join_query)
+
+    # This always is a 'full join' since I_S tables have no indexes
+    full_join_query = """
+        SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.TABLES I1
+        INNER JOIN INFORMATION_SCHEMA.TABLES I2
+        ON I1.TABLE_NAME = I2.TABLE_NAME"""
