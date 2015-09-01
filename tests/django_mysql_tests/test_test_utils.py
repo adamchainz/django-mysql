@@ -57,6 +57,40 @@ class AssertMySQLQueriesTests(TestCase):
         with connection.cursor() as cursor, checker:
             cursor.execute(self.full_join_query)
 
+    def test_detects_selects(self):
+        checker = assert_mysql_queries(selects=0)
+        with pytest.raises(AssertionError) as excinfo:
+            with connection.cursor() as cursor, checker:
+                cursor.execute("SELECT 1")
+        assert '1 SELECT was executed - expected 0.' in str(excinfo.value)
+
+    def test_detects_inserts(self):
+        checker = assert_mysql_queries(inserts=0)
+        with pytest.raises(AssertionError) as excinfo:
+            with connection.cursor() as cursor, checker:
+                cursor.execute("CREATE TEMPORARY TABLE test (c1 int)")
+                cursor.execute("INSERT INTO test (c1) VALUES (1)")
+                cursor.execute("DROP TEMPORARY TABLE test")
+        assert '1 INSERT was executed - expected 0.' in str(excinfo.value)
+
+    def test_detects_updates(self):
+        checker = assert_mysql_queries(updates=0)
+        with pytest.raises(AssertionError) as excinfo:
+            with connection.cursor() as cursor, checker:
+                cursor.execute("CREATE TEMPORARY TABLE test (c1 int)")
+                cursor.execute("UPDATE test SET c1 = 2")
+                cursor.execute("DROP TEMPORARY TABLE test")
+        assert '1 UPDATE was executed - expected 0.' in str(excinfo.value)
+
+    def test_detects_deletes(self):
+        checker = assert_mysql_queries(deletes=0)
+        with pytest.raises(AssertionError) as excinfo:
+            with connection.cursor() as cursor, checker:
+                cursor.execute("CREATE TEMPORARY TABLE test (c1 int)")
+                cursor.execute("DELETE FROM test")
+                cursor.execute("DROP TEMPORARY TABLE test")
+        assert '1 DELETE was executed - expected 0.' in str(excinfo.value)
+
     # This always is a 'full join' since I_S tables have no indexes
     full_join_query = """
         SELECT COUNT(*)

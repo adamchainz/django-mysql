@@ -86,31 +86,53 @@ class override_mysql_variables(object):
 
 
 class assert_mysql_queries(object):
-    def __init__(self, using=DEFAULT_DB_ALIAS, full_joins=0):
-        self.status = GlobalStatus(using)
+
+    def __init__(self, total=None, inserts=None, selects=None, updates=None,
+                 deletes=None, full_joins=0, using=DEFAULT_DB_ALIAS):
+        self.total = total
+        self.inserts = inserts
+        self.selects = selects
+        self.updates = updates
+        self.deletes = deletes
         self.full_joins = full_joins
+        self.status = GlobalStatus(using)
 
     def __enter__(self):
-        self._before = self.status.get_many(self.names)
+        self.before = self.status.get_many(self.names)
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             return
 
-        before = self._before
-        after = self.status.get_many(self.names)
+        self.after = self.status.get_many(self.names)
 
-        count = after['Select_full_join'] - before['Select_full_join']
+        self._check(
+            'Select_full_join',
+            'full join',
+            self.full_joins,
+            "Check for any queries that are joining on non-indexed columns."
+        )
+        self._check('Com_insert', 'INSERT', self.inserts, "")
+        self._check('Com_select', 'SELECT', self.selects, "")
+        self._check('Com_update', 'UPDATE', self.updates, "")
+        self._check('Com_delete', 'DELETE', self.deletes, "")
+
+    def _check(self, name, human_name, limit, hint):
+        if limit is None:
+            return
+
+        count = self.after[name] - self.before[name]
         if self.full_joins is not None and count > self.full_joins:
             raise AssertionError(
-                "{count} full {joins_were} executed - expected 0. Check for "
-                "any queries that are joining on non-indexed columns."
+                "{count} {name}{s_were} executed - expected {limit}. {hint}"
                 .format(
                     count=count,
-                    joins_were='joins were' if count > 1 else 'join was'
+                    name=human_name,
+                    s_were='s were' if count > 1 else ' was',
+                    limit=limit,
+                    hint=hint,
                 )
             )
 
-    @property
-    def names(self):
-        return {'Select_full_join'}
+    names = {'Select_full_join', 'Com_insert', 'Com_select', 'Com_update',
+             'Com_delete'}
