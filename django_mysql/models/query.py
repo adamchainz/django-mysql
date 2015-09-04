@@ -106,6 +106,58 @@ class QuerySetMixin(object):
     def sql_no_cache(self):
         return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
 
+    def use_index(self, *index_names, **kwargs):
+        kwargs['hint'] = 'USE'
+        return self._index_hint(*index_names, **kwargs)
+
+    def force_index(self, *index_names, **kwargs):
+        kwargs['hint'] = 'FORCE'
+        return self._index_hint(*index_names, **kwargs)
+
+    def ignore_index(self, *index_names, **kwargs):
+        kwargs['hint'] = 'IGNORE'
+        return self._index_hint(*index_names, **kwargs)
+
+    def _index_hint(self, *index_names, **kwargs):
+        hint = kwargs.pop('hint')
+        table_name = kwargs.pop('table_name', None)
+        for_ = kwargs.pop('for_', None)
+        if kwargs:
+            raise ValueError(
+                "{}_index accepts only 'for_' and 'table_name' as keyword "
+                "arguments"
+                .format(hint.lower())
+            )
+
+        if hint != 'USE' and not len(index_names):
+            raise ValueError(
+                "{}_index requires at least one index name"
+                .format(hint.lower())
+            )
+
+        if table_name is None:
+            table_name = self.model._meta.db_table
+
+        if for_ in ('JOIN', 'ORDER BY', 'GROUP BY'):
+            for_bit = 'FOR {} '.format(for_)
+        elif for_ is None:
+            for_bit = ''
+        else:
+            raise ValueError("for_ must be one of: None, 'JOIN', 'ORDER BY', "
+                             "'GROUP BY'")
+
+        if len(index_names) == 0:
+            indexes = "NONE"
+        else:
+            indexes = "`" + "`,`".join(index_names) + "`"
+
+        hint = (
+            "/*QueryRewrite':index=`{table_name}` {hint} {for_bit}{indexes}*/1"
+            .format(table_name=table_name, hint=hint, for_bit=for_bit,
+                    indexes=indexes)
+        )
+        return self.extra(where=[hint])
+
     # Features handled by extra classes/functions
 
     def iter_smart(self, **kwargs):

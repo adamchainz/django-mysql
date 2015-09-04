@@ -5,6 +5,7 @@ from django.db.models import F
 from django.test import TestCase
 
 from django_mysql.models.handler import Handler
+from django_mysql.utils import index_name
 from django_mysql_tests.models import (
     Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
 )
@@ -311,8 +312,7 @@ class HandlerMultipartIndexTests(TestCase):
                                                       country='Scotland')
         self.smith2 = AuthorMultiIndex.objects.create(name='John Smith',
                                                       country='England')
-        self.index_name = [name for name in get_index_names(AuthorMultiIndex)
-                           if name != "PRIMARY"][0]
+        self.index_name = index_name(AuthorMultiIndex, 'name', 'country')
 
     def test_read_all(self):
         with AuthorMultiIndex.objects.handler() as handler:

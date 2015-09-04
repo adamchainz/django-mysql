@@ -7,6 +7,7 @@ History
 -----------------------
 
 * Pending release
+* Added index query hints to ``QuerySet`` methods, via qurey-rewriting layer
 
 0.2.2 (2015-09-03)
 ------------------

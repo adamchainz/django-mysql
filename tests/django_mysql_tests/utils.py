@@ -1,7 +1,7 @@
 import sys
 from contextlib import contextmanager
 
-from django.db import connection
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
 
@@ -62,3 +62,12 @@ class CaptureLastQuery(object):
     @property
     def query(self):
         return self.capturer.captured_queries[-1]['sql']
+
+
+def used_indexes(query, using=DEFAULT_DB_ALIAS):
+    """
+    Given SQL 'query', run EXPLAIN and return the names of the indexes used
+    """
+    with connections[using].cursor() as cursor:
+        cursor.execute("EXPLAIN " + query)
+        return {row[5] for row in cursor.fetchall() if row[5]}
