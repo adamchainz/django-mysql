@@ -4,11 +4,15 @@ from __future__ import unicode_literals
 from time import sleep
 from unittest import skipUnless
 
-from django.test import SimpleTestCase
+import pytest
+from django.test import SimpleTestCase, TestCase
+from django.utils import six
 
 from django_mysql.utils import (
-    PTFingerprintThread, WeightedAverageRate, have_program, pt_fingerprint
+    PTFingerprintThread, WeightedAverageRate, have_program, index_name,
+    pt_fingerprint
 )
+from django_mysql_tests.models import Author, AuthorMultiIndex
 
 
 class WeightedAverageRateTests(SimpleTestCase):
@@ -97,3 +101,57 @@ class PTFingerprintTests(SimpleTestCase):
         sleep(0.2)
         assert PTFingerprintThread.the_thread is None
         PTFingerprintThread.PROCESS_LIFETIME = 60
+
+
+class IndexNameTests(TestCase):
+    def test_requires_field_names(self):
+        with pytest.raises(ValueError) as excinfo:
+            index_name(Author)
+        assert (
+            "At least one field name required" in
+            six.text_type(excinfo.value)
+        )
+
+    def test_requires_real_field_names(self):
+        with pytest.raises(ValueError) as excinfo:
+            index_name(Author, 'nonexistent')
+        assert (
+            "Fields do not exist: nonexistent" in
+            six.text_type(excinfo.value)
+        )
+
+    def test_invalid_kwarg(self):
+        with pytest.raises(ValueError) as excinfo:
+            index_name(Author, 'name', nonexistent_kwarg=True)
+        assert (
+            "The only supported keyword argument is 'using'" in
+            six.text_type(excinfo.value)
+        )
+
+    def test_primary_key(self):
+        assert index_name(Author, 'id') == 'PRIMARY'
+
+    def test_primary_key_using_other(self):
+        assert index_name(Author, 'id', using='other') == 'PRIMARY'
+
+    def test_secondary_single_field(self):
+        name = index_name(Author, 'name')
+        assert name.startswith('django_mysql_tests_author_')
+
+    def test_index_does_not_exist(self):
+        with pytest.raises(KeyError) as excinfo:
+            index_name(Author, 'bio')
+        assert "There is no index on (bio)" in six.text_type(excinfo.value)
+
+    def test_secondary_multiple_fields(self):
+        name = index_name(AuthorMultiIndex, 'name', 'country')
+        assert name.startswith('django_mysql_tests_authormultiindex')
+
+    def test_secondary_multiple_fields_non_existent_reversed_existent(self):
+        # Checks that order is preserved
+        with pytest.raises(KeyError):
+            index_name(AuthorMultiIndex, 'country', 'name')
+
+    def test_secondary_multiple_fields_non_existent(self):
+        with pytest.raises(KeyError):
+            index_name(AuthorMultiIndex, 'country', 'id')

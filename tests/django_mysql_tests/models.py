@@ -130,7 +130,7 @@ class AuthorMultiIndex(Model):
     class Meta(object):
         index_together = ('name', 'country')
 
-    name = CharField(max_length=32)
+    name = CharField(max_length=32, db_index=True)
     country = CharField(max_length=32)
 
     def __unicode__(self):

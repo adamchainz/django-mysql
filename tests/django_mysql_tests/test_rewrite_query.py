@@ -207,6 +207,109 @@ class RewriteQueryTests(TestCase):
             "WHERE (1)"
         )
 
+    def test_index_hint_use(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` WHERE "
+                "(/*QueryRewrite':index=`sometable` USE `col_a_idx`*/1)"
+            ) ==
+            "SELECT col_a FROM `sometable` USE INDEX (`col_a_idx`) WHERE (1)"
+        )
+
+    def test_index_ignore(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` WHERE "
+                "(/*QueryRewrite':index=`sometable` IGNORE `col_a_idx`*/1)"
+            ) ==
+            "SELECT col_a FROM `sometable` IGNORE INDEX (`col_a_idx`) "
+            "WHERE (1)"
+        )
+
+    def test_index_force(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` WHERE "
+                "(/*QueryRewrite':index=`sometable` FORCE `col_a_idx`*/1)"
+            ) ==
+            "SELECT col_a FROM `sometable` FORCE INDEX (`col_a_idx`) "
+            "WHERE (1)"
+        )
+
+    def test_index_nonsense_does_nothing(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` WHERE "
+                "(/*QueryRewrite':index=`sometable` MAHOGANY `col_a_idx`*/1)"
+            ) ==
+            "SELECT col_a FROM `sometable` WHERE (1)"
+        )
+
+    def test_index_hint_use_secondary(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a, col_b FROM `sometable` INNER JOIN `othertable` "
+                " WHERE (/*QueryRewrite':index=`othertable` USE `myindex`*/1)"
+            ) ==
+            "SELECT col_a, col_b FROM `sometable` INNER JOIN `othertable` "
+            "USE INDEX (`myindex`) WHERE (1)"
+        )
+
+    def test_index_hint_multiple_indexes(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `tabl` WHERE "
+                "(/*QueryRewrite':index=`tabl` IGNORE `idx1`,`idx2`*/1)"
+            ) ==
+            "SELECT col_a FROM `tabl` IGNORE INDEX (`idx1`,`idx2`) WHERE (1)"
+        )
+
+    def test_index_hint_multiple_hints(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` "
+                "WHERE (/*QueryRewrite':index=`sometable` IGNORE `idx1`*/1) "
+                "AND (/*QueryRewrite':index=`sometable` IGNORE `idx2`*/1)"
+            ) ==
+            "SELECT col_a FROM `sometable` IGNORE INDEX (`idx2`) "
+            "IGNORE INDEX (`idx1`) WHERE (1) AND (1)"
+        )
+
+    def test_index_hint_for_join(self):
+        assert (
+            rewrite_query(
+                "SELECT `sometable`.col_a, `sometable2`.col_b "
+                "FROM `sometable` NATURAL JOIN `sometable2` "
+                "WHERE (/*QueryRewrite':index=`sometable` IGNORE FOR JOIN "
+                "`idx`*/1)"
+            ) ==
+            "SELECT `sometable`.col_a, `sometable2`.col_b FROM `sometable` "
+            "IGNORE INDEX FOR JOIN (`idx`) "
+            "NATURAL JOIN `sometable2` WHERE (1)"
+        )
+
+    def test_index_hint_for_group_by(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a, SUM(col_b) FROM `sometable` "
+                "WHERE (/*QueryRewrite':index=`sometable` FORCE FOR GROUP BY "
+                "`idx`*/1) GROUP BY col_a"
+            ) ==
+            "SELECT col_a, SUM(col_b) FROM `sometable` FORCE INDEX FOR GROUP "
+            "BY (`idx`) WHERE (1) GROUP BY col_a"
+        )
+
+    def test_index_hint_for_order_by(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` "
+                "WHERE (/*QueryRewrite':index=`sometable` USE FOR ORDER BY "
+                "`idx` */1) ORDER BY col_a"
+            ) ==
+            "SELECT col_a FROM `sometable` USE INDEX FOR ORDER BY (`idx`) "
+            "WHERE (1) ORDER BY col_a"
+        )
+
     def test_it_is_monkey_patched(self):
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute("SELECT 1 FROM DUAL "

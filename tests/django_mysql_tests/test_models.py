@@ -10,11 +10,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator
-from django_mysql.utils import have_program
+from django_mysql.utils import have_program, index_name
 from django_mysql_tests.models import (
-    Author, AuthorExtra, Book, NameAuthor, VanillaAuthor
+    Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, VanillaAuthor
 )
-from django_mysql_tests.utils import CaptureLastQuery, captured_stdout
+from django_mysql_tests.utils import (
+    CaptureLastQuery, captured_stdout, used_indexes
+)
 
 
 class ApproximateCountTests(TestCase):
@@ -210,6 +212,117 @@ class QueryHintTests(TestCase):
             list(Author.objects.straight_join()
                                .filter(books__in=subq))
         assert cap.query.startswith("SELECT STRAIGHT_JOIN ")
+
+    def test_use_index(self):
+        name_idx = index_name(Author, 'name')
+        with CaptureLastQuery() as cap:
+            list(Author.objects.filter(name__gt='')
+                               .use_index(name_idx))
+        assert ('USE INDEX (`' + name_idx + '`)') in cap.query
+        used = used_indexes(cap.query)
+        assert len(used) == 0 or name_idx in used
+
+    def test_use_index_primary(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.use_index('PRIMARY'))
+        assert ('USE INDEX (`PRIMARY`)') in cap.query
+        used = used_indexes(cap.query)
+        assert len(used) == 0 or 'PRIMARY' in used
+
+    def test_force_index(self):
+        name_idx = index_name(Author, 'name')
+        with CaptureLastQuery() as cap:
+            list(Author.objects.filter(name__gt='')
+                               .force_index(name_idx))
+        assert ('FORCE INDEX (`' + name_idx + '`)') in cap.query
+        assert name_idx in used_indexes(cap.query)
+
+    def test_force_index_primary(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.force_index('PRIMARY'))
+        assert ('FORCE INDEX (`PRIMARY`)') in cap.query
+        used = used_indexes(cap.query)
+        assert len(used) == 0 or 'PRIMARY' in used
+
+    def test_ignore_index(self):
+        name_idx = index_name(Author, 'name')
+        with CaptureLastQuery() as cap:
+            list(Author.objects.filter(name__gt='').ignore_index(name_idx))
+        assert ('IGNORE INDEX (`' + name_idx + '`)') in cap.query
+        assert name_idx not in used_indexes(cap.query)
+
+    def test_ignore_index_multiple(self):
+        name_idx = index_name(AuthorMultiIndex, 'name')
+        name_country_idx = index_name(AuthorMultiIndex, 'name', 'country')
+        with CaptureLastQuery() as cap:
+            list(AuthorMultiIndex.objects
+                                 .filter(name__gt='')
+                                 .ignore_index(name_idx, name_country_idx))
+        assert (
+            'IGNORE INDEX (`' + name_idx + '`,`' + name_country_idx + '`)'
+            in cap.query
+        )
+        used = used_indexes(cap.query)
+        assert name_idx not in used
+        assert name_country_idx not in used
+
+    def test_ignore_index_primary(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.filter(name__gt='').ignore_index('PRIMARY'))
+        assert ('IGNORE INDEX (`PRIMARY`)') in cap.query
+        assert 'PRIMARY' not in used_indexes(cap.query)
+
+    def test_force_index_at_least_one(self):
+        with pytest.raises(ValueError) as excinfo:
+            Author.objects.force_index()
+        assert (
+            str(excinfo.value) ==
+            "force_index requires at least one index name"
+        )
+
+    def test_force_index_invalid_for(self):
+        with pytest.raises(ValueError) as excinfo:
+            Author.objects.force_index('a', for_='INVALID')
+        assert "for_ must be one of" in str(excinfo.value)
+
+    def test_force_index_invalid_kwarg(self):
+        with pytest.raises(ValueError) as excinfo:
+            Author.objects.force_index('a', nonexistent=True)
+        assert (
+            "force_index accepts only 'for_' and 'table_name' as keyword "
+            "arguments" in
+            str(excinfo.value)
+        )
+
+    def test_index_hint_force_order_by(self):
+        name_idx = index_name(Author, 'name')
+        with CaptureLastQuery() as cap:
+            list(Author.objects.force_index(name_idx, for_='ORDER BY')
+                               .order_by('name'))
+
+        assert ('FORCE INDEX FOR ORDER BY (`' + name_idx + "`)") in cap.query
+        assert name_idx in used_indexes(cap.query)
+
+    def test_use_index_none(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.values_list('name').distinct().use_index())
+        assert 'USE INDEX () ' in cap.query
+        assert used_indexes(cap.query) == set()
+
+    def test_use_index_table_name(self):
+        extra_table = 'django_mysql_tests_authorextra'
+        with CaptureLastQuery() as cap:
+            list(Author.objects
+                       .select_related('authorextra')
+                       .use_index('PRIMARY', table_name=extra_table))
+        assert '`' + extra_table + '` USE INDEX (`PRIMARY`) ' in cap.query
+
+    def test_force_index_table_name_doesnt_exist_ignored(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects
+                       .select_related('authorextra')
+                       .force_index('PRIMARY', table_name='nonexistent'))
+        assert ' FORCE INDEX ' not in cap.query
 
 
 class SmartIteratorTests(TestCase):

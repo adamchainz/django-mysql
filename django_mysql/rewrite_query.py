@@ -20,24 +20,53 @@ REWRITE_MARKER = "/*QueryRewrite':"
 
 # Regex to match a rewrite rule
 query_rewrite_re = re.compile(r"/\*QueryRewrite':(.*?)\*/")
+# Regex to parse an index hint into a tuple
+index_rule_re = re.compile(
+    r"""
+    index=
+    (?P<table_name>`[^`]+`)
+    \ # space
+    (?P<rule>USE|IGNORE|FORCE)
+    \ # space
+    (
+        FOR
+        \ # space
+        (?P<for_what>JOIN|ORDER\ BY|GROUP\ BY)
+        \ # space
+    )?
+    (?P<index_names>(`[^`]+`(,`[^`]+`)*)|NONE)
+    """,
+    re.VERBOSE
+)
 
 
 def rewrite_query(sql):
     comments = []
     hints = []
+    index_hints = []
     for match in query_rewrite_re.findall(sql):
         if match in SELECT_HINT_TOKENS:
             hints.append(match)
         elif match.startswith('label='):
             comments.append(match[6:])
+        elif match.startswith('index='):
+            # Extra parsing
+            index_match = index_rule_re.match(match)
+            if index_match:
+                index_hints.append((
+                    index_match.group('table_name'),
+                    index_match.group('rule'),
+                    index_match.group('index_names'),
+                    index_match.group('for_what'),
+                ))
 
         # Silently fail on unrecognized rewrite requests
 
     # Delete all rewrite comments
     sql = query_rewrite_re.sub('', sql)
 
-    if comments or hints:  # If nothing to do, don't bother
-        sql = modify_sql(sql, comments, hints)
+    if comments or hints or index_hints:  # If nothing to do, don't bother
+        sql = modify_sql(sql, comments, hints, index_hints)
 
     return sql
 
@@ -86,7 +115,7 @@ query_start_re = re.compile(
 )
 
 
-def modify_sql(sql, add_comments, add_hints):
+def modify_sql(sql, add_comments, add_hints, add_index_hints):
     """
     Parse the start of the SQL, injecting each string in add_comments in
     individual SQL comments after the first keyword, and adding the named
@@ -123,6 +152,41 @@ def modify_sql(sql, add_comments, add_hints):
                 if existing is not None:
                     tokens.append(existing.rstrip())
 
-    # Add the remainder of the statement and join it all up
-    tokens.append(sql[match.end():])
+    # Maybe rewrite the remainder of the statement for index hints
+    remainder = sql[match.end():]
+
+    if tokens[0] == "SELECT" and add_index_hints:
+        for index_hint in add_index_hints:
+            remainder = modify_sql_index_hints(remainder, *index_hint)
+
+    # Join everything
+    tokens.append(remainder)
     return ' '.join(tokens)
+
+
+table_spec_re_template = r'''
+    \b(?P<operator>FROM|JOIN)
+    \s+
+    {table_name}
+    \s+
+'''
+
+replacement_template = (
+    r'\g<operator> {table_name} '
+    r'{rule} INDEX {for_section}({index_names}) '
+)
+
+
+def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
+    table_spec_re = table_spec_re_template.format(table_name=table_name)
+    if for_what:
+        for_section = 'FOR {} '.format(for_what)
+    else:
+        for_section = ''
+    replacement = replacement_template.format(
+        table_name=table_name,
+        rule=rule,
+        for_section=for_section,
+        index_names=('' if index_names == 'NONE' else index_names)
+    )
+    return re.sub(table_spec_re, replacement, sql, count=1, flags=re.VERBOSE)

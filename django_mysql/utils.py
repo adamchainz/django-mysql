@@ -4,10 +4,13 @@ from __future__ import division
 import os
 import pty
 import time
+from collections import defaultdict
 from contextlib import contextmanager
 from subprocess import PIPE, Popen, call
 from threading import Lock, Thread
 
+from django.db import DEFAULT_DB_ALIAS, connections
+from django.utils import six
 from django.utils.six.moves.queue import Empty, Queue
 
 
@@ -219,3 +222,44 @@ class PTFingerprintThread(Thread):
 def collapse_spaces(string):
     bits = string.replace('\n', ' ').split(' ')
     return " ".join(filter(None, bits))
+
+
+def index_name(model, *field_names, **kwargs):
+    """
+    Returns the name of the index existing on field_names, or raises KeyError
+    if no such index exists.
+    """
+    if not len(field_names):
+        raise ValueError("At least one field name required")
+    using = kwargs.pop('using', DEFAULT_DB_ALIAS)
+    if len(kwargs):
+        raise ValueError("The only supported keyword argument is 'using'")
+
+    existing_fields = {field.name: field for field in model._meta.fields}
+    fields = [existing_fields[name] for name in field_names
+              if name in existing_fields]
+
+    if len(fields) != len(field_names):
+        unfound_names = set(field_names) - set(field.name for field in fields)
+        raise ValueError("Fields do not exist: " + ",".join(unfound_names))
+    column_names = tuple(field.column for field in fields)
+
+    with connections[using].cursor() as cursor:
+        cursor.execute(
+            """SELECT `INDEX_NAME`, `SEQ_IN_INDEX`, `COLUMN_NAME`
+               FROM INFORMATION_SCHEMA.STATISTICS
+               WHERE TABLE_SCHEMA = DATABASE() AND
+                     TABLE_NAME = %s AND
+                     COLUMN_NAME IN %s
+               ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC""",
+            (model._meta.db_table, column_names)
+        )
+        indexes = defaultdict(list)
+        for index_name, _, column_name in cursor.fetchall():
+            indexes[index_name].append(column_name)
+
+    indexes_by_columns = {tuple(v): k for k, v in six.iteritems(indexes)}
+    try:
+        return indexes_by_columns[column_names]
+    except KeyError:
+        raise KeyError("There is no index on (" + ",".join(field_names) + ")")
