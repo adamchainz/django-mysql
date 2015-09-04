@@ -36,8 +36,8 @@ What kind of features?
 Includes:
 
 * ``QuerySet`` extensions - 'smart' iteration, ``approx_count`` for quick
-  estimates of ``count()``, quick ``pt-visual-explain`` of the underlying
-  query
+  estimates of ``count()``, query hints, quick ``pt-visual-explain`` of the
+  underlying query
 * Model fields for storing lists and sets in comma-separated strings, with the
   ability to query them
 * ORM expressions for MySQL-specific functions
@@ -45,6 +45,7 @@ Includes:
 * Handler API for quicker-than-SQL reads using the 'NoSQL' HANDLER commands
 * Status variable inspection and utility methods
 * Named locks for easy locking of e.g. external resources
+* Table lock manager for hard to pull off data migrations
 
 To see them all, check out the exposition at
 http://django-mysql.readthedocs.org/en/latest/exposition.html .
