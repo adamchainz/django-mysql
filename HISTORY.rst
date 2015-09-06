@@ -9,6 +9,11 @@ History
 * Added index query hints to ``QuerySet`` methods, via query-rewriting layer
 * Add ``ordering`` parameter to ``GroupConcat`` to specify the ``ORDER BY``
   clause
+* Pending release
+* Added index query hints to ``QuerySet`` methods, via qurey-rewriting layer
+* Added ``sql_calc_found_rows()`` query hint that calculates the total rows
+  that match when you only take a slice, which becomes available on the
+  ``found_rows`` attribute
 
 0.2.2 (2015-09-03)
 ------------------

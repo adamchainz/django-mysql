@@ -31,6 +31,10 @@ class QuerySetMixin(object):
     def _clone(self, *args, **kwargs):
         clone = super(QuerySetMixin, self)._clone(*args, **kwargs)
         clone._count_tries_approx = copy(self._count_tries_approx)
+        if hasattr(self, '_found_rows'):
+            # If it's a number, don't copy it - the clone has a fresh result
+            # cache
+            clone._found_rows = None
         return clone
 
     # approx_count features
@@ -105,6 +109,32 @@ class QuerySetMixin(object):
 
     def sql_no_cache(self):
         return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
+
+    def sql_calc_found_rows(self):
+        qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
+        qs._found_rows = None
+        return qs
+
+    @property
+    def found_rows(self):
+        if not hasattr(self, '_found_rows'):
+            raise ValueError(
+                "found_rows can only be used if you call sql_calc_found_rows()"
+            )
+        if self._found_rows is None:
+            raise RuntimeError(
+                "A QuerySet with sql_calc_found_rows must be iterated before "
+                "found_rows can be accessed"
+            )
+        return self._found_rows
+
+    def iterator(self):
+        for row in super(QuerySetMixin, self).iterator():
+            yield row
+        if getattr(self, '_found_rows', 0) is None:
+            with connections[self.db].cursor() as cursor:
+                cursor.execute("SELECT FOUND_ROWS()")
+                self._found_rows = cursor.fetchone()[0]
 
     def use_index(self, *index_names, **kwargs):
         kwargs['hint'] = 'USE'

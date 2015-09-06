@@ -268,6 +268,28 @@ Once you’ve done this, the following methods will work.
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
 
+.. method:: sql_calc_found_rows()
+
+    Adds the ``SQL_CALC_FOUND_ROWS`` hint, which means the total count of
+    matching rows will be calculated when you only take a slice. You can access
+    this count with the ``found_rows`` attribute of the ``QuerySet`` after
+    filling its result cache, by e.g. iterating it.
+
+    This can be faster than taking the slice and then again calling
+    ``.count()`` to get the total count.
+
+    Example usage::
+
+        >>> can_drive = Customer.objects.filter(age=21).sql_calc_found_rows()[:10]
+        >>> len(can_drive)  # Fetches the first 10 from the database
+        10
+        >>> can_drive.found_rows  # The total number of 21 year old customers
+        1942
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MariaDB
+    <https://mariadb.com/kb/en/mariadb/select/#sql_calc_found_rows>`_.
 
 .. method:: use_index(*index_names, for_=None, table_name=None)
 

@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import mock
+import pickle
 import re
 from unittest import skipUnless
 
@@ -321,6 +322,64 @@ class QueryHintTests(TestCase):
                        .select_related('authorextra')
                        .force_index('PRIMARY', table_name='nonexistent'))
         assert ' FORCE INDEX ' not in cap.query
+
+
+class FoundRowsTests(TestCase):
+    def setUp(self):
+        super(FoundRowsTests, self).setUp()
+        Author.objects.bulk_create([Author() for i in range(10)])
+
+    def test_found_rows_requires_sql_calc_found_rows(self):
+        authors = Author.objects.all()
+        with pytest.raises(ValueError) as excinfo:
+            authors.found_rows
+        assert "can only be used if" in str(excinfo.value)
+
+    def test_found_rows_requires_iteration(self):
+        authors = Author.objects.sql_calc_found_rows()[:5]
+        with self.assertRaises(RuntimeError):
+            authors.found_rows
+
+    def test_it_working(self):
+        with self.assertNumQueries(2):
+            authors = Author.objects.sql_calc_found_rows()[:5]
+            list(authors)
+            assert authors.found_rows == 10
+
+    def test_no_repeats(self):
+        with self.assertNumQueries(2):
+            authors = (
+                Author.objects.sql_calc_found_rows()
+                              .sql_calc_found_rows()[:5]
+            )
+            list(authors)
+            assert authors.found_rows == 10
+
+    def test_it_working_prefetching(self):
+        with self.assertNumQueries(3):
+            authors = (
+                Author.objects.sql_calc_found_rows()
+                              .prefetch_related('tutor')[:5]
+            )
+            list(authors)
+            assert authors.found_rows == 10
+
+    def test_pickleability(self):
+        authors = Author.objects.sql_calc_found_rows()
+        pickle.dumps(authors)
+
+    def test_cloning_doesnt_copy_found_rows_number(self):
+        authors = Author.objects.sql_calc_found_rows()
+        list(authors)
+        assert authors.found_rows == 10
+
+        authors2 = authors.filter(id__gte=1)
+        with pytest.raises(RuntimeError):
+            authors2.found_rows
+
+        with self.assertNumQueries(2):
+            list(authors2)
+            assert authors2.found_rows == 10
 
 
 class SmartIteratorTests(TestCase):
