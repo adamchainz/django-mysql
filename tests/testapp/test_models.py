@@ -17,6 +17,19 @@ from testapp.models import (
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
 
+class FoundRowsTests(TestCase):
+    def setUp(self):
+        super(FoundRowsTests, self).setUp()
+        Author.objects.bulk_create([Author() for i in range(10)])
+
+    def test_it(self):
+        with self.assertNumQueries(2) as cap:
+            authors = Author.objects.sql_calc_found_rows()[:5]
+            list(authors)
+            assert authors.found_rows == 10
+        assert cap.captured_queries[1]['sql'] == "SELECT FOUND_ROWS()"
+
+
 class ApproximateCountTests(TestCase):
 
     def setUp(self):

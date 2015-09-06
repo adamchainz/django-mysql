@@ -106,6 +106,20 @@ class QuerySetMixin(object):
     def sql_no_cache(self):
         return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
 
+    def sql_calc_found_rows(self):
+        qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
+
+        class FoundRowsQS(qs.__class__):
+            def iterator(self):
+                for row in super(FoundRowsQS, self).iterator():
+                    yield row
+                with connections[self.db].cursor() as cursor:
+                    cursor.execute("SELECT FOUND_ROWS()")
+                    self.found_rows = cursor.fetchone()[0]
+
+        qs.__class__ = FoundRowsQS
+        return qs
+
     def use_index(self, *index_names, **kwargs):
         kwargs['hint'] = 'USE'
         return self._index_hint(*index_names, **kwargs)
