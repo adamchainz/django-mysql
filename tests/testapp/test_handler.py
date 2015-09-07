@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from django_mysql.models.handler import Handler
 from django_mysql.utils import index_name
-from django_mysql_tests.models import (
+from testapp.models import (
     Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
 )
 

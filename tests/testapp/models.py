@@ -20,7 +20,7 @@ class TemporaryModel(Model):
     during tests, e.g. from call_command.
     """
     class Meta:
-        app_label = 'django_mysql_tests'
+        app_label = 'testapp'
         abstract = True
 
     @classmethod

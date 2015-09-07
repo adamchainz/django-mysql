@@ -13,9 +13,7 @@ from django.utils import six
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
-from django_mysql_tests.models import (
-    BigCharSetModel, BigIntSetModel, TemporaryModel
-)
+from testapp.models import BigCharSetModel, BigIntSetModel, TemporaryModel
 
 
 @ddt.ddt
@@ -228,7 +226,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidSetTextModel(TemporaryModel):
             field = SetTextField(
-                models.ForeignKey('django_mysql_tests.Author')
+                models.ForeignKey('testapp.Author')
             )
 
         errors = InvalidSetTextModel.check(actually_check=True)
@@ -294,7 +292,7 @@ class TestSerialization(SimpleTestCase):
     def test_loading(self):
         test_data = '''
             [{"fields": {"field": "big,leather,comfy"},
-             "model": "django_mysql_tests.BigCharSetModel", "pk": null}]
+             "model": "testapp.BigCharSetModel", "pk": null}]
         '''
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object

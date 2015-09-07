@@ -13,9 +13,7 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
-from django_mysql_tests.models import (
-    BigCharListModel, BigIntListModel, TemporaryModel
-)
+from testapp.models import BigCharListModel, BigIntListModel, TemporaryModel
 
 
 @ddt.ddt
@@ -253,7 +251,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidListTextModel(TemporaryModel):
             field = ListTextField(
-                models.ForeignKey('django_mysql_tests.Author'),
+                models.ForeignKey('testapp.Author'),
                 max_length=32
             )
 
@@ -335,7 +333,7 @@ class TestSerialization(SimpleTestCase):
     def test_loading(self):
         test_data = '''
             [{"fields": {"field": "big,leather,comfy"},
-             "model": "django_mysql_tests.BigCharListModel", "pk": null}]
+             "model": "testapp.BigCharListModel", "pk": null}]
         '''
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object

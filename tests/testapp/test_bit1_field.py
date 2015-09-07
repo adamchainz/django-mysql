@@ -5,7 +5,7 @@ from django.core import serializers
 from django.db.models import F
 from django.test import SimpleTestCase, TestCase
 
-from django_mysql_tests.models import Bit1Model, NullBit1Model
+from testapp.models import Bit1Model, NullBit1Model
 
 
 class TestSaveLoad(TestCase):
@@ -81,7 +81,7 @@ class TestSerialization(SimpleTestCase):
     def test_loading(self):
         test_data = '''
             [{"fields": {"flag_a": false, "flag_b": true},
-              "model": "django_mysql_tests.Bit1Model", "pk": null}]
+              "model": "testapp.Bit1Model", "pk": null}]
         '''
         objs = list(serializers.deserialize('json', test_data))
         assert len(objs) == 1
@@ -166,7 +166,7 @@ class TestNullSerialization(SimpleTestCase):
     def test_loading(self):
         test_data = '''
             [{"fields": {"flag": null},
-              "model": "django_mysql_tests.NullBit1Model", "pk": null}]
+              "model": "testapp.NullBit1Model", "pk": null}]
         '''
         objs = list(serializers.deserialize('json', test_data))
         assert len(objs) == 1

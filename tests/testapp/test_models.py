@@ -11,12 +11,10 @@ from django.test.utils import override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator
 from django_mysql.utils import have_program, index_name
-from django_mysql_tests.models import (
+from testapp.models import (
     Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, VanillaAuthor
 )
-from django_mysql_tests.utils import (
-    CaptureLastQuery, captured_stdout, used_indexes
-)
+from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
 
 class ApproximateCountTests(TestCase):
@@ -310,7 +308,7 @@ class QueryHintTests(TestCase):
         assert used_indexes(cap.query) == set()
 
     def test_use_index_table_name(self):
-        extra_table = 'django_mysql_tests_authorextra'
+        extra_table = 'testapp_authorextra'
         with CaptureLastQuery() as cap:
             list(Author.objects
                        .select_related('authorextra')
@@ -592,13 +590,13 @@ class VisualExplainTests(TestCase):
         output = capture.getvalue()
         # Can't be too strict about the output since different database and pt-
         # visual-explain versions give different output
-        assert "django_mysql_tests_author" in output
+        assert "testapp_author" in output
         assert "rows" in output
         assert "Table" in output
 
     def test_basic_no_display(self):
         output = Author.objects.all().pt_visual_explain(display=False)
-        assert "django_mysql_tests_author" in output
+        assert "testapp_author" in output
         assert "rows" in output
         assert "Table" in output
 
@@ -607,6 +605,6 @@ class VisualExplainTests(TestCase):
         output = Author.objects.filter(id__in=subq) \
                                .pt_visual_explain(display=False)
         assert "possible_keys" in output
-        assert "django_mysql_tests_author" in output
+        assert "testapp_author" in output
         assert "rows" in output
         assert "Table" in output

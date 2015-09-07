@@ -2,7 +2,7 @@
 from django.test import TestCase
 
 from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
-from django_mysql_tests.models import Alphabet, Author
+from testapp.models import Alphabet, Author
 
 
 class BitAndTests(TestCase):

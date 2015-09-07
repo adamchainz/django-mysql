@@ -47,7 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_mysql',
-    'django_mysql_tests'
+    'testapp'
 )
 
 if django.VERSION[:2] >= (1, 7):
@@ -78,7 +78,7 @@ try:
 except ImportError:
     pass
 
-TEST_RUNNER = 'django_mysql_tests.runner.MySQLTestRunner'
+TEST_RUNNER = 'testapp.runner.MySQLTestRunner'
 
 TEMPLATES = [
     {

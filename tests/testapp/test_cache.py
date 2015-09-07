@@ -24,8 +24,8 @@ from django.utils.six.moves import StringIO
 from flake8.run import check_code
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
-from django_mysql_tests.models import Poll, expensive_calculation
-from django_mysql_tests.utils import captured_stdout
+from testapp.models import Poll, expensive_calculation
+from testapp.utils import captured_stdout
 
 try:    # Use the same idiom as in cache backends
     from django.utils.six.moves import cPickle as pickle
@@ -82,9 +82,9 @@ _caches_setting_base = {
                    'REVERSE_KEY_FUNCTION': reverse_custom_key_func},
     'custom_key2': {
         'KEY_FUNCTION':
-            'django_mysql_tests.test_cache.custom_key_func',
+            'testapp.test_cache.custom_key_func',
         'REVERSE_KEY_FUNCTION':
-            'django_mysql_tests.test_cache.reverse_custom_key_func',
+            'testapp.test_cache.reverse_custom_key_func',
     },
     'cull': {'OPTIONS': {'CULL_PROBABILITY': 1,
                          'MAX_ENTRIES': 30}},
@@ -1299,13 +1299,13 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         state = ProjectState()
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_forwards("django_mysql_tests", editor,
+            operation.database_forwards("testapp", editor,
                                         state, new_state)
         assert self.table_exists(self.table_name)
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_backwards("django_mysql_tests", editor,
+            operation.database_backwards("testapp", editor,
                                          new_state, state)
         assert not self.table_exists(self.table_name)
 

@@ -19,7 +19,7 @@ from django.test import (
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
-from django_mysql_tests.models import (
+from testapp.models import (
     CharListDefaultModel, CharListModel, IntListModel, TemporaryModel
 )
 
@@ -428,7 +428,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidListCharModel(TemporaryModel):
             field = ListCharField(
-                models.ForeignKey('django_mysql_tests.Author'),
+                models.ForeignKey('testapp.Author'),
                 max_length=32
             )
 
@@ -510,20 +510,20 @@ class TestMigrations(TransactionTestCase):
         ).match(statement)
 
     @override_settings(MIGRATION_MODULES={
-        "django_mysql_tests": "django_mysql_tests.list_default_migrations",
+        "testapp": "testapp.list_default_migrations",
     })
     def test_adding_field_with_default(self):
-        table_name = 'django_mysql_tests_intlistdefaultmodel'
+        table_name = 'testapp_intlistdefaultmodel'
         table_names = connection.introspection.table_names
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
-        call_command('migrate', 'django_mysql_tests',
+        call_command('migrate', 'testapp',
                      verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name in table_names(cursor)
 
-        call_command('migrate', 'django_mysql_tests', 'zero',
+        call_command('migrate', 'testapp', 'zero',
                      verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
@@ -540,7 +540,7 @@ class TestSerialization(SimpleTestCase):
     def test_loading(self):
         test_data = '''
             [{"fields": {"field": "big,leather,comfy"},
-             "model": "django_mysql_tests.CharListModel", "pk": null}]
+             "model": "testapp.CharListModel", "pk": null}]
         '''
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object

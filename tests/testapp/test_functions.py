@@ -13,7 +13,7 @@ from django_mysql.models.functions import (
     Greatest, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
     Round, Sign
 )
-from django_mysql_tests.models import Alphabet, Author
+from testapp.models import Alphabet, Author
 
 try:
     from django.db.models.functions import Length

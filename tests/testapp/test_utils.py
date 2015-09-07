@@ -12,7 +12,7 @@ from django_mysql.utils import (
     PTFingerprintThread, WeightedAverageRate, have_program, index_name,
     pt_fingerprint
 )
-from django_mysql_tests.models import Author, AuthorMultiIndex
+from testapp.models import Author, AuthorMultiIndex
 
 
 class WeightedAverageRateTests(SimpleTestCase):
@@ -136,7 +136,7 @@ class IndexNameTests(TestCase):
 
     def test_secondary_single_field(self):
         name = index_name(Author, 'name')
-        assert name.startswith('django_mysql_tests_author_')
+        assert name.startswith('testapp_author_')
 
     def test_index_does_not_exist(self):
         with pytest.raises(KeyError) as excinfo:
@@ -145,7 +145,7 @@ class IndexNameTests(TestCase):
 
     def test_secondary_multiple_fields(self):
         name = index_name(AuthorMultiIndex, 'name', 'country')
-        assert name.startswith('django_mysql_tests_authormultiindex')
+        assert name.startswith('testapp_authormultiindex')
 
     def test_secondary_multiple_fields_non_existent_reversed_existent(self):
         # Checks that order is preserved

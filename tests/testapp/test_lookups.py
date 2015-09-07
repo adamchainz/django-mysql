@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from django.test import TestCase
 
-from django_mysql_tests.models import Author
+from testapp.models import Author
 
 
 class CaseExactTests(TestCase):

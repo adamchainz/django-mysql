@@ -10,7 +10,7 @@ from django.utils.six.moves import queue
 from django_mysql.exceptions import TimeoutError
 from django_mysql.locks import Lock, TableLock
 from django_mysql.models import Model
-from django_mysql_tests.models import (
+from testapp.models import (
     AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer
 )
 

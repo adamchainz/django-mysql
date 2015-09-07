@@ -13,15 +13,15 @@ from django.utils import six
 
 from django_mysql.models import SizedBinaryField, SizedTextField
 from django_mysql.test.utils import override_mysql_variables
-from django_mysql_tests.models import SizeFieldModel, TemporaryModel
-from django_mysql_tests.utils import column_type
+from testapp.models import SizeFieldModel, TemporaryModel
+from testapp.utils import column_type
 
 # Ensure we aren't just warned about the data truncation
 forceDataError = override_mysql_variables(SQL_MODE='STRICT_TRANS_TABLES')
 
 
 def migrate(name):
-    call_command('migrate', 'django_mysql_tests', name,
+    call_command('migrate', 'testapp', name,
                  verbosity=0, skip_checks=True)
 
 
@@ -90,10 +90,10 @@ class SizedBinaryFieldTests(TestCase):
 class SizedBinaryFieldMigrationTests(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
-        "django_mysql_tests": "django_mysql_tests.sizedbinaryfield_migrations",
+        "testapp": "testapp.sizedbinaryfield_migrations",
     })
     def test_adding_field_with_default(self):
-        table_name = 'django_mysql_tests_sizedbinaryaltermodel'
+        table_name = 'testapp_sizedbinaryaltermodel'
         table_names = connection.introspection.table_names
 
         with connection.cursor() as cursor:
@@ -183,10 +183,10 @@ class SizedTextFieldTests(TestCase):
 class SizedTextFieldMigrationTests(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
-        "django_mysql_tests": "django_mysql_tests.sizedtextfield_migrations",
+        "testapp": "testapp.sizedtextfield_migrations",
     })
     def test_adding_field_with_default(self):
-        table_name = 'django_mysql_tests_sizedtextaltermodel'
+        table_name = 'testapp_sizedtextaltermodel'
         table_names = connection.introspection.table_names
 
         with connection.cursor() as cursor:

@@ -59,14 +59,14 @@ class PluginOperationTests(TransactionTestCase):
         )
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_forwards("django_mysql_tests", editor,
+            operation.database_forwards("testapp", editor,
                                         state, new_state)
 
         assert plugin_exists("metadata_lock_info")
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_backwards("django_mysql_tests", editor,
+            operation.database_backwards("testapp", editor,
                                          new_state, state)
 
         assert not plugin_exists("metadata_lock_info")
@@ -83,13 +83,13 @@ class PluginOperationTests(TransactionTestCase):
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_forwards("django_mysql_tests", editor,
+            operation.database_forwards("testapp", editor,
                                         state, new_state)
         assert plugin_exists("metadata_lock_info")
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_backwards("django_mysql_tests", editor,
+            operation.database_backwards("testapp", editor,
                                          new_state, state)
         assert not plugin_exists("metadata_lock_info")
 
