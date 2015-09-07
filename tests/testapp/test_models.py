@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import mock
+import pickle
 import re
 from unittest import skipUnless
 
@@ -347,6 +348,10 @@ class FoundRowsTests(TestCase):
             )
             list(authors)
             assert authors.found_rows == 10
+
+    def test_pickleability(self):
+        authors = Author.objects.sql_calc_found_rows()
+        pickle.dumps(authors)
 
 
 class SmartIteratorTests(TestCase):
