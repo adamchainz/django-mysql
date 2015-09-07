@@ -109,15 +109,30 @@ class QuerySetMixin(object):
     def sql_calc_found_rows(self):
         qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
 
-        class FoundRowsQS(qs.__class__):
-            def iterator(self):
-                for row in super(FoundRowsQS, self).iterator():
-                    yield row
-                with connections[self.db].cursor() as cursor:
-                    cursor.execute("SELECT FOUND_ROWS()")
-                    self.found_rows = cursor.fetchone()[0]
+        # Run second query after QS iteration starts, by subclassing and
+        # swapping with a hack (but only if it hasn't been done already)
+        if not hasattr(qs.__class__, 'found_rows'):
 
-        qs.__class__ = FoundRowsQS
+            class FoundRowsQS(qs.__class__):
+
+                @property
+                def found_rows(self):
+                    if not hasattr(self, '_found_rows'):
+                        raise RuntimeError(
+                            "A QuerySet with sql_calc_found_rows must be "
+                            "iterated before found_rows can be accessed"
+                        )
+                    return self._found_rows
+
+                def iterator(self):
+                    for row in super(FoundRowsQS, self).iterator():
+                        yield row
+                    with connections[self.db].cursor() as cursor:
+                        cursor.execute("SELECT FOUND_ROWS()")
+                        self._found_rows = cursor.fetchone()[0]
+
+            qs.__class__ = FoundRowsQS
+
         return qs
 
     def use_index(self, *index_names, **kwargs):

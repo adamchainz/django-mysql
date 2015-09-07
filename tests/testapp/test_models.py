@@ -17,19 +17,6 @@ from testapp.models import (
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
 
-class FoundRowsTests(TestCase):
-    def setUp(self):
-        super(FoundRowsTests, self).setUp()
-        Author.objects.bulk_create([Author() for i in range(10)])
-
-    def test_it(self):
-        with self.assertNumQueries(2) as cap:
-            authors = Author.objects.sql_calc_found_rows()[:5]
-            list(authors)
-            assert authors.found_rows == 10
-        assert cap.captured_queries[1]['sql'] == "SELECT FOUND_ROWS()"
-
-
 class ApproximateCountTests(TestCase):
 
     def setUp(self):
@@ -334,6 +321,32 @@ class QueryHintTests(TestCase):
                        .select_related('authorextra')
                        .force_index('PRIMARY', table_name='nonexistent'))
         assert ' FORCE INDEX ' not in cap.query
+
+
+class FoundRowsTests(TestCase):
+    def setUp(self):
+        super(FoundRowsTests, self).setUp()
+        Author.objects.bulk_create([Author() for i in range(10)])
+
+    def test_it_working(self):
+        with self.assertNumQueries(2):
+            authors = Author.objects.sql_calc_found_rows()[:5]
+            list(authors)
+            assert authors.found_rows == 10
+
+    def test_found_rows_requires_iteration(self):
+        authors = Author.objects.sql_calc_found_rows()[:5]
+        with self.assertRaises(RuntimeError):
+            authors.found_rows
+
+    def test_no_repeats(self):
+        with self.assertNumQueries(2):
+            authors = (
+                Author.objects.sql_calc_found_rows()
+                              .sql_calc_found_rows()[:5]
+            )
+            list(authors)
+            assert authors.found_rows == 10
 
 
 class SmartIteratorTests(TestCase):
