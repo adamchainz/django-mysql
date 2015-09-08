@@ -13,7 +13,7 @@ end_of_line = lf
 [*.py]
 multi_line_output=5
 known_standard_library=mock
-known_third_party=pytest
+known_third_party=pytest,django
 known_first_party=django_mysql
 
 [*.bat]
