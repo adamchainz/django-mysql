@@ -107,11 +107,12 @@ class QuerySetMixin(object):
         return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
 
     def sql_calc_found_rows(self):
-        qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
+        hint = "/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"
+        qs = self.extra(where=[hint])
 
-        # Run second query after QS iteration starts, by subclassing and
-        # swapping with a hack (but only if it hasn't been done already)
         if not hasattr(qs.__class__, 'found_rows'):
+            # Run second query after QS iteration starts, by subclassing and
+            # swapping with a hack (but only if it hasn't been done already)
 
             class FoundRowsQS(qs.__class__):
 
@@ -124,12 +125,26 @@ class QuerySetMixin(object):
                         )
                     return self._found_rows
 
+                @found_rows.setter
+                def found_rows(self, value):
+                    self._found_rows = value
+                    # Now we don't need SQL_CALC_FOUND_ROWS. Remove it with an
+                    # ugly hack
+                    for where in self.query.where.children:
+                        if not isinstance(where, ExtraWhere):
+                            continue
+                        if len(where.sqls) != 1:
+                            continue
+                        if where.sqls[0] == hint:
+                            where.sqls = ['1']
+
                 def iterator(self):
                     for row in super(FoundRowsQS, self).iterator():
                         yield row
-                    with connections[self.db].cursor() as cursor:
-                        cursor.execute("SELECT FOUND_ROWS()")
-                        self._found_rows = cursor.fetchone()[0]
+                    if not hasattr(self, '_found_rows'):
+                        with connections[self.db].cursor() as cursor:
+                            cursor.execute("SELECT FOUND_ROWS()")
+                            self._found_rows = cursor.fetchone()[0]
 
             qs.__class__ = FoundRowsQS
 
