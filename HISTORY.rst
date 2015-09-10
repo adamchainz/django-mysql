@@ -6,8 +6,7 @@ History
 0.2.3 (pending release)
 -----------------------
 
-* Pending release
-* Added index query hints to ``QuerySet`` methods, via qurey-rewriting layer
+* Added index query hints to ``QuerySet`` methods, via query-rewriting layer
 * Add ``ordering`` parameter to ``GroupConcat`` to specify the ``ORDER BY``
   clause
 
