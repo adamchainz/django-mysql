@@ -423,6 +423,12 @@ class SmartIteratorTests(TestCase):
                                      .values_list('id', flat=True))
         assert seen == all_ids
 
+    def test_objects_reverse(self):
+        seen = [author.id for author in Author.objects.reverse().iter_smart()]
+        all_ids = list(Author.objects.order_by('-id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
+
     def test_objects_pk_range_all(self):
         seen = [author.id for author in
                 Author.objects.iter_smart(pk_range='all')]
@@ -431,10 +437,6 @@ class SmartIteratorTests(TestCase):
         assert seen == all_ids
 
     def test_objects_pk_range_tuple(self):
-        seen = [author.id for author in
-                Author.objects.iter_smart(pk_range=(0, 0))]
-        assert seen == []
-
         min_id = Author.objects.earliest('id').id
         max_id = Author.objects.order_by('id')[5].id
 
@@ -444,6 +446,21 @@ class SmartIteratorTests(TestCase):
                                      .filter(id__gte=min_id, id__lte=max_id)
                                      .values_list('id', flat=True))
         assert seen == cut_ids
+
+    def test_objects_pk_range_tuple_0_0(self):
+        seen = [author.id for author in
+                Author.objects.iter_smart(pk_range=(0, 0))]
+        assert seen == []
+
+    def test_objects_pk_range_reversed(self):
+        min_id = Author.objects.earliest('id').id
+        max_id = Author.objects.latest('id').id
+
+        seen = [author.id for author in
+                Author.objects.iter_smart(pk_range=(max_id, min_id))]
+        all_ids = list(Author.objects.order_by('-id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
 
     def test_objects_pk_range_bad(self):
         with pytest.raises(ValueError) as excinfo:
