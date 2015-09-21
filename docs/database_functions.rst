@@ -341,6 +341,22 @@ Encryption Functions
 Information Functions
 ---------------------
 
+.. class:: Database()
+
+    Returns the name of the current database. With Django's connection control,
+    this will always be ``NAME`` for the database given in your settings'
+    ``DATABASES`` setting for the connection; this may be useful when working
+    with multiple database connections.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/information-functions.html#function_database>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/database/>`_.
+
+    Usage example::
+
+        >>> information_schema.Table.objects.filter(schema=Database()).count()
+        34
+
 .. class:: LastInsertId(expression=None)
 
     With no argument, returns the last value added to an auto-increment column,
