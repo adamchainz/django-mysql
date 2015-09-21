@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import print_function, unicode_literals
 
+import operator
 import sys
 from copy import copy
 from subprocess import PIPE, Popen
@@ -252,23 +253,37 @@ class SmartChunkedIterator(object):
         self.total = total
 
     def __iter__(self):
-        min_pk, max_pk = self.get_min_and_max()
-        current_pk = min_pk
+        first_pk, last_pk = self.get_first_and_last()
+        if first_pk <= last_pk:
+            comp = operator.le  # <=
+            direction = 1
+        else:
+            comp = operator.ge  # >=
+            direction = -1
+        current_pk = first_pk
         db_alias = self.queryset.db
         status = GlobalStatus(db_alias)
 
         self.init_progress()
 
-        while current_pk <= max_pk:
+        while comp(current_pk, last_pk):
             status.wait_until_load_low(self.status_thresholds)
 
             start_pk = current_pk
-            current_pk = current_pk + self.chunk_size
+            current_pk = current_pk + self.chunk_size * direction
             # Don't process rows that didn't exist at start of iteration
-            end_pk = min(current_pk, max_pk + 1)
+            if direction == 1:
+                end_pk = min(current_pk, last_pk + 1)
+            else:
+                end_pk = max(current_pk, last_pk - 1)
 
             with StopWatch() as timer, self.maybe_atomic(using=db_alias):
-                chunk = self.queryset.filter(pk__gte=start_pk, pk__lt=end_pk)
+                if direction == 1:
+                    chunk = self.queryset.filter(pk__gte=start_pk,
+                                                 pk__lt=end_pk)
+                else:
+                    chunk = self.queryset.filter(pk__lte=start_pk,
+                                                 pk__gt=end_pk)
                 # Attach the start_pk, end_pk onto the chunk queryset so they
                 # can be read by SmartRangeIterator or other client code
                 chunk._smart_iterator_pks = (start_pk, end_pk)
@@ -309,8 +324,14 @@ class SmartChunkedIterator(object):
         models.ForeignKey  # Should always point to an integer
     )
 
-    def get_min_and_max(self):
+    def get_first_and_last(self):
         if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
+            should_be_reversed = (
+                self.pk_range[1] < self.pk_range[0] and
+                self.queryset.query.standard_ordering
+            )
+            if should_be_reversed:
+                self.queryset = self.queryset.reverse()
             return self.pk_range
         elif self.pk_range == 'all':
             base_qs = self.queryset.model.objects.using(self.queryset.db).all()
@@ -319,6 +340,9 @@ class SmartChunkedIterator(object):
         else:
             raise ValueError("Unrecognized value for pk_range: {}"
                              .format(self.pk_range))
+
+        if not base_qs.query.standard_ordering:  # It's reverse()d
+            base_qs = base_qs.reverse()
 
         min_qs = base_qs.order_by('pk').values_list('pk', flat=True)
         max_qs = base_qs.order_by('-pk').values_list('pk', flat=True)
@@ -336,7 +360,10 @@ class SmartChunkedIterator(object):
                 # between finding min_pk and the above [0]
                 max_pk = min_pk
 
-        return (min_pk, max_pk)
+        if self.queryset.query.standard_ordering:
+            return (min_pk, max_pk)
+        else:
+            return (max_pk, min_pk)
 
     def adjust_chunk_size(self, chunk, chunk_time):
         # If the queryset is not being fetched as-is, e.g. its .delete() is

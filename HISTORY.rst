@@ -13,6 +13,7 @@ History
 * Added ``sql_calc_found_rows()`` query hint that calculates the total rows
   that match when you only take a slice, which becomes available on the
   ``found_rows`` attribute
+* Made ``SmartChunkedIterator`` work with ``reverse()``'d ``QuerySet``\s
 
 0.2.2 (2015-09-03)
 ------------------
