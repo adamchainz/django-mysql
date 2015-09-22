@@ -6,3 +6,4 @@ from django_mysql.models.query import (  # NOQA
     QuerySet, QuerySetMixin
 )
 from django_mysql.models.fields import *  # NOQA
+from . import information_schema  # NOQA

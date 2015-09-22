@@ -4,6 +4,16 @@ from django.db.models import CharField, IntegerField, TextField
 from django_mysql.compat import Func, Value
 
 
+class NoArgFunc(Func):
+
+    output_field_class = None
+
+    def __init__(self):
+        super(NoArgFunc, self).__init__()
+        if self.output_field_class is not None:
+            self.output_field = self.output_field_class()
+
+
 class SingleArgFunc(Func):
 
     output_field_class = None
@@ -145,6 +155,11 @@ class SHA2(Func):
 
 
 # Information Functions
+
+
+class Database(NoArgFunc):
+    function = 'DATABASE'
+
 
 class LastInsertId(Func):
     function = 'LAST_INSERT_ID'
