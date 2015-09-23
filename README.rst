@@ -68,7 +68,7 @@ Tested with all combinations of:
 
 * Python: 2.7, 3.4, 3.5
 * Django: 1.7, 1.8, master
-* MySQL: 5.5, 5.6 / MariaDB: 5.5, 10.0, 10.1
+* MySQL: 5.5, 5.6, 5.7 / MariaDB: 5.5, 10.0, 10.1
 * mysqlclient: 1.3.7 (Python 3 compatible version of ``MySQL-python``)
 
 Any combination of these should be good, and also ``MySQL-python`` should work

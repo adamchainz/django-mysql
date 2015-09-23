@@ -21,7 +21,7 @@ class override_mysql_variables(object):
     def __init__(self, using=DEFAULT_DB_ALIAS, **kwargs):
         self.db = using
         self.options = kwargs
-        self.prefix = uuid.uuid1().hex.replace('-', '')
+        self.prefix = uuid.uuid1().hex.replace('-', '')[:16]
 
     def __enter__(self):
         self.enable()

@@ -8,28 +8,49 @@ from django_mysql.status import (
 )
 
 
+class BaseStatusTests(TestCase):
+
+    def test_cast_int(self):
+        val = global_status._cast('1')
+        assert val == 1 and isinstance(val, int)
+
+    def test_cast_float(self):
+        val = global_status._cast('1.0')
+        assert val == 1.0 and isinstance(val, float)
+
+    def test_cast_on(self):
+        val = global_status._cast('ON')
+        assert val and isinstance(val, bool)
+
+    def test_cast_off(self):
+        val = global_status._cast('OFF')
+        assert not val and isinstance(val, bool)
+
+    def test_cast_string(self):
+        val = global_status._cast('something')
+        assert val == 'something'
+
+
 class GlobalStatusTests(TestCase):
 
     def test_get(self):
         running = global_status.get('Threads_running')
-        assert isinstance(running, int)
-        assert running >= 1
+        assert running >= 1 and isinstance(running, int)
 
-        cost = global_status.get('Last_query_cost')
-        assert isinstance(cost, float)
-        assert cost >= 0.0
-
+    def test_get_bad_name(self):
         with pytest.raises(ValueError) as excinfo:
             global_status.get('foo%')
         assert 'wildcards' in str(excinfo.value)
 
+    def test_get_non_existent(self):
         with pytest.raises(KeyError):
             global_status.get('Does_not_exist')
 
-    def test_get_many(self):
+    def test_get_many_empty(self):
         myvars = global_status.get_many([])
         assert myvars == {}
 
+    def test_get_many_existent(self):
         myvars = global_status.get_many(['Threads_running', 'Uptime'])
         assert isinstance(myvars, dict)
         assert 'Threads_running' in myvars
@@ -37,6 +58,7 @@ class GlobalStatusTests(TestCase):
         assert 'Uptime' in myvars
         assert isinstance(myvars['Uptime'], int)
 
+    def test_get_many_bad_name(self):
         with pytest.raises(ValueError) as excinfo:
             global_status.get_many(['foo%'])
         assert 'wildcards' in str(excinfo.value)
@@ -48,11 +70,6 @@ class GlobalStatusTests(TestCase):
 
         assert isinstance(status_dict['Threads_running'], int)
         assert status_dict['Threads_running'] >= 1
-
-        assert isinstance(status_dict['Last_query_cost'], float)
-        assert status_dict['Last_query_cost'] >= 0.0
-
-        assert isinstance(status_dict['Compression'], bool)
 
     def test_as_dict_prefix(self):
         status_dict = global_status.as_dict()
@@ -104,29 +121,30 @@ class GlobalStatusTests(TestCase):
 
 class SessionStatusTests(TestCase):
 
-    def test_get(self):
+    def test_get_bytes_received(self):
         bytes_received = session_status.get('Bytes_received')
-        assert isinstance(bytes_received, int)
-        assert bytes_received >= 0
+        assert bytes_received >= 0 and isinstance(bytes_received, int)
 
         bytes_received_2 = session_status.get('Bytes_received')
         assert bytes_received_2 >= bytes_received
 
+    def test_get_last_query_cost(self):
         cost = session_status.get('Last_query_cost')
-        assert isinstance(cost, float)
-        assert cost >= 0.00
+        assert cost >= 0.0 and isinstance(cost, float)
 
+    def test_get_bad_name(self):
         with pytest.raises(ValueError) as excinfo:
             session_status.get('foo%')
         assert 'wildcards' in str(excinfo.value)
 
+    def test_get_non_existent(self):
         with pytest.raises(KeyError):
             session_status.get('Does_not_exist')
 
     def test_as_dict(self):
         status_dict = session_status.as_dict()
 
-        assert 'Compression' in status_dict
+        assert 'Compression' in status_dict  # status only variable (on 5.7+)
 
         assert isinstance(status_dict['Threads_running'], int)
         assert status_dict['Threads_running'] >= 1

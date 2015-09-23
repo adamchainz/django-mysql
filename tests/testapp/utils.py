@@ -73,4 +73,15 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
     """
     with connections[using].cursor() as cursor:
         cursor.execute("EXPLAIN " + query)
-        return {row[5] for row in cursor.fetchall() if row[5]}
+        return {row['key'] for row in fetchall_dicts(cursor)
+                if row['key'] is not None}
+
+
+def fetchall_dicts(cursor):
+    columns = [x[0] for x in cursor.description]
+    rows = []
+    for row in cursor.fetchall():
+        rows.append(
+            dict(zip(columns, row))
+        )
+    return rows

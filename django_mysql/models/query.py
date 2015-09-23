@@ -536,9 +536,17 @@ def approx_count(queryset):
     connection = connections[queryset.db]
     with connection.cursor() as cursor:
         table_name = queryset.model._meta.db_table
-        sql = "EXPLAIN SELECT COUNT(*) FROM `{0}`".format(table_name)
-        cursor.execute(sql)
-        approx_count = cursor.fetchone()[8]  # 'rows' is the 9th column
+        cursor.execute(
+            """SELECT TABLE_ROWS
+               FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_SCHEMA = DATABASE() AND
+                     TABLE_NAME = %s
+            """,
+            (table_name,)
+        )
+        # N.B. when we support more complex QuerySets they should be estimated
+        # with 'EXPLAIN SELECT'
+        approx_count = cursor.fetchone()[0]
         return approx_count
 
 

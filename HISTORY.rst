@@ -7,6 +7,7 @@ Pending
 -------
 
 * New release notes here
+* Now MySQL 5.7 compatible
 
 1.0.5 (2016-02-10)
 ------------------

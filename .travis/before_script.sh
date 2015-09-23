@@ -32,7 +32,7 @@ then
   # Nuke default
   sudo apt-get -y purge mysql-server
   sudo apt-get -y autoremove --purge
-  sudo rm -rf /var/lib/mysql
+  sudo rm -rf /var/lib/mysql /etc/mysql
   # Install
   sudo apt-get install -y python-software-properties
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
@@ -41,6 +41,6 @@ then
   yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server libmariadbclient-dev
 fi
 
-mysql -u root -e "create user travis@localhost identified by '';" || true
+sudo mysql -u root -e "create user travis@localhost identified by '';" || true
 
-mysql -u root -e 'grant all privileges on *.* to travis@localhost;'
+sudo mysql -u root -e 'grant all privileges on *.* to travis@localhost;'
