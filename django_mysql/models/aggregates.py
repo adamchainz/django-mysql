@@ -2,8 +2,6 @@ import django
 from django.db.models import Aggregate, CharField
 from django.utils.functional import cached_property
 
-__all__ = ('BitAnd', 'BitOr', 'BitXor', 'GroupConcat',)
-
 # Major aggregate simplification from 1.7 to 1.8 - it's easier to implement
 # each twice than try fudge a class that works before and after
 

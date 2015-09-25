@@ -3,8 +3,6 @@ from django.db.models import BinaryField, TextField
 
 from django_mysql.compat import field_class
 
-__all__ = ('SizedBinaryField', 'SizedTextField',)
-
 
 class SizedBinaryField(field_class(BinaryField)):
     def __init__(self, *args, **kwargs):

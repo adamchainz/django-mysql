@@ -4,8 +4,6 @@ from django.utils import six
 
 from django_mysql.compat import field_class
 
-__all__ = ('Bit1BooleanField', 'NullBit1BooleanField',)
-
 
 class Bit1Mixin(object):
     def db_type(self, connection):

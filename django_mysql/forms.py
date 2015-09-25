@@ -13,8 +13,6 @@ from django_mysql.validators import (
     SetMinLengthValidator
 )
 
-__all__ = ('SimpleListField', 'SimpleSetField')
-
 
 class SimpleListField(forms.CharField):
 
