@@ -60,7 +60,7 @@ def run_2to3():
         '-f', 'tuple_params',
         'django_mysql', 'tests'
     ]).strip()
-    if output > '':
+    if output > b'':
         print('2to3 failed')
         print(output)
         return 1
