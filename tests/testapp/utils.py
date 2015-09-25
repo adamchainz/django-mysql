@@ -1,3 +1,6 @@
+# -*- encoding:utf-8 -*-
+from __future__ import print_function
+
 import sys
 from contextlib import contextmanager
 from unittest import skipUnless
@@ -65,6 +68,24 @@ class CaptureLastQuery(object):
     @property
     def query(self):
         return self.capturer.captured_queries[-1]['sql']
+
+
+class PrintAllQueries(object):
+    def __init__(self, conn=None):
+        if conn is None:
+            self.conn = connection
+        else:
+            self.conn = conn
+
+    def __enter__(self):
+        self.capturer = CaptureQueriesContext(self.conn)
+        self.capturer.__enter__()
+        return self
+
+    def __exit__(self, a, b, c):
+        self.capturer.__exit__(a, b, c)
+        for q in self.capturer.captured_queries:
+            print(q['sql'])
 
 
 def used_indexes(query, using=DEFAULT_DB_ALIAS):

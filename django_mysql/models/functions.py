@@ -194,6 +194,53 @@ class LastInsertId(Func):
             return cursor.fetchone()[0]
 
 
+# JSON Functions
+
+class JSONExtract(Func):
+    function = 'JSON_EXTRACT'
+
+    def __init__(self, expression, *paths):
+        from django_mysql.models.fields import JSONField
+
+        exprs = [expression]
+        for path in paths:
+            if not hasattr(path, 'resolve_expression'):
+                path = Value(path)
+            exprs.append(path)
+
+        super(JSONExtract, self).__init__(*exprs, output_field=JSONField())
+
+
+class JSONKeys(Func):
+    function = 'JSON_KEYS'
+
+    def __init__(self, expression, path=None):
+        from django_mysql.models.fields import JSONField
+
+        exprs = [expression]
+        if path is not None:
+            if not hasattr(path, 'resolve_expression'):
+                path = Value(path)
+            exprs.append(path)
+
+        super(JSONKeys, self).__init__(*exprs, output_field=JSONField())
+
+
+class JSONLength(Func):
+    function = 'JSON_LENGTH'
+
+    def __init__(self, expression, path=None):
+        from django_mysql.models.fields import JSONField
+
+        exprs = [expression]
+        if path is not None:
+            if not hasattr(path, 'resolve_expression'):
+                path = Value(path)
+            exprs.append(path)
+
+        super(JSONLength, self).__init__(*exprs, output_field=JSONField())
+
+
 # MariaDB Regexp Functions
 
 class RegexpInstr(Func):

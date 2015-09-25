@@ -4,7 +4,7 @@ from django import forms
 from django.core import exceptions
 from django.test import SimpleTestCase
 
-from django_mysql.forms import SimpleListField, SimpleSetField
+from django_mysql.forms import JSONField, SimpleListField, SimpleSetField
 
 
 class TestSimpleListField(SimpleTestCase):
@@ -276,3 +276,30 @@ class TestSimpleSetField(SimpleTestCase):
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean('')
         assert excinfo.value.messages[0] == 'This field is required.'
+
+
+class TestJSONField(SimpleTestCase):
+
+    def test_valid(self):
+        field = JSONField()
+        value = field.clean('{"a": "b"}')
+        assert value == {'a': 'b'}
+
+    def test_valid_empty(self):
+        field = JSONField(required=False)
+        value = field.clean('')
+        assert value is None
+
+    def test_invalid(self):
+        field = JSONField()
+        with pytest.raises(exceptions.ValidationError) as excinfo:
+            field.clean('{some badly formed: json}')
+        assert (
+            excinfo.value.messages[0] ==
+            "'{some badly formed: json}' value must be valid JSON."
+        )
+
+    def test_prepare_value(self):
+        field = JSONField()
+        assert field.prepare_value({'a': 'b'}) == '{"a": "b"}'
+        assert field.prepare_value(None) == 'null'

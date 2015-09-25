@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
+import json
 from datetime import date, datetime, time
 
+import django
 from django.db import connection
 from django.db.models import Model as VanillaModel
 from django.db.models import (
@@ -10,10 +12,11 @@ from django.db.models import (
 from django.utils import six, timezone
 
 from django_mysql.models import (
-    Bit1BooleanField, DynamicField, EnumField, ListCharField, ListTextField,
-    Model, NullBit1BooleanField, SetCharField, SetTextField, SizedBinaryField,
-    SizedTextField
+    Bit1BooleanField, DynamicField, EnumField, JSONField, ListCharField,
+    ListTextField, Model, NullBit1BooleanField, SetCharField, SetTextField,
+    SizedBinaryField, SizedTextField
 )
+from django_mysql.utils import connection_is_mariadb
 
 
 class TemporaryModel(Model):
@@ -251,6 +254,18 @@ class Bit1Model(Model):
 
 class NullBit1Model(Model):
     flag = NullBit1BooleanField()
+
+
+class JSONModel(Model):
+    if (
+        django.VERSION[:2] >= (1, 8) and
+        not connection_is_mariadb(connection._nodb_connection) and
+        connection._nodb_connection.mysql_version >= (5, 7)
+    ):
+        attrs = JSONField(null=True)
+
+    def __unicode__(self):
+        return six.text_type(json.dumps(self.attrs))
 
 
 # For cache tests

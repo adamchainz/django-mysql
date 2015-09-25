@@ -8,6 +8,22 @@ The following can be imported from ``django_mysql.forms``.
 
 .. currentmodule:: django_mysql.forms
 
+---------
+JSONField
+---------
+
+.. class:: JSONField
+
+    A field which accepts JSON encoded data for a
+    :class:`~django_mysql.models.JSONField`. It is represented by an HTML
+    ``<textarea>``.
+
+    .. admonition:: User friendly forms
+
+        ``JSONField`` is not particularly user friendly in most cases, however
+        it is a useful way to format data from a client-side widget for
+        submission to the server.
+
 ---------------
 SimpleListField
 ---------------

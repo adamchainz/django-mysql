@@ -7,16 +7,18 @@ import pytest
 from django.db import connection
 from django.db.models import F
 from django.test import TestCase
+from django.utils import six
 
 from django_mysql.compat import Value
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
-    ColumnGet, ConcatWS, Field, Floor, Greatest, LastInsertId, Least,
-    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
-    XMLExtractValue
+    ColumnGet, ConcatWS, Field, Floor, Greatest, JSONExtract, JSONKeys,
+    JSONLength, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
+    Round, Sign, UpdateXML, XMLExtractValue
 )
-from testapp.models import Alphabet, Author, DynamicModel
+from testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from testapp.test_dynamicfield import DynColTestCase
+from testapp.test_jsonfield import JSONFieldTestCase
 
 try:
     from django.db.models.functions import Length
@@ -295,6 +297,82 @@ class InformationFunctionTests(TestCase):
 
         ab = Alphabet.objects.get()
         assert ab.b == 717612
+
+
+@requiresDatabaseFunctions
+class JSONFunctionTests(JSONFieldTestCase):
+
+    def setUp(self):
+        super(JSONFunctionTests, self).setUp()
+        self.obj = JSONModel.objects.create(attrs={
+            'int': 88,
+            'flote': 1.5,
+            'sub': {
+                'document': 'store'
+            },
+            'arr': ['dee', 'arr', 'arr'],
+        })
+
+    def test_json_extract_flote(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONExtract('attrs', '$.flote')
+            ).values_list('x', flat=True)
+        )
+        assert results == [1.5]
+        assert isinstance(results[0], float)
+
+    def test_json_extract_multiple(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONExtract('attrs', '$.int', '$.flote')
+            ).values_list('x', flat=True)
+        )
+        assert results == [[88, 1.5]]
+        assert isinstance(results[0][0], six.integer_types)
+        assert isinstance(results[0][1], float)
+
+    def test_json_extract_filter(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONExtract('attrs', '$.sub')
+            ).filter(
+                x={'document': 'store'}
+            )
+        )
+        assert results == [self.obj]
+
+    def test_json_keys(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONKeys('attrs')
+            ).values_list('x', flat=True)
+        )
+        assert set(results[0]) == set(self.obj.attrs.keys())
+
+    def test_json_keys_path(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONKeys('attrs', '$.sub')
+            ).values_list('x', flat=True)
+        )
+        assert set(results[0]) == set(self.obj.attrs['sub'].keys())
+
+    def test_json_length(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength('attrs')
+            ).values_list('x', flat=True)
+        )
+        assert results == [len(self.obj.attrs)]
+
+    def test_json_length_path(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength('attrs', '$.sub')
+            ).values_list('x', flat=True)
+        )
+        assert results == [len(self.obj.attrs['sub'])]
 
 
 @requiresDatabaseFunctions
