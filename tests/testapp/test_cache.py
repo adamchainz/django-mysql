@@ -125,7 +125,7 @@ def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
     )
 
 
-class MySQLCacheTableMixin(object):
+class MySQLCacheTableMixin(TransactionTestCase):
 
     table_name = 'test cache table'
 
