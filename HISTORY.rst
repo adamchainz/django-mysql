@@ -11,6 +11,7 @@ History
 0.2.3 (2015-10-12)
 ------------------
 
+* Allow ``approx_count`` on QuerySets for which only query hints have been used
 * Added index query hints to ``QuerySet`` methods, via query-rewriting layer
 * Added ``ordering`` parameter to ``GroupConcat`` to specify the ``ORDER BY``
   clause
