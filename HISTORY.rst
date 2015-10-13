@@ -7,6 +7,8 @@ History
 -----------------------
 
 * Pending release
+* ``SmartChunkedIterator`` with ``report_progress=True`` correctly reports
+  'lowest pk so far' when iterating in reverse.
 
 0.2.3 (2015-10-12)
 ------------------

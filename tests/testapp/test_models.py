@@ -592,8 +592,27 @@ class SmartIteratorTests(TestCase):
         reports = lines[0].split('\r')
         for report in reports:
             assert re.match(
-                r"AuthorSmartChunkedIterator processed \d+/10 objects "
-                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?",
+                r"^AuthorSmartChunkedIterator processed \d+/10 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?$",
+                report
+            )
+
+        assert lines[1] == 'Finished!'
+
+    def test_reporting_reverse(self):
+        with captured_stdout() as output:
+            qs = Author.objects.reverse()
+            for authors in qs.iter_smart_chunks(report_progress=True):
+                list(authors)  # fetch them
+
+        lines = output.getvalue().split('\n')
+
+        reports = lines[0].split('\r')
+        assert len(reports) > 0
+        for report in reports:
+            assert re.match(
+                r"^AuthorSmartChunkedIterator processed \d+/10 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; lowest pk so far \d+)?$",
                 report
             )
 
@@ -610,8 +629,8 @@ class SmartIteratorTests(TestCase):
         reports = lines[0].split('\r')
         for report in reports:
             assert re.match(
-                r"AuthorSmartChunkedIterator processed \d+/4 objects "
-                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?",
+                r"^AuthorSmartChunkedIterator processed \d+/4 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?$",
                 report
             )
 

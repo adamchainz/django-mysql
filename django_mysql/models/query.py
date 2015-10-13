@@ -264,7 +264,7 @@ class SmartChunkedIterator(object):
         db_alias = self.queryset.db
         status = GlobalStatus(db_alias)
 
-        self.init_progress()
+        self.init_progress(direction)
 
         while comp(current_pk, last_pk):
             status.wait_until_load_low(self.status_thresholds)
@@ -288,7 +288,7 @@ class SmartChunkedIterator(object):
                 # can be read by SmartRangeIterator or other client code
                 chunk._smart_iterator_pks = (start_pk, end_pk)
                 yield chunk
-                self.update_progress(chunk=chunk, end_pk=end_pk)
+                self.update_progress(direction, chunk, end_pk)
 
             self.adjust_chunk_size(chunk, timer.total_time)
 
@@ -387,7 +387,7 @@ class SmartChunkedIterator(object):
 
         self.chunk_size = new_chunk_size
 
-    def init_progress(self):
+    def init_progress(self, direction):
         if not self.report_progress:
             return
 
@@ -402,9 +402,9 @@ class SmartChunkedIterator(object):
             except ValueError:  # Cannot be approximately counted
                 self.total = self.queryset.count()  # Fallback - will be slow
 
-        self.update_progress()
+        self.update_progress(direction)
 
-    def update_progress(self, chunk=None, end_pk=None):
+    def update_progress(self, direction, chunk=None, end_pk=None):
         if not self.report_progress:
             return
 
@@ -440,7 +440,12 @@ class SmartChunkedIterator(object):
             )
         )
         if end_pk is not None:
-            sys.stdout.write("; highest pk so far {}".format(end_pk))
+            sys.stdout.write(
+                "; {dir} pk so far {end_pk}".format(
+                    dir="highest" if direction == 1 else "lowest",
+                    end_pk=end_pk,
+                )
+            )
         sys.stdout.flush()
 
     def end_progress(self):
