@@ -8,7 +8,7 @@ from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase
 from django.utils import six
 
 from django_mysql.forms import SimpleSetField
@@ -279,7 +279,7 @@ class TestDeconstruct(TestCase):
         assert path == 'tests.testapp.test_settextfield.SetTextFieldSubclass'
 
 
-class TestMigrations(TransactionTestCase):
+class TestMigrationWriter(TestCase):
 
     def test_makemigrations(self):
         field = SetTextField(models.CharField(max_length=5))

@@ -449,7 +449,7 @@ class TestCheck(SimpleTestCase):
         assert 'Field can overrun' in errors[0].msg
 
 
-class TestMigrations(TransactionTestCase):
+class TestDeconstruct(TestCase):
 
     def test_deconstruct(self):
         field = ListCharField(models.IntegerField(), max_length=32)
@@ -468,6 +468,9 @@ class TestMigrations(TransactionTestCase):
         name, path, args, kwargs = field.deconstruct()
         new = ListCharField(*args, **kwargs)
         assert new.base_field.max_length == field.base_field.max_length
+
+
+class TestMigrationWriter(TestCase):
 
     def test_makemigrations(self):
         field = ListCharField(models.CharField(max_length=5), max_length=32)
@@ -508,6 +511,9 @@ class TestMigrations(TransactionTestCase):
             """,
             re.VERBOSE
         ).match(statement)
+
+
+class TestMigrations(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
         "testapp": "testapp.list_default_migrations",

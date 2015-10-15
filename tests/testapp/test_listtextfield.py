@@ -9,7 +9,7 @@ from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
@@ -305,7 +305,7 @@ class TestDeconstruct(TestCase):
         assert path == 'tests.testapp.test_listtextfield.ListTextFieldSubclass'
 
 
-class TestMigrations(TransactionTestCase):
+class TestMigrationWriter(TestCase):
 
     def test_makemigrations(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
