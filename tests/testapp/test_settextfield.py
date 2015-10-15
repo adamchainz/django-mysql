@@ -235,7 +235,13 @@ class TestCheck(SimpleTestCase):
         assert 'Base field for set must be' in errors[0].msg
 
 
-class TestMigrations(TransactionTestCase):
+class SetTextFieldSubclass(SetTextField):
+    """
+    Used below, has a different path for deconstruct()
+    """
+
+
+class TestDeconstruct(TestCase):
 
     def test_deconstruct(self):
         field = SetTextField(models.IntegerField(), max_length=32)
@@ -254,6 +260,26 @@ class TestMigrations(TransactionTestCase):
         name, path, args, kwargs = field.deconstruct()
         new = SetTextField(*args, **kwargs)
         assert new.base_field.max_length == field.base_field.max_length
+
+    def test_bad_import_deconstruct(self):
+        from django_mysql.models.fields import SetTextField as STField
+        field = STField(models.IntegerField())
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.SetTextField'
+
+    def test_bad_import2_deconstruct(self):
+        from django_mysql.models.fields.sets import SetTextField as STField
+        field = STField(models.IntegerField())
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.SetTextField'
+
+    def test_subclass_deconstruct(self):
+        field = SetTextFieldSubclass(models.IntegerField())
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'tests.testapp.test_settextfield.SetTextFieldSubclass'
+
+
+class TestMigrations(TransactionTestCase):
 
     def test_makemigrations(self):
         field = SetTextField(models.CharField(max_length=5))

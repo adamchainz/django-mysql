@@ -261,7 +261,13 @@ class TestCheck(SimpleTestCase):
         assert 'Base field for list must be' in errors[0].msg
 
 
-class TestMigrations(TransactionTestCase):
+class ListTextFieldSubclass(ListTextField):
+    """
+    Used below, has a different path for deconstruct()
+    """
+
+
+class TestDeconstruct(TestCase):
 
     def test_deconstruct(self):
         field = ListTextField(models.IntegerField(), max_length=32)
@@ -280,6 +286,26 @@ class TestMigrations(TransactionTestCase):
         name, path, args, kwargs = field.deconstruct()
         new = ListTextField(*args, **kwargs)
         assert new.base_field.max_length == field.base_field.max_length
+
+    def test_bad_import_deconstruct(self):
+        from django_mysql.models.fields import ListTextField as LTField
+        field = LTField(models.IntegerField())
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.ListTextField'
+
+    def test_bad_import2_deconstruct(self):
+        from django_mysql.models.fields.lists import ListTextField as LTField
+        field = LTField(models.IntegerField())
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.ListTextField'
+
+    def test_subclass_deconstruct(self):
+        field = ListTextFieldSubclass(models.IntegerField())
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'tests.testapp.test_listtextfield.ListTextFieldSubclass'
+
+
+class TestMigrations(TransactionTestCase):
 
     def test_makemigrations(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)

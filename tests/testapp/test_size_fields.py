@@ -25,6 +25,12 @@ def migrate(name):
                  verbosity=0, skip_checks=True)
 
 
+class SubSizedBinaryField(SizedBinaryField):
+    """
+    Used below, has a different path for deconstruct()
+    """
+
+
 @forceDataError
 class SizedBinaryFieldTests(TestCase):
 
@@ -54,6 +60,16 @@ class SizedBinaryFieldTests(TestCase):
         with pytest.raises(DataError) as excinfo:
             m.save()
         assert excinfo.value.args[0] == 1406
+
+    def test_deconstruct_path(self):
+        field = SizedBinaryField(size_class=1)
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.SizedBinaryField'
+
+    def test_deconstruct_subclass_path(self):
+        field = SubSizedBinaryField(size_class=1)
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'tests.testapp.test_size_fields.SubSizedBinaryField'
 
     def test_deconstruct_size_class_4(self):
         field = SizedBinaryField(size_class=4)
@@ -119,6 +135,12 @@ class SizedBinaryFieldMigrationTests(TransactionTestCase):
             assert table_name not in table_names(cursor)
 
 
+class SubSizedTextField(SizedTextField):
+    """
+    Used below, has a different path for deconstruct()
+    """
+
+
 @forceDataError
 class SizedTextFieldTests(TestCase):
 
@@ -147,6 +169,16 @@ class SizedTextFieldTests(TestCase):
         with atomic(), pytest.raises(DataError) as excinfo:
             m.save()
         assert excinfo.value.args[0] == 1406
+
+    def test_deconstruct_path(self):
+        field = SizedTextField(size_class=1)
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.SizedTextField'
+
+    def test_deconstruct_subclass_path(self):
+        field = SubSizedTextField(size_class=1)
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'tests.testapp.test_size_fields.SubSizedTextField'
 
     def test_deconstruct_size_class_4(self):
         field = SizedTextField(size_class=4)

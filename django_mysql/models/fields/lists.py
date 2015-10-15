@@ -73,7 +73,14 @@ class ListFieldMixin(object):
 
     def deconstruct(self):
         name, path, args, kwargs = super(ListFieldMixin, self).deconstruct()
-        path = 'django_mysql.models.%s' % self.__class__.__name__
+
+        bad_paths = (
+            'django_mysql.models.fields.lists.' + self.__class__.__name__,
+            'django_mysql.models.fields.' + self.__class__.__name__
+        )
+        if path in bad_paths:
+            path = 'django_mysql.models.' + self.__class__.__name__
+
         args.insert(0, self.base_field)
         kwargs['size'] = self.size
         return name, path, args, kwargs
