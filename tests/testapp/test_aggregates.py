@@ -108,7 +108,8 @@ class GroupConcatTests(TestCase):
         concatted_ids = "BIG".join(self.str_tutee_ids)
         assert out == {'tids': concatted_ids}
 
-    @skipIf(django.VERSION <= (1, 8), "Requires Expressions from Django 1.8+")
+    @skipIf(django.VERSION[:2] < (1, 8),
+            "Requires Expressions from Django 1.8+")
     def test_expression(self):
         concat = GroupConcat(F('id') + 1)
         out = self.shakes.tutees.aggregate(tids=concat)

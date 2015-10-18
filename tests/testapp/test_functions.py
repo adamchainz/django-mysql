@@ -21,7 +21,7 @@ except ImportError:
     Length = None
 
 requiresDatabaseFunctions = skipIf(
-    django.VERSION <= (1, 8),
+    django.VERSION[:2] < (1, 8),
     "Requires Database Functions from Django 1.8+"
 )
 
@@ -348,7 +348,7 @@ class RegexpFunctionTests(TestCase):
         assert qs == ['Euripides', 'Sophocles']
 
 
-@skipIf(django.VERSION >= (1, 8),
+@skipIf(django.VERSION[:2] >= (1, 8),
         "Requires old Django version without Database Functions")
 class OldDjangoFunctionTests(TestCase):
 

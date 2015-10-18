@@ -5,7 +5,7 @@ from django.utils.functional import cached_property
 # Major aggregate simplification from 1.7 to 1.8 - it's easier to implement
 # each twice than try fudge a class that works before and after
 
-if django.VERSION < (1, 8):
+if django.VERSION[:2] < (1, 8):
 
     from django.db.models.sql.aggregates import Aggregate as SQLAggregate
 

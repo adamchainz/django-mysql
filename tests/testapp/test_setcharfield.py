@@ -198,7 +198,7 @@ class TestSaveLoad(TestCase):
         assert no_one.count() == 0
 
 
-@skipIf(django.VERSION <= (1, 8),
+@skipIf(django.VERSION[:2] < (1, 8),
         "Requires Expressions from Django 1.8+")
 class TestSetF(TestCase):
 
@@ -344,7 +344,7 @@ class TestSetF(TestCase):
         assert model.field2 == {"orange"}
 
 
-@skipIf(django.VERSION >= (1, 8),
+@skipIf(django.VERSION[:2] >= (1, 8),
         "Requires old Django version without Expressions")
 class TestSetFFails(TestCase):
 

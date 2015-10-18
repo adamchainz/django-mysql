@@ -247,7 +247,7 @@ class TestSaveLoad(TestCase):
         assert list(one0two1) == [onetwo]
 
 
-@skipIf(django.VERSION <= (1, 8),
+@skipIf(django.VERSION[:2] < (1, 8),
         "Requires Expressions from Django 1.8+")
 class TestListF(TestCase):
 

@@ -19,7 +19,7 @@ class Command(BaseCommand):
             "connection alias should be a name from DATABASES - defaults to "
             "'{default}'.").format(default=DEFAULT_DB_ALIAS)
 
-    if django.VERSION < (1, 9):
+    if django.VERSION[:2] < (1, 8):
 
         option_list = BaseCommand.option_list + (
             make_option(
