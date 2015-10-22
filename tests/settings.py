@@ -78,8 +78,6 @@ try:
 except ImportError:
     pass
 
-TEST_RUNNER = 'testapp.runner.MySQLTestRunner'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
