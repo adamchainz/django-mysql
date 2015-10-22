@@ -64,6 +64,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        # Add a dependency in here on an existing migration in the app you
+        # put this migration in, for example:
+        # ('myapp', '0001_initial'),
     ]
 
     operations = [

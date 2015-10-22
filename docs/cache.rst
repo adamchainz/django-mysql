@@ -59,30 +59,46 @@ example:
 .. code-block:: console
 
     $ python manage.py mysql_cache_migration
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+
     from django.db import migrations
 
 
     class Migration(migrations.Migration):
+
+        dependencies = [
+            # Add a dependency in here on an existing migration in the app you
+            # put this migration in, for example:
+            # ('myapp', '0001_initial'),
+        ]
 
         operations = [
             migrations.RunSQL(
                 """
                 CREATE TABLE `my_super_cache` (
                     cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
-                                                       NOT NULL PRIMARY KEY,
+                                           NOT NULL PRIMARY KEY,
                     value longblob NOT NULL,
                     value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
                                        NOT NULL DEFAULT 'p',
                     expires BIGINT UNSIGNED NOT NULL
                 );
                 """,
-                "DROP TABLE `my_super_cache`;"
+                "DROP TABLE `my_super_cache`"
             ),
         ]
 
+
+
 Save this to a file in the ``migrations`` directory of one of your project's
-apps. You might want to customize the SQL at this time, for example switching
-the table to use the ``MEMORY`` storage engine.
+apps, and add one of your existing migrations to the file's ``dependencies``.
+You might want to customize the SQL at this time, for example switching the
+table to use the ``MEMORY`` storage engine.
+
+Django requires you to install
+`sqlparse <https://pypi.python.org/pypi/sqlparse>`_
+to run the ``RunSQL`` operation in the migration, so make sure it is installed.
 
 Once the migration has run, the cache is ready to work!
 
