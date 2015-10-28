@@ -12,7 +12,8 @@ from django_mysql.compat import Value
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
     ColumnGet, ConcatWS, Field, Floor, Greatest, LastInsertId, Least,
-    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign
+    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
+    XMLExtractValue
 )
 from testapp.models import Alphabet, Author, DynamicModel
 from testapp.test_dynamicfield import DynColTestCase
@@ -191,6 +192,43 @@ class StringFunctionTests(TestCase):
                             .values_list('a', flat=True)
         )
         assert avalues == [2, 1, 3, 4]
+
+
+@requiresDatabaseFunctions
+class XMLFunctionTests(TestCase):
+
+    def test_updatexml_simple(self):
+        Alphabet.objects.create(d='<value>123</value>')
+        Alphabet.objects.update(
+            d=UpdateXML('d', '/value', '<value>456</value>')
+        )
+        d = Alphabet.objects.get().d
+        assert d == '<value>456</value>'
+
+    def test_updatexml_annotate(self):
+        Alphabet.objects.create(d='<value>123</value>')
+        d2 = Alphabet.objects.annotate(
+            d2=UpdateXML('d', '/value', '<value>456</value>')
+        ).get().d2
+        assert d2 == '<value>456</value>'
+
+    def test_xmlextractvalue_simple(self):
+        Alphabet.objects.create(d='<some><xml /></some>')
+        Alphabet.objects.create(d='<someother><xml /></someother>')
+        Alphabet.objects.create(d='<some></some><some></some>')
+        evs = list(
+            Alphabet.objects.annotate(ev=XMLExtractValue('d', 'count(/some)'))
+                            .values_list('ev', flat=True)
+        )
+        assert evs == ['1', '0', '2']
+
+    def test_xmlextractvalue_invalid_xml(self):
+        Alphabet.objects.create(d='{"this": "isNotXML"}')
+        ab = (
+            Alphabet.objects.annotate(ev=XMLExtractValue('d', '/some'))
+                            .first()
+        )
+        assert ab.ev == ''
 
 
 @requiresDatabaseFunctions

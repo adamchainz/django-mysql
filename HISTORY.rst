@@ -14,6 +14,7 @@ History
 * Fix broken import paths during ``deconstruct()`` for subclasses of all
   fields: ``ListCharField``, ``ListTextField``, ``SetCharField``,
   ``SetTextField``, ``SizedBinaryField`` and ``SizedTextField``
+* Added XML database functions - ``UpdateXML`` and ``XMLExtractValue``.
 
 0.2.3 (2015-10-12)
 ------------------

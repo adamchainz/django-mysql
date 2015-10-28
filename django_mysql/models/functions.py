@@ -118,6 +118,33 @@ class Field(Func):
         super(Field, self).__init__(field, *values_exprs)
 
 
+# XML Functions
+
+
+class UpdateXML(Func):
+    function = 'UPDATEXML'
+
+    def __init__(self, xml_target, xpath_expr, new_xml):
+        if not hasattr(xpath_expr, 'resolve_expression'):
+            xpath_expr = Value(xpath_expr)
+        if not hasattr(new_xml, 'resolve_expression'):
+            new_xml = Value(new_xml)
+
+        return super(UpdateXML, self).__init__(xml_target, xpath_expr, new_xml,
+                                               output_field=TextField())
+
+
+class XMLExtractValue(Func):
+    function = 'EXTRACTVALUE'
+
+    def __init__(self, xml_frag, xpath_expr):
+        if not hasattr(xpath_expr, 'resolve_expression'):
+            xpath_expr = Value(xpath_expr)
+
+        return super(XMLExtractValue, self).__init__(xml_frag, xpath_expr,
+                                                     output_field=TextField())
+
+
 # Encryption Functions
 
 

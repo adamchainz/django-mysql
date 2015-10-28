@@ -213,6 +213,59 @@ String Functions
         ... )
 
 
+XML Functions
+-------------
+
+.. class:: UpdateXML(xml_target, xpath_expr, new_xml)
+
+    Returns the XML fragment ``xml_target`` with the single match for
+    ``xpath_expr`` replaced with the xml fragment ``new_xml``. If nothing
+    matches ``xpath_expr``, or if multiple matches are found, the original
+    ``xml_target`` is returned unchanged.
+
+    This can be used for single-query updates of text fields containing XML.
+
+    Note that if ``xml_target`` is given as a string, it will refer to a
+    column, whilst if either ``xpath_expr`` or ``new_xml`` are strings, they
+    will be used as strings directly. If you want ``xpath_expr`` or ``new_xml``
+    to refer to columns, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/xml-functions.html#function_updatexml>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/updatexml/>`_.
+
+    Usage example::
+
+        # Remove 'sagacity' from all authors' xml_attrs
+        >>> Author.objects.update(
+        ...     xml_attrs=UpdateXML('xml_attrs', '/sagacity', '')
+        ... )
+
+
+.. class:: XMLExtractValue(xml_frag, xpath_expr)
+
+    Returns the text (``CDATA``) of the first text node which is a child of the
+    element(s) in the XML fragment ``xml_frag`` matched by the XPath expression
+    ``xpath_expr``. In SQL this function is called ``ExtractValue``; the class
+    has the ``XML`` prefix to make it clearer what kind of values are it
+    extracts.
+
+    Note that if ``xml_frag`` is given as a string, it will refer to a column,
+    whilst if ``xpath_expr`` is a string, it will be used as a string. If you
+    want ``xpath_expr`` to refer to a column, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/xml-functions.html#function_extractvalue>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/extractvalue/>`_.
+
+    Usage example::
+
+        # Count the number of authors with 'sagacity' in their xml_attrs
+        >>> num_authors_with_sagacity = Author.objects.annotate(
+        ...     has_sagacity=XMLExtractValue('xml_attrs', 'count(/sagacity)')
+        ... ).filter(has_sagacity='1').count()
+
+
 Regexp Functions
 ----------------
 
