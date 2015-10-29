@@ -35,13 +35,23 @@ What kind of features?
 
 Includes:
 
-* ``QuerySet`` extensions - 'smart' iteration, ``approx_count`` for quick
-  estimates of ``count()``, query hints, quick ``pt-visual-explain`` of the
-  underlying query
-* Model fields for storing lists and sets in comma-separated strings, with the
-  ability to query them
-* ORM expressions for MySQL-specific functions
-* A new cache backend that makes use of MySQL's upserts and does compression
+* ``QuerySet`` extensions:
+
+  * 'Smart' iteration - chunked pagination across a large queryset
+  * ``approx_count`` for quick estimates of ``count()``
+  * Query hints
+  * Quick ``pt-visual-explain`` of the underlying query
+
+* Model fields:
+
+  * MariaDB Dynamic Columns for storing dictionaries
+  * Comma-separated fields for storing lists and sets
+  * 'Missing' fields: differently sized ``BinaryField``/``TextField`` classes,
+    ``BooleanField``\s represented by BIT(1)
+
+* ORM expressions for over 20 MySQL-specific functions
+* A new cache backend that makes use of MySQL's upsert statement and does
+  compression
 * Handler API for quicker-than-SQL reads using the 'NoSQL' HANDLER commands
 * Status variable inspection and utility methods
 * Named locks for easy locking of e.g. external resources
