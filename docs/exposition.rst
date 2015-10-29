@@ -31,6 +31,16 @@ pass it, such as the Django Admin, you can set the ``QuerySet`` to do try
 :ref:`Read more <approximate-counting>`
 
 
+Query Hints
+-----------
+
+Use MySQL's query hints to optimize the SQL your ``QuerySet``\s generate::
+
+    Author.objects.straight_join().filter(book_set__title__startswith="The ")
+    # Does SELECT STRAIGHT_JOIN ...
+
+:ref:`Read more <query_hints>`
+
 'Smart' Iteration
 -----------------
 
@@ -92,6 +102,25 @@ Model Fields
 
 Fields that use MySQL-specific features!
 
+Dynamic Columns Field
+---------------------
+
+Use MariaDB's Dynamic Columns for storing arbitrary, nested dictionaries of
+values::
+
+    class ShopItem(Model):
+        name = models.CharField(max_length=200)
+        attrs = DynamicField()
+
+..
+
+    >>> ShopItem.objects.create(name='Camembert', {'smelliness': 15})
+    >>> ShopItem.objects.create(name='Brie', {'smelliness': 5, 'squishiness': 10})
+    >>> ShopItem.objects.filter(attrs__smelliness_INTEGER__gte=10)
+    [<ShopItem: Camembert>]
+
+:ref:`Read more <dynamic-columns-field>`
+
 List Fields
 -----------
 
@@ -132,6 +161,35 @@ string::
 
 :ref:`Read more <set-fields>`
 
+
+Resizable Text/Binary Fields
+----------------------------
+
+Django's :class:`~django.db.models.TextField` and
+:class:`~django.db.models.BinaryField` fields are fixed at the MySQL level to
+use the maximum size class for the ``BLOB`` and ``TEXT`` data types - these
+fields allow you to use the other sizes, and migrate between them::
+
+    class BookBlurb(Model):
+        blurb = SizedTextField(size_class=3)
+        # Has a maximum length of 16MiB, compared to plain TextField which has
+        # a limit of 4GB (!)
+
+:ref:`Read more <resizable-blob-text-fields>`
+
+
+BIT(1) Boolean Fields
+---------------------
+
+Some database systems, such as the Java Hibernate ORM, don't use MySQL's
+``bool`` data type for storing boolean flags and instead use ``BIT(1)``. This
+field class allows you to interact with those fields::
+
+    class HibernateModel(Model):
+        some_bool = Bit1BooleanField()
+        some_nullable_bool = NullBit1BooleanField()
+
+:ref:`Read more <bit1booleanfields>`
 
 -------------
 Field Lookups
