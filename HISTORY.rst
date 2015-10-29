@@ -3,10 +3,10 @@
 History
 =======
 
-0.2.4 (pending release)
------------------------
+1.0.0 (2015-10-29)
+------------------
 
-* Pending release
+* Changed version number to 1.0.0 to indicate maturity.
 * Added ``DynamicField`` for using MariaDB's Named Dynamic Columns, and related
   database functions ``ColumnAdd``, ``ColumnDelete``, and ``ColumnGet``.
 * ``SmartChunkedIterator`` with ``report_progress=True`` correctly reports
