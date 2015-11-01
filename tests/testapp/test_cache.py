@@ -6,8 +6,10 @@ import os
 import time
 import warnings
 from decimal import Decimal
+from unittest import skipUnless
 
 import ddt
+import django
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
@@ -752,6 +754,38 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         "See https://code.djangoproject.com/ticket/21200"
         with pytest.raises(pickle.PickleError):
             cache.set('unpickable', Unpickable())
+
+    @skipUnless(django.VERSION[:2] >= (1, 9),
+                "Requires Django 1.9+ for cache.get_or_set")
+    def test_get_or_set(self):
+        assert cache.get('projector') is None
+        assert cache.get_or_set('projector', 42) == 42
+        assert cache.get('projector') == 42
+
+    @skipUnless(django.VERSION[:2] >= (1, 9),
+                "Requires Django 1.9+ for cache.get_or_set")
+    def test_get_or_set_callable(self):
+        def my_callable():
+            return 'value'
+
+        assert cache.get_or_set('mykey', my_callable) == 'value'
+
+    @skipUnless(django.VERSION[:2] >= (1, 9),
+                "Requires Django 1.9+ for cache.get_or_set")
+    def test_get_or_set_version(self):
+        cache.get_or_set('brian', 1979, version=2)
+        with pytest.raises(ValueError) as excinfo:
+            cache.get_or_set('brian')
+        assert 'You need to specify a value.' in str(excinfo.value)
+
+        with pytest.raises(ValueError):
+            cache.get_or_set('brian', version=1)
+        assert 'You need to specify a value.' in str(excinfo.value)
+
+        assert cache.get('brian', version=1) is None
+        assert cache.get_or_set('brian', 42, version=1) == 42
+        assert cache.get_or_set('brian', 1979, version=2) == 1979
+        assert cache.get('brian', version=3) is None
 
     # Modified Django tests
 
