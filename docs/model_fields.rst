@@ -240,10 +240,6 @@ lists with a small maximum size, and ``ListTextField``, which is based on
 underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
 1 bytes).
 
-For the purposes of keeping documentation short, we'll describe
-``ListCharField``, but everything below applies equally to ``ListTextField``,
-except for ``max_length`` which is not needed.
-
 
 .. class:: ListCharField(base_field, size=None, **kwargs)
 
@@ -267,17 +263,26 @@ except for ``max_length`` which is not needed.
 
     Example instantiation::
 
-        from django.db.models import IntegerField
-        # Does not require django_mysql.models.Model - just using it for the
-        # QuerySet extensions
-        from django_mysql.models import Model, ListCharField
+        from django.db.models import CharField, Model
+        from django_mysql.models import ListCharField
 
         class Person(Model):
+            name = CharField()
             post_nominals = ListCharField(
-                base_field=CharField(max_length=32),
+                base_field=CharField(max_length=10),
                 size=6,
-                max_length=(6 * 3)  # 6 two digit numbers plus commas
+                max_length=(6 * 11)  # 6 * 10 character nominals, plus commas
             )
+
+    In Python simply set the field's value as a list::
+
+        >>> p = Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.'])
+        >>> p.post_nominals
+        ['PhD', 'Esq.']
+        >>> p.post_nominals.append('III')
+        >>> p.post_nominals
+        ['PhD', 'Esq.', 'III']
+        >>> p.save()
 
     .. admonition:: Validation on save()
 
@@ -292,14 +297,31 @@ except for ``max_length`` which is not needed.
     The default form field is :class:`~django_mysql.forms.SimpleListField`.
 
 
-Querying Set Fields
--------------------
+.. class:: ListTextField(base_field, size=None, **kwargs)
+
+    The same as ``ListCharField``, but backed by a ``TextField`` and therefore
+    much less restricted in length. There is no ``max_length`` argument.
+
+    Example instantiation::
+
+        from django.db.models import IntegerField, Model
+        from django_mysql.models import ListTextField
+
+        class Widget(Model):
+            widget_group_ids = ListTextField(
+                base_field=IntegerField(),
+                size=100,  # Maximum of 100 ids in list
+            )
+
+
+Querying List Fields
+--------------------
 
 .. warning::
 
     These fields are not built-in datatypes, and the filters use one or more
     SQL functions to parse the underlying string representation. They may slow
-    down on large tables if your queries are not otherwise selective.
+    down on large tables if your queries are not selective on other columns.
 
 contains
 ~~~~~~~~
@@ -493,10 +515,6 @@ which is based on ``TextField`` and therefore suitable for sets of (near)
 unbounded size (the underlying ``LONGTEXT`` MySQL datatype has a maximum length
 of 2\ :sup:`32` - 1 bytes).
 
-For the purposes of keeping documentation short, we'll describe
-``SetCharField``, but everything below applies equally to ``SetTextField``,
-except for ``max_length`` which is not needed.
-
 
 .. class:: SetCharField(base_field, size=None, **kwargs):
 
@@ -519,10 +537,8 @@ except for ``max_length`` which is not needed.
 
     Example instantiation::
 
-        from django.db.models import IntegerField
-        # Does not require django_mysql.models.Model - just using it for the
-        # QuerySet extensions
-        from django_mysql.models import Model, SetCharField
+        from django.db.models import IntegerField, Model
+        from django_mysql.models import SetCharField
 
         class LotteryTicket(Model):
             numbers = SetCharField(
@@ -530,6 +546,17 @@ except for ``max_length`` which is not needed.
                 size=6,
                 max_length=(6 * 3)  # 6 two digit numbers plus commas
             )
+
+    In Python simply set the field's value as a set::
+
+        >>> lt = LotteryTicket.objects.create(numbers={1, 2, 4, 8, 16, 32})
+        >>> lt.numbers
+        {1, 2, 4, 8, 16, 32}
+        >>> lt.numbers.remove(1)
+        >>> lt.numbers.add(3)
+        >>> lt.numbers
+        {32, 3, 2, 4, 8, 16}
+        >>> lt.save()
 
     .. admonition:: Validation on save()
 
@@ -543,6 +570,23 @@ except for ``max_length`` which is not needed.
 
     The default form field is :class:`~django_mysql.forms.SimpleSetField`.
 
+
+.. class:: SetTextField(base_field, size=None, **kwargs):
+
+    The same as ``SetCharField``, but backed by a ``TextField`` and therefore
+    much less restricted in length. There is no ``max_length`` argument.
+
+    Example instantiation::
+
+        from django.db.models import IntegerField, Model
+        from django_mysql.models import SetTextField
+
+        class Post(Model):
+            tags = SetTextField(
+                base_field=CharField(max_length=32),
+            )
+
+
 Querying Set Fields
 -------------------
 
@@ -550,7 +594,7 @@ Querying Set Fields
 
     These fields are not built-in datatypes, and the filters use one or more
     SQL functions to parse the underlying string representation. They may slow
-    down on large tables if your queries are not otherwise selective.
+    down on large tables if your queries are not selective on other columns.
 
 contains
 ~~~~~~~~
