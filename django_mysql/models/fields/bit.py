@@ -14,7 +14,8 @@ class Bit1Mixin(object):
         if isinstance(value, six.binary_type):
             value = (value == b'\x01')
         elif isinstance(value, six.text_type):
-            value = (value == '\x01')
+            # Only on older versions of mysqlclient and Py 2.7
+            value = (value == '\x01')  # pragma: no cover
         return value
 
     def from_db_value(self, value, expression, connection, context):
@@ -22,7 +23,8 @@ class Bit1Mixin(object):
         if isinstance(value, six.binary_type):
             value = (value == b'\x01')
         elif isinstance(value, six.text_type):
-            value = (value == '\x01')
+            # Only on older versions of mysqlclient and Py 2.7
+            value = (value == '\x01')  # pragma: no cover
         return value
 
     def get_prep_value(self, value):
