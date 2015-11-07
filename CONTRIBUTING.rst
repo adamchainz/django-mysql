@@ -149,15 +149,24 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should pass on Travis - it automatically gains a "check"
    link from Github which we're hoping turns green :)
 
-Tips
-----
+Testing Tips
+------------
 
-Tests use pytest. You can run a subset of tests with::
+The tests do a lot of work that you can reduce by using some features that are
+available.
 
-    $ ./runtests.py -k test_pattern
+To skip the linting phase, run them with::
 
-Or::
+    $ ./runtests.py --nolint
 
-    $ tox -- -k test_pattern
+To only run a particular test file, you can run with the path to that file::
 
-For other switches, see the pytest docs.
+    $ ./runtests.py tests/testapp/test_some_feature.py
+
+You can also pass arguments through ``tox`` to ``runtests.py`` by passing these
+arguments after the ``--`` separator, for example::
+
+    $ tox -- tests/testapp/test_some_feature.py
+
+There are lots of other useful features, most of which you can check out in the
+`pytest docs <http://pytest.org/latest/>`_!
