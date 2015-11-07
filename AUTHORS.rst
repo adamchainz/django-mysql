@@ -11,3 +11,4 @@ Contributors
 ------------
 
 * Łukasz Więcek <https://github.com/lwiecek>
+* Michael Aquilina <https://github.com/MichaelAquilina>

@@ -695,6 +695,48 @@ Or with attribute assignment to a model::
         any conflicts.
 
 
+.. _enumeration-field:
+
+-----------------
+Enumeration Field
+-----------------
+
+Using a ``CharField`` with a limited set of strings leads to inefficient data
+storage since the string value must be stored over and over. MySQL's ``ENUM``
+type allows a more compact representation of such columns by storing the list
+of strings just once and using integers in the data rows, which ``EnumField``
+allows you to use conveniently::
+
+    class BookCover(Model):
+        color = EnumField(choices=['red', 'green', 'blue'])
+
+Like Django's standard ``choices`` argument, the values may be specified as a
+tuple specifying the actual value and a human readable name. The actual value
+is what will be stored in the database, while the human readable value will be
+shown in forms::
+
+    class Book(Model):
+        color = EnumField(choices=[
+          ('red', 'Bright Red'),
+          ('green', 'Vibrant Green'),
+          'blue',  # human readable name will be set to "blue"
+        ])
+
+Docs:
+`MySQL <https://dev.mysql.com/doc/refman/5.5/en/enum.html>`_ /
+`MariaDB <https://mariadb.com/kb/en/mariadb/enum/>`_.
+
+
+.. note::
+   It is possible to append new enumeration choices in migrations, as well
+   as edit the *human readable* names of current choices.
+
+   However, editing or removing existing choice values will error if MySQL
+   Strict Mode is on, and replace the values with the empty string if it is
+   not. The empty string is slightly broken with ``ENUM`` so it's recommended
+   you have Strict Mode on.
+
+
 .. _resizable-blob-text-fields:
 
 ----------------------------
