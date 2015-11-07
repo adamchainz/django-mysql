@@ -82,8 +82,27 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
     $ mkvirtualenv django-mysql
     $ pip install -r requirements.txt
 
-4. Check you have MySQL/MariaDB running and that the settings in
-   ``tests/settings.py`` will work for connecting. Then run the tests with::
+4. Check you have MySQL or MariaDB running and that the settings in
+   ``tests/settings.py`` will work for connecting. This involves making sure
+   you can connect from your terminal with the plain command ``mysql``, i.e.
+   as your current user.
+
+   On Ubuntu, this can be done with something like::
+
+    $ sudo apt-get install mysql-server-5.6
+    $ mysql -uroot -p -e "CREATE USER 'myusername'@localhost; GRANT ALL PRIVILEGES ON *.* TO 'myusername'@localhost;"
+    # Enter the password for root you set in the apt dialog
+
+   On Max OS X, this can be done with something like::
+
+    $ brew install mariadb
+    $ mysql.server start
+    $ mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO ''@localhost;"
+
+   If you want to use a different user or add a password, you can patch the
+   settings file in your local install.
+
+5. Then run the tests with::
 
     $ ./runtests.py
 
@@ -92,13 +111,13 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
 
     $ tox
 
-5. Now to make changes, create a branch for local development::
+6. Now to make changes, create a branch for local development::
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
    And hack away!
 
-6. When you're done making changes, check that your changes pass the code style
+7. When you're done making changes, check that your changes pass the code style
    rules and the tests on all versions of Python and Django, by running tox::
 
     $ tox
@@ -107,13 +126,13 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
    it - it will be picked up by the Travis build from Github. As long as
    ``runtests`` passes, you have a good start.
 
-6. Commit your changes and push your branch to GitHub::
+8. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website. This will trigger the
+9. Submit a pull request through the GitHub website. This will trigger the
    Travis build which runs the tests against all supported versions of Python,
    Django, and MySQL/MariaDB.
 
