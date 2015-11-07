@@ -57,7 +57,7 @@ Get Started!
 
 Ready to contribute? Here's how to set up `django-mysql` for local development.
 
-0. Make sure the database is installed, and you have granted the all privileges to your current user. For instance to set up MariaDB on OSX run:
+0. Make sure the database is installed, and that you have granted all privileges to your default database user. For instance to set up MariaDB on OSX run:
 
 .. code-block:: bash
 
