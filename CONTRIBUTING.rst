@@ -57,6 +57,14 @@ Get Started!
 
 Ready to contribute? Here's how to set up `django-mysql` for local development.
 
+0. Make sure the database is installed, and you have granted the all privileges to your current user. For instance to set up MariaDB on OSX run:
+
+.. code-block:: bash
+
+    $ brew intall mariadb
+    $ mysql.server restart
+    $ mysql -e "grant all privileges on *.* to ''@localhost;" -uroot
+
 1. Fork the `django-mysql` repo on GitHub.
 2. Clone your fork locally::
 
