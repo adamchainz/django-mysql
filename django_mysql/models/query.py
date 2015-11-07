@@ -231,8 +231,8 @@ class ApproximateInt(int):
 
 class SmartChunkedIterator(object):
     def __init__(self, queryset, atomically=True, status_thresholds=None,
-                 pk_range=None, chunk_time=0.5, chunk_size=2, chunk_max=10000,
-                 report_progress=False, total=None):
+                 pk_range=None, chunk_time=0.5, chunk_size=2, chunk_min=1,
+                 chunk_max=10000, report_progress=False, total=None):
         self.queryset = self.sanitize_queryset(queryset)
 
         if atomically:
@@ -246,8 +246,11 @@ class SmartChunkedIterator(object):
         self.pk_range = pk_range
 
         self.rate = WeightedAverageRate(chunk_time)
+        assert 0 < chunk_min <= chunk_max, \
+            "Minimum chunk size should not be greater than maximum chunk size."
+        self.chunk_min = chunk_min
         self.chunk_max = chunk_max
-        self.chunk_size = min(chunk_size, chunk_max)
+        self.chunk_size = self.constrain_size(chunk_size)
 
         self.report_progress = report_progress
         self.total = total
@@ -365,6 +368,9 @@ class SmartChunkedIterator(object):
         else:
             return (max_pk, min_pk)
 
+    def constrain_size(self, chunk_size):
+        return max(min(chunk_size, self.chunk_max), self.chunk_min)
+
     def adjust_chunk_size(self, chunk, chunk_time):
         # If the queryset is not being fetched as-is, e.g. its .delete() is
         # called, we can't know how many objects were affected, so we just
@@ -382,10 +388,7 @@ class SmartChunkedIterator(object):
         if new_chunk_size < 1:  # pragma: no cover
             new_chunk_size = 1
 
-        if new_chunk_size > self.chunk_max:
-            new_chunk_size = self.chunk_max
-
-        self.chunk_size = new_chunk_size
+        self.chunk_size = self.constrain_size(new_chunk_size)
 
     def init_progress(self, direction):
         if not self.report_progress:

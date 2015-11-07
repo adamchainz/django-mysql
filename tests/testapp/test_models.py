@@ -530,6 +530,22 @@ class SmartIteratorTests(TestCase):
                                      .values_list('id', flat=True))
         assert seen == all_ids
 
+    def test_objects_min_size_bounds_chunk_size(self):
+        smart = iter(Author.objects.iter_smart_chunks(chunk_min=5,
+                                                      chunk_size=1))
+        seen = []
+        for chunk in smart:
+            ids = [author.id for author in chunk]
+            assert len(ids) >= 5
+            seen.extend(ids)
+        all_ids = list(Author.objects.order_by('id')
+                                     .values_list('id', flat=True))
+        assert seen == all_ids
+
+    def test_min_size_greater_than_max(self):
+        with pytest.raises(AssertionError):
+            Author.objects.iter_smart_chunks(chunk_min=2, chunk_max=1)
+
     def test_no_matching_objects(self):
         seen = [author.id for author in
                 Author.objects.filter(name="Waaa").iter_smart()]
