@@ -7,6 +7,8 @@ import sys
 import subprocess
 
 import pytest
+from flake8.main import main as flake8_main
+from lib2to3.main import main as lib2to3_main
 
 
 def main():
@@ -45,28 +47,32 @@ def tests_main():
 
 def run_flake8():
     print('Running flake8 code linting')
-    ret = subprocess.call(['flake8', 'django_mysql', 'tests'])
-    print('flake8 failed' if ret else 'flake8 passed')
-    return ret
+    try:
+        original_argv = sys.argv
+        sys.argv = ['flake8', 'django_mysql', 'tests']
+        did_fail = False
+        flake8_main()
+    except SystemExit:
+        did_fail = True
+    finally:
+        sys.argv = original_argv
+
+    print('flake8 failed' if did_fail else 'flake8 passed')
+    return did_fail
 
 
 def run_2to3():
     print('Running 2to3 checks')
-    output = subprocess.check_output([
-        '2to3',
+    ret = lib2to3_main('lib2to3.fixes', [
         '-f', 'idioms',
         '-f', 'isinstance',
         '-f', 'set_literal',
         '-f', 'tuple_params',
+        '-j', '4',
         'django_mysql', 'tests'
-    ]).strip()
-    if output > b'':
-        print('2to3 failed')
-        print(output)
-        return 1
-    else:
-        print('2to3 passed')
-        return 0
+    ])
+    print('2to3 failed' if ret else '2to3 passed')
+    return ret
 
 
 def run_isort():
