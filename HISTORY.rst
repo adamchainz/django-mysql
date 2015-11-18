@@ -3,10 +3,10 @@
 History
 =======
 
-1.1.0 (pending release)
------------------------
+1.0.1 (2015-11-18)
+------------------
 
-* pending release
+* Added ``chunk_min`` argument to ``SmartChunkedIterator``
 
 1.0.0 (2015-10-29)
 ------------------
