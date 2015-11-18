@@ -137,17 +137,20 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
    Django, and MySQL/MariaDB.
 
 
-Pull Request Guidelines
------------------------
+Pull Request Checklist
+----------------------
 
-Before you submit a pull request, check that it meets these guidelines:
+For each pull request, the following checklist is used:
 
-1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated. Put
-   your new functionality into a function with a docstring, and add the
-   feature to the list in README.rst.
-3. The pull request should pass on Travis - it automatically gains a "check"
-   link from Github which we're hoping turns green :)
+1. All changes are covered with tests, and coverage remains at 100%. Some lines
+   that are hard to test, or don't make sense to, can be marked with the
+   'nocover' annotation.
+2. The documentation for any features affected have been added/updated.
+3. If the change affects end users in any way, the HISTORY file has been
+   updated with a note about the change.
+4. The Github checks - Travis tests and Coveralls - pass for the pull request.
+   Note that this tests more than you will locally, with e.g. multiple database
+   versions.
 
 Testing Tips
 ------------
