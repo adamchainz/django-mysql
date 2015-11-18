@@ -3,7 +3,6 @@ import json
 import re
 from unittest import skipIf
 
-import ddt
 import django
 import pytest
 from django import forms
@@ -24,7 +23,6 @@ from testapp.models import (
 )
 
 
-@ddt.ddt
 class TestSaveLoad(TestCase):
 
     def test_char_easy(self):
@@ -79,8 +77,13 @@ class TestSaveLoad(TestCase):
 
         assert empty.count() == 0
 
-    @ddt.data('contains', 'icontains')
-    def test_char_lookup(self, lookup):
+    def test_char_lookup_contains(self):
+        self.check_char_lookup('contains')
+
+    def test_char_lookup_icontains(self):
+        self.check_char_lookup('icontains')
+
+    def check_char_lookup(self, lookup):
         lname = 'field__' + lookup
         mymodel = CharListModel.objects.create(field=["mouldy", "rotten"])
 
