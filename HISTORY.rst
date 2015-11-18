@@ -3,6 +3,11 @@
 History
 =======
 
+Pending
+-------
+
+* New release notes here
+
 1.0.1 (2015-11-18)
 ------------------
 
