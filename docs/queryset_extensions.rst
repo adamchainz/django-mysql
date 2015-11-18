@@ -395,8 +395,8 @@ can be thought of in one of these two methods.
 .. class:: SmartChunkedIterator(queryset, atomically=True, \
                                 status_thresholds=None, pk_range=None, \
                                 chunk_time=0.5, chunk_size=2, \
-                                chunk_max=10000, report_progress=False, \
-                                total=None)
+                                chunk_min=1, chunk_max=10000, \
+                                report_progress=False, total=None)
 
     Implements a smart iteration strategy over the given ``queryset``. There is
     a method ``iter_smart_chunks`` that takes the same arguments on the
@@ -488,6 +488,13 @@ can be thought of in one of these two methods.
         The initial size of the chunk that will be used. As this will be
         dynamically scaled and can grow fairly quickly, the initial size of 2
         should be appropriate for most use cases.
+
+    .. attribute:: chunk_min=1
+
+        The minimum number of objects in a chunk. You do not normally need to
+        tweak this since the dynamic scaling works very well, however it might
+        be useful if your data has a lot of "holes" or if there are other
+        constraints on your application.
 
     .. attribute:: chunk_max=100000
 
