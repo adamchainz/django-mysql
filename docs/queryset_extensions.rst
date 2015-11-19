@@ -496,7 +496,7 @@ can be thought of in one of these two methods.
         be useful if your data has a lot of "holes" or if there are other
         constraints on your application.
 
-    .. attribute:: chunk_max=100000
+    .. attribute:: chunk_max=10000
 
         The maximum number of objects in a chunk, a kind of sanity bound. Acts
         to prevent harm in the case of iterating over a model with a large
