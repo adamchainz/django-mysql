@@ -87,10 +87,10 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
    you can connect from your terminal with the plain command ``mysql``, i.e.
    as your current user.
 
-   On Ubuntu, this can be done with something like::
+   On Ubuntu, this can be done with the commands below::
 
     $ sudo apt-get install mysql-server-5.6
-    $ mysql -uroot -p -e "CREATE USER 'myusername'@localhost; GRANT ALL PRIVILEGES ON *.* TO 'myusername'@localhost;"
+    $ mysql -uroot -p -e "CREATE USER '$(whoami)'@localhost; GRANT ALL PRIVILEGES ON *.* TO '$(whoami)'@localhost;"
     # Enter the password for root you set in the apt dialog
 
    On Max OS X, this can be done with something like::
