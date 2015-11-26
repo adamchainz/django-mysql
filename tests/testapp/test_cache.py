@@ -8,7 +8,6 @@ import warnings
 from decimal import Decimal
 from unittest import skipUnless
 
-import ddt
 import django
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
@@ -24,6 +23,7 @@ from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six.moves import StringIO
 from flake8.run import check_code
+from nose_parameterized import parameterized
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
 from testapp.models import Poll, expensive_calculation
@@ -144,7 +144,6 @@ class MySQLCacheTableMixin(TransactionTestCase):
 
 
 @override_cache_settings()
-@ddt.ddt
 class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     @classmethod
@@ -1085,7 +1084,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert str(excinfo.value).startswith(
             "Cannot use the default KEY_FUNCTION")
 
-    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    @parameterized.expand(['default', 'prefix', 'custom_key', 'custom_key2'])
     def test_keys_with_prefix(self, cache_name):
         cache = caches[cache_name]
         assert cache.keys_with_prefix('') == set()
@@ -1106,7 +1105,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.keys_with_prefix('') == set()
         assert cache.keys_with_prefix('K') == set()
 
-    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    @parameterized.expand(['default', 'prefix', 'custom_key', 'custom_key2'])
     def test_keys_with_prefix_version(self, cache_name):
         cache = caches[cache_name]
 
@@ -1125,7 +1124,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert str(excinfo.value).startswith(
             "To use the _with_prefix commands")
 
-    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    @parameterized.expand(['default', 'prefix', 'custom_key', 'custom_key2'])
     def test_get_with_prefix(self, cache_name):
         cache = caches[cache_name]
         assert cache.get_with_prefix('') == {}
@@ -1152,7 +1151,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.get_with_prefix('') == {}
         assert cache.get_with_prefix('K') == {}
 
-    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    @parameterized.expand(['default', 'prefix', 'custom_key', 'custom_key2'])
     def test_get_with_prefix_version(self, cache_name):
         cache = caches[cache_name]
 
@@ -1171,7 +1170,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert str(excinfo.value).startswith(
             "To use the _with_prefix commands")
 
-    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    @parameterized.expand(['default', 'prefix', 'custom_key', 'custom_key2'])
     def test_delete_with_prefix(self, cache_name):
         cache = caches[cache_name]
 
@@ -1193,7 +1192,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.keys_with_prefix('K') == set()
         assert cache.keys_with_prefix('') == set()
 
-    @ddt.data('default', 'prefix', 'custom_key', 'custom_key2')
+    @parameterized.expand(['default', 'prefix', 'custom_key', 'custom_key2'])
     def test_delete_with_prefix_version(self, cache_name):
         cache = caches[cache_name]
 
