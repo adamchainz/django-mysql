@@ -11,6 +11,9 @@ Pending
   the ``max_length`` argument.
 * ``SmartChunkedIterator`` output has been fixed for reversed iteration, and
   now includes a time estimate.
+* Added three system checks that give warnings if the MySQL configuration can
+  (probably) be improved.
+
 
 1.0.2 (2016-01-24)
 ------------------

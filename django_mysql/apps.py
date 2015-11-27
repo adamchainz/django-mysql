@@ -3,6 +3,8 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+from .checks import register_checks
+
 
 class MySQLConfig(AppConfig):
     name = 'django_mysql'
@@ -11,6 +13,7 @@ class MySQLConfig(AppConfig):
     def ready(self):
         self.perform_monkey_patches()
         self.add_lookups()
+        register_checks()
 
     def perform_monkey_patches(self):
         from django.db.backends.mysql.base import DatabaseWrapper

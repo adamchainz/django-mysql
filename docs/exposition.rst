@@ -3,6 +3,21 @@ Exposition
 
 Every feature in whistle-stop detail.
 
+------
+Checks
+------
+
+Extra checks added to Django's check framework to ensure your Django and MySQL
+configurations are optimal.
+
+.. code-block:: console
+
+    $ ./manage.py check
+    ?: (django_mysql.W001) MySQL strict mode is not set for database connection 'default'
+    ...
+
+:doc:`Read more <checks>`
+
 -------------------
 QuerySet Extensions
 -------------------

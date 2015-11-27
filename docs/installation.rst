@@ -36,6 +36,16 @@ Add ``'django_mysql'`` to your ``INSTALLED_APPS`` setting:
         'django_mysql',
     )
 
+Django-MySQL comes with some extra checks to ensure your configuration for
+Django + MySQL is optimal. It's best to run these now you've installed to see
+if there is anything to fix:
+
+.. code-block:: console
+
+    $ ./manage.py check
+
+For help fixing any warnings, see :doc:`checks`.
+
 
 Extending your QuerySets
 ------------------------

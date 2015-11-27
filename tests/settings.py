@@ -19,7 +19,8 @@ DATABASES = {
         'PORT': '',
         'OPTIONS': {
             'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', "
+                            "innodb_strict_mode=1",
         },
         'TEST': {
             'COLLATION': "utf8mb4_general_ci",
@@ -35,7 +36,8 @@ DATABASES = {
         'PORT': '',
         'OPTIONS': {
             'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', "
+                            "innodb_strict_mode=1",
         },
         'TEST': {
             'COLLATION': "utf8mb4_general_ci",

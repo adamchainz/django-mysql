@@ -15,6 +15,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
 
    exposition
    installation
+   checks
    queryset_extensions
    model_fields
    field_lookups
