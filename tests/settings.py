@@ -4,7 +4,7 @@ import os
 import django
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = 'THISuISdNOT9A$SECRET9x&ji!vceayg+wwt472!bgs$0!i3k4'

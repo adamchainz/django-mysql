@@ -1,7 +1,10 @@
 #!/bin/bash -e
 
+set -o verbose
+
 # Add percona - have to use non-apt version since Travis' ubuntu 12.04 repo is
 # way out of date
+sudo apt-get update
 sudo apt-get install -y libio-socket-ssl-perl
 wget https://www.percona.com/downloads/percona-toolkit/2.2.13/deb/percona-toolkit_2.2.13_all.deb
 sudo dpkg -i percona-toolkit_2.2.13_all.deb

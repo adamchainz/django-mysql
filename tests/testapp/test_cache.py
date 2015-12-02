@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import imp
 import os
 import time
-import warnings
 from decimal import Decimal
 from unittest import skipUnless
 
@@ -896,13 +895,10 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.key_func = func
 
         try:
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
+            with pytest.warns(CacheKeyWarning):
                 # memcached does not allow whitespace or control characters in
                 # keys
-                cache.set('key with spaces', 'value')
-                assert len(w) == 2
-                assert isinstance(w[0].message, CacheKeyWarning)
+                cache.set('space key', 'value')
 
             with pytest.raises(ValueError):
                 # memcached limits key length to 250
