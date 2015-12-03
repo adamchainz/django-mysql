@@ -1,5 +1,5 @@
 # Import sorting
-enum34==1.0.4
+enum34==1.1.1
 ipaddress==1.0.15
 isort==4.2.2
 natsort==4.0.4
