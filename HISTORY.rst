@@ -7,6 +7,8 @@ Pending
 -------
 
 * New release notes here
+* New function ``add_QuerySetMixin`` allows addding the ``QuerySetMixin`` to
+  arbitrary ``QuerySet``\s, for when you can't edit a model class.
 
 1.0.1 (2015-11-18)
 ------------------

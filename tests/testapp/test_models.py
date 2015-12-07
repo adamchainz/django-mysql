@@ -5,17 +5,32 @@ import re
 from unittest import skipUnless
 
 import pytest
+from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from django_mysql.models import ApproximateInt, SmartIterator
+from django_mysql.models import (
+    ApproximateInt, SmartIterator, add_QuerySetMixin
+)
 from django_mysql.utils import have_program, index_name
 from testapp.models import (
     Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, VanillaAuthor
 )
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
+
+
+class MixinQuerysetTests(TestCase):
+
+    def test_User(self):
+        qs = User.objects.all()
+        assert not hasattr(qs, 'approx_count')
+        qs2 = add_QuerySetMixin(qs)
+
+        assert hasattr(qs2, 'approx_count')
+        assert qs.__class__ != qs2.__class__
+        assert qs.__class__ in qs2.__class__.__mro__
 
 
 class ApproximateCountTests(TestCase):

@@ -79,7 +79,7 @@ imported from ``django_mysql.models``.
 
 .. class:: QuerySetMixin
 
-    The final way to add the extensions, and the container class for the
+    The third way to add the extensions, and the container class for the
     extensions.  Add this mixin to your custom ``QuerySet`` class to add in all
     the fun::
 
@@ -93,6 +93,21 @@ imported from ``django_mysql.models``.
         class MySplendidModel(Model):
             objects = MySplendidQuerySet.as_manager()
             # TODO: profit
+
+
+.. method:: add_QuerySetMixin(queryset)
+
+    A final way to add the extensions, useful when you don't control the
+    model class - for example with built in Django models. This function
+    creates a subclass of a ``QuerySet``\'s class that has the
+    ``QuerySetMixin`` added in and applies it to the ``QuerySet``::
+
+        from django.contrib.auth.models import User
+        from django_mysql.models import add_QuerySetMixin
+
+        qs = User.objects.all()
+        qs = add_QuerySetMixin(qs)
+        # Now qs has all the extensions!
 
 
 The extensions are described in :doc:`queryset_extensions`.

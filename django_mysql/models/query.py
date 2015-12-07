@@ -31,7 +31,11 @@ class QuerySetMixin(object):
 
     def _clone(self, *args, **kwargs):
         clone = super(QuerySetMixin, self)._clone(*args, **kwargs)
-        clone._count_tries_approx = copy(self._count_tries_approx)
+
+        clone._count_tries_approx = copy(
+            getattr(self, '_count_tries_approx', False)
+        )
+
         if hasattr(self, '_found_rows'):
             # If it's a number, don't copy it - the clone has a fresh result
             # cache
@@ -215,6 +219,30 @@ class QuerySetMixin(object):
 
 class QuerySet(QuerySetMixin, models.QuerySet):
     pass
+
+
+def add_QuerySetMixin(queryset):
+    queryset2 = queryset._clone()
+    queryset2.__class__ = _make_mixin_class(queryset.__class__)
+    return queryset2
+
+
+_mixin_classes = {}
+
+
+def _make_mixin_class(klass):
+    global _mixin_classes
+
+    if klass not in _mixin_classes:
+        class MixedInQuerySet(QuerySetMixin, klass):
+            pass
+
+        if six.PY2:
+            MixedInQuerySet.__name__ = b'MySQL' + klass.__name__
+        else:
+            MixedInQuerySet.__name__ = 'MySQL' + klass.__name__
+        _mixin_classes[klass] = MixedInQuerySet
+    return _mixin_classes[klass]
 
 
 @six.python_2_unicode_compatible
