@@ -5,7 +5,7 @@ Django-MySQL
 .. image:: https://img.shields.io/pypi/v/django-mysql.svg
     :target: https://pypi.python.org/pypi/django-mysql
 
-.. image:: https://travis-ci.org/adamchainz/django-mysql.png?branch=master
+.. image:: https://travis-ci.org/adamchainz/django-mysql.svg?branch=master
         :target: https://travis-ci.org/adamchainz/django-mysql
 
 .. image:: https://coveralls.io/repos/adamchainz/django-mysql/badge.svg
