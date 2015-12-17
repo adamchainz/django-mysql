@@ -401,7 +401,7 @@ class SmartIteratorTests(TestCase):
 
     def setUp(self):
         super(SmartIteratorTests, self).setUp()
-        Author.objects.bulk_create([Author() for i in range(10)])
+        Author.objects.bulk_create([Author(id=i + 1) for i in range(10)])
 
     def test_bad_querysets(self):
         with pytest.raises(ValueError) as excinfo:
@@ -623,17 +623,21 @@ class SmartIteratorTests(TestCase):
         reports = lines[0].split('\r')
         for report in reports:
             assert re.match(
-                r"^AuthorSmartChunkedIterator processed \d+/10 objects "
-                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?$",
+                r"^Author SmartChunkedIterator processed \d+/10 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks"
+                r"(; highest pk so far \d+(, [\dhms]+ remaining)?)?$",
                 report
             )
 
         assert lines[1] == 'Finished!'
 
     def test_reporting_reverse(self):
+        Author.objects.create(id=10000)
+
         with captured_stdout() as output:
             qs = Author.objects.reverse()
-            for authors in qs.iter_smart_chunks(report_progress=True):
+            for authors in qs.iter_smart_chunks(report_progress=True,
+                                                chunk_min=100):
                 list(authors)  # fetch them
 
         lines = output.getvalue().split('\n')
@@ -642,8 +646,9 @@ class SmartIteratorTests(TestCase):
         assert len(reports) > 0
         for report in reports:
             assert re.match(
-                r"^AuthorSmartChunkedIterator processed \d+/10 objects "
-                r"\(\d+\.\d+%\) in \d+ chunks(; lowest pk so far \d+)?$",
+                r"^Author SmartChunkedIterator processed \d+/11 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks"
+                r"(; lowest pk so far \d+(, [\dhms]+ remaining)?)?( )*$",
                 report
             )
 
@@ -660,8 +665,9 @@ class SmartIteratorTests(TestCase):
         reports = lines[0].split('\r')
         for report in reports:
             assert re.match(
-                r"^AuthorSmartChunkedIterator processed \d+/4 objects "
-                r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?$",
+                r"^Author SmartChunkedIterator processed \d+/4 objects "
+                r"\(\d+\.\d+%\) in \d+ chunks"
+                r"(; highest pk so far \d+(, [\dhms]+ remaining)?)?$",
                 report
             )
 
@@ -682,7 +688,7 @@ class SmartIteratorTests(TestCase):
             assert re.match(
                 # We should have ??? since the deletion means the objects
                 # aren't fetched into python
-                r"AuthorSmartChunkedIterator processed (0|\?\?\?)/1 objects "
+                r"Author SmartChunkedIterator processed (0|\?\?\?)/1 objects "
                 r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?",
                 report
             )

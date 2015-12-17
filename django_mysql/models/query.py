@@ -18,8 +18,8 @@ from django_mysql.models.handler import Handler
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
-    StopWatch, WeightedAverageRate, have_program, noop_context,
-    settings_to_cmd_args
+    StopWatch, WeightedAverageRate, format_duration, have_program,
+    noop_context, settings_to_cmd_args
 )
 
 
@@ -422,7 +422,7 @@ class SmartChunkedIterator(object):
         if not self.report_progress:
             return
 
-        self.have_reported = False
+        self.old_report = ""
         self.objects_done = 0
         self.chunks_done = 0
         if self.total is None:  # User didn't pass in a total
@@ -455,29 +455,40 @@ class SmartChunkedIterator(object):
         except (ZeroDivisionError, ValueError):
             percent_complete = 0.0
 
-        if not self.have_reported:
-            self.have_reported = True
-        else:
+        report = "{} {} processed {}/{} objects ({:.2f}%) in {} chunks".format(
+            self.model_name,
+            self.__class__.__name__,
+            self.objects_done,
+            self.total,
+            percent_complete,
+            self.chunks_done,
+        )
+
+        if end_pk is not None:
+            report += "; {dir} pk so far {end_pk}".format(
+                dir="highest" if direction == 1 else "lowest",
+                end_pk=end_pk,
+            )
+
+            if self.objects_done != '???' and self.rate.avg_rate:
+                n_remaining = self.total - self.objects_done
+                s_remaining = max(0, int(n_remaining // self.rate.avg_rate))
+                report += ', {} remaining'.format(
+                    format_duration(s_remaining)
+                )
+
+        # Add spaces to avoid problem with reverse iteration, see #177.
+        spacing = " " * max(0, len(self.old_report) - len(report))
+
+        if self.old_report:
             # Reset line on successive outputs
             sys.stdout.write("\r")
 
-        sys.stdout.write(
-            "{} processed {}/{} objects ({:.2f}%) in {} chunks".format(
-                self.model_name + self.__class__.__name__,
-                self.objects_done,
-                self.total,
-                percent_complete,
-                self.chunks_done,
-            )
-        )
-        if end_pk is not None:
-            sys.stdout.write(
-                "; {dir} pk so far {end_pk}".format(
-                    dir="highest" if direction == 1 else "lowest",
-                    end_pk=end_pk,
-                )
-            )
+        sys.stdout.write(report)
+        sys.stdout.write(spacing)
         sys.stdout.flush()
+
+        self.old_report = report
 
     def end_progress(self):
         if not self.report_progress:

@@ -49,14 +49,16 @@ class WeightedAverageRate(object):
             self.avg_n = n
             self.avg_t = t
 
+        new_n = int(self.avg_rate * self.target_t)
+        return new_n
+
+    @property
+    def avg_rate(self):
         try:
-            avg_rate = self.avg_n / self.avg_t
+            return self.avg_n / self.avg_t
         except ZeroDivisionError:
             # Assume a small amount of time, not 0
-            avg_rate = self.avg_n / 0.001
-
-        new_n = int(avg_rate * self.target_t)
-        return new_n
+            return self.avg_n / 0.001
 
 
 class StopWatch(object):
@@ -75,6 +77,20 @@ class StopWatch(object):
 @contextmanager
 def noop_context(*args, **kwargs):
     yield
+
+
+def format_duration(total_seconds):
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+
+    out = []
+    if hours > 0:
+        out.extend([str(hours), 'h'])
+    if hours or minutes:
+        out.extend([str(minutes), 'm'])
+    out.extend([str(seconds), 's'])
+    return ''.join(out)
 
 
 def settings_to_cmd_args(settings_dict):

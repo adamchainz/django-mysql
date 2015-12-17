@@ -9,8 +9,8 @@ from django.test import SimpleTestCase, TestCase
 from django.utils import six
 
 from django_mysql.utils import (
-    PTFingerprintThread, WeightedAverageRate, have_program, index_name,
-    pt_fingerprint
+    PTFingerprintThread, WeightedAverageRate, format_duration, have_program,
+    index_name, pt_fingerprint
 )
 from testapp.models import Author, AuthorMultiIndex
 
@@ -52,6 +52,25 @@ class WeightedAverageRateTests(SimpleTestCase):
     def test_zero_division(self):
         rate = WeightedAverageRate(0.5)
         assert rate.update(1, 0.0) == 500
+
+
+class FormatDurationTests(SimpleTestCase):
+
+    def test_seconds(self):
+        assert format_duration(0) == '0s'
+        assert format_duration(1) == '1s'
+        assert format_duration(30) == '30s'
+        assert format_duration(59) == '59s'
+
+    def test_minutes(self):
+        assert format_duration(60) == '1m0s'
+        assert format_duration(61) == '1m1s'
+        assert format_duration(120) == '2m0s'
+        assert format_duration(3599) == '59m59s'
+
+    def test_hours(self):
+        assert format_duration(3600) == '1h0m0s'
+        assert format_duration(3601) == '1h0m1s'
 
 
 @skipUnless(have_program('pt-fingerprint'),
