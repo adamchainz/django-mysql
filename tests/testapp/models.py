@@ -9,8 +9,8 @@ from django.db.models import (
 from django.utils import six, timezone
 
 from django_mysql.models import (
-    Bit1BooleanField, DynamicField, ListCharField, ListTextField, Model,
-    NullBit1BooleanField, SetCharField, SetTextField, SizedBinaryField,
+    Bit1BooleanField, DynamicField, EnumField, ListCharField, ListTextField,
+    Model, NullBit1BooleanField, SetCharField, SetTextField, SizedBinaryField,
     SizedTextField
 )
 
@@ -32,6 +32,25 @@ class TemporaryModel(Model):
             return super(TemporaryModel, cls).check(**kwargs)
         else:
             return []
+
+
+class EnumModel(Model):
+    field = EnumField(choices=[
+        ('red', 'Red'),
+        ('bloodred', 'Blood Red'),
+        'green',
+        ('blue', 'Navy Blue'),
+        ('coralblue', 'Coral Blue'),
+    ])
+
+
+class NullableEnumModel(Model):
+    field = EnumField(choices=[
+        'goat',
+        ('deer', 'Deer'),
+        'bull',
+        "dog's",   # Test if escaping works
+    ], null=True)
 
 
 class CharSetModel(Model):

@@ -161,6 +161,18 @@ string::
 
 :ref:`Read more <set-fields>`
 
+Enum Fields
+-----------
+
+You can take advantage of MySQL's ``ENUM`` type through the ``EnumField``
+provided by django-mysql. Using ``ENUM`` provides the benefit of storing
+recurring strings in a very space efficient manner.
+
+    class BookCover(Model):
+        color = EnumField(choices=['red', 'green', 'blue'])
+
+:ref:`Read more <enum-fields>`
+
 
 Resizable Text/Binary Fields
 ----------------------------
