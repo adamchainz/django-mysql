@@ -44,6 +44,14 @@ class Command(BaseCommand):
     else:
 
         def add_arguments(self, parser):
+            if django.VERSION[:2] >= (1, 10):
+                parser.add_argument(
+                    'alias', metavar='alias', nargs='?',
+                    default=DEFAULT_DB_ALIAS,
+                    help='Specify the database connection alias to output '
+                         'parameters for.'
+                )
+
             parser.add_argument(
                 '--mysql',
                 action='store_true',
@@ -63,13 +71,16 @@ class Command(BaseCommand):
             ),
 
     def handle(self, *args, **options):
-        if len(args) > 1:
-            raise CommandError("Cannot output the parameters for more than "
-                               "one connection.")
-        elif len(args) == 0:
-            alias = DEFAULT_DB_ALIAS
+        if django.VERSION[:2] >= (1, 10):
+            alias = options['alias']
         else:
-            alias = args[0]
+            if len(args) > 1:
+                raise CommandError('Cannot output the parameters for more '
+                                   'than one connection.')
+            elif len(args) == 0:
+                alias = DEFAULT_DB_ALIAS
+            else:
+                alias = args[0]
 
         try:
             settings_dict = connections[alias].settings_dict
