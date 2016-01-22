@@ -33,7 +33,10 @@ def main():
         exit_on_failure(run_flake8())
         exit_on_failure(run_2to3())
         exit_on_failure(run_isort())
-        exit_on_failure(run_setup_py_check())
+
+        # Broken on 2.7.9 due to http://bugs.python.org/issue23063
+        if sys.version_info[:3] != (2, 7, 9):
+            exit_on_failure(run_setup_py_check())
 
 
 def tests_main():
