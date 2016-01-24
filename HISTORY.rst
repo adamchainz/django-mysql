@@ -7,6 +7,10 @@ Pending
 -------
 
 * New release notes here
+
+1.0.2 (2016-01-24)
+------------------
+
 * New function ``add_QuerySetMixin`` allows addding the ``QuerySetMixin`` to
   arbitrary ``QuerySet``\s, for when you can't edit a model class.
 * Added field class ``EnumField`` that uses MySQL's ``ENUM`` data type.
