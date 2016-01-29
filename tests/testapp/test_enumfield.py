@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import connection
 from django.db.utils import DataError
@@ -24,6 +25,11 @@ class TestEnumField(TestCase):
         with pytest.raises(TypeError) as exc_info:
             EnumField(choices=['red', 10])
         assert 'Invalid choice "10"' in str(exc_info.value)
+
+    def test_invalid_max_length(self):
+        with pytest.raises(TypeError) as exc_info:
+            EnumField(choices=['red'], max_length=100)
+        assert '"max_length" is not a valid argument' in str(exc_info.value)
 
     def test_correct(self):
         s = EnumModel.objects.create(field='red')
@@ -94,6 +100,23 @@ class TestEnumField(TestCase):
         assert list(actual) == expected
 
 
+class TestCheck(TestCase):
+
+    def test_db_not_mariadb(self):
+        errors = EnumModel.check()
+        assert errors == []
+
+
+class TestDeconstruct(TestCase):
+
+    def test_deconstruct(self):
+        field = EnumField(choices=['a', 'b'])
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'django_mysql.models.EnumField'
+        assert 'max_length' not in kwargs
+        EnumField(*args, **kwargs)
+
+
 class TestMigrations(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
@@ -114,3 +137,18 @@ class TestMigrations(TransactionTestCase):
                      verbosity=0, skip_checks=True)
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
+
+
+class TestFormfield(TestCase):
+    def test_formfield(self):
+        model_field = EnumField(choices=['this', 'that'])
+        form_field = model_field.formfield()
+
+        assert form_field.clean('this') == 'this'
+        assert form_field.clean('that') == 'that'
+
+        with pytest.raises(ValidationError):
+            form_field.clean('')
+
+        with pytest.raises(ValidationError):
+            form_field.clean('invalid')

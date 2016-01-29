@@ -7,6 +7,8 @@ Pending
 -------
 
 * New release notes here
+* Fixed ``EnumField`` so that it works properly with forms, and does not accept
+  the ``max_length`` argument.
 
 1.0.2 (2016-01-24)
 ------------------

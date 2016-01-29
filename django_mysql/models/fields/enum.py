@@ -34,11 +34,14 @@ class EnumField(field_class(CharField)):
                 )
 
         kwargs['choices'] = choices
-        super(EnumField, self).__init__(*args, **kwargs)
 
-    def _check_max_length_attribute(self, **kwargs):
-        # Disable max length check on Django 1.7
-        return []
+        if 'max_length' in kwargs:
+            raise TypeError('"max_length" is not a valid argument')
+        # Massive to avoid problems with validation - let MySQL handle the
+        # maximum string length
+        kwargs['max_length'] = int(2 ** 32)
+
+        super(EnumField, self).__init__(*args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()
@@ -50,6 +53,8 @@ class EnumField(field_class(CharField)):
             path = 'django_mysql.models.' + self.__class__.__name__
 
         kwargs['choices'] = self.choices
+        del kwargs['max_length']
+
         return name, path, args, kwargs
 
     def db_type(self, connection):
