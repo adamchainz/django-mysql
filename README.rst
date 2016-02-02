@@ -60,6 +60,7 @@ Includes:
 To see them all, check out the exposition at
 http://django-mysql.readthedocs.org/en/latest/exposition.html .
 
+
 Requirements
 ------------
 
@@ -72,3 +73,10 @@ Tested with all combinations of:
 
 Any combination of these should be good, and also ``MySQL-python`` should work
 since it's just an older version of ``mysqlclient``.
+
+
+Documentation
+-------------
+
+Every detail documented on
+`Read The Docs <https://django-mysql.readthedocs.org/en/latest/>`_.
