@@ -7,6 +7,11 @@ Pending
 -------
 
 * New release notes here
+
+
+1.0.3 (2016-02-02)
+------------------
+
 * Fixed ``EnumField`` so that it works properly with forms, and does not accept
   the ``max_length`` argument.
 * ``SmartChunkedIterator`` output has been fixed for reversed iteration, and
