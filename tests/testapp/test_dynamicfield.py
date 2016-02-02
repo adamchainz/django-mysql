@@ -334,7 +334,10 @@ class TestCheck(DynColTestCase):
             if 'is_mariadb' in connections[db].__dict__:
                 del connections[db].__dict__['is_mariadb']
 
-        errors = DynamicModel.check()
+        class ValidDynamicModel(TemporaryModel):
+            field = DynamicField()
+
+        errors = ValidDynamicModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
@@ -347,7 +350,10 @@ class TestCheck(DynColTestCase):
             if 'mysql_version' in connections[db].__dict__:
                 del connections[db].__dict__['mysql_version']
 
-        errors = DynamicModel.check()
+        class ValidDynamicModel(TemporaryModel):
+            field = DynamicField()
+
+        errors = ValidDynamicModel.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
