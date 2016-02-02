@@ -7,7 +7,7 @@ Pending
 -------
 
 * New release notes here
-
+* Fixed the new system checks to actually work
 
 1.0.3 (2016-02-02)
 ------------------

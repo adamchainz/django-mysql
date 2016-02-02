@@ -14,7 +14,7 @@ def register_checks():
         register(Tags.compatibility)(check_variables)
 
 
-def check_variables():
+def check_variables(app_configs, **kwargs):
     errors = []
 
     for alias, connection in mysql_connections():
