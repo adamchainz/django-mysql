@@ -150,6 +150,8 @@ class Author(Model):
     name = CharField(max_length=32, db_index=True)
     tutor = ForeignKey('self', null=True, related_name='tutees')
     bio = TextField()
+    birthday = DateTimeField(null=True)
+    deathday = DateTimeField(null=True)
 
     def __unicode__(self):
         return "{} {}".format(self.id, self.name)

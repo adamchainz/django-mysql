@@ -1,18 +1,8 @@
-.. _management_commands:
-
-===================
-Management Commands
-===================
-
-
-MySQL-specific management commands. These are automatically available with
-your ``manage.py`` when you add ``django_mysql`` to your ``INSTALLED_APPS``.
-
 .. _dbparams:
 
---------
-dbparams
---------
+====================
+``dbparams`` command
+====================
 
 Outputs your database connection parameters in a form suitable for inclusion in
 other CLI commands, helping avoid copy/paste errors and accidental copying of
@@ -22,14 +12,14 @@ For example:
 
 .. code-block:: console
 
-    $ python manage.py dbparams && echo  # There is no newline
+    $ python manage.py dbparams && echo  # 'echo' adds a newline
     --user=ausername --password=apassword --host=ahost.example.com mydatabase
-    $ mysql $(python manage.py dbparams)  # The same as manage.py dbshell
-    $ mysqldump $(python manage.py dbparams) | gzip -9 > backup.sql.gz # Aha
+    $ mysql $(python manage.py dbparams)  # About the same as 'manage.py dbshell'
+    $ mysqldump $(python manage.py dbparams) | gzip -9 > backup.sql.gz  # Neat!
 
 The format of parameters is::
 
-    python manage.py dbparams [--mysql | --dsn] <optional connection alias>
+    python manage.py dbparams [--mysql | --dsn] <optional-connection-alias>
 
 If the database alias is given, it should be alias of a connection from the
 ``DATABASES`` setting; defaults to 'default'. Only MySQL connections are

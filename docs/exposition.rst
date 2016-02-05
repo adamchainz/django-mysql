@@ -319,11 +319,21 @@ Easy access to global or session status variables::
 Management Commands
 -------------------
 
-Easy inclusion of your database parameters from settings in commandline tools::
+``dbparams`` helps you include your database parameters from settings in
+commandline tools with ``dbparams``:
 
-.. code-block:: console
+.. code-block:: sh
 
     $ mysqldump $(python manage.py dbparams) > dump.sql
+
+``fix_datetime_columns`` helps you fix your ``DateTimeField``\s that don't have
+microseconds after an upgrade to MySQL 5.6+/MariaDB 5.3+:
+
+.. code-block:: sh
+
+    $ python manage.py fix_datetime_columns
+    ALTER TABLE `app1_table1`
+        MODIFY COLUMN `created_time` datetime(6) DEFAULT NULL;
 
 :ref:`Read more <management_commands>`
 

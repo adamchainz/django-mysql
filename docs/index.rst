@@ -11,7 +11,7 @@ If you're new, check out the :doc:`exposition` to see all the features in
 action, or get started with :doc:`installation`. Otherwise, take your pick:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    exposition
    installation
@@ -27,7 +27,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    cache
    locks
    status
-   manage_commands
+   management_commands/index
    utilities
    test_utilities
    monkey_patches
