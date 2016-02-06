@@ -1,6 +1,4 @@
 sudo: required
-dist: precise
-group: edge
 
 notifications:
   email: false

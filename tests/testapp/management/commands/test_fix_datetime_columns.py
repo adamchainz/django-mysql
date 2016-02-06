@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 
 import mock
 from textwrap import dedent
-from unittest import SkipTest
+from unittest import SkipTest, skipIf
 
+import django
 import pytest
 from django.core.management import CommandError, call_command
 from django.db import connection
@@ -46,15 +47,16 @@ class Datetime6TestMixin(object):
     def setUpClass(cls):
         if (
             connection.is_mariadb or
-            connection.mysql_version[:2] < (5, 6)
+            connection.mysql_version[:2] < (5, 6) or
+            django.VERSION[:2] < (1, 8)
         ):
             raise SkipTest(
-                "Django only uses datetime(6) columns on MySQL 5.6+"
+                "Django 1.8+ only uses datetime(6) columns on MySQL 5.6+"
             )
         super(Datetime6TestMixin, cls).setUpClass()
 
 
-class FexDatetimeColumnsTests(Datetime6TestMixin, TestCase):
+class FixDatetimeColumnsTests(Datetime6TestMixin, TestCase):
 
     def test_nothing_by_default(self):
         assert run_it() == ''
@@ -68,6 +70,8 @@ class FexDatetimeColumnsTests(Datetime6TestMixin, TestCase):
 
         assert "does not exist" in str(excinfo.value)
 
+    @skipIf(django.VERSION[:2] >= (1, 10),
+            'argument parsing uses a fixed single argument in Django 1.10+')
     def test_invalid_number_of_databases(self):
         with pytest.raises(CommandError) as excinfo:
             run_it('other', 'default')
@@ -80,7 +84,7 @@ class FexDatetimeColumnsTests(Datetime6TestMixin, TestCase):
         assert "not a MySQL database connection" in str(excinfo.value)
 
 
-class SlowFexDatetimeColumnsTests(Datetime6TestMixin, TransactionTestCase):
+class SlowFixDatetimeColumnsTests(Datetime6TestMixin, TransactionTestCase):
 
     def test_with_one_column_to_migrate(self):
         with connection.cursor() as cursor:
