@@ -10,6 +10,8 @@ Pending
 * Added ``manage.py`` command ``fix_datetime_columns`` that outputs the SQL
   necessary to fix any ``datetime`` columns into ``datetime(6)``, as required
   when upgrading a database to MySQL 5.6+, or MariaDB 5.3+.
+* ``SmartChunkedIterator`` output now includes the total time taken and number
+  of objects iterated over in the final message.
 
 
 1.0.4 (2016-02-02)

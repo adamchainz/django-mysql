@@ -629,7 +629,10 @@ class SmartIteratorTests(TestCase):
                 report
             )
 
-        assert lines[1] == 'Finished!'
+        assert re.match(
+            r'Finished! Iterated over \d+ objects? in [\dhms]+.',
+            lines[1],
+        )
 
     def test_reporting_reverse(self):
         Author.objects.create(id=10000)
@@ -652,7 +655,10 @@ class SmartIteratorTests(TestCase):
                 report
             )
 
-        assert lines[1] == 'Finished!'
+        assert re.match(
+            r'Finished! Iterated over \d+ objects? in [\dhms]+.',
+            lines[1],
+        )
 
     def test_reporting_with_total(self):
         with captured_stdout() as output:
@@ -671,7 +677,10 @@ class SmartIteratorTests(TestCase):
                 report
             )
 
-        assert lines[1] == 'Finished!'
+        assert re.match(
+            r'Finished! Iterated over \d+ objects? in [\dhms]+.',
+            lines[1],
+        )
 
     def test_reporting_on_uncounted_qs(self):
         Author.objects.create(name="pants")
@@ -693,7 +702,10 @@ class SmartIteratorTests(TestCase):
                 report
             )
 
-        assert lines[1] == 'Finished!'
+        assert re.match(
+            r'Finished! Iterated over \?\?\? objects? in [\dhms.]+.',
+            lines[1],
+        )
 
     def test_filter_and_delete(self):
         VanillaAuthor.objects.create(name="Alpha")

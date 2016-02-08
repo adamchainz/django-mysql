@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import operator
 import sys
+import time
 from copy import copy
 from subprocess import PIPE, Popen
 
@@ -422,6 +423,7 @@ class SmartChunkedIterator(object):
         if not self.report_progress:
             return
 
+        self.start_time = time.time()
         self.old_report = ""
         self.objects_done = 0
         self.chunks_done = 0
@@ -494,7 +496,14 @@ class SmartChunkedIterator(object):
         if not self.report_progress:
             return
 
-        sys.stdout.write("\nFinished!\n")
+        total_time = time.time() - self.start_time
+        sys.stdout.write(
+            "\nFinished! Iterated over {n} object{s} in {duration}.\n".format(
+                n=self.objects_done,
+                s='s' if self.objects_done != 1 else '',
+                duration=format_duration(total_time)
+            )
+        )
 
     @cached_property
     def model_name(self):
