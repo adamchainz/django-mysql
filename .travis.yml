@@ -7,11 +7,14 @@ language: python
 python: '3.5'
 
 env:
-  - "DB=mysql DB_VERSION=5.5"
-  - "DB=mysql DB_VERSION=5.6"
-  - "DB=mariadb DB_VERSION=5.5"
-  - "DB=mariadb DB_VERSION=10.0"
-  - "DB=mariadb DB_VERSION=10.1"
+  global:
+    - COVERALLS_PARALLEL=true
+  matrix:
+    - "DB=mysql DB_VERSION=5.5"
+    - "DB=mysql DB_VERSION=5.6"
+    - "DB=mariadb DB_VERSION=5.5"
+    - "DB=mariadb DB_VERSION=10.0"
+    - "DB=mariadb DB_VERSION=10.1"
 
 before_script: .travis/before_script.sh
 
@@ -25,3 +28,6 @@ script:
 after_success:
   - coverage combine
   - coveralls
+
+notifications:
+  webhooks: https://coveralls.io/webhook?repo_token=7l8yKtg4su0M31T0eGIaM0tnjvH0Rd5PM
