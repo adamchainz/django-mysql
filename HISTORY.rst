@@ -7,6 +7,10 @@ Pending
 -------
 
 * New release notes here
+
+1.0.5 (2016-02-10)
+------------------
+
 * Added ``manage.py`` command ``fix_datetime_columns`` that outputs the SQL
   necessary to fix any ``datetime`` columns into ``datetime(6)``, as required
   when upgrading a database to MySQL 5.6+, or MariaDB 5.3+.
