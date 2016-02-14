@@ -703,7 +703,7 @@ class SmartIteratorTests(TestCase):
             )
 
         assert re.match(
-            r'Finished! Iterated over \?\?\? objects? in [\dhms.]+.',
+            r'Finished! Iterated over \?\?\? objects? in [\dhms]+.',
             lines[1],
         )
 

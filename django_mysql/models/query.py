@@ -496,7 +496,7 @@ class SmartChunkedIterator(object):
         if not self.report_progress:
             return
 
-        total_time = time.time() - self.start_time
+        total_time = int(time.time() - self.start_time)
         sys.stdout.write(
             "\nFinished! Iterated over {n} object{s} in {duration}.\n".format(
                 n=self.objects_done,
