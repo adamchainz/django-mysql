@@ -176,8 +176,8 @@ string::
 
 :ref:`Read more <set-fields>`
 
-Enumeration Field
------------------
+EnumField
+---------
 
 A field class for using MySQL's ``ENUM`` type, which allows strings that are
 restricted to a set of choices to be stored in a space efficient manner::
@@ -185,7 +185,7 @@ restricted to a set of choices to be stored in a space efficient manner::
     class BookCover(Model):
         color = EnumField(choices=['red', 'green', 'blue'])
 
-:ref:`Read more <enumeration-field>`
+:ref:`Read more <enum-field>`
 
 
 Resizable Text/Binary Fields
