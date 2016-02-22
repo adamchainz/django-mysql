@@ -8,20 +8,26 @@ from django.db.backends.mysql.base import CursorWrapper
 from django.utils.functional import cached_property
 
 from django_mysql.rewrite_query import REWRITE_MARKER, rewrite_query
+from django_mysql.utils import connection_is_mariadb
 
 
-@cached_property
-def is_mariadb(self):
-    """
-    Method to be monkey-patched onto connection, to allow easy checks for if
-    the current database connection is MariaDB
-    """
-    with self.temporary_connection():
-        server_info = self.connection.get_server_info()
-        return 'MariaDB' in server_info
+def patch():
+    # Fine to patch straight on since it's a cached_property descriptor
+    patch_ConnectionWrapper_is_mariadb()
+
+    # Depends on setting
+    if getattr(settings, 'DJANGO_MYSQL_REWRITE_QUERIES', False):
+        patch_CursorWrapper_execute()
 
 
-# Query rewriting
+def patch_ConnectionWrapper_is_mariadb():
+    from django.db.backends.mysql.base import DatabaseWrapper
+
+    @cached_property
+    def is_mariadb(self):
+        return connection_is_mariadb(self)
+
+    DatabaseWrapper.is_mariadb = is_mariadb
 
 
 def patch_CursorWrapper_execute():

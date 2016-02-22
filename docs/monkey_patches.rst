@@ -5,11 +5,12 @@ Monkey Patches
 ==============
 
 Extra properties monkey-patched on to Django objects. These are automatically
-added when ``django_mysql`` is in your ``INSTALLED_APPS``.
+added when ``django_mysql`` is in your ``INSTALLED_APPS``, and the code that
+does this lives in ``django_mysql.monkey_patches``.
 
----------------------
-connection.is_mariadb
----------------------
+-------------------------
+``connection.is_mariadb``
+-------------------------
 
 A boolean property that tells you if the MySQL database connection is to a
 MariaDB server. Used internally for activating tests for MariaDB-specific

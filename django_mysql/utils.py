@@ -93,6 +93,12 @@ def format_duration(total_seconds):
     return ''.join(out)
 
 
+def connection_is_mariadb(connection):
+    with connection.temporary_connection():
+        server_info = connection.connection.get_server_info()
+        return 'MariaDB' in server_info
+
+
 def settings_to_cmd_args(settings_dict):
     """
     Copied from django 1.8 MySQL backend DatabaseClient - where the runshell
