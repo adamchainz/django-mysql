@@ -211,6 +211,11 @@ class LockTests(TestCase):
         assert Lock.held_with_prefix('') == {}
         assert Lock.held_with_prefix('mylock') == {}
 
+    def test_acquire_release(self):
+        my_lock = Lock('not_a_context_manager')
+        my_lock.acquire()
+        my_lock.release()
+
 
 class TableLockTests(TransactionTestCase):
     def tearDown(self):
@@ -390,3 +395,8 @@ class TableLockTests(TransactionTestCase):
             assert to_me.get() == "Reading"
         finally:
             other_thread.join()
+
+    def test_acquire_release(self):
+        my_lock = TableLock(read=[Alphabet])
+        my_lock.acquire()
+        my_lock.release()

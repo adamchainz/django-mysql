@@ -15,10 +15,11 @@ The following can be imported from ``django_mysql.locks``.
     they are user-specific, and don't lock tables or rows. They can be useful
     for your code to limit its access to some shared resource.
 
-    This class implements a user lock as a context manager, which calls the
-    underlying MySQL functions ``GET_LOCK``, ``RELEASE_LOCK``, and
-    ``IS_USED_LOCK`` to manage it. It is not re-entrant so don't write
-    code that gains/releases the same lock more than once.
+    This class implements a user lock and acts as either a context manager
+    (recommended), or a plain object with ``acquire`` and ``release`` methods
+    similar to ``threading.Lock``. These call the MySQL functions ``GET_LOCK``,
+    ``RELEASE_LOCK``, and ``IS_USED_LOCK`` to manage it. It is *not* re-entrant
+    so don't write code that gains/releases the same lock more than once.
 
     Basic usage::
 
@@ -88,6 +89,30 @@ The following can be imported from ``django_mysql.locks``.
         Returns the MySQL ``CONNECTION_ID()`` of the holder of the lock, or
         ``None`` if it is not currently held.
 
+    .. method:: acquire()
+
+        For using the lock as a plain object rather than a context manager,
+        similar to ``threading.Lock.acquire``. Note you should normally use
+        ``try`` / ``finally`` to ensure unlocking occurs.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from django_mysql.locks import Lock
+
+            lock = Lock('my_unique_name')
+            lock.acquire()
+            try:
+                mutually_exclusive_process()
+            finally:
+                lock.release()
+
+    .. method:: release()
+
+        Also for using the lock as a plain object rather than a context
+        manager, similar to ``threading.Lock.release``. For example, see above.
+
     .. classmethod:: held_with_prefix(prefix, using=DEFAULT_DB_ALIAS)
 
         Queries the held locks that match the given prefix, for the given
@@ -128,10 +153,11 @@ The following can be imported from ``django_mysql.locks``.
     but occasionally this can be useful, especially in data migrations or if
     you are using a non-transactional storage such as MyISAM.
 
-    This class implements table locking as a context manager, using the
-    transactional pattern from the manual to ensure all the necessary steps are
-    taken to lock tables properly. Note that locking has no timeout and blocks
-    until held.
+    This class implements table locking and acts as either a context manager
+    (recommended), or a plain object with ``acquire()`` and ``release()``
+    methods similar to ``threading.Lock``. It uses the transactional pattern
+    from the MySQL manual to ensure all the necessary steps are taken to lock
+    tables properly. Note that locking has no timeout and blocks until held.
 
     Basic usage::
 
@@ -158,6 +184,30 @@ The following can be imported from ``django_mysql.locks``.
 
         The connection alias from ``DATABASES`` to use. Defaults to Django's
         ``DEFAULT_DB_ALIAS`` to use your main database connection.
+
+    .. method:: acquire()
+
+        For using the lock as a plain object rather than a context manager,
+        similar to ``threading.Lock.acquire``. Note you should normally use
+        ``try`` / ``finally`` to ensure unlocking occurs.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from django_mysql.locks import TableLock
+
+            table_lock = TableLock(read=[MyModel1], write=[MyModel2])
+            table_lock.acquire()
+            try:
+                fix_bad_instances_of_my_model2_using_my_model1_data()
+            finally:
+                table_lock.release()
+
+    .. method:: release()
+
+        Also for using the lock as a plain object rather than a context
+        manager, similar to ``threading.Lock.release``. For example, see above.
 
     .. note::
 

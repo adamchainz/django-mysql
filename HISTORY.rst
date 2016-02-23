@@ -10,6 +10,8 @@ Pending
 * Now MySQL 5.7 compatible
 * The final message from ``SmartChunkedIterator`` is now rounded to the nearest
   second.
+* ``Lock`` and ``TableLock`` classes now have ``acquire`` and ``release()``
+  methods for using them as normal objects rather than context managers
 
 1.0.5 (2016-02-10)
 ------------------

@@ -38,6 +38,12 @@ class Lock(object):
         return connections[self.db].cursor()
 
     def __enter__(self):
+        return self.acquire()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.release()
+
+    def acquire(self):
         with self.get_cursor() as cursor:
             cursor.execute(
                 "SELECT GET_LOCK(%s, %s)",
@@ -52,7 +58,7 @@ class Lock(object):
                         self.acquire_timeout)
                 )
 
-    def __exit__(self, a, b, c):
+    def release(self):
         with self.get_cursor() as cursor:
             cursor.execute("SELECT RELEASE_LOCK(%s)", (self.name,))
             result = cursor.fetchone()[0]
@@ -119,12 +125,12 @@ class TableLock(object):
         return table_names.keys()
 
     def __enter__(self):
-        self.lock()
+        return self.acquire()
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.unlock(exc_type, exc_value, traceback)
+        self.release(exc_type, exc_value, traceback)
 
-    def lock(self):
+    def acquire(self):
         connection = connections[self.db]
         qn = connection.ops.quote_name
         with connection.cursor() as cursor:
@@ -144,7 +150,7 @@ class TableLock(object):
                 locks.append("{} WRITE".format(qn(name)))
             cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
 
-    def unlock(self, exc_type, exc_value, traceback):
+    def release(self, exc_type=None, exc_value=None, traceback=None):
         connection = connections[self.db]
         with connection.cursor() as cursor:
             self._atomic.__exit__(exc_type, exc_value, traceback)
