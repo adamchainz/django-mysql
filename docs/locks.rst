@@ -88,6 +88,23 @@ The following can be imported from ``django_mysql.locks``.
         Returns the MySQL ``CONNECTION_ID()`` of the holder of the lock, or
         ``None`` if it is not currently held.
 
+    .. method:: lock()
+
+        This method is useful if you prefer to use Lock without a context manager::
+
+            from django_mysql.locks import Lock
+
+            lock = Lock('no_context_manager')
+            lock.lock()
+            try:
+                mutually_exclusive_process()
+            finally:
+                lock.unlock()
+
+    .. method:: unlock()
+
+        See method above.
+
     .. classmethod:: held_with_prefix(prefix, using=DEFAULT_DB_ALIAS)
 
         Queries the held locks that match the given prefix, for the given
@@ -158,6 +175,23 @@ The following can be imported from ``django_mysql.locks``.
 
         The connection alias from ``DATABASES`` to use. Defaults to Django's
         ``DEFAULT_DB_ALIAS`` to use your main database connection.
+
+    .. method:: lock()
+
+        TableLock can be used without a context manager::
+
+            from django_mysql.locks import TableLock
+
+            table_lock = TableLock('no_context_manager')
+            table_lock.lock()
+            try:
+                mutually_exclusive_process()
+            finally:
+                table_lock.unlock()
+
+    .. method:: unlock()
+
+        See method above.
 
     .. note::
 

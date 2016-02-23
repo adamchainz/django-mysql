@@ -41,7 +41,7 @@ class Lock(object):
         return self.lock()
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.unlock(exc_type, exc_value, traceback)
+        self.unlock()
 
     def lock(self):
         with self.get_cursor() as cursor:
@@ -58,7 +58,7 @@ class Lock(object):
                         self.acquire_timeout)
                 )
 
-    def unlock(self, *exc):
+    def unlock(self):
         with self.get_cursor() as cursor:
             cursor.execute("SELECT RELEASE_LOCK(%s)", (self.name,))
             result = cursor.fetchone()[0]
@@ -150,9 +150,9 @@ class TableLock(object):
                 locks.append("{} WRITE".format(qn(name)))
             cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
 
-    def unlock(self, *exc):
+    def unlock(self, exc_type=None, exc_value=None, traceback=None):
         connection = connections[self.db]
         with connection.cursor() as cursor:
-            self._atomic.__exit__(*exc)
+            self._atomic.__exit__(exc_type, exc_value, traceback)
             self._atomic = None
             cursor.execute("UNLOCK TABLES")
