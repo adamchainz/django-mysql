@@ -146,8 +146,8 @@ For example:
 
 .. code-block:: python
 
-    >>> ShopItem.objects.create(name='Camembert', {'smelliness': 15})
-    >>> ShopItem.objects.create(name='Cheddar', {'smelliness': 15, 'hardness': 5})
+    >>> ShopItem.objects.create(name='Camembert', attrs={'smelliness': 15})
+    >>> ShopItem.objects.create(name='Cheddar', attrs={'smelliness': 15, 'hardness': 5})
 
     >>> ShopItem.objects.filter(attrs={'smelliness': 15})
     [<ShopItem: Camembert>]
@@ -183,8 +183,8 @@ For example:
 
 .. code-block:: python
 
-    >>> ShopItem.objects.create(name='T-Shirt', {'size': 'Large'})
-    >>> ShopItem.objects.create(name='Rocketship', {
+    >>> ShopItem.objects.create(name='T-Shirt', attrs={'size': 'Large'})
+    >>> ShopItem.objects.create(name='Rocketship', attrs={
     ...     'speed_mph': 300,
     ...     'dimensions': {'width_m': 10, 'height_m': 50}
     ... })
