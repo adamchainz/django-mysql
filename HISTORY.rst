@@ -7,6 +7,10 @@ Pending
 -------
 
 * New release notes here
+
+1.0.6 (2016-02-26)
+------------------
+
 * Now MySQL 5.7 compatible
 * The final message from ``SmartChunkedIterator`` is now rounded to the nearest
   second.
