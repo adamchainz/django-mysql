@@ -73,7 +73,12 @@ Tested with all combinations of:
 * mysqlclient: 1.3.7 (Python 3 compatible version of ``MySQL-python``)
 
 Any combination of these should be good, and also ``MySQL-python`` should work
-since it's just an older version of ``mysqlclient``.
+since it's just an older version of ``mysqlclient`` - however you should
+probably just upgrade.
+
+Please note that some features are restricted to particular databases, database
+versions or Django versions - all such restrictions can be found in the
+documentation for each feature.
 
 
 Documentation

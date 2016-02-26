@@ -152,8 +152,8 @@ values::
 
 ..
 
-    >>> ShopItem.objects.create(name='Camembert', {'smelliness': 15})
-    >>> ShopItem.objects.create(name='Brie', {'smelliness': 5, 'squishiness': 10})
+    >>> ShopItem.objects.create(name='Camembert', attrs={'smelliness': 15})
+    >>> ShopItem.objects.create(name='Brie', attrs={'smelliness': 5, 'squishiness': 10})
     >>> ShopItem.objects.filter(attrs__smelliness_INTEGER__gte=10)
     [<ShopItem: Camembert>]
 
