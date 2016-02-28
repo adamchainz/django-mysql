@@ -439,6 +439,113 @@ Information Functions
         >>> Author.objects.get(id=2).age
         35
 
+.. _json-database-functions:
+
+JSON Database Functions
+-----------------------
+
+These are for MySQL 5.7+ only, for use with JSON data stored in a
+``CharField``, ``TextField``, or most importantly, a
+:class:`~django_mysql.models.JSONField` (with which the functions are much
+faster due to the JSON being stored in a binary representation).
+
+These functions use JSON paths to address content inside JSON documents - for
+more information on their syntax, refer to the MySQL documentation.
+
+
+.. class:: JSONExtract(expression, *paths)
+
+    Given ``expression`` that resolves to some JSON data, extract the given
+    JSON paths. If there is a single path, the plain value is returned; if
+    there is more than one path, the output is a JSON array with the list of
+    values represented by the paths. If the expression does not match for a
+    particular JSON object, returns ``NULL``.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    members of ``paths`` that are strings will be wrapped with ``Value``
+    automatically and thus interpreted as the given string. If you want any of
+    ``paths`` to refer to a field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-extract>`_.
+
+    Usage examples:
+
+    .. code-block:: python
+
+        >>> # Fetch a list of tuples (id, size_or_None) for all ShopItems
+        >>> ShopItem.objects.annotate(
+        ...     size=JSONExtract('attrs', '$.size')
+        ... ).values_list('id', 'size')
+        [(1, '3m'), (3, '5nm'), (8, None)]
+        >>> # Fetch the distinct values of attrs['colours'][0] for all items
+        >>> ShopItem.objects.annotate(
+        ...     primary_colour=JSONExtract('attrs', '$.colours[0]')
+        ... ).distinct().values_list('primary_colour', flat=True)
+        ['Red', 'Blue', None]
+
+
+.. class:: JSONKeys(expression, path=None)
+
+    Given ``expression`` that resolves to some JSON data containing a JSON
+    object, return the keys in that top-level object as a JSON array, or if
+    ``path`` is given, return the keys at that path. If the path does not
+    match, or if ``expression`` is not a JSON object (e.g. it contains a JSON
+    array instead), returns ``NULL``.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    if ``path`` is a string it will be wrapped with ``Value`` automatically and
+    thus interpreted as the given string. If you want ``path`` to refer to a
+    field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-keys>`_.
+
+    .. code-block:: python
+
+        >>> # Fetch the top-level keys for the first item
+        >>> ShopItem.objects.annotate(
+        ...     keys=JSONKeys('attrs')
+        ... ).values_list('keys', flat=True)[0]
+        ['size', 'colours', 'age', 'price', 'origin']
+        >>> # Fetch the keys in 'origin' for the first item
+        >>> ShopItem.objects.annotate(
+        ...     keys=JSONKeys('attrs', '$.origin')
+        ... ).values_list('keys', flat=True)[0]
+        ['continent', 'country', 'town']
+
+
+.. class:: JSONLength(expression, path=None)
+
+    Given ``expression`` that resolves to some JSON data, return the length of
+    that data, or if ``path`` is given, return the length of the data at that
+    path. If the path does not match, or if ``expression`` is ``NULL`` it
+    returns ``NULL``.
+
+    As per the MySQL documentation, the length of a document is determined as
+    follows:
+
+    * The length of a scalar is 1.
+    * The length of an array is the number of array elements.
+    * The length of an object is the number of object members.
+    * The length does not count the length of nested arrays or objects.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    if ``path`` is a string it will be wrapped with ``Value`` automatically and
+    thus interpreted as the given string. If you want ``path`` to refer to a
+    field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-attribute-functions.html#function_json-length>`_.
+
+    .. code-block:: python
+
+        >>> # Which ShopItems don't have more than three colours?
+        >>> ShopItem.objects.annotate(
+        ...     num_colours=JSONLength('attrs', '$.colours')
+        ... ).filter(num_colours__gt=3)
+        [<ShopItem: Rainbow Wheel>, <ShopItem: Hard Candies>]
+
 
 Dynamic Columns Functions
 -------------------------

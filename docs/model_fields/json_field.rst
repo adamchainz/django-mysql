@@ -14,7 +14,8 @@ to turn into the relational format.
 Docs: `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json.html>`_.
 
 Django-MySQL supports the JSON data type and related functions through
-``JSONField`` plus some :ref:`database functions <database_functions>`.
+``JSONField`` plus some
+:ref:`JSON database functions <json-database-functions>`.
 
 
 .. class:: JSONField(**kwargs)
