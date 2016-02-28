@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+from __future__ import unicode_literals
+
 import mock
 from unittest import SkipTest
 
@@ -187,16 +189,18 @@ class ArrayQueryTests(JSONFieldTestCase):
         )
 
 
-class SubKeyQueryTests(JSONFieldTestCase):
+class ExtraLookupsQueryTests(JSONFieldTestCase):
 
     def setUp(self):
-        super(SubKeyQueryTests, self).setUp()
+        super(ExtraLookupsQueryTests, self).setUp()
 
         self.objs = [
             JSONModel.objects.create(attrs={}),
             JSONModel.objects.create(attrs={
                 'a': 'b',
                 'c': 1,
+                '"': 'awkward',
+                '\n': 'super awkward'
             }),
             JSONModel.objects.create(attrs={
                 'a': 'b',
@@ -211,8 +215,137 @@ class SubKeyQueryTests(JSONFieldTestCase):
             JSONModel.objects.create(attrs={
                 'k': True,
                 'l': False,
+                '\\': 'awkward'
             }),
         ]
+
+    def test_has_key_invalid_type(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONModel.objects.filter(attrs__has_key=1)
+        assert "'has_key' lookup only works with" in str(excinfo.value)
+
+    def test_has_key(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_key='a')) ==
+            [self.objs[1], self.objs[2]]
+        )
+
+    def test_has_key_2(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_key='l')) ==
+            [self.objs[4]]
+        )
+
+    def test_has_key_awkward(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_key='"')) ==
+            [self.objs[1]]
+        )
+
+    def test_has_key_awkward_2(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_key='\n')) ==
+            [self.objs[1]]
+        )
+
+    def test_has_key_awkward_3(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_key='\\')) ==
+            [self.objs[4]]
+        )
+
+    def test_has_keys_invalid_type(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONModel.objects.filter(attrs__has_keys={'a': 'b'})
+        assert "only works with Sequences" in str(excinfo.value)
+
+    def test_has_keys(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_keys=['a', 'c'])) ==
+            [self.objs[1], self.objs[2]]
+        )
+
+    def test_has_keys_2(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_keys=['l'])) ==
+            [self.objs[4]]
+        )
+
+    def test_has_keys_awkward(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_keys=['\n', '"'])) ==
+            [self.objs[1]]
+        )
+
+    def test_has_any_keys_invalid_type(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONModel.objects.filter(attrs__has_any_keys={'a': 'b'})
+        assert "only works with Sequences" in str(excinfo.value)
+
+    def test_has_any_keys(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_any_keys=['a', 'k'])) ==
+            [self.objs[1], self.objs[2], self.objs[4]]
+        )
+
+    def test_has_any_keys_awkward(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__has_any_keys=['\\'])) ==
+            [self.objs[4]]
+        )
+
+    def test_contains(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__contains={'a': 'b'})) ==
+            [self.objs[1], self.objs[2]]
+        )
+
+    def test_contains_2(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__contains={'l': False})) ==
+            [self.objs[4]]
+        )
+
+    def test_contains_array(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__contains=[[2]])) ==
+            [self.objs[3]]
+        )
+
+    def test_contained_by(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__contained_by={
+                'k': True,
+                'l': False,
+                '\\': 'awkward',
+                'spare_key': ['unused', 'array'],
+            })) ==
+            [self.objs[0], self.objs[4]]
+        )
+
+    def test_contained_by_array(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__contained_by=[1, [2], 3])) ==
+            [self.objs[3]]
+        )
+
+    def test_length_lookup(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__length=0)) ==
+            [self.objs[0]]
+        )
+
+    def test_length_lookup_2(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__length=2)) ==
+            [self.objs[3]]
+        )
+
+    def test_length_lookup_chains(self):
+        assert (
+            list(JSONModel.objects.filter(attrs__length__range=[0, 10])) ==
+            self.objs
+        )
 
     def test_shallow_list_lookup(self):
         assert (

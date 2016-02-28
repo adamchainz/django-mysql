@@ -374,6 +374,14 @@ class JSONFunctionTests(JSONFieldTestCase):
         )
         assert results == [len(self.obj.attrs['sub'])]
 
+    def test_json_length_type(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength('attrs')
+            ).filter(x__range=[3, 5])
+        )
+        assert results == [self.obj]
+
 
 @requiresDatabaseFunctions
 class RegexpFunctionTests(TestCase):

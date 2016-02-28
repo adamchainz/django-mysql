@@ -163,3 +163,114 @@ If the key you wish to query is not valid for a Python keyword argument (e.g.
 it contains unicode characters), or it clashes with the name of another field
 lookup, use the :class:`~django_mysql.models.functions.JSONExtract` database
 function to fetch it.
+
+Key Presence Lookups
+~~~~~~~~~~~~~~~~~~~~
+
+To query to check if an object has a given key, use the ``has_key`` lookup:
+
+.. code-block:: python
+
+    # Find all ShopItems with a hardness rating
+    >>> ShopItem.objects.filter(attrs__has_key='hardness')
+    []
+    # Find all ShopItems missing certification information
+    >>> ShopItem.objects.exclude(attrs__has_key='certifications')
+    [<ShopItem: Feta>]
+
+To check if an object has several keys, use the ``has_keys`` lookup with a list
+of keys:
+
+.. code-block:: python
+
+    # Find all ShopItems with both origin and certification information
+    >>> ShopItem.objects.filter(attrs_has_keys=['origin', 'certifications'])
+    [<ShopItem: Gruyère>]
+
+To find objects with one of several keys, use the ``has_any_keys`` lookup with
+a list of keys:
+
+.. code-block:: python
+
+    # Find all ShopItems with either a smelliness or a hardness rating
+    >>> ShopItem.objects.filter(attrs_has_any_keys=['smelliness', 'hardness'])
+    [<ShopItem: Gruyère>, <ShopItem: Feta>]
+
+Length Lookup
+~~~~~~~~~~~~~
+
+This is very similar to the :class:`~django_mysql.models.functions:JSONLength`
+database function. You can use it to filter based upon the length of the JSON
+documents in the field, using the MySQL ``JSON_LENGTH`` function.
+
+As per the MySQL documentation, the length of a document is determined as
+follows:
+
+* The length of a scalar is 1.
+* The length of an array is the number of array elements.
+* The length of an object is the number of object members.
+* The length does not count the length of nested arrays or objects.
+
+Docs:
+`MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-attribute-functions.html#function_json-length>`_.
+
+For example:
+
+.. code-block:: python
+
+    # Find all the ShopItems with nothing in 'attrs'
+    >>> ShopItems.objects.filter(attrs__length=0)
+    []
+    # Find all the ShopItems with >50 keys in 'attrs'
+    >>> ShopItems.objects.filter(attrs__length__gt=50)
+    [<ShopItem: Incredible Cheese>]
+
+Containment Lookups
+~~~~~~~~~~~~~~~~~~~
+
+The ``contains`` lookup is overriden on ``JSONField`` to support the MySQL
+``JSON_CONTAINS`` function. This allows you to search, for example, JSON
+objects that contain at least a given set of key-value pairs. Additionally you
+can do the inverse with ``contained_by``, i.e. find values where the objects
+are contained by a given value.
+
+The definition of containment is, as per the MySQL docs:
+
+* A candidate scalar is contained in a target scalar if and only if they are
+  comparable and are equal. Two scalar values are comparable if they have the
+  same ``JSON_TYPE()`` types, with the exception that values of types
+  ``INTEGER`` and ``DECIMAL`` are also comparable to each other.
+
+* A candidate array is contained in a target array if and only if every element
+  in the candidate is contained in some element of the target.
+
+* A candidate nonarray is contained in a target array if and only if the
+  candidate is contained in some element of the target.
+
+* A candidate object is contained in a target object if and only if for each
+  key in the candidate there is a key with the same name in the target and the
+  value associated with the candidate key is contained in the value associated
+  with the target key.
+
+Docs:
+`MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-contains>`_.
+
+For example:
+
+.. code-block:: python
+
+    # Find all ShopItems with a crumbliness of 10 and a smelliness of 5
+    >>> ShopItems.objects.filter(attrs__contains={
+        'crumbliness': 10,
+        'smelliness': 5,
+    })
+    [<ShopItem: Feta>]
+
+    # Find all ShopItems that have either 0 properties, or 1 or more of the given properties
+    >>> ShopItems.objects.filter(attrs__contained_by={
+        'crumbliness': 10,
+        'hardness': 1,
+        'smelliness': 5,
+    })
+    [<ShopItem: Feta>]
+g

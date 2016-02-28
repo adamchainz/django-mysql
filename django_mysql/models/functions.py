@@ -229,8 +229,8 @@ class JSONKeys(Func):
 class JSONLength(Func):
     function = 'JSON_LENGTH'
 
-    def __init__(self, expression, path=None):
-        from django_mysql.models.fields import JSONField
+    def __init__(self, expression, path=None, **extra):
+        output_field = extra.pop('output_field', IntegerField())
 
         exprs = [expression]
         if path is not None:
@@ -238,7 +238,7 @@ class JSONLength(Func):
                 path = Value(path)
             exprs.append(path)
 
-        super(JSONLength, self).__init__(*exprs, output_field=JSONField())
+        super(JSONLength, self).__init__(*exprs, output_field=output_field)
 
 
 # MariaDB Regexp Functions

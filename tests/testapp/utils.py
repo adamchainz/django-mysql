@@ -70,7 +70,7 @@ class CaptureLastQuery(object):
         return self.capturer.captured_queries[-1]['sql']
 
 
-class PrintAllQueries(object):
+class print_all_queries(object):
     def __init__(self, conn=None):
         if conn is None:
             self.conn = connection

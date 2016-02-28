@@ -1,16 +1,20 @@
 # -*- coding:utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+import collections
 import json
 
 import django
 from django.core import checks
 from django.db import connections
-from django.db.models import Field, Transform
+from django.db.models import Field, IntegerField, Transform
 from django.utils import six
 
 from django_mysql import forms
 from django_mysql.compat import field_class
+from django_mysql.models.lookups import (
+    JSONContainedBy, JSONContains, JSONHasAnyKeys, JSONHasKey, JSONHasKeys
+)
 
 __all__ = ('JSONField',)
 
@@ -96,17 +100,31 @@ class JSONField(field_class(Field)):
     def get_prep_lookup(self, lookup_type, value):
         if (
             not hasattr(value, '_prepare') and
-            lookup_type in ('exact', 'gt', 'gte', 'lt', 'lte') and
+            lookup_type in ('exact', 'gt', 'gte', 'lt', 'lte', 'contains') and
             value is not None
         ):
             return JSONValue(value)
+        elif lookup_type == 'has_key':
+            if not isinstance(value, six.text_type):
+                raise ValueError(
+                    "JSONField's 'has_key' lookup only works with {} values"
+                    .format(six.text_type.__name__)
+                )
+            return value
+        elif lookup_type in ('has_keys', 'has_any_keys'):
+            if not isinstance(value, collections.Sequence):
+                raise ValueError(
+                    "JSONField's '{}' lookup only works with Sequences"
+                    .format(lookup_type)
+                )
+            return value
 
         return super(JSONField, self).get_prep_lookup(lookup_type, value)
 
     def get_lookup(self, lookup_name):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
-            'range', 'in', 'iexact', 'contains', 'icontains', 'startswith',
+            'range', 'in', 'iexact', 'icontains', 'startswith',
             'istartswith', 'endswith', 'iendswith', 'search', 'regex', 'iregex'
         }:
             raise NotImplementedError(
@@ -125,7 +143,27 @@ class JSONValue(object):
         self.json_string = json.dumps(value)
 
     def as_sql(self, *args, **kwargs):
-        return 'CAST(%s AS JSON)', (self.json_string,)
+        return 'CAST(%s AS JSON)', [self.json_string]
+
+
+class JSONLength(Transform):
+    lookup_name = 'length'
+
+    output_field = IntegerField()
+
+    if django.VERSION[:2] < (1, 9):
+        def as_sql(self, compiler, connection):
+            lhs, params = compiler.compile(self.lhs)
+            return 'JSON_LENGTH({})'.format(lhs), params
+    else:
+        function = 'JSON_LENGTH'
+
+JSONField.register_lookup(JSONContains)
+JSONField.register_lookup(JSONContainedBy)
+JSONField.register_lookup(JSONHasAnyKeys)
+JSONField.register_lookup(JSONHasKey)
+JSONField.register_lookup(JSONHasKeys)
+JSONField.register_lookup(JSONLength)
 
 
 class KeyTransform(Transform):
