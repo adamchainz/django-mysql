@@ -40,6 +40,15 @@ Django-MySQL supports the JSON data type and related functions through
     checked by the field and you'll get sensible errors for them when Django's
     checks run if you're not up to date on either.
 
+    .. warning::
+
+        If you give the field a ``default``, ensure it's a callable, such as
+        ``dict``, ``list``, or ``lambda: {'key': 'value'}``. Incorrectly using
+        a mutable object, such as ``default={}``, creates a single object that
+        is shared between all instances of the field. There's a field check
+        that errors if a plain ``list`` or ``dict`` instance is used for
+        ``default``, so there is some protection against this.
+
 JSONFields in Forms
 -------------------
 

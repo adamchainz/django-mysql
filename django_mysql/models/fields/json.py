@@ -15,6 +15,7 @@ from django_mysql.compat import field_class
 from django_mysql.models.lookups import (
     JSONContainedBy, JSONContains, JSONHasAnyKeys, JSONHasKey, JSONHasKeys
 )
+from django_mysql.utils import collapse_spaces
 
 __all__ = ('JSONField',)
 
@@ -28,6 +29,7 @@ class JSONField(field_class(Field)):
     def check(self, **kwargs):
         errors = super(JSONField, self).check(**kwargs)
         errors.extend(self._check_django_version())
+        errors.extend(self._check_default())
 
         if django.VERSION[:2] >= (1, 8):
             # This check connects to the DB, which only works on Django 1.8+
@@ -43,6 +45,26 @@ class JSONField(field_class(Field)):
                     "Django 1.8+ is required to use JSONField",
                     obj=self,
                     id='django_mysql.E015',
+                )
+            )
+        return errors
+
+    def _check_default(self):
+        errors = []
+        if isinstance(self.default, (list, dict)):
+            errors.append(
+                checks.Error(
+                    'Do not use mutable defaults for JSONField',
+                    hint=collapse_spaces('''
+                        Mutable defaults get shared between all instances of
+                        the field, which probably isn't what you want. You
+                        should replace your default with a callable, e.g.
+                        replace default={{}} with default=dict.
+
+                        The default you passed was '{}'.
+                    '''.format(self.default)),
+                    obj=self,
+                    id='django_mysql.E017',
                 )
             )
         return errors

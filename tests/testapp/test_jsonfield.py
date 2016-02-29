@@ -411,6 +411,24 @@ class TestCheck(JSONFieldTestCase):
         assert errors[0].id == 'django_mysql.E015'
         assert 'Django 1.8+ is required' in errors[0].msg
 
+    def test_mutable_default_list(self):
+        class InvalidJSONModel(TemporaryModel):
+            field = JSONField(default=[])
+
+        errors = InvalidJSONModel.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E017'
+        assert 'Do not use mutable defaults for JSONField' in errors[0].msg
+
+    def test_mutable_default_dict(self):
+        class InvalidJSONModel(TemporaryModel):
+            field = JSONField(default=[])
+
+        errors = InvalidJSONModel.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E017'
+        assert 'Do not use mutable defaults for JSONField' in errors[0].msg
+
     wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
 
     @mock.patch(wrapper_path + '.is_mariadb', new=True)
