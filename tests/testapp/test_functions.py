@@ -5,14 +5,14 @@ from unittest import SkipTest, skipIf
 import django
 import pytest
 from django.db import connection
-from django.db.models import F
+from django.db.models import F, Q
 from django.test import TestCase
 from django.utils import six
 
 from django_mysql.compat import Value
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
-    ColumnGet, ConcatWS, Field, Floor, Greatest, JSONExtract, JSONKeys,
+    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONKeys,
     JSONLength, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
     Round, Sign, UpdateXML, XMLExtractValue
 )
@@ -21,9 +21,9 @@ from testapp.test_dynamicfield import DynColTestCase
 from testapp.test_jsonfield import JSONFieldTestCase
 
 try:
-    from django.db.models.functions import Length
+    from django.db.models.functions import Length, Lower, Upper
 except ImportError:
-    Length = None
+    Length = Lower = Upper = None
 
 requiresDatabaseFunctions = skipIf(
     django.VERSION[:2] < (1, 8),
@@ -47,6 +47,63 @@ class ComparisonFunctionTests(TestCase):
         Alphabet.objects.create(a=1, b=2, c=-1)
         ab = Alphabet.objects.annotate(worst=Least('a', 'b', 'c')).first()
         assert ab.worst == -1
+
+
+@requiresDatabaseFunctions
+class ControlFlowFunctionTests(TestCase):
+
+    def test_if_basic(self):
+        Alphabet.objects.create(d='String')
+        Alphabet.objects.create(d='')
+        Alphabet.objects.create(d='String')
+        Alphabet.objects.create(d='')
+
+        results = list(Alphabet.objects.annotate(
+            has_d=If(Length('d'), Value(True), Value(False))
+        ).order_by('id').values_list('has_d', flat=True))
+        assert results == [True, False, True, False]
+
+    def test_if_with_Q(self):
+        Alphabet.objects.create(a=12, b=17)
+        Alphabet.objects.create(a=13, b=17)
+        Alphabet.objects.create(a=14, b=17)
+
+        result = list(Alphabet.objects.annotate(
+            conditional=If(Q(a__lte=13), 'a', 'b')
+        ).order_by('id').values_list('conditional', flat=True))
+        assert result == [12, 13, 17]
+
+    def test_if_with_string_values(self):
+        Alphabet.objects.create(a=1, d='Lentils')
+        Alphabet.objects.create(a=2, d='Cabbage')
+        Alphabet.objects.create(a=3, d='Rice')
+
+        result = list(Alphabet.objects.annotate(
+            conditional=If(Q(a=2), Upper('d'), Lower('d'))
+        ).order_by('id').values_list('conditional', flat=True))
+        assert result == ['lentils', 'CABBAGE', 'rice']
+
+    def test_if_field_lookups_work(self):
+        Alphabet.objects.create(a=1, d='Lentils')
+        Alphabet.objects.create(a=2, d='Cabbage')
+        Alphabet.objects.create(a=3, d='Rice')
+
+        result = list(Alphabet.objects.annotate(
+            conditional=If(Q(a__gte=2), Upper('d'), Value(''))
+        ).filter(
+            conditional__startswith='C'
+        ).order_by('id').values_list('conditional', flat=True))
+        assert result == ['CABBAGE']
+
+    def test_if_false_default_None(self):
+        Alphabet.objects.create(a=1)
+
+        result = list(Alphabet.objects.annotate(
+            conditional=If(Q(a=2), Value(1))
+        ).filter(
+            conditional__isnull=True
+        ).values_list('conditional', flat=True))
+        assert result == [None]
 
 
 @requiresDatabaseFunctions

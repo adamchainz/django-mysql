@@ -8,7 +8,7 @@ import functools
 import django
 from django.utils import six
 
-__all__ = ('BaseExpression', 'Func', 'Value', 'field_class')
+__all__ = ('BaseExpression', 'Expression', 'Func', 'Value', 'field_class')
 
 
 # Handle the deprecation of SubfieldBase
@@ -31,10 +31,14 @@ if django.VERSION[:2] < (1, 8):
         def __init__(self, *args, **kwargs):
             raise ValueError("Database Expessions only exist in Django 1.8+")
 
+    Expression = BaseExpression
+
     class Func(object):
         def __init__(self, *args, **kwargs):
             raise ValueError("Database Functions only exist in Django 1.8+")
 
     Value = tuple
 else:
-    from django.db.models.expressions import BaseExpression, Func, Value
+    from django.db.models.expressions import (
+        BaseExpression, Expression, Func, Value
+    )

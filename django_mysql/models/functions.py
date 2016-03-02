@@ -1,4 +1,5 @@
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import Field as DjangoField
 from django.db.models import CharField, IntegerField, TextField
 
 from django_mysql.compat import Func, Value
@@ -28,6 +29,21 @@ class Greatest(MultiArgFunc):
 
 class Least(MultiArgFunc):
     function = 'LEAST'
+
+
+# Control Flow Functions
+
+
+class If(Func):
+    function = 'IF'
+
+    def __init__(self, condition, true, false=None, output_field=None):
+        if output_field is None:
+            # Workaround for some ORM weirdness
+            output_field = DjangoField()
+
+        super(If, self).__init__(condition, true, false,
+                                 output_field=output_field)
 
 
 # Numeric Functions

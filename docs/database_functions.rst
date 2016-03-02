@@ -47,6 +47,33 @@ Comparison Functions
         >>> Author.objects.filter(sales_eu=Least('sales_eu', 'sales_us'))
 
 
+Control Flow Functions
+--------------------
+
+
+.. class:: If(condition, true, false=None)
+
+    Evaluates the expression ``condition`` and returns the value of the
+    expression ``true`` if true, and the result of expression ``false`` if
+    false. If ``false`` is not given, it will be ``Value(None)``, i.e.
+    ``NULL``.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/control-flow-functions.html#function_if>`_ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/if-function/>`_.
+
+    Usage example:
+
+    .. code-block:: python
+
+        >>> Author.objects.annotate(
+        ...     is_william=If(Q(name__startswith='William '), True, False)
+        ... ).values_list('name', 'is_william')
+        [('William Shakespeare', True),
+         ('Ian Fleming', False),
+         ('William Wordsworth', True)]
+
+
 Numeric Functions
 -----------------
 

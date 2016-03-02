@@ -11,6 +11,7 @@ Pending
 * Added database functions ``JSONExtract``, ``JSONKeys``, and ``JSONLength``
   that wrap the JSON functions added in MySQL 5.7, which can be used with the
   JSON type columns as well as JSON data held in text/varchar columns.
+* Added ``If`` database function for simple conditionals.
 
 
 1.0.6 (2016-02-26)
