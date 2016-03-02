@@ -166,8 +166,7 @@ class AlterStorageEngineTests(TransactionTestCase):
             operation.database_forwards("test_arstd", editor, project_state,
                                         new_state)
         queries = [q['sql'] for q in capturer.captured_queries]
-        assert (
-            not any(q.startswith('ALTER TABLE ') for q in queries),
+        assert not any(q.startswith('ALTER TABLE ') for q in queries), (
             "One of the executed queries was an unexpected ALTER TABLE:\n{}"
             .format("\n".join(queries))
         )

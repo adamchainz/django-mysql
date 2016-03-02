@@ -395,9 +395,9 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
 
     def test_usage_in_subquery(self):
         assert (
-            JSONModel.objects.filter(
+            list(JSONModel.objects.filter(
                 id__in=JSONModel.objects.filter(attrs__c=1)
-            ),
+            )) ==
             [self.objs[1], self.objs[2]]
         )
 
