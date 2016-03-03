@@ -15,6 +15,7 @@ from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
+from django_mysql.compat import add_raw_condition
 from django_mysql.models.handler import Handler
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
@@ -96,25 +97,26 @@ class QuerySetMixin(object):
         """
         if '*/' in string:
             raise ValueError("Bad label - cannot be embedded in SQL comment")
-        return self.extra(where=["/*QueryRewrite':label={}*/1".format(string)])
+        return add_raw_condition(self,
+                                 "/*QueryRewrite':label={}*/".format(string))
 
     def straight_join(self):
-        return self.extra(where=["/*QueryRewrite':STRAIGHT_JOIN*/1"])
+        return add_raw_condition(self, "/*QueryRewrite':STRAIGHT_JOIN*/1")
 
     def sql_small_result(self):
-        return self.extra(where=["/*QueryRewrite':SQL_SMALL_RESULT*/1"])
+        return add_raw_condition(self, "/*QueryRewrite':SQL_SMALL_RESULT*/1")
 
     def sql_big_result(self):
-        return self.extra(where=["/*QueryRewrite':SQL_BIG_RESULT*/1"])
+        return add_raw_condition(self, "/*QueryRewrite':SQL_BIG_RESULT*/1")
 
     def sql_buffer_result(self):
-        return self.extra(where=["/*QueryRewrite':SQL_BUFFER_RESULT*/1"])
+        return add_raw_condition(self, "/*QueryRewrite':SQL_BUFFER_RESULT*/1")
 
     def sql_cache(self):
-        return self.extra(where=["/*QueryRewrite':SQL_CACHE*/1"])
+        return add_raw_condition(self, "/*QueryRewrite':SQL_CACHE*/1")
 
     def sql_no_cache(self):
-        return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
+        return add_raw_condition(self, "/*QueryRewrite':SQL_NO_CACHE*/1")
 
     def sql_calc_found_rows(self):
         qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
