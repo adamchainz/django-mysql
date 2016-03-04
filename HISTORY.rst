@@ -7,6 +7,11 @@ Pending
 -------
 
 * New release notes here
+
+
+1.0.7 (2016-03-04)
+------------------
+
 * Added new ``JSONField`` class backed by the JSON type added in MySQL 5.7.
 * Added database functions ``JSONExtract``, ``JSONKeys``, and ``JSONLength``
   that wrap the JSON functions added in MySQL 5.7, which can be used with the
