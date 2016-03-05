@@ -23,6 +23,12 @@ Comparison Functions
 
 .. class:: Greatest(*expressions)
 
+    .. note::
+
+        Django core has included this since Django 1.9 as
+        :class:`django.db.models.functions.Greatest`; it's preferable to use
+        that instead.
+
     With two or more arguments, returns the largest (maximum-valued) argument.
 
     Docs:
@@ -35,6 +41,12 @@ Comparison Functions
 
 
 .. class:: Least(*expressions)
+
+    .. note::
+
+        Django core has included this since Django 1.9 as
+        :class:`django.db.models.functions.Least`; it's preferable to use
+        that instead.
 
     With two or more arguments, returns the smallest (minimum-valued) argument.
 
