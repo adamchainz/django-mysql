@@ -37,7 +37,9 @@ underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
     options can be set too. Most importantly you'll need to set ``max_length``
     to determine how many characters to reserve in the database.
 
-    Example instantiation::
+    Example instantiation:
+
+    .. code-block:: python
 
         from django.db.models import CharField, Model
         from django_mysql.models import ListCharField
@@ -50,7 +52,9 @@ underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
                 max_length=(6 * 11)  # 6 * 10 character nominals, plus commas
             )
 
-    In Python simply set the field's value as a list::
+    In Python simply set the field's value as a list:
+
+    .. code-block:: pycon
 
         >>> p = Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.'])
         >>> p.post_nominals
@@ -78,7 +82,9 @@ underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
     The same as ``ListCharField``, but backed by a ``TextField`` and therefore
     much less restricted in length. There is no ``max_length`` argument.
 
-    Example instantiation::
+    Example instantiation:
+
+    .. code-block:: python
 
         from django.db.models import IntegerField, Model
         from django_mysql.models import ListTextField
@@ -107,7 +113,10 @@ The ``contains`` lookup is overridden on ``ListCharField`` and
 using MySQL's ``FIND_IN_SET`` function (docs:
 `MariaDB <https://mariadb.com/kb/en/mariadb/find_in_set/>`_ /
 `MySQL <http://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_find-in-set>`_ docs).
-For example::
+
+For example:
+
+.. code-block:: pycon
 
     >>> Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.', 'III'])
     >>> Person.objects.create(name='Severus', post_nominals=['PhD', 'DPhil'])
@@ -135,7 +144,9 @@ For example::
 len
 ~~~
 
-A transform that converts to the number of items in the list. For example::
+A transform that converts to the number of items in the list. For example:
+
+.. code-block:: pycon
 
     >>> Person.objects.filter(post_nominals__len=0)
     [<Person: Paulus>]
@@ -152,7 +163,9 @@ Index lookups
 
 This class of lookups allows you to index into the list to check if the first
 occurrence of a given element is at a given position. There are no errors if
-it exceeds the ``size`` of the list. For example::
+it exceeds the ``size`` of the list. For example:
+
+.. code-block:: pycon
 
     >>> Person.objects.filter(post_nominals__0='PhD')
     [<Person: Horatio>, <Person: Severus>]
@@ -169,7 +182,9 @@ it exceeds the ``size`` of the list. For example::
     The underlying function, ``FIND_IN_SET``, is designed for *sets*, i.e.
     comma-separated lists of unique elements. It therefore only allows you to
     query about the *first* occurrence of the given item. For example, this is
-    a non-match::
+    a non-match:
+
+    .. code-block:: pycon
 
         >>> Person.objects.create(name='Cacistus', post_nominals=['MSc', 'MSc'])
         >>> Person.objects.filter(post_nominals__1='MSc')
@@ -197,7 +212,9 @@ it exceeds the ``size`` of the list. For example::
 
 Similar to Django's :class:`~django.db.models.F` expression, this allows you to
 perform an atomic add and remove operations on list fields at the database
-level::
+level:
+
+.. code-block:: pycon
 
     >>> from django_mysql.models import ListF
     >>> Person.objects.filter(post_nominals__contains="PhD").update(
@@ -209,7 +226,9 @@ level::
     ... )
     3
 
-Or with attribute assignment to a model::
+Or with attribute assignment to a model:
+
+.. code-block:: pycon
 
     >>> horatio = Person.objects.get(name='Horatio')
     >>> horatio.post_nominals = ListF('post_nominals').append('DSocSci')
@@ -227,7 +246,9 @@ Or with attribute assignment to a model::
     .. method:: append(value)
 
         Adds the value of the given expression to the (right hand) end of the
-        list, like ``list.append``::
+        list, like ``list.append``:
+
+        .. code-block:: pycon
 
             >>> Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.', 'III'])
             >>> Person.objects.update(
@@ -239,7 +260,9 @@ Or with attribute assignment to a model::
     .. method:: appendleft(value)
 
         Adds the value of the given expression to the (left hand) end of the
-        list, like ``deque.appendleft``::
+        list, like ``deque.appendleft``:
+
+        .. code-block:: pycon
 
             >>> Person.objects.update(
             ...     post_nominals=ListF('post_nominals').appendleft('BArch')
@@ -250,7 +273,9 @@ Or with attribute assignment to a model::
     .. method:: pop()
 
         Takes one value from the (right hand) end of the list, like
-        ``list.pop``::
+        ``list.pop``:
+
+        .. code-block:: pycon
 
             >>> Person.objects.update(
             ...     post_nominals=ListF('post_nominals').pop()
@@ -261,7 +286,9 @@ Or with attribute assignment to a model::
     .. method:: popleft()
 
         Takes one value off the (left hand) end of the list, like
-        ``deque.popleft``::
+        ``deque.popleft``:
+
+        .. code-block:: pycon
 
             >>> Person.objects.update(
             ...     post_nominals=ListF('post_nominals').popleft()

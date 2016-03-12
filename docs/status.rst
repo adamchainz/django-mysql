@@ -19,7 +19,9 @@ The following can all be imported from ``django_mysql.status``.
     statistics are useful for monitoring purposes, or ensuring queries your
     code creates aren't saturating the server.
 
-    Basic usage::
+    Basic usage:
+
+    .. code-block:: python
 
         from django_mysql.status import global_status
 
@@ -32,7 +34,9 @@ The following can all be imported from ``django_mysql.status``.
 
     Note that ``global_status`` is a pre-existing instance for the default
     database connection from ``DATABASES``. If you're using more than database
-    connection, you should instantiate the class::
+    connection, you should instantiate the class:
+
+    .. code-block:: pycon
 
         >>> from django_mysql.status import GlobalStatus
         >>> GlobalStatus(using='replica1').get('Threads_running')
@@ -108,13 +112,17 @@ The following can all be imported from ``django_mysql.status``.
     Also it doesn't have the ``wait_until_load_low`` method, which only makes
     sense in a global setting.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         from django_mysql.status import session_status
 
         read_operations = session_status.get("Handler_read")
 
-    And for a different connection::
+    And for a different connection:
+
+    .. code-block:: python
 
         from django_mysql.status import SessionStatus
 

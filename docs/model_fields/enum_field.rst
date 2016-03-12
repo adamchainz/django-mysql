@@ -28,7 +28,9 @@ Docs:
     is required for ``EnumField``. It can either be a list of strings, or a
     list of two-tuples of strings, where the first element in each tuple is the
     value used, and the second the human readable name used in forms. For
-    example::
+    example:
+
+    .. code-block:: python
 
         from django_mysql.models import EnumField
 

@@ -15,13 +15,17 @@ does this lives in ``django_mysql.monkey_patches``.
 A boolean property that tells you if the MySQL database connection is to a
 MariaDB server. Used internally for activating tests for MariaDB-specific
 features. It is patched onto Django's MySQL ``DatabaseWrapper`` class, so you
-can do::
+can do:
+
+.. code-block:: pycon
 
     >>> from django.db import connection
     >>> connection.is_mariadb
     True
 
-Or for a secondary connection::
+Or for a secondary connection:
+
+.. code-block:: pycon
 
     >>> from django.db import connections
     >>> connections['other'].is_mariadb

@@ -40,7 +40,9 @@ SimpleListField
 
         It specifies the underlying form field for the set. It is not used to
         render any HTML, but it does process and validate the submitted data.
-        For example::
+        For example:
+
+        .. code-block:: pycon
 
             >>> from django import forms
             >>> from django_mysql.forms import SimpleListField
@@ -90,7 +92,9 @@ SimpleSetField
 
         It specifies the underlying form field for the set. It is not used to
         render any HTML, but it does process and validate the submitted data.
-        For example::
+        For example:
+
+        .. code-block:: pycon
 
             >>> from django import forms
             >>> from django_mysql.forms import SimpleSetField

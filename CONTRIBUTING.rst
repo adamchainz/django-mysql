@@ -70,67 +70,85 @@ Get Started!
 Ready to contribute? Here's how to set up Django-MySQL for local development.
 
 1. Fork the Django-MySQL repo on GitHub.
-2. Clone your fork locally::
+2. Clone your fork locally:
 
-    $ git clone git@github.com:your_name_here/django-mysql.git
-    $ cd django-mysql/
+   .. code-block:: sh
+
+       $ git clone git@github.com:your_name_here/django-mysql.git
+       $ cd django-mysql/
 
 3. Install your local copy into a virtualenv. Assuming you have
    ``virtualenvwrapper`` installed, this is how you set up your fork for local
-   development::
+   development:
 
-    $ mkvirtualenv django-mysql
-    $ pip install -r requirements.txt
+   .. code-block:: sh
+
+       $ mkvirtualenv django-mysql
+       $ pip install -r requirements.txt
 
 4. Check you have MySQL or MariaDB running and that the settings in
    ``tests/settings.py`` will work for connecting. This involves making sure
    you can connect from your terminal with the plain command ``mysql``, i.e.
    as your current user.
 
-   On Ubuntu, this can be done with the commands below::
+   On Ubuntu, this can be done with the commands below:
 
-    $ sudo apt-get install mysql-server-5.6
-    $ mysql -uroot -p -e "CREATE USER '$(whoami)'@localhost; GRANT ALL PRIVILEGES ON *.* TO '$(whoami)'@localhost;"
-    # Enter the password for root you set in the apt dialog
+   .. code-block:: sh
 
-   On Max OS X, this can be done with something like::
+       $ sudo apt-get install mysql-server-5.6
+       $ mysql -uroot -p -e "CREATE USER '$(whoami)'@localhost; GRANT ALL PRIVILEGES ON *.* TO '$(whoami)'@localhost;"
+       # Enter the password for root you set in the apt dialog
 
-    $ brew install mariadb
-    $ mysql.server start
-    $ mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO ''@localhost;"
+   On Max OS X, this can be done with something like:
+
+   .. code-block:: sh
+
+       $ brew install mariadb
+       $ mysql.server start
+       $ mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO ''@localhost;"
 
    If you want to use a different user or add a password, you can patch the
    settings file in your local install.
 
-5. Then run the tests with::
+5. Then run the tests with:
 
-    $ ./runtests.py
+   .. code-block:: sh
+
+       $ ./runtests.py
 
    To test every version of Python and Django, make sure you have ``tox``
-   installed globally (outside of your virtualenv), then run::
+   installed globally (outside of your virtualenv), then run:
 
-    $ tox
+   .. code-block:: sh
 
-6. Now to make changes, create a branch for local development::
+       $ tox
 
-    $ git checkout -b name-of-your-bugfix-or-feature
+6. Now to make changes, create a branch for local development:
+
+   .. code-block:: sh
+
+       $ git checkout -b name-of-your-bugfix-or-feature
 
    And hack away!
 
 7. When you're done making changes, check that your changes pass the code style
-   rules and the tests on all versions of Python and Django, by running tox::
+   rules and the tests on all versions of Python and Django, by running tox:
 
-    $ tox
+   .. code-block:: sh
+
+       $ tox
 
    If it's too tricky setting up multiple versions of Python, don't worry about
    it - it will be picked up by the Travis build from Github. As long as
    ``runtests`` passes, you have a good start.
 
-8. Commit your changes and push your branch to GitHub::
+8. Commit your changes and push your branch to GitHub:
 
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
+   .. code-block:: sh
+
+       $ git add .
+       $ git commit -m "Your detailed description of your changes."
+       $ git push origin name-of-your-bugfix-or-feature
 
 9. Submit a pull request through the GitHub website. This will trigger the
    Travis build which runs the tests against all supported versions of Python,
@@ -140,17 +158,9 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
 Pull Request Checklist
 ----------------------
 
-For each pull request, the following checklist is used:
-
-1. All changes are covered with tests, and coverage remains at 100%. Some lines
-   that are hard to test, or don't make sense to, can be marked with the
-   'nocover' annotation.
-2. The documentation for any features affected have been added/updated.
-3. If the change affects end users in any way, the HISTORY file has been
-   updated with a note about the change.
-4. The Github checks - Travis tests and Coveralls - pass for the pull request.
-   Note that this tests more than you will locally, with e.g. multiple database
-   versions.
+When you open a Pull Request on Github, a checklist will be pre-populated in
+the message. Please check all of the steps have been done, or ask for
+assistance in doing so!
 
 Testing Tips
 ------------
@@ -158,16 +168,22 @@ Testing Tips
 The tests do a lot of work that you can reduce by using some features that are
 available.
 
-To skip the linting phase, run them with::
+To skip the linting phase, run them with:
+
+.. code-block:: sh
 
     $ ./runtests.py --nolint
 
-To only run a particular test file, you can run with the path to that file::
+To only run a particular test file, you can run with the path to that file:
+
+.. code-block:: sh
 
     $ ./runtests.py tests/testapp/test_some_feature.py
 
 You can also pass arguments through ``tox`` to ``runtests.py`` by passing these
-arguments after the ``--`` separator, for example::
+arguments after the ``--`` separator, for example:
+
+.. code-block:: sh
 
     $ tox -- tests/testapp/test_some_feature.py
 

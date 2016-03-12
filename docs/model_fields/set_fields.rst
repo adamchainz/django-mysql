@@ -34,7 +34,9 @@ of 2\ :sup:`32` - 1 bytes).
     options can be set too. Most importantly you'll need to set ``max_length``
     to determine how many characters to reserve in the database.
 
-    Example instantiation::
+    Example instantiation:
+
+    .. code-block:: python
 
         from django.db.models import IntegerField, Model
         from django_mysql.models import SetCharField
@@ -46,7 +48,9 @@ of 2\ :sup:`32` - 1 bytes).
                 max_length=(6 * 3)  # 6 two digit numbers plus commas
             )
 
-    In Python simply set the field's value as a set::
+    In Python simply set the field's value as a set:
+
+    .. code-block:: pycon
 
         >>> lt = LotteryTicket.objects.create(numbers={1, 2, 4, 8, 16, 32})
         >>> lt.numbers
@@ -75,7 +79,9 @@ of 2\ :sup:`32` - 1 bytes).
     The same as ``SetCharField``, but backed by a ``TextField`` and therefore
     much less restricted in length. There is no ``max_length`` argument.
 
-    Example instantiation::
+    Example instantiation:
+
+    .. code-block:: python
 
         from django.db.models import IntegerField, Model
         from django_mysql.models import SetTextField
@@ -103,7 +109,10 @@ to match where the set field contains the given element, using MySQL's
 ``FIND_IN_SET`` (docs:
 `MariaDB <https://mariadb.com/kb/en/mariadb/find_in_set/>`_ /
 `MySQL <http://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_find-in-set>`_).
-For example::
+
+For example:
+
+.. code-block:: pycon
 
     >>> Post.objects.create(name='First post', tags={'thoughts', 'django'})
     >>> Post.objects.create(name='Second post', tags={'thoughts'})
@@ -129,7 +138,9 @@ For example::
 len
 ~~~
 
-A transform that converts to the number of items in the set. For example::
+A transform that converts to the number of items in the set. For example:
+
+.. code-block:: pycon
 
     >>> Post.objects.filter(tags__len=1)
     [<Post: Second post>]
@@ -146,7 +157,9 @@ A transform that converts to the number of items in the set. For example::
 
 Similar to Django's :class:`~django.db.models.F` expression, this
 allows you to perform an atomic add or remove on a set field at the database
-level::
+level:
+
+.. code-block:: pycon
 
     >>> from django_mysql.models import SetF
     >>> Post.objects.filter(tags__contains="django").update(tags=SetF('tags').add('programming'))
@@ -154,7 +167,9 @@ level::
     >>> Post.objects.update(tags=SetF('tags').remove('thoughts'))
     2
 
-Or with attribute assignment to a model::
+Or with attribute assignment to a model:
+
+.. code-block:: pycon
 
     >>> post = Post.objects.earliest('id')
     >>> post.tags = SetF('tags').add('python')
@@ -173,7 +188,9 @@ Or with attribute assignment to a model::
 
         Takes an expression and returns a new expression that will take the
         value of the original field and add the value to the set if it is not
-        contained::
+        contained:
+
+        .. code-block:: python
 
             post.tags = SetF('tags').add('python')
             post.save()
@@ -181,7 +198,9 @@ Or with attribute assignment to a model::
     .. method:: remove(value)
 
         Takes an expression and returns a new expression that will remove the
-        given item from the set field if it is present::
+        given item from the set field if it is present:
+
+        .. code-block:: python
 
             post.tags = SetF('tags').remove('python')
             post.save()

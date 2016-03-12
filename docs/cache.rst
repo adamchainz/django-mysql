@@ -39,7 +39,9 @@ To use, add an entry to your ``CACHES`` setting with:
   can be whatever you want, as long as it's a valid table name that's not
   already being used in your database.
 
-For example::
+For example:
+
+.. code-block:: python
 
     CACHES = {
         'default': {
@@ -173,7 +175,9 @@ ways:
    writes. This is set with the ``CULL_PROBABILITY`` option, which should be a
    number between 0 and 1. For example, if you want to use the same
    cull-on-*every*-write behaviour as used by ``DatabaseCache`` (you probably
-   don't), set ``CULL_PROBABILITY`` to 1.0::
+   don't), set ``CULL_PROBABILITY`` to 1.0:
+
+   .. code-block:: python
 
        CACHES = {
            'default': {
@@ -189,7 +193,9 @@ ways:
    own culling schedule in background processing, never affecting any
    user-facing web requests. Set ``CULL_PROBABILITY`` to 0, and then set up
    your task. For example, if you are using **celery** you could use a task
-   like this::
+   like this:
+
+   .. code-block:: python
 
        @shared_task
        def clear_caches():
@@ -199,7 +205,9 @@ ways:
    This functionality is also available as the management command
    ``cull_mysql_caches``, which you might run as a cron job. It performs
    ``cull()`` on all of your ``MySQLCache`` instances, or you can give it names
-   to just cull those. For example, this::
+   to just cull those. For example, this:
+
+   .. code-block:: python
 
        $ python manage.py cull_mysql_caches default other_cache
 
@@ -208,7 +216,9 @@ ways:
 
 You can also disable the ``MAX_ENTRIES`` behaviour, which avoids the ``SELECT
 COUNT(*)`` entirely, and makes ``cull()`` only delete expired keys. To do this,
-set ``MAX_ENTRIES`` to -1::
+set ``MAX_ENTRIES`` to -1:
+
+.. code-block:: python
 
     CACHES = {
         'default': {
@@ -237,7 +247,9 @@ and retrieval. The zlib level is set by the option ``COMPRESS_LEVEL``.
 ``COMPRESS_MIN_LENGTH`` defaults to 5000, and ``COMPRESS_LEVEL`` defaults to
 the ``zlib`` default of 6. You can tune these options - for example, to
 compress all objects >= 100 bytes at the maximum level of 9, pass the options
-like so::
+like so:
+
+.. code-block:: python
 
     CACHES = {
         'default': {
@@ -307,7 +319,9 @@ function too, so you will not need to add anything.
 However, if you have set ``KEY_FUNCTION``, you will also need to supply
 ``REVERSE_KEY_FUNCTION`` before the prefix methods can work. For example,
 with a simple custom key function that ignores ``key_prefix`` and ``version``,
-you might do this::
+you might do this:
+
+.. code-block:: python
 
     def my_key_func(key, key_prefix, version):
         return key  # Ignore key_prefix and version
@@ -335,7 +349,9 @@ Once you’re set up, the following prefix methods can be used:
 
     Deletes all keys that start with the string ``prefix``. If ``version`` is
     not provided, it will default to the ``VERSION`` setting. Returns the
-    number of keys that were deleted. For example::
+    number of keys that were deleted. For example:
+
+    .. code-block:: pycon
 
         >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
         >>> cache.delete_with_prefix('Truck')
@@ -351,7 +367,9 @@ Once you’re set up, the following prefix methods can be used:
 
     Like ``get_many``, returns a dict of key to value for all keys that start
     with the string ``prefix``. If ``version`` is not provided, it will default
-    to the ``VERSION`` setting. For example::
+    to the ``VERSION`` setting. For example:
+
+    .. code-block:: pycon
 
         >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
         >>> cache.get_with_prefix('Truck')
@@ -365,7 +383,9 @@ Once you’re set up, the following prefix methods can be used:
 
     Returns a set of all the keys that start with the string ``prefix``. If
     ``version`` is not provided, it will default to the ``VERSION`` setting.
-    For example::
+    For example:
+
+    .. code-block:: pycon
 
         >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
         >>> cache.keys_with_prefix('Car')
@@ -391,7 +411,9 @@ can upgrade by adding a migration with the following SQL, if you replace
         MODIFY value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
                                   NOT NULL DEFAULT 'p';
 
-Or as a reversible migration::
+Or as a reversible migration:
+
+.. code-block:: python
 
     # -*- coding: utf-8 -*-
     from __future__ import unicode_literals

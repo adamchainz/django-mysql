@@ -24,7 +24,9 @@ The following can be imported from ``django_mysql.models``.
     <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-and>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`_.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: pycon
 
         >>> Book.objects.create(bitfield=29)
         >>> Book.objects.create(bitfield=15)
@@ -42,7 +44,9 @@ The following can be imported from ``django_mysql.models``.
     <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-or>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`_.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: pycon
 
         >>> Book.objects.create(bitfield=29)
         >>> Book.objects.create(bitfield=15)
@@ -60,7 +64,9 @@ The following can be imported from ``django_mysql.models``.
     <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-xor>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`_.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: pycon
 
         >>> Book.objects.create(bitfield=11)
         >>> Book.objects.create(bitfield=3)
@@ -77,14 +83,16 @@ The following can be imported from ``django_mysql.models``.
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_group-concat>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/group_concat/>`_.
 
-    Example usage::
+    Example usage:
 
-            >>> from django_mysql.models import GroupConcat
-            >>> author = Author.objects.annotate(
-            ...     book_ids=GroupConcat('books__id')
-            ... ).get(name="William Shakespeare")
-            >>> author.book_ids
-            "1,2,5,17,29"
+    .. code-block:: pycon
+
+        >>> from django_mysql.models import GroupConcat
+        >>> author = Author.objects.annotate(
+        ...     book_ids=GroupConcat('books__id')
+        ... ).get(name="William Shakespeare")
+        >>> author.book_ids
+        "1,2,5,17,29"
 
     .. warning::
 
@@ -117,7 +125,9 @@ The following can be imported from ``django_mysql.models``.
 
         By default no guarantee is made on the order the values will be in
         pre-concatenation. Set ordering to ``'asc'`` to sort them in ascending
-        order, and ``'desc'`` for descending order. For example::
+        order, and ``'desc'`` for descending order. For example:
+
+        .. code-block:: pycon
 
             >>> Author.objects.annotate(
             ...     book_ids=GroupConcat('books__id', ordering='asc')

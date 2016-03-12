@@ -35,7 +35,9 @@ Comparison Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#function_greatest>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/greatest/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.filter(sales_eu=Greatest('sales_eu', 'sales_us'))
 
@@ -54,7 +56,9 @@ Comparison Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#function_least>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/least/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.filter(sales_eu=Least('sales_eu', 'sales_us'))
 
@@ -76,7 +80,7 @@ Control Flow Functions
 
     Usage example:
 
-    .. code-block:: python
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(
         ...     is_william=If(Q(name__startswith='William '), True, False)
@@ -99,7 +103,9 @@ Numeric Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_abs>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/abs/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(abs_wealth=Abs('dollars'))
 
@@ -112,7 +118,9 @@ Numeric Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_ceiling>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/ceiling/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(years_ceiling=Ceiling('age'))
 
@@ -127,7 +135,9 @@ Numeric Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_crc32>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/crc32/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(description_crc=CRC32('description'))
 
@@ -140,7 +150,9 @@ Numeric Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_floor>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/floor/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >> Author.objects.annotate(age_years=Floor('age'))
 
@@ -157,7 +169,9 @@ Numeric Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_round>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/round/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(kilo_sales=Round('sales', -3))
 
@@ -171,7 +185,9 @@ Numeric Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_sign>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/sign/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(wealth_sign=Sign('wealth'))
 
@@ -197,7 +213,9 @@ String Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_concat-ws>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/concat_ws/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(sales_list=ConcatWS('sales_eu', 'sales_us'))
 
@@ -219,7 +237,9 @@ String Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_elt>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/elt/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> # Say Person.life_state is either 1 (alive), 2 (dead), or 3 (M.I.A.)
         >>> Person.objects.annotate(
@@ -244,7 +264,9 @@ String Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_field>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/field/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> # Females, then males - but other values of gender (e.g. empty string) first
         >>> Person.objects.all().order_by(
@@ -273,7 +295,9 @@ XML Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/xml-functions.html#function_updatexml>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/updatexml/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         # Remove 'sagacity' from all authors' xml_attrs
         >>> Author.objects.update(
@@ -297,7 +321,9 @@ XML Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/xml-functions.html#function_extractvalue>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/extractvalue/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         # Count the number of authors with 'sagacity' in their xml_attrs
         >>> num_authors_with_sagacity = Author.objects.annotate(
@@ -327,7 +353,9 @@ Regexp Functions
 
     Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_instr/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(name_pos=RegexpInstr('name', r'ens')) \
         ...               .filter(name_pos__gt=0)
@@ -347,7 +375,9 @@ Regexp Functions
 
     Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_replace/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.create(name="Charles Dickens")
         >>> Author.objects.create(name="Roald Dahl")
@@ -372,7 +402,9 @@ Regexp Functions
 
     Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_substr/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.create(name="Euripides")
         >>> Author.objects.create(name="Frank Miller")
@@ -394,7 +426,9 @@ Encryption Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/encryption-functions.html#function_md5>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/md5/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(description_md5=MD5('description'))
 
@@ -408,7 +442,9 @@ Encryption Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/encryption-functions.html#function_sha1>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/sha1/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(description_sha=SHA1('description'))
 
@@ -425,7 +461,9 @@ Encryption Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/encryption-functions.html#function_sha2>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/sha2/>`_.
 
-    Usage example::
+    Usage example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.annotate(description_sha256=SHA2('description', 256))
 
@@ -462,7 +500,9 @@ Information Functions
     `MySQL <https://dev.mysql.com/doc/refman/5.5/en/information-functions.html#function_last-insert-id>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/last_insert_id/>`_.
 
-    Usage examples::
+    Usage examples:
+
+    .. code-block:: pycon
 
         >>> Countable.objects.filter(id=1).update(counter=LastInsertId('counter') + 1)
         1
@@ -510,7 +550,7 @@ more information on their syntax, refer to the MySQL documentation.
 
     Usage examples:
 
-    .. code-block:: python
+    .. code-block:: pycon
 
         >>> # Fetch a list of tuples (id, size_or_None) for all ShopItems
         >>> ShopItem.objects.annotate(
@@ -540,7 +580,7 @@ more information on their syntax, refer to the MySQL documentation.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-keys>`_.
 
-    .. code-block:: python
+    .. code-block:: pycon
 
         >>> # Fetch the top-level keys for the first item
         >>> ShopItem.objects.annotate(
@@ -577,7 +617,7 @@ more information on their syntax, refer to the MySQL documentation.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-attribute-functions.html#function_json-length>`_.
 
-    .. code-block:: python
+    .. code-block:: pycon
 
         >>> # Which ShopItems don't have more than three colours?
         >>> ShopItem.objects.annotate(
@@ -618,7 +658,9 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     Docs:
     `MariaDB <https://mariadb.com/kb/en/mariadb/column_add/>`_.
 
-    Usage examples::
+    Usage examples:
+
+    .. code-block:: pycon
 
         >>> # Add default 'for_sale' as INTEGER 1 to every item
         >>> ShopItem.objects.update(
@@ -645,7 +687,9 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     Docs:
     `MariaDB <https://mariadb.com/kb/en/mariadb/column_delete/>`_.
 
-    Usage examples::
+    Usage examples:
+
+    .. code-block:: pycon
 
         >>> # Remove 'for_sail' and 'for_purchase' from every item
         >>> ShopItem.objects.update(
@@ -665,7 +709,9 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     Docs:
     `MariaDB <https://mariadb.com/kb/en/mariadb/column_get/>`_.
 
-    Usage examples::
+    Usage examples:
+
+    .. code-block:: pycon
 
         >>> # Fetch a list of tuples (id, size_or_None) for all items
         >>> ShopItem.objects.annotate(

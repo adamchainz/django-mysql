@@ -14,7 +14,9 @@ The following can be imported from ``django_mysql.test.utils``.
     Overrides MySQL system variables for a test method or for every test method
     in a class, similar to Django's :class:`~django.test.override_settings`.
     This can be useful when you're testing code that must run under multiple
-    MySQL environments (like most of `django-mysql`). For example::
+    MySQL environments (like most of `django-mysql`). For example:
+
+    .. code-block:: python
 
         @override_mysql_variables(SQL_MODE="MSSQL")
         class MyTests(TestCase):

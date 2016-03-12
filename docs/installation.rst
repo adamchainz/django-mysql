@@ -59,7 +59,9 @@ imported from ``django_mysql.models``.
     The simplest way to add the ``QuerySet`` extensions - this is a subclass of
     Django's :class:`~django.db.models.Model` that sets ``objects`` to use the
     Django-MySQL extended ``QuerySet`` (below) via ``QuerySet.as_manager()``.
-    Simply change your model base to get the goodness::
+    Simply change your model base to get the goodness:
+
+    .. code-block:: python
 
         # from django.db.models import Model - no more!
         from django_mysql.models import Model
@@ -71,7 +73,9 @@ imported from ``django_mysql.models``.
 .. class:: QuerySet
 
     The second way to add the extensions - use this to replace your model's
-    default manager::
+    default manager:
+
+    .. code-block:: python
 
         from mythings import MyBaseModel
         from django_mysql.models import QuerySet
@@ -85,7 +89,9 @@ imported from ``django_mysql.models``.
 
     The third way to add the extensions, and the container class for the
     extensions.  Add this mixin to your custom ``QuerySet`` class to add in all
-    the fun::
+    the fun:
+
+    .. code-block:: pycon
 
         from django.db.models import Model
         from django_mysql.models import QuerySetMixin
@@ -104,7 +110,9 @@ imported from ``django_mysql.models``.
     A final way to add the extensions, useful when you don't control the
     model class - for example with built in Django models. This function
     creates a subclass of a ``QuerySet``\'s class that has the
-    ``QuerySetMixin`` added in and applies it to the ``QuerySet``::
+    ``QuerySetMixin`` added in and applies it to the ``QuerySet``:
+
+    .. code-block:: python
 
         from django.contrib.auth.models import User
         from django_mysql.models import add_QuerySetMixin

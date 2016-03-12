@@ -89,7 +89,9 @@ Approximate Counting
         To unset this, call ``count_tries_approx`` with ``activate=False``.
 
         To 'fix' an Admin class with this, simply do the following (assuming
-        ``Author`` inherits from ``django_mysql``'s ``Model``)::
+        ``Author`` inherits from ``django_mysql``'s ``Model``):
+
+        .. code-block:: python
 
             class AuthorAdmin(ModelAdmin):
 
@@ -118,7 +120,9 @@ pass through Django’s ORM layer and get re-written by a function that wraps th
 lower-level ``cursor.execute()``.
 
 Because not every user wants these features and there is a (small) overhead to
-every query, you must activate this feature by adding to your settings::
+every query, you must activate this feature by adding to your settings:
+
+.. code-block:: python
 
     DJANGO_MYSQL_REWRITE_QUERIES = True
 
@@ -130,7 +134,9 @@ Once you’ve done this, the following methods will work.
     second thing after the keyword. This can be used to 'tag' queries so that
     when they show in the `slow_log` or another monitoring tool, you can easily
     back track to the python code generating the query. For example, imagine
-    constructing a QuerySet like this::
+    constructing a QuerySet like this:
+
+    .. code-block:: python
 
         qs = Author.objects.label("AuthorListView").all()
 
@@ -164,7 +170,9 @@ Once you’ve done this, the following methods will work.
     ``SELECT``. Note that you can’t force Django’s join order, but it tends to
     be in the order that the tables get mentioned in the query.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Note from Adam: sometimes the optimizer joined books -> author, which
         # is slow. Force it to do author -> books.
@@ -183,7 +191,9 @@ Once you’ve done this, the following methods will work.
     Adds the ``SQL_SMALL_RESULT`` hint, which avoids using a temporary table in
     the case of a ``GROUP BY`` or ``DISTINCT``.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Note from Adam: we have very few distinct birthdays, so using a
         # temporary table is slower
@@ -199,7 +209,9 @@ Once you’ve done this, the following methods will work.
     Adds the ``SQL_BIG_RESULT`` hint, which forces using a temporary table in
     the case of a ``GROUP BY`` or ``DISTINCT``.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Note from Adam: for some reason the optimizer didn’t use a temporary
         # table for this, so we force it
@@ -216,7 +228,9 @@ Once you’ve done this, the following methods will work.
     temporary table to process the result. This is useful to free locks as soon
     as possible.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Note from Adam: seeing a lot of throughput on this table. Buffering
         # the results makes the queries less contentious.
@@ -235,7 +249,9 @@ Once you’ve done this, the following methods will work.
     an effect when the MySQL system variable ``query_cache_type`` is set to
     ``2`` or ``DEMAND``.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Fetch recent posts, cached in MySQL for speed
         recent_posts = BlogPost.objects.sql_cache().order_by('-created')[:5]
@@ -253,7 +269,9 @@ Once you’ve done this, the following methods will work.
     an effect when the MySQL system variable ``query_cache_type`` is set to
     ``1`` or ``ON``.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Avoid caching all the expired sessions, since we’re about to delete
         # them
@@ -278,7 +296,9 @@ Once you’ve done this, the following methods will work.
     This can be faster than taking the slice and then again calling
     ``.count()`` to get the total count.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: pycon
 
         >>> can_drive = Customer.objects.filter(age=21).sql_calc_found_rows()[:10]
         >>> len(can_drive)  # Fetches the first 10 from the database
@@ -365,7 +385,9 @@ and now we need to fix the data. Let's say we accidentally set the address of al
 authors without an address to "Nowhere", rather than the blank string. How can
 we fix them??
 
-The simplest way would be to run the following::
+The simplest way would be to run the following:
+
+.. code-block:: python
 
     Author.objects.filter(address="Nowhere").update(address="")
 
@@ -400,7 +422,9 @@ can be thought of in one of these two methods.
 
     Implements a smart iteration strategy over the given ``queryset``. There is
     a method ``iter_smart_chunks`` that takes the same arguments on the
-    ``QuerySetMixin`` so you can just::
+    ``QuerySetMixin`` so you can just:
+
+    .. code-block:: python
 
         bad_authors = Author.objects.filter(address="Nowhere")
         for author_chunk in bad_authors.iter_smart_chunks():
@@ -510,7 +534,9 @@ can be thought of in one of these two methods.
 
         If set to true, display out a running counter and summary on
         ``sys.stdout``. Useful for interactive use. The message looks like
-        this::
+        this:
+
+        .. code-block:: pycon
 
             AuthorSmartChunkedIterator processed 0/100000 objects (0.00%) in 0 chunks
 
@@ -535,14 +561,18 @@ can be thought of in one of these two methods.
     chunks for you. Can be accessed via the ``iter_smart`` method of
     ``QuerySetMixin``.
 
-    For example, rather than doing this::
+    For example, rather than doing this:
+
+    .. code-block:: python
 
         bad_authors = Author.objects.filter(address="Nowhere")
         for authors_chunk in bad_authors.iter_smart_chunks():
             for author in authors_chunk:
                 author.send_apology_email()
 
-    You can do this::
+    You can do this:
+
+    .. code-block:: python
 
         bad_authors = Author.objects.filter(address="Nowhere")
         for author in bad_authors.iter_smart():
@@ -559,7 +589,9 @@ can be thought of in one of these two methods.
     be used in a raw SQL query. Can be accessed via the
     ``iter_smart_pk_ranges`` method of ``QuerySetMixin``.
 
-    For example, rather than doing this::
+    For example, rather than doing this:
+
+    .. code-block:: python
 
         for authors_chunk in Author.objects.iter_smart_chunks():
             limits = author_chunk.aggregate(min_pk=Min('pk'), max_pk=Max('pk'))
@@ -569,7 +601,9 @@ can be thought of in one of these two methods.
             """, (limits['min_pk'], limits['max_pk']))
             # etc...
 
-    ...you can do this::
+    ...you can do this:
+
+    .. code-block:: python
 
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             authors = Author.objects.raw("""
@@ -614,7 +648,9 @@ up doing.
     ``pt-visual-explain`` commands to get the output. You therefore need the
     MySQL client and Percona Toolkit installed where you run this.
 
-    Example::
+    Example:
+
+    .. code-block:: pycon
 
         >>> Author.objects.all().pt_visual_explain()
         Table scan
@@ -624,7 +660,9 @@ up doing.
 
     Can also be imported as a standalone function if you want to use it on a
     ``QuerySet`` that does not have the ``QuerySetMixin`` added, e.g. for
-    built-in Django models::
+    built-in Django models:
+
+    .. code-block:: pycon
 
         >>> from django_mysql.models import pt_visual_explain
         >>> pt_visual_explain(User.objects.all())
@@ -649,7 +687,9 @@ scans (docs:
 
 This extension adds an ORM-based API for handlers. You can instantiate them
 from a ``QuerySet`` (and thus from `.objects`), and open/close them as context
-managers::
+managers:
+
+.. code-block:: python
 
     with Author.objects.handler() as handler:
 
@@ -663,7 +703,9 @@ managers::
 
 The ``.handler()`` method simply returns a ``Handler`` instance; the class can
 be imported and applied to ``QuerySet``\s from models without the extensions
-easily as well::
+easily as well:
+
+.. code-block:: python
 
     from django_mysql.models.handler import Handler
 
@@ -726,7 +768,9 @@ easily as well::
             ``value__LOOKUP`` allows you to specify a lookup on ``index`` using
             the same style as Django's ORM, and is mutually exclusive with
             ``mode``. You may only have one index lookup on a ``read`` - other
-            conditions must be filtered with ``where``. For example::
+            conditions must be filtered with ``where``. For example:
+
+            .. code-block:: python
 
                 # Read objects with primary key <= 100
                 handler.read(value__lte=100, limit=100)
@@ -741,7 +785,9 @@ easily as well::
 
             For single-column indexes, specify the value; for multi-column
             indexes, specify an iterable of values, one for each column, in
-            index order. For example::
+            index order. For example:
+
+            .. code-block:: python
 
                 grisham = handler.read(index='full_name_idx',
                                        value=('John', 'Grisham'))
@@ -775,7 +821,9 @@ easily as well::
             By default the ``WHERE`` clause from the ``queryset`` used to
             construct the ``Handler`` will be applied. Passing a different
             ``QuerySet`` as ``where`` allows you to read with different
-            filters. For example::
+            filters. For example:
+
+            .. code-block:: python
 
                 with Author.objects.handler() as handler:
 

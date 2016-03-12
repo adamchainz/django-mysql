@@ -35,7 +35,9 @@ Install Plugin
         ``.so``, ``.dll``) whilst on MariaDB you may skip it to keep the
         operation platform-independent.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # -*- coding: utf-8 -*-
         from __future__ import unicode_literals
@@ -77,7 +79,9 @@ Install SOName
         plugin from. You may skip the file extension (e.g. ``.so``, ``.dll``)
         to keep the operation platform-independent.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # -*- coding: utf-8 -*-
         from __future__ import unicode_literals
@@ -125,7 +129,9 @@ Alter Storage Engine
         InnoDB
         <https://mariadb.com/kb/en/mariadb/converting-tables-from-myisam-to-innodb/>`_.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # -*- coding: utf-8 -*-
         from __future__ import unicode_literals

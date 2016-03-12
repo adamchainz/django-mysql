@@ -21,7 +21,9 @@ The following can be imported from ``django_mysql.locks``.
     ``RELEASE_LOCK``, and ``IS_USED_LOCK`` to manage it. It is *not* re-entrant
     so don't write code that gains/releases the same lock more than once.
 
-    Basic usage::
+    Basic usage:
+
+    .. code-block:: python
 
         from django_mysql.exceptions import TimeoutError
         from django_mysql.locks import Lock
@@ -119,7 +121,9 @@ The following can be imported from ``django_mysql.locks``.
         database connection. Returns a dict of lock names to the
         ``CONNECTION_ID()`` that holds the given lock.
 
-        Example usage::
+        Example usage:
+
+        .. code-block:: pycon
 
             >>> Lock.held_with_prefix('Author')
             {'Author.1': 451, 'Author.2': 457}
@@ -128,7 +132,9 @@ The following can be imported from ``django_mysql.locks``.
             Works with MariaDB 10.0.7+ only, when the ``metadata_lock_info``
             plugin is loaded. You can install this in a migration using the
             :class:`~django_mysql.operations.InstallSOName` operation, like
-            so::
+            so:
+
+            .. code-block:: python
 
                 # -*- coding: utf-8 -*-
                 from __future__ import unicode_literals
@@ -159,7 +165,9 @@ The following can be imported from ``django_mysql.locks``.
     from the MySQL manual to ensure all the necessary steps are taken to lock
     tables properly. Note that locking has no timeout and blocks until held.
 
-    Basic usage::
+    Basic usage:
+
+    .. code-block:: python
 
         from django_mysql.locks import TableLock
 

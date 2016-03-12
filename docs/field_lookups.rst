@@ -28,7 +28,9 @@ case_exact
 ----------
 
 Exact, case-sensitive match for character columns, no matter the underlying
-collation::
+collation:
+
+.. code-block:: pycon
 
     >>> Author.objects.filter(name__case_exact="dickens")
     []
@@ -49,7 +51,9 @@ ORM and are added for :class:`~django.db.fields.CharField` and
 soundex
 -------
 
-Match a given soundex string::
+Match a given soundex string:
+
+.. code-block:: pycon
 
     >>> Author.objects.filter(name__soundex='R163')
     [<Author: Robert>, <Author: Rupert>]
@@ -64,7 +68,9 @@ SQL equivalent:
 sounds_like
 -----------
 
-Match the ``SOUNDEX`` of the given string::
+Match the ``SOUNDEX`` of the given string:
+
+.. code-block:: pycon
 
     >>> Author.objects.filter(name__sounds_like='Robert')
     [<Author: Robert>, <Author: Rupert>]
