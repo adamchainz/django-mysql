@@ -184,6 +184,10 @@ class NameAuthor(Model):
         return "{} {}".format(self.id, self.name)
 
 
+class NameAuthorExtra(Model):
+    name = OneToOneField(NameAuthor, primary_key=True)
+
+
 class AuthorMultiIndex(Model):
     class Meta(object):
         index_together = ('name', 'country')

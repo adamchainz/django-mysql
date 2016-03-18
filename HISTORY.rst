@@ -6,7 +6,8 @@ History
 Pending
 -------
 
-* New release notes here
+* ``SmartChunkedIterator`` now fails properly for models whose primary key is a
+  non-integer foreign key.
 
 
 1.0.7 (2016-03-04)

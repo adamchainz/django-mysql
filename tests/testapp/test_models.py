@@ -16,7 +16,8 @@ from django_mysql.models import (
 )
 from django_mysql.utils import have_program, index_name
 from testapp.models import (
-    Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, VanillaAuthor
+    Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra,
+    VanillaAuthor
 )
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
@@ -611,6 +612,11 @@ class SmartIteratorTests(TestCase):
         for extra in AuthorExtra.objects.iter_smart():
             seen_author_ids.append(extra.author_id)
         assert seen_author_ids == [author.id, author2.id]
+
+    def test_iter_smart_fk_string_primary_key_fails(self):
+        with pytest.raises(ValueError) as excinfo:
+            NameAuthorExtra.objects.iter_smart()
+        assert "non-integer primary key" in str(excinfo.value)
 
     def test_reporting(self):
         with captured_stdout() as output:

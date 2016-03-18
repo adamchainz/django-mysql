@@ -340,7 +340,13 @@ class SmartChunkedIterator(object):
             )
 
         pk = queryset.model._meta.pk
-        if not isinstance(pk, self.ALLOWED_PK_FIELD_CLASSES):
+        allowed_field = (
+            isinstance(pk, self.ALLOWED_PK_FIELD_CLASSES) or
+            (isinstance(pk, models.ForeignKey) and
+             isinstance(pk.foreign_related_fields[0],
+                        self.ALLOWED_PK_FIELD_CLASSES))
+        )
+        if not allowed_field:
             # If your custom field class should be allowed, just add it to
             # ALLOWED_PK_FIELD_CLASSES
             raise ValueError(
@@ -353,7 +359,6 @@ class SmartChunkedIterator(object):
     ALLOWED_PK_FIELD_CLASSES = (
         models.IntegerField,  # Also covers e.g. PositiveIntegerField
         models.AutoField,  # Is an integer field but doesn't subclass it :(
-        models.ForeignKey  # Should always point to an integer
     )
 
     def get_first_and_last(self):
