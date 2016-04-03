@@ -30,7 +30,7 @@ to pack and unpack Dynamic Columns blobs in Python rather than in MariaDB
     * ``datetime.date``
     * ``datetime.datetime``
     * ``datetime.datetime``
-    * A nested dict conforming to thsi spec too
+    * A nested dict conforming to this spec too
 
     Note that there are restrictions on the range of values supported for some
     of these types, and that ``decimal.Decimal`` objects are not yet supported
