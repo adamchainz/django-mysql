@@ -2,7 +2,6 @@
 from __future__ import division
 
 import os
-import pty
 import time
 from collections import defaultdict
 from contextlib import contextmanager
@@ -201,6 +200,9 @@ class PTFingerprintThread(Thread):
         super(PTFingerprintThread, self).__init__(**kwargs)
 
     def run(self):
+        # pty is unix/linux only
+        import pty  # noqa
+
         global fingerprint_thread
         master, slave = pty.openpty()
         proc = Popen(

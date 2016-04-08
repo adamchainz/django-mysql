@@ -30,3 +30,7 @@ The following can be imported from ``django_mysql.utils``.
     which accepts input line-by-line, and shuts it down after 60 seconds of
     not being used. It is therefore suitable for use one-query-at-a-time, even
     when batch processing hundreds of queries.
+
+    .. note::
+
+        Because this uses Python's ``pty`` library, it only works on Unix.

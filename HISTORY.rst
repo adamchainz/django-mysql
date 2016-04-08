@@ -8,6 +8,8 @@ Pending
 
 * ``SmartChunkedIterator`` now fails properly for models whose primary key is a
   non-integer foreign key.
+* ``pty`` is no longer imported at the top-level in ``django_mysql.utils``,
+  fixing Windows compatibility.
 
 
 1.0.7 (2016-03-04)
