@@ -42,9 +42,6 @@ def main():
 def tests_main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
     sys.path.insert(0, "tests")
-
-    # pytest was picking up test_utilities as a doctest
-    sys.argv.append("--ignore=docs")
     return pytest.main()
 
 
