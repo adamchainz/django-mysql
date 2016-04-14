@@ -19,6 +19,8 @@ class Command(BaseCommand):
             "connection alias should be a name from DATABASES - defaults to "
             "'{default}'.").format(default=DEFAULT_DB_ALIAS)
 
+    requires_system_checks = False
+
     if django.VERSION[:2] < (1, 8):
 
         option_list = BaseCommand.option_list + (
