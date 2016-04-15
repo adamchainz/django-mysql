@@ -17,6 +17,7 @@ pygments
 pytest
 pytest-django
 pytest-flake8dir
+pytest-randomly
 pytest-super-check
 pytz
 sqlparse

@@ -231,6 +231,7 @@ class TableLockTests(TransactionTestCase):
         Alphabet.objects.using('other').all().delete()
         Customer.objects.all().delete()
         Customer.objects.using('other').all().delete()
+        super(TableLockTests, self).tearDown()
 
     def test_write(self):
         Alphabet.objects.create(a=12345)
@@ -253,7 +254,10 @@ class TableLockTests(TransactionTestCase):
         assert Alphabet.objects.count() == 0
 
     def test_write_with_using(self):
+        assert Alphabet.objects.using('other').count() == 0
         Alphabet.objects.using('other').create(a=878787)
+        assert Alphabet.objects.using('other').count() == 1
+
         with TableLock(write=[Alphabet], using='other'):
             assert Alphabet.objects.using('other').count() == 1
 
