@@ -8,7 +8,8 @@ class IsMariaDBTests(TestCase):
     def test_connections(self):
         for alias in connections:
             connection = connections[alias]
-
+            if not hasattr(connection, 'mysql_version'):
+                continue
             with connection.cursor() as cursor:
                 cursor.execute("SELECT VERSION()")
                 version = cursor.fetchone()[0]
