@@ -48,7 +48,15 @@ DATABASES = {
             'CHARSET': "utf8mb4"
         }
     },
+    'other2': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+
+DATABASE_ROUTERS = [
+    'testapp.routers.NothingOnSQLiteRouter',
+]
 
 ALLOWED_HOSTS = []
 
