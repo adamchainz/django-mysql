@@ -93,7 +93,7 @@ class DynamicField(field_class(Field)):
         conn_names = ['default'] + list(set(connections) - {'default'})
         for db in conn_names:
             if (
-                hasattr(conn, 'mysql_version') and
+                hasattr(connections[db], 'mysql_version') and
                 connections[db].is_mariadb and
                 connections[db].mysql_version >= (10, 0, 1)
             ):
