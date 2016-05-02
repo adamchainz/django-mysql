@@ -167,7 +167,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 table_spec_re_template = r'''
     \b(?P<operator>FROM|JOIN)
     \s+
-    {table_name}
+    {table_name}(?!\s+[A-Z]+\d+)
     \s+
 '''
 
