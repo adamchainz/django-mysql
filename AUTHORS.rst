@@ -13,3 +13,4 @@ Contributors
 * Łukasz Więcek <https://github.com/lwiecek>
 * Marco Santamaria <https://github.com/marco-santamaria>
 * Michael Aquilina <https://github.com/MichaelAquilina>
+* Vladimir Kuzmin <https://github.com/VladimirKuzmin>

@@ -8,6 +8,8 @@ Pending
 
 * New release notes here
 * Fixed some features to work when there are non-MySQL databases configured
+* Fixed syntax error when index hint used on an aliased table
+* Index hints apply to the correct table entry in nested queries
 
 1.0.8 (2016-04-08)
 ------------------

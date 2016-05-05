@@ -25,6 +25,7 @@ index_rule_re = re.compile(
     r"""
     index=
     (?P<table_name>`[^`]+`)
+    (?:\ AS\ `(?P<alias>[^`]+)`)?
     \ # space
     (?P<rule>USE|IGNORE|FORCE)
     \ # space
@@ -58,6 +59,7 @@ def rewrite_query(sql):
                     index_match.group('rule'),
                     index_match.group('index_names'),
                     index_match.group('for_what'),
+                    index_match.group('alias'),
                 ))
 
         # Silently fail on unrecognized rewrite requests
@@ -167,18 +169,23 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 table_spec_re_template = r'''
     \b(?P<operator>FROM|JOIN)
     \s+
-    {table_name}
+    {table_name}{optional_alias}
     \s+
 '''
 
 replacement_template = (
-    r'\g<operator> {table_name} '
+    r'\g<operator> {table_name}{optional_alias} '
     r'{rule} INDEX {for_section}({index_names}) '
 )
 
 
-def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
-    table_spec_re = table_spec_re_template.format(table_name=table_name)
+def modify_sql_index_hints(
+        sql, table_name, rule, index_names, for_what, alias):
+    alias_re = ''
+    if alias:
+        alias_re = '\s+{}'.format(re.escape(alias))
+    table_spec_re = table_spec_re_template.format(
+        table_name=re.escape(table_name), optional_alias=alias_re)
     if for_what:
         for_section = 'FOR {} '.format(for_what)
     else:
@@ -187,6 +194,7 @@ def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
         table_name=table_name,
         rule=rule,
         for_section=for_section,
-        index_names=('' if index_names == 'NONE' else index_names)
+        index_names=('' if index_names == 'NONE' else index_names),
+        optional_alias=' {}'.format(alias) if alias else ''
     )
     return re.sub(table_spec_re, replacement, sql, count=1, flags=re.VERBOSE)

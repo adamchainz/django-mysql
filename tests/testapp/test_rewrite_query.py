@@ -310,6 +310,32 @@ class RewriteQueryTests(TestCase):
             "WHERE (1) ORDER BY col_a"
         )
 
+    def test_index_hint_for_table_with_alias(self):
+        assert (
+            rewrite_query(
+                "SELECT `sometable`.col_a, `ALIAS0`.col_b "
+                "FROM `sometable` NATURAL JOIN `sometable` ALIAS0 "
+                "WHERE (/*QueryRewrite':index=`sometable` AS `ALIAS0`"
+                " IGNORE FOR JOIN `idx`*/1)"
+            ) ==
+            "SELECT `sometable`.col_a, `ALIAS0`.col_b FROM "
+            "`sometable` NATURAL JOIN `sometable` ALIAS0 "
+            "IGNORE INDEX FOR JOIN (`idx`) WHERE (1)"
+        )
+
+    def test_index_hint_for_table_without_alias(self):
+        assert (
+            rewrite_query(
+                "SELECT `sometable`.col_a, `ALIAS0`.col_b "
+                "FROM `sometable` NATURAL JOIN `sometable` ALIAS0 "
+                "WHERE (/*QueryRewrite':index=`sometable` IGNORE FOR JOIN "
+                "`idx`*/1)"
+            ) ==
+            "SELECT `sometable`.col_a, `ALIAS0`.col_b FROM "
+            "`sometable` IGNORE INDEX FOR JOIN (`idx`) "
+            "NATURAL JOIN `sometable` ALIAS0 WHERE (1)"
+        )
+
     def test_it_is_monkey_patched(self):
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute("SELECT 1 FROM DUAL "

@@ -314,7 +314,6 @@ class QueryHintTests(TestCase):
         with CaptureLastQuery() as cap:
             list(Author.objects.force_index(name_idx, for_='ORDER BY')
                                .order_by('name'))
-
         assert ('FORCE INDEX FOR ORDER BY (`' + name_idx + "`)") in cap.query
         assert name_idx in used_indexes(cap.query)
 
@@ -338,6 +337,47 @@ class QueryHintTests(TestCase):
                        .select_related('authorextra')
                        .force_index('PRIMARY', table_name='nonexistent'))
         assert ' FORCE INDEX ' not in cap.query
+
+    def test_use_index_outer_query(self):
+        inner = Author.objects.all()
+        outer = Author.objects.filter(pk__in=inner).use_index('PRIMARY')
+        with CaptureLastQuery() as cap:
+            list(outer)
+        select_clause_l1, select_clause_l2 = cap.query.split('SELECT ')[1:]
+        assert 'USE INDEX' in select_clause_l1
+        assert 'USE INDEX' not in select_clause_l2
+
+    def test_use_index_inner_query(self):
+        title_index = index_name(Book, 'title')
+        inner = Book.objects\
+            .filter(title__startswith='a').use_index(title_index)
+        outer = Book.objects.filter(pk__in=inner).select_related('author')
+        with CaptureLastQuery() as cap:
+            list(outer)
+        select_clause_l1, select_clause_l2 = cap.query.split('SELECT ')[1:]
+        assert 'USE INDEX' not in select_clause_l1
+        assert 'USE INDEX' in select_clause_l2
+
+    def test_use_index_inner_query_l3(self):
+        title_index = index_name(Book, 'title')
+        inner_l3 = Book.objects\
+            .filter(title__startswith='a').use_index(title_index)
+        inner_l2 = Book.objects.filter(pk__in=inner_l3)
+        outer = Book.objects.filter(pk__in=inner_l2).select_related('author')
+        with CaptureLastQuery() as cap:
+            list(outer)
+        select_clause_l1, select_clause_l2, select_clause_l3\
+            = cap.query.split('SELECT ')[1:]
+        assert 'USE INDEX' not in select_clause_l1
+        assert 'USE INDEX' not in select_clause_l2
+        assert 'USE INDEX' in select_clause_l3
+
+    def test_use_index_on_table_join_itself(self):
+        query = Author.objects.order_by('-id')\
+            .use_index('PRIMARY', for_="ORDER BY")
+        with CaptureLastQuery() as cap:
+            list(query.select_related('tutor'))
+        assert 'USE INDEX' in cap.query
 
 
 class FoundRowsTests(TestCase):
