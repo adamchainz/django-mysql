@@ -110,7 +110,7 @@ class JSONField(field_class(Field)):
     def from_db_value(self, value, expression, connection, context):
         # Similar to to_python, for Django 1.8+
         if isinstance(value, six.string_types):
-            return json.loads(value)
+            return json.loads(value, strict=False)
         return value
 
     def get_prep_value(self, value):

@@ -8,6 +8,8 @@ Pending
 
 * New release notes here
 * Fixed some features to work when there are non-MySQL databases configured
+* Fixed ``JSONField`` to allow control characters, which MySQL does - but not
+  in a top-level string, only inside a JSON object/array.
 
 1.0.8 (2016-04-08)
 ------------------
