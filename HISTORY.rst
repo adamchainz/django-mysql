@@ -7,6 +7,10 @@ Pending
 -------
 
 * New release notes here
+
+1.0.9 (2016-05-12)
+------------------
+
 * Fixed some features to work when there are non-MySQL databases configured
 * Fixed ``JSONField`` to allow control characters, which MySQL does - but not
   in a top-level string, only inside a JSON object/array.
