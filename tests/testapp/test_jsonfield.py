@@ -58,6 +58,14 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel.objects.get()
         assert m.attrs is None
 
+    def test_control_characters(self):
+        chars = ''.join(chr(i) for i in range(32))
+        m = JSONModel(attrs=[chars])
+        assert m.attrs == [chars]
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == [chars]
+
 
 class QueryTests(JSONFieldTestCase):
 

@@ -8,6 +8,7 @@ Pending
 
 * New release notes here
 * Fixed some features to work when there are non-MySQL databases configured
+* Allowed control characters in JSONField
 
 1.0.8 (2016-04-08)
 ------------------
