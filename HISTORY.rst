@@ -148,7 +148,7 @@ Pending
 * Extra ORM aggregates added - ``BitAnd``, ``BitOr``, and ``BitXor``
 * ``MySQLCache`` is now case-sensitive. If you are already using it, an upgrade
   ``ALTER TABLE`` and migration is provided at `the end of the cache docs
-  <http://django-mysql.readthedocs.org/en/latest/cache.html>`_.
+  <https://django-mysql.readthedocs.io/en/latest/cache.html>`_.
 * (MariaDB only) The ``Lock`` class gained a class method ``held_with_prefix``
   to query held locks matching a given prefix
 * ``SmartIterator`` bugfix for chunks with 0 objects slowing iteration; they

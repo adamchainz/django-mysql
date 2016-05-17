@@ -44,7 +44,7 @@ def strict_mode_warning(alias):
         MySQL's Strict Mode fixes many data integrity problems in MySQL, such
         as data truncation upon insertion, by escalating warnings into errors.
         It is strongly recommended you activate it. See:
-        http://django-mysql.readthedocs.org/en/latest/checks.html#django-mysql-w001-strict-mode
+        https://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w001-strict-mode
     """)
     return Warning(
         message.format(alias),
@@ -59,7 +59,7 @@ def innodb_strict_mode_warning(alias):
         InnoDB Strict Mode escalates several warnings around InnoDB-specific
         statements into errors. It's recommended you activate this, but it's
         not very likely to affect you if you don't. See:
-        http://django-mysql.readthedocs.org/en/latest/checks.html#django-mysql-w002-innodb-strict-mode
+        https://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w002-innodb-strict-mode
     """)
 
     return Warning(
@@ -75,7 +75,7 @@ def utf8mb4_warning(alias):
         The default 'utf8' character set does not include support for all
         Unicode characters. It's strongly recommended you move to use
         'utf8mb4'. See:
-        http://django-mysql.readthedocs.org/en/latest/checks.html#django-mysql-w003-utf8mb4
+        https://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w003-utf8mb4
     """)
 
     return Warning(

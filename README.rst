@@ -15,7 +15,7 @@ Django-MySQL
         :target: https://pypi.python.org/pypi/django-mysql
 
 .. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
-        :target: http://django-mysql.readthedocs.org/en/latest/
+        :target: https://django-mysql.readthedocs.io/en/latest/
 
 
 .. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
@@ -59,7 +59,7 @@ Includes:
 * Table lock manager for hard to pull off data migrations
 
 To see them all, check out the exposition at
-http://django-mysql.readthedocs.org/en/latest/exposition.html .
+https://django-mysql.readthedocs.io/en/latest/exposition.html .
 
 
 Requirements
@@ -85,4 +85,4 @@ Documentation
 -------------
 
 Every detail documented on
-`Read The Docs <https://django-mysql.readthedocs.org/en/latest/>`_.
+`Read The Docs <https://django-mysql.readthedocs.io/en/latest/>`_.
