@@ -1,8 +1,13 @@
 # -*- coding:utf-8 -*-
+import collections
 import json
 
+import six
 from django.db.models import CharField, Lookup, Transform
-from django.db.models.lookups import BuiltinLookup
+from django.db.models.lookups import (
+    BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan,
+    LessThanOrEqual
+)
 
 
 class CaseSensitiveExact(BuiltinLookup):
@@ -37,6 +42,43 @@ class Soundex(Transform):
 # JSONField
 
 
+class JSONValue(object):
+    def __init__(self, value):
+        self.json_string = json.dumps(value)
+
+    def as_sql(self, *args, **kwargs):
+        return 'CAST(%s AS JSON)', [self.json_string]
+
+
+class JSONLookupMixin(object):
+
+    def get_prep_lookup(self):
+        value = self.rhs
+        if not hasattr(value, '_prepare') and value is not None:
+            return JSONValue(value)
+        return super(JSONLookupMixin, self).get_prep_lookup()
+
+
+class JSONExact(JSONLookupMixin, Exact):
+    pass
+
+
+class JSONGreaterThan(JSONLookupMixin, GreaterThan):
+    lookup_name = 'gt'
+
+
+class JSONGreaterThanOrEqual(JSONLookupMixin, GreaterThanOrEqual):
+    lookup_name = 'gte'
+
+
+class JSONLessThan(JSONLookupMixin, LessThan):
+    lookup_name = 'lt'
+
+
+class JSONLessThanOrEqual(JSONLookupMixin, LessThanOrEqual):
+    lookup_name = 'lte'
+
+
 class JSONContainedBy(Lookup):
     lookup_name = 'contained_by'
 
@@ -47,7 +89,7 @@ class JSONContainedBy(Lookup):
         return 'JSON_CONTAINS({}, {})'.format(rhs, lhs), params
 
 
-class JSONContains(Lookup):
+class JSONContains(JSONLookupMixin, Lookup):
     lookup_name = 'contains'
 
     def as_sql(self, qn, connection):
@@ -60,6 +102,14 @@ class JSONContains(Lookup):
 class JSONHasKey(Lookup):
     lookup_name = 'has_key'
 
+    def get_prep_lookup(self):
+        if not isinstance(self.rhs, six.text_type):
+            raise ValueError(
+                "JSONField's 'has_key' lookup only works with {} values"
+                .format(six.text_type.__name__)
+            )
+        return super(JSONHasKey, self).get_prep_lookup()
+
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         key_name = self.rhs
@@ -68,7 +118,17 @@ class JSONHasKey(Lookup):
         return "JSON_CONTAINS_PATH({}, 'one', %s)".format(lhs), params
 
 
-class JSONHasKeys(Lookup):
+class JSONSequencesMixin(object):
+    def get_prep_lookup(self):
+        if not isinstance(self.rhs, collections.Sequence):
+            raise ValueError(
+                "JSONField's '{}' lookup only works with Sequences"
+                .format(self.lookup_name)
+            )
+        return self.rhs
+
+
+class JSONHasKeys(JSONSequencesMixin, Lookup):
     lookup_name = 'has_keys'
 
     def as_sql(self, qn, connection):
@@ -85,7 +145,7 @@ class JSONHasKeys(Lookup):
         return ''.join(sql), params
 
 
-class JSONHasAnyKeys(Lookup):
+class JSONHasAnyKeys(JSONSequencesMixin, Lookup):
     lookup_name = 'has_any_keys'
 
     def as_sql(self, qn, connection):
@@ -107,6 +167,17 @@ class JSONHasAnyKeys(Lookup):
 
 class SetContains(Lookup):
     lookup_name = 'contains'
+
+    def get_prep_lookup(self):
+        if isinstance(self.rhs, (list, set)):
+            # Can't do multiple contains without massive ORM hackery
+            # (ANDing all the FIND_IN_SET calls), so just reject them
+            raise ValueError(
+                "Can't do contains with a set and {klass}, you should "
+                "pass them as separate filters."
+                .format(klass=self.lhs.__class__.__name__)
+            )
+        return super(SetContains, self).get_prep_lookup()
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)

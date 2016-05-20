@@ -22,7 +22,7 @@ forceDataError = override_mysql_variables(SQL_MODE='STRICT_TRANS_TABLES')
 
 def migrate(name):
     call_command('migrate', 'testapp', name,
-                 verbosity=0, skip_checks=True)
+                 verbosity=0, skip_checks=True, interactive=False)
 
 
 class SubSizedBinaryField(SizedBinaryField):

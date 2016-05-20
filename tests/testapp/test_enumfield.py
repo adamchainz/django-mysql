@@ -129,12 +129,12 @@ class TestMigrations(TransactionTestCase):
             assert table_name not in table_names(cursor)
 
         call_command('migrate', 'testapp',
-                     verbosity=0, skip_checks=True)
+                     verbosity=0, skip_checks=True, interactive=False)
         with connection.cursor() as cursor:
             assert table_name in table_names(cursor)
 
         call_command('migrate', 'testapp', 'zero',
-                     verbosity=0, skip_checks=True)
+                     verbosity=0, skip_checks=True, interactive=False)
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 

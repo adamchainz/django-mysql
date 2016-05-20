@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import absolute_import
 
+import django
 from django.core import checks
 from django.db.models import CharField, IntegerField, Lookup, TextField
 from django.utils import six
@@ -141,24 +142,26 @@ class ListFieldMixin(object):
 
         return lookup
 
-    def get_db_prep_lookup(self, lookup_type, value, connection,
-                           prepared=False):
-        if lookup_type in ('contains', 'icontains'):
-            # Avoid the default behaviour of adding wildcards on either side of
-            # what we're searching for, because FIND_IN_SET is doing that
-            # implicitly
-            if isinstance(value, list):
-                # Can't do multiple contains without massive ORM hackery
-                # (ANDing all the FIND_IN_SET calls), so just reject them
-                raise ValueError(
-                    "Can't do contains with a list and {klass}, you should "
-                    "pass them as separate filters."
-                    .format(klass=self.__class__.__name__)
-                )
-            return [six.text_type(self.base_field.get_prep_value(value))]
+    if django.VERSION[:2] <= (1, 7):
 
-        return super(ListFieldMixin, self).get_db_prep_lookup(
-            lookup_type, value, connection, prepared)
+        def get_db_prep_lookup(self, lookup_type, value, connection,
+                               prepared=False):
+            if lookup_type in ('contains', 'icontains'):
+                # Avoid the default behaviour of adding wildcards on either
+                # side of what we're searching for, because FIND_IN_SET is
+                # doing that implicitly
+                if isinstance(value, list):
+                    # Can't do multiple contains without massive ORM hackery
+                    # (ANDing all the FIND_IN_SET calls), so just reject them
+                    raise ValueError(
+                        "Can't do contains with a list and {klass}, you "
+                        "should pass them as separate filters."
+                        .format(klass=self.__class__.__name__)
+                    )
+                return [six.text_type(self.base_field.get_prep_value(value))]
+
+            return super(ListFieldMixin, self).get_db_prep_lookup(
+                lookup_type, value, connection, prepared)
 
     def value_to_string(self, obj):
         vals = self._get_val_from_obj(obj)

@@ -13,6 +13,7 @@ from django.test import TestCase
 from django_mysql import forms
 from django_mysql.models import JSONField
 from testapp.models import JSONModel, TemporaryModel
+from testapp.utils import print_all_queries
 
 
 class JSONFieldTestCase(TestCase):
@@ -268,10 +269,11 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         assert "only works with Sequences" in str(excinfo.value)
 
     def test_has_keys(self):
-        assert (
-            list(JSONModel.objects.filter(attrs__has_keys=['a', 'c'])) ==
-            [self.objs[1], self.objs[2]]
-        )
+        with print_all_queries():
+            assert (
+                list(JSONModel.objects.filter(attrs__has_keys=['a', 'c'])) ==
+                [self.objs[1], self.objs[2]]
+            )
 
     def test_has_keys_2(self):
         assert (

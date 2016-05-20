@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-import collections
 import json
 
 import django
@@ -13,7 +12,9 @@ from django.utils import six
 from django_mysql import forms
 from django_mysql.compat import field_class
 from django_mysql.models.lookups import (
-    JSONContainedBy, JSONContains, JSONHasAnyKeys, JSONHasKey, JSONHasKeys
+    JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
+    JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
+    JSONLessThan, JSONLessThanOrEqual
 )
 from django_mysql.utils import collapse_spaces
 
@@ -120,30 +121,6 @@ class JSONField(field_class(Field)):
             return json.dumps(value)
         return value
 
-    def get_prep_lookup(self, lookup_type, value):
-        if (
-            not hasattr(value, '_prepare') and
-            lookup_type in ('exact', 'gt', 'gte', 'lt', 'lte', 'contains') and
-            value is not None
-        ):
-            return JSONValue(value)
-        elif lookup_type == 'has_key':
-            if not isinstance(value, six.text_type):
-                raise ValueError(
-                    "JSONField's 'has_key' lookup only works with {} values"
-                    .format(six.text_type.__name__)
-                )
-            return value
-        elif lookup_type in ('has_keys', 'has_any_keys'):
-            if not isinstance(value, collections.Sequence):
-                raise ValueError(
-                    "JSONField's '{}' lookup only works with Sequences"
-                    .format(lookup_type)
-                )
-            return value
-
-        return super(JSONField, self).get_prep_lookup(lookup_type, value)
-
     def get_lookup(self, lookup_name):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
@@ -161,14 +138,6 @@ class JSONField(field_class(Field)):
         return super(JSONField, self).formfield(**defaults)
 
 
-class JSONValue(object):
-    def __init__(self, value):
-        self.json_string = json.dumps(value)
-
-    def as_sql(self, *args, **kwargs):
-        return 'CAST(%s AS JSON)', [self.json_string]
-
-
 class JSONLength(Transform):
     lookup_name = 'length'
 
@@ -181,12 +150,18 @@ class JSONLength(Transform):
     else:
         function = 'JSON_LENGTH'
 
-JSONField.register_lookup(JSONContains)
+
 JSONField.register_lookup(JSONContainedBy)
+JSONField.register_lookup(JSONContains)
+JSONField.register_lookup(JSONExact)
+JSONField.register_lookup(JSONGreaterThan)
+JSONField.register_lookup(JSONGreaterThanOrEqual)
 JSONField.register_lookup(JSONHasAnyKeys)
 JSONField.register_lookup(JSONHasKey)
 JSONField.register_lookup(JSONHasKeys)
 JSONField.register_lookup(JSONLength)
+JSONField.register_lookup(JSONLessThan)
+JSONField.register_lookup(JSONLessThanOrEqual)
 
 
 class KeyTransform(Transform):
