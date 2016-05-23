@@ -1,4 +1,4 @@
-coverage==4.0.3
+coverage==4.1
 docutils==0.12
 flake8==2.5.4
 funcsigs==1.0.2
