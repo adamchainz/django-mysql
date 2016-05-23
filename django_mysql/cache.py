@@ -7,7 +7,6 @@ from random import random
 from textwrap import dedent
 from time import time
 
-import django
 from django.core.cache.backends.base import (
     DEFAULT_TIMEOUT, BaseCache, default_key_func
 )
@@ -49,8 +48,7 @@ class Options(object):
         self.abstract = False
         self.managed = True
         self.proxy = False
-        if django.VERSION[:2] >= (1, 8):
-            self.swapped = False
+        self.swapped = False
 
 
 class BaseDatabaseCache(BaseCache):

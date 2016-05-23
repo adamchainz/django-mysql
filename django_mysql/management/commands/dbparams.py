@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from optparse import make_option
-
 import django
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -21,56 +19,32 @@ class Command(BaseCommand):
 
     requires_system_checks = False
 
-    if django.VERSION[:2] < (1, 8):
-
-        option_list = BaseCommand.option_list + (
-            make_option(
-                '--mysql',
-                action='store_true',
-                dest='mysql',
-                default=False,
-                help='Outputs flags for tools that take parameters in the '
-                     'same format as the mysql client, e.g. mysql '
-                     '$(./manage.py dbparams --mysql)'
-            ),
-            make_option(
-                '--dsn',
-                action='store_true',
-                dest='dsn',
-                default=False,
-                help='Output a DSN for e.g. percona tools, e.g. '
-                     'pt-online-schema-change $(./manage.py dbparams --dsn)'
-            ),
-        )
-
-    else:
-
-        def add_arguments(self, parser):
-            if django.VERSION[:2] >= (1, 10):
-                parser.add_argument(
-                    'alias', metavar='alias', nargs='?',
-                    default=DEFAULT_DB_ALIAS,
-                    help='Specify the database connection alias to output '
-                         'parameters for.'
-                )
-
+    def add_arguments(self, parser):
+        if django.VERSION[:2] >= (1, 10):
             parser.add_argument(
-                '--mysql',
-                action='store_true',
-                dest='mysql',
-                default=False,
-                help='Outputs flags for tools that take parameters in the '
-                     'same format as the mysql client, e.g. mysql '
-                     '$(./manage.py dbparams --mysql)'
+                'alias', metavar='alias', nargs='?',
+                default=DEFAULT_DB_ALIAS,
+                help='Specify the database connection alias to output '
+                     'parameters for.'
             )
-            parser.add_argument(
-                '--dsn',
-                action='store_true',
-                dest='dsn',
-                default=False,
-                help='Output a DSN for e.g. percona tools, e.g. '
-                     'pt-online-schema-change $(./manage.py dbparams --dsn)'
-            ),
+
+        parser.add_argument(
+            '--mysql',
+            action='store_true',
+            dest='mysql',
+            default=False,
+            help='Outputs flags for tools that take parameters in the '
+                 'same format as the mysql client, e.g. mysql '
+                 '$(./manage.py dbparams --mysql)'
+        )
+        parser.add_argument(
+            '--dsn',
+            action='store_true',
+            dest='dsn',
+            default=False,
+            help='Output a DSN for e.g. percona tools, e.g. '
+                 'pt-online-schema-change $(./manage.py dbparams --dsn)'
+        ),
 
     def handle(self, *args, **options):
         if django.VERSION[:2] >= (1, 10):

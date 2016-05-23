@@ -2,8 +2,6 @@
 from django.db.models import BooleanField, NullBooleanField
 from django.utils import six
 
-from django_mysql.compat import field_class
-
 
 class Bit1Mixin(object):
     def db_type(self, connection):
@@ -34,9 +32,9 @@ class Bit1Mixin(object):
             return 1 if value else 0
 
 
-class Bit1BooleanField(field_class(Bit1Mixin, BooleanField)):
+class Bit1BooleanField(Bit1Mixin, BooleanField):
     pass
 
 
-class NullBit1BooleanField(field_class(Bit1Mixin, NullBooleanField)):
+class NullBit1BooleanField(Bit1Mixin, NullBooleanField):
     pass

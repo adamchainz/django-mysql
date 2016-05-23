@@ -15,7 +15,6 @@ from django.db.models import (
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
-from django_mysql.compat import field_class
 from django_mysql.models.lookups import DynColHasKey
 
 try:
@@ -24,7 +23,7 @@ except ImportError:  # pragma: no cover
     mariadb_dyncol = None
 
 
-class DynamicField(field_class(Field)):
+class DynamicField(Field):
     empty_strings_allowed = False
     description = _("Mapping")
 
@@ -39,11 +38,8 @@ class DynamicField(field_class(Field)):
     def check(self, **kwargs):
         errors = super(DynamicField, self).check(**kwargs)
         errors.extend(self._check_mariadb_dyncol())
-
-        if django.VERSION[:2] >= (1, 8):
-            # These checks connect to the DB, which only works on Django 1.8+
-            errors.extend(self._check_mariadb_version())
-            errors.extend(self._check_character_set())
+        errors.extend(self._check_mariadb_version())
+        errors.extend(self._check_character_set())
 
         if self.spec is not None:
             errors.extend(self._check_spec_recursively(self.spec))

@@ -5,12 +5,10 @@ import six
 from django.db.models import CharField
 from django.utils.translation import ugettext_lazy as _
 
-from django_mysql.compat import field_class
-
 from _mysql import escape_string  # isort:skip
 
 
-class EnumField(field_class(CharField)):
+class EnumField(CharField):
     description = _("Enumeration")
 
     def __init__(self, *args, **kwargs):

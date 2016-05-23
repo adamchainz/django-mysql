@@ -10,7 +10,6 @@ from django.db.models import Field, IntegerField, Transform
 from django.utils import six
 
 from django_mysql import forms
-from django_mysql.compat import field_class
 from django_mysql.models.lookups import (
     JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
@@ -21,7 +20,7 @@ from django_mysql.utils import collapse_spaces
 __all__ = ('JSONField',)
 
 
-class JSONField(field_class(Field)):
+class JSONField(Field):
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
             kwargs['default'] = dict
@@ -29,25 +28,9 @@ class JSONField(field_class(Field)):
 
     def check(self, **kwargs):
         errors = super(JSONField, self).check(**kwargs)
-        errors.extend(self._check_django_version())
         errors.extend(self._check_default())
+        errors.extend(self._check_mysql_version())
 
-        if django.VERSION[:2] >= (1, 8):
-            # This check connects to the DB, which only works on Django 1.8+
-            errors.extend(self._check_mysql_version())
-
-        return errors
-
-    def _check_django_version(self):
-        errors = []
-        if django.VERSION[:2] < (1, 8):
-            errors.append(
-                checks.Error(
-                    "Django 1.8+ is required to use JSONField",
-                    obj=self,
-                    id='django_mysql.E015',
-                )
-            )
         return errors
 
     def _check_default(self):

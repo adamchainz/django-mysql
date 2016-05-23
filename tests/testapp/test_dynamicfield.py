@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 import json
 import mock
 from datetime import date, datetime, time
-from unittest import SkipTest, skipIf
+from unittest import SkipTest
 
-import django
 import pytest
 from django.core import serializers
 from django.db import connection, connections
@@ -316,17 +315,11 @@ class QueryTests(DynColTestCase):
             [self.objs[4]]
         )
 
-requiresDBChecks = skipIf(
-    django.VERSION[:2] < (1, 8),
-    "Requires ability to talk to DB in checks from Django 1.8+"
-)
-
 
 class TestCheck(DynColTestCase):
 
     wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
 
-    @requiresDBChecks
     @mock.patch(wrapper_path + '.is_mariadb', new=False)
     def test_db_not_mariadb(self):
         # Uncache cached_property
@@ -342,7 +335,6 @@ class TestCheck(DynColTestCase):
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
 
-    @requiresDBChecks
     @mock.patch(wrapper_path + '.mysql_version', new=(5, 5, 3))
     def test_mariadb_old_version(self):
         # Uncache cached_property
@@ -358,7 +350,6 @@ class TestCheck(DynColTestCase):
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
 
-    @requiresDBChecks
     @mock.patch(DynamicField.__module__ + '.mariadb_dyncol', new=None)
     def test_mariadb_dyncol_missing(self):
         errors = DynamicModel.check()
@@ -366,7 +357,6 @@ class TestCheck(DynColTestCase):
         assert errors[0].id == 'django_mysql.E012'
         assert "'mariadb_dyncol' is required" in errors[0].msg
 
-    @requiresDBChecks
     def test_character_set_not_utf8_compatible(self):
         with connection.cursor() as cursor:
             cursor.execute("SELECT @@character_set_client")

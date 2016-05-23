@@ -1,17 +1,9 @@
 # -*- coding:utf-8 -*-
-from unittest import skipIf
-
-import django
 from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
 from django_mysql.checks import check_variables
 from django_mysql.test.utils import override_mysql_variables
-
-requiresNoDBConnection = skipIf(
-    django.VERSION[:2] < (1, 8),
-    "Requires nodb_connection from Django 1.8+"
-)
 
 
 class CallCheckTest(TestCase):
@@ -20,7 +12,6 @@ class CallCheckTest(TestCase):
         call_command('check')
 
 
-@requiresNoDBConnection
 class VariablesTests(TransactionTestCase):
 
     def test_passes(self):

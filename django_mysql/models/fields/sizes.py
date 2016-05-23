@@ -1,10 +1,8 @@
 from django.core import checks
 from django.db.models import BinaryField, TextField
 
-from django_mysql.compat import field_class
 
-
-class SizedBinaryField(field_class(BinaryField)):
+class SizedBinaryField(BinaryField):
     def __init__(self, *args, **kwargs):
         self.size_class = kwargs.pop('size_class', 4)
         super(SizedBinaryField, self).__init__(*args, **kwargs)
@@ -46,7 +44,7 @@ class SizedBinaryField(field_class(BinaryField)):
             return 'longblob'
 
 
-class SizedTextField(field_class(TextField)):
+class SizedTextField(TextField):
     def __init__(self, *args, **kwargs):
         self.size_class = kwargs.pop('size_class', 4)
         super(SizedTextField, self).__init__(*args, **kwargs)

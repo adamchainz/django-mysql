@@ -2,7 +2,6 @@
 import json
 from datetime import date, datetime, time
 
-import django
 from django.db import connection
 from django.db.models import Model as VanillaModel
 from django.db.models import (
@@ -262,7 +261,6 @@ class NullBit1Model(Model):
 
 class JSONModel(Model):
     if (
-        django.VERSION[:2] >= (1, 8) and
         not connection_is_mariadb(connection._nodb_connection) and
         connection._nodb_connection.mysql_version >= (5, 7)
     ):

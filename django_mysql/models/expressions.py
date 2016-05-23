@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db.models import F
+from django.db.models import F, Value
+from django.db.models.expressions import BaseExpression
 
-from django_mysql.compat import BaseExpression, Value
 from django_mysql.utils import collapse_spaces
 
 

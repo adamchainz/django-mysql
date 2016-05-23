@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 
-import django
 from django.core.checks import Tags, Warning, register
 from django.db import DEFAULT_DB_ALIAS, connections
 
@@ -9,9 +8,7 @@ from django_mysql.utils import collapse_spaces
 
 
 def register_checks():
-    if django.VERSION[:2] >= (1, 8):
-        # These checks connect to the DB, which only works on Django 1.8+
-        register(Tags.compatibility)(check_variables)
+    register(Tags.compatibility)(check_variables)
 
 
 def check_variables(app_configs, **kwargs):

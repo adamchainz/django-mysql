@@ -1,9 +1,7 @@
 # -*- coding:utf-8 -*-
 import json
 import re
-from unittest import skipIf
 
-import django
 import pytest
 from django import forms
 from django.core import exceptions, serializers
@@ -201,8 +199,6 @@ class TestSaveLoad(TestCase):
         assert no_one.count() == 0
 
 
-@skipIf(django.VERSION[:2] < (1, 8),
-        "Requires Expressions from Django 1.8+")
 class TestSetF(TestCase):
 
     def test_add_to_none(self):
@@ -345,15 +341,6 @@ class TestSetF(TestCase):
         model = CharSetModel.objects.get()
         assert model.field == {"snickers", "mars", "reeses"}
         assert model.field2 == {"orange"}
-
-
-@skipIf(django.VERSION[:2] >= (1, 8),
-        "Requires old Django version without Expressions")
-class TestSetFFails(TestCase):
-
-    def test_cannot_instantiate(self):
-        with pytest.raises(ValueError):
-            SetF('field').add("something")
 
 
 class TestValidation(SimpleTestCase):

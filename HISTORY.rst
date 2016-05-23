@@ -7,6 +7,7 @@ Pending
 -------
 
 * New release notes here
+* Dropped Django 1.7 support
 
 1.0.9 (2016-05-12)
 ------------------

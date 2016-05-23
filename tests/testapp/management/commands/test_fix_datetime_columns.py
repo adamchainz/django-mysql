@@ -47,11 +47,10 @@ class Datetime6TestMixin(object):
     def setUpClass(cls):
         if (
             connection.is_mariadb or
-            connection.mysql_version[:2] < (5, 6) or
-            django.VERSION[:2] < (1, 8)
+            connection.mysql_version[:2] < (5, 6)
         ):
             raise SkipTest(
-                "Django 1.8+ only uses datetime(6) columns on MySQL 5.6+"
+                "Django only uses datetime(6) columns on MySQL 5.6+"
             )
         super(Datetime6TestMixin, cls).setUpClass()
 

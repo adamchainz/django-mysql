@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import mock
 from unittest import SkipTest
 
-import django
 import pytest
 from django.db import connection, connections
 from django.db.models import F
@@ -21,11 +20,10 @@ class JSONFieldTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         if not (
-            django.VERSION[:2] >= (1, 8) and
             not connection.is_mariadb and
             connection.mysql_version >= (5, 7)
         ):
-            raise SkipTest("Dynamic Columns require MySQL 5.7+")
+            raise SkipTest("JSONField requires MySQL 5.7+")
         super(JSONFieldTestCase, cls).setUpClass()
 
 
@@ -413,13 +411,6 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
 
 
 class TestCheck(JSONFieldTestCase):
-
-    @mock.patch('django.VERSION', new=(1, 7, 2))
-    def test_old_django(self):
-        errors = JSONModel.check()
-        assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E015'
-        assert 'Django 1.8+ is required' in errors[0].msg
 
     def test_mutable_default_list(self):
         class InvalidJSONModel(TemporaryModel):

@@ -1,9 +1,7 @@
 # -*- coding:utf-8 -*-
 import json
 import re
-from unittest import skipIf
 
-import django
 import pytest
 from django import forms
 from django.core import exceptions, serializers
@@ -250,8 +248,6 @@ class TestSaveLoad(TestCase):
         assert list(one0two1) == [onetwo]
 
 
-@skipIf(django.VERSION[:2] < (1, 8),
-        "Requires Expressions from Django 1.8+")
 class TestListF(TestCase):
 
     def test_append_to_none(self):

@@ -1,13 +1,11 @@
 # -*- coding:utf-8 -*-
 from __future__ import absolute_import
 
-import django
 from django.core import checks
 from django.db.models import CharField, IntegerField, TextField
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
-from django_mysql.compat import field_class
 from django_mysql.forms import SimpleSetField
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
@@ -126,25 +124,6 @@ class SetFieldMixin(object):
             return ','.join(value)
         return value
 
-    if django.VERSION[:2] <= (1, 7):
-        def get_db_prep_lookup(self, lookup_type, value, connection,
-                               prepared=False):
-            if lookup_type in ('contains', 'icontains'):
-                # Avoid the default behaviour of adding wildcards on either
-                # side of what we're searching for, because FIND_IN_SET is
-                # doing that implicitly
-                if isinstance(value, set):
-                    # Can't do multiple contains without massive ORM hackery
-                    # (ANDing all the FIND_IN_SET calls), so just reject them
-                    raise ValueError(
-                        "Can't do contains with a set and {klass}, you should "
-                        "pass them as separate filters."
-                        .format(klass=self.__class__.__name__)
-                    )
-                return [six.text_type(self.base_field.get_prep_value(value))]
-            return super(SetFieldMixin, self).get_db_prep_lookup(
-                lookup_type, value, connection, prepared)
-
     def value_to_string(self, obj):
         vals = self._get_val_from_obj(obj)
         return self.get_prep_value(vals)
@@ -163,7 +142,7 @@ class SetFieldMixin(object):
         self.base_field.model = cls
 
 
-class SetCharField(field_class(SetFieldMixin, CharField)):
+class SetCharField(SetFieldMixin, CharField):
     """
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
@@ -201,7 +180,7 @@ class SetCharField(field_class(SetFieldMixin, CharField)):
         return errors
 
 
-class SetTextField(field_class(SetFieldMixin, TextField)):
+class SetTextField(SetFieldMixin, TextField):
     pass
 
 

@@ -1,15 +1,14 @@
 # -*- coding:utf-8 -*-
 import hashlib
-from unittest import SkipTest, skipIf
+from unittest import SkipTest
 
-import django
 import pytest
 from django.db import connection
-from django.db.models import F, Q
+from django.db.models import F, Q, Value
+from django.db.models.functions import Length, Lower, Upper
 from django.test import TestCase
 from django.utils import six
 
-from django_mysql.compat import Value
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
     ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONKeys,
@@ -20,18 +19,7 @@ from testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from testapp.test_dynamicfield import DynColTestCase
 from testapp.test_jsonfield import JSONFieldTestCase
 
-try:
-    from django.db.models.functions import Length, Lower, Upper
-except ImportError:
-    Length = Lower = Upper = None
 
-requiresDatabaseFunctions = skipIf(
-    django.VERSION[:2] < (1, 8),
-    "Requires Database Functions from Django 1.8+"
-)
-
-
-@requiresDatabaseFunctions
 class ComparisonFunctionTests(TestCase):
 
     def test_greatest(self):
@@ -49,7 +37,6 @@ class ComparisonFunctionTests(TestCase):
         assert ab.worst == -1
 
 
-@requiresDatabaseFunctions
 class ControlFlowFunctionTests(TestCase):
 
     def test_if_basic(self):
@@ -106,7 +93,6 @@ class ControlFlowFunctionTests(TestCase):
         assert result == [None]
 
 
-@requiresDatabaseFunctions
 class NumericFunctionTests(TestCase):
 
     def test_abs(self):
@@ -165,7 +151,6 @@ class NumericFunctionTests(TestCase):
         assert ab.csign == -1
 
 
-@requiresDatabaseFunctions
 class StringFunctionTests(TestCase):
 
     def test_concat_ws(self):
@@ -253,7 +238,6 @@ class StringFunctionTests(TestCase):
         assert avalues == [2, 1, 3, 4]
 
 
-@requiresDatabaseFunctions
 class XMLFunctionTests(TestCase):
 
     def test_updatexml_simple(self):
@@ -290,7 +274,6 @@ class XMLFunctionTests(TestCase):
         assert ab.ev == ''
 
 
-@requiresDatabaseFunctions
 class EncryptionFunctionTests(TestCase):
 
     def test_md5_string(self):
@@ -329,7 +312,6 @@ class EncryptionFunctionTests(TestCase):
             SHA2('a', 123)
 
 
-@requiresDatabaseFunctions
 class InformationFunctionTests(TestCase):
 
     def test_last_insert_id(self):
@@ -356,7 +338,6 @@ class InformationFunctionTests(TestCase):
         assert ab.b == 717612
 
 
-@requiresDatabaseFunctions
 class JSONFunctionTests(JSONFieldTestCase):
 
     def setUp(self):
@@ -440,7 +421,6 @@ class JSONFunctionTests(JSONFieldTestCase):
         assert results == [self.obj]
 
 
-@requiresDatabaseFunctions
 class RegexpFunctionTests(TestCase):
 
     def setUp(self):
@@ -531,7 +511,6 @@ class RegexpFunctionTests(TestCase):
         assert qs == ['Euripides', 'Sophocles']
 
 
-@requiresDatabaseFunctions
 class DynamicColumnsFunctionTests(DynColTestCase):
 
     def setUp(self):
@@ -639,20 +618,3 @@ class DynamicColumnsFunctionTests(DynColTestCase):
         DynamicModel.objects.update(attrs=ColumnDelete('attrs', say_sub))
         m = DynamicModel.objects.get()
         assert m.attrs == {'flote': 1.0}
-
-
-@skipIf(django.VERSION[:2] >= (1, 8),
-        "Requires old Django version without Database Functions")
-class OldDjangoFunctionTests(TestCase):
-
-    def test_single_arg_doesnt_work(self):
-        with pytest.raises(ValueError):
-            CRC32('name')
-
-    def test_multi_arg_doesnt_work(self):
-        with pytest.raises(ValueError):
-            Greatest('a', 'b')
-
-    def test_concat_ws_doesnt_work(self):
-        with pytest.raises(ValueError):
-            ConcatWS('a', 'b', separator='::')
