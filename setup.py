@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import print_function
+# -*- encoding:utf-8 -*-
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 import os
 import re
-from setuptools import find_packages, setup
 import sys
+from setuptools import find_packages, setup
 
 
 def get_version(package):
