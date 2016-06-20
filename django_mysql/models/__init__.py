@@ -1,3 +1,6 @@
+"""
+isort:skip_file
+"""
 from django_mysql.models.base import Model  # noqa
 from django_mysql.models.aggregates import (  # noqa
     BitAnd, BitOr, BitXor, GroupConcat

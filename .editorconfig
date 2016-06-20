@@ -10,12 +10,6 @@ insert_final_newline = true
 charset = utf-8
 end_of_line = lf
 
-[*.py]
-multi_line_output=5
-known_standard_library=mock
-known_third_party=pytest,django
-known_first_party=django_mysql
-
 [*.bat]
 indent_style = tab
 end_of_line = crlf

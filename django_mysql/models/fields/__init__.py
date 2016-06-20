@@ -7,9 +7,7 @@ from django_mysql.models.fields.json import JSONField  # noqa
 from django_mysql.models.fields.lists import (  # noqa
     ListCharField, ListTextField
 )
-from django_mysql.models.fields.sets import (  # noqa
-    SetCharField, SetTextField
-)
+from django_mysql.models.fields.sets import SetCharField, SetTextField  # noqa
 from django_mysql.models.fields.sizes import (  # noqa
     SizedBinaryField, SizedTextField
 )
