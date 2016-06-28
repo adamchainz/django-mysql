@@ -1,6 +1,6 @@
 coverage==4.1
 docutils==0.12
-flake8==2.6.0
+flake8==2.6.2
 funcsigs==1.0.2
 mariadb-dyncol==1.2.0
 mock==2.0.0
