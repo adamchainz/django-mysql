@@ -82,13 +82,13 @@ We'll use the following example model:
 
 .. code-block:: python
 
-    from django_mysql.models import DynamicField, Model
+    from django_mysql.models import JSONField, Model
 
     class ShopItem(Model):
         name = models.CharField(max_length=200)
         attrs = JSONField()
 
-        def __str__(self):  # __unicode__ on Python 3
+        def __str__(self):  # __unicode__ on Python 2
             return self.name
 
 Exact Lookups
