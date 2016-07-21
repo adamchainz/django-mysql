@@ -5,8 +5,10 @@ import operator
 import sys
 import time
 from copy import copy
+from functools import wraps
 from subprocess import PIPE, Popen
 
+from django.conf import settings
 from django.db import connections, models
 from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
@@ -22,6 +24,18 @@ from django_mysql.utils import (
     StopWatch, WeightedAverageRate, format_duration, have_program,
     noop_context, settings_to_cmd_args
 )
+
+
+def requires_query_rewrite(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not settings.DJANGO_MYSQL_REWRITE_QUERIES:
+            raise RuntimeError(
+                "You need to set DJANGO_MYSQL_REWRITE_QUERIES = True in your "
+                "settings to use query hints."
+            )
+        return func(*args, **kwargs)
+    return wrapper
 
 
 class QuerySetMixin(object):
@@ -88,6 +102,7 @@ class QuerySetMixin(object):
     # These specially constructed comments will be rewritten by rewrite_query
     # into actual hints
 
+    @requires_query_rewrite
     def label(self, string):
         """
         Adds an arbitrary user-defined comment that will appear after
@@ -98,24 +113,31 @@ class QuerySetMixin(object):
             raise ValueError("Bad label - cannot be embedded in SQL comment")
         return self.extra(where=["/*QueryRewrite':label={}*/1".format(string)])
 
+    @requires_query_rewrite
     def straight_join(self):
         return self.extra(where=["/*QueryRewrite':STRAIGHT_JOIN*/1"])
 
+    @requires_query_rewrite
     def sql_small_result(self):
         return self.extra(where=["/*QueryRewrite':SQL_SMALL_RESULT*/1"])
 
+    @requires_query_rewrite
     def sql_big_result(self):
         return self.extra(where=["/*QueryRewrite':SQL_BIG_RESULT*/1"])
 
+    @requires_query_rewrite
     def sql_buffer_result(self):
         return self.extra(where=["/*QueryRewrite':SQL_BUFFER_RESULT*/1"])
 
+    @requires_query_rewrite
     def sql_cache(self):
         return self.extra(where=["/*QueryRewrite':SQL_CACHE*/1"])
 
+    @requires_query_rewrite
     def sql_no_cache(self):
         return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
 
+    @requires_query_rewrite
     def sql_calc_found_rows(self):
         qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
         qs._found_rows = None
@@ -154,6 +176,7 @@ class QuerySetMixin(object):
         kwargs['hint'] = 'IGNORE'
         return self._index_hint(*index_names, **kwargs)
 
+    @requires_query_rewrite
     def _index_hint(self, *index_names, **kwargs):
         hint = kwargs.pop('hint')
         table_name = kwargs.pop('table_name', None)

@@ -5,6 +5,7 @@ import re
 from unittest import skipUnless
 
 import pytest
+import six
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.template import Context, Template
@@ -169,11 +170,11 @@ class QueryHintTests(TestCase):
         assert cap.query.startswith("SELECT DISTINCT STRAIGHT_JOIN ")
 
     @override_settings(DJANGO_MYSQL_REWRITE_QUERIES=False)
-    def test_can_disable_setting(self):
-        with CaptureLastQuery() as cap:
-            list(Author.objects.all().straight_join())
+    def test_disabled_setting_errors_on_usage(self):
+        with pytest.raises(RuntimeError) as excinfo:
+            Author.objects.all().straight_join()
 
-        assert not cap.query.startswith("SELECT STRAIGHT_JOIN ")
+        assert 'DJANGO_MYSQL_REWRITE_QUERIES' in six.text_type(excinfo.value)
 
     def test_sql_cache(self):
         with CaptureLastQuery() as cap:
