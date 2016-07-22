@@ -7,6 +7,10 @@ Pending
 -------
 
 * New release notes here
+
+1.1.0 (2016-07-22)
+------------------
+
 * Dropped Django 1.7 support
 * Made the query hint functions raise ``RuntimeError`` if you haven't activated
   the query-rewriting layer in settings.
