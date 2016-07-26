@@ -21,12 +21,11 @@ from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six.moves import StringIO
-from flake8.run import check_code
 from nose_parameterized import parameterized
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
 from testapp.models import Poll, expensive_calculation
-from testapp.utils import captured_stdout
+from testapp.utils import flake8_code
 
 try:    # Use the same idiom as in cache backends
     from django.utils.six.moves import cPickle as pickle
@@ -1301,12 +1300,11 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         output = out.getvalue()
 
         # Lint it
-        with captured_stdout() as stderr:
-            errors = check_code(output)
-        assert errors == 0, (
+        errors = flake8_code(output)
+        assert errors == [], (
             "Encountered {} errors whilst trying to lint the mysql cache "
             "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
-            .format(errors, output, stderr.getvalue())
+            .format(len(errors), output, '\n'.join(errors))
         )
 
         # Dynamic import and check
