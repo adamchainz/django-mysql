@@ -11,9 +11,6 @@ Django-MySQL
 .. image:: https://coveralls.io/repos/adamchainz/django-mysql/badge.svg
         :target: https://coveralls.io/r/adamchainz/django-mysql
 
-.. image:: https://img.shields.io/pypi/dm/django-mysql.svg
-        :target: https://pypi.python.org/pypi/django-mysql
-
 .. image:: https://readthedocs.org/projects/django-mysql/badge/?version=latest
         :target: https://django-mysql.readthedocs.io/en/latest/
 
