@@ -57,7 +57,7 @@ setup(
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords='Django, MySQL, MariaDB',
+    keywords=['Django', 'MySQL', 'MariaDB'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Framework :: Django',
