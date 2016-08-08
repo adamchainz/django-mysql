@@ -2,7 +2,7 @@ configparser==3.5.0
 coverage==4.2
 docutils==0.12
 enum34==1.1.6
-flake8==3.0.3
+flake8==3.0.4
 funcsigs==1.0.2
 mariadb-dyncol==1.2.0
 mock==2.0.0
