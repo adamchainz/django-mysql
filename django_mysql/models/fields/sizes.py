@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from django.core import checks
 from django.db.models import BinaryField, TextField
 

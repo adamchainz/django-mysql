@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from django_mysql.models.fields.bit import (  # noqa
     Bit1BooleanField, NullBit1BooleanField
 )

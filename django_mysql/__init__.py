@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 
 __author__ = 'Adam Johnson'
 __email__ = 'me@adamj.eu'

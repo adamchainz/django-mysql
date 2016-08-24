@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from django.db.migrations.operations.base import Operation
 from django.utils.functional import cached_property
 
