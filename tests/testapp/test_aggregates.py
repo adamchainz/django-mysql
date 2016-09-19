@@ -72,6 +72,7 @@ class BitXorTests(TestCase):
 class GroupConcatTests(TestCase):
 
     def setUp(self):
+        super(GroupConcatTests, self).setUp()
         self.shakes = Author.objects.create(name='William Shakespeare')
         self.jk = Author.objects.create(name='JK Rowling', tutor=self.shakes)
         self.grisham = Author.objects.create(name='Grisham', tutor=self.shakes)

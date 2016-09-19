@@ -220,7 +220,9 @@ class LockTests(TestCase):
 
 
 class TableLockTests(TransactionTestCase):
+
     def tearDown(self):
+        super(TableLockTests, self).tearDown()
         Alphabet.objects.all().delete()
         Alphabet.objects.using('other').all().delete()
         Customer.objects.all().delete()

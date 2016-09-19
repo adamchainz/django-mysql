@@ -310,6 +310,7 @@ class HandlerIterTests(BaseAuthorTestCase):
 class HandlerMultipartIndexTests(TestCase):
 
     def setUp(self):
+        super(HandlerMultipartIndexTests, self).setUp()
         self.smith1 = AuthorMultiIndex.objects.create(name='John Smith',
                                                       country='Scotland')
         self.smith2 = AuthorMultiIndex.objects.create(name='John Smith',
@@ -363,6 +364,7 @@ class HandlerNestingTests(BaseAuthorTestCase):
 class HandlerStandaloneTests(TestCase):
 
     def setUp(self):
+        super(HandlerStandaloneTests, self).setUp()
         self.jk = VanillaAuthor.objects.create(name='JK Rowling')
         self.grisham = VanillaAuthor.objects.create(name='John Grisham')
 
@@ -384,6 +386,7 @@ class HandlerStandaloneTests(TestCase):
 class HandlerMultiDBTests(TestCase):
 
     def setUp(self):
+        super(HandlerMultiDBTests, self).setUp()
         self.jk = Author.objects.using('other').create(name='JK Rowling')
         self.grisham = Author.objects.create(name='John Grisham')
 
