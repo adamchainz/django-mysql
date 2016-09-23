@@ -4,7 +4,9 @@ Implements a function for hoisting specially constructed comments in SQL
 queries and using them to rewrite that query. This is done to support query
 hints whilst obviating patching Django's ORM in complex ways.
 """
-from __future__ import absolute_import, division, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 import operator
 import re

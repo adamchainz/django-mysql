@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
-from __future__ import absolute_import, division, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 from django.db.models import F, Value
 from django.db.models.expressions import BaseExpression

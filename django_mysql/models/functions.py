@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Field as DjangoField
