@@ -41,10 +41,6 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
-requirements = [
-    "Django>=1.7"
-]
-
 setup(
     name='django-mysql',
     version=version,
@@ -55,7 +51,9 @@ setup(
     url='https://github.com/adamchainz/django-mysql',
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=[
+        'Django>=1.8',
+    ],
     license="BSD",
     zip_safe=False,
     keywords=['Django', 'MySQL', 'MariaDB'],
