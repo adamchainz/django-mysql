@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from django.db.migrations.operations.base import Operation
 from django.utils.functional import cached_property

@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, division, unicode_literals
 
 from django.core.checks import Tags, Warning, register
 from django.db import DEFAULT_DB_ALIAS, connections

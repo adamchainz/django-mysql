@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from django_mysql.models.fields.bit import (  # noqa
     Bit1BooleanField, NullBit1BooleanField

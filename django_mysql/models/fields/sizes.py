@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from django.core import checks
 from django.db.models import BinaryField, TextField

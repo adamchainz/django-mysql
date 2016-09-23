@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from django.db.models import BooleanField, NullBooleanField
 from django.utils import six

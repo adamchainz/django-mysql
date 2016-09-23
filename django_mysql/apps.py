@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _

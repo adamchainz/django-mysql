@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from django.core import checks
 from django.db.models import CharField, IntegerField, Lookup, TextField
