@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
-from __future__ import absolute_import, division, print_function
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 from django.db.models import BooleanField, NullBooleanField
 from django.utils import six
