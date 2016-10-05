@@ -436,7 +436,7 @@ Monkey Patches
 --------------
 
 You can test to see if you are running MariaDB from the
-``djagno.db.connection`` object:
+``django.db.connection`` object:
 
 .. code-block:: pycon
 
