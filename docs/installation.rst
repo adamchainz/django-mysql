@@ -91,7 +91,7 @@ imported from ``django_mysql.models``.
     extensions.  Add this mixin to your custom ``QuerySet`` class to add in all
     the fun:
 
-    .. code-block:: pycon
+    .. code-block:: python
 
         from django.db.models import Model
         from django_mysql.models import QuerySetMixin
