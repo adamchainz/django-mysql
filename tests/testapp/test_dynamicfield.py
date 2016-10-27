@@ -4,9 +4,8 @@ from __future__ import (
 )
 
 import json
-import mock
 from datetime import date, datetime, time
-from unittest import SkipTest
+from unittest import SkipTest, mock
 
 import pytest
 from django.core import serializers

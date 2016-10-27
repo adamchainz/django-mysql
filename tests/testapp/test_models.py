@@ -3,10 +3,9 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import mock
 import pickle
 import re
-from unittest import skipUnless
+from unittest import mock, skipUnless
 
 import pytest
 import six

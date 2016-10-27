@@ -3,8 +3,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import mock
-from unittest import skipIf
+from unittest import mock, skipIf
 
 import django
 import pytest
