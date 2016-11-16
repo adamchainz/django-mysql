@@ -285,6 +285,7 @@ def index_name(model, *field_names, **kwargs):
         unfound_names = set(field_names) - set(field.name for field in fields)
         raise ValueError("Fields do not exist: " + ",".join(unfound_names))
     column_names = tuple(field.column for field in fields)
+    list_sql = get_list_sql(column_names)
 
     with connections[using].cursor() as cursor:
         cursor.execute(
@@ -292,9 +293,10 @@ def index_name(model, *field_names, **kwargs):
                FROM INFORMATION_SCHEMA.STATISTICS
                WHERE TABLE_SCHEMA = DATABASE() AND
                      TABLE_NAME = %s AND
-                     COLUMN_NAME IN %s
-               ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC""",
-            (model._meta.db_table, column_names)
+                     COLUMN_NAME IN {list_sql}
+               ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC
+            """.format(list_sql=list_sql),
+            (model._meta.db_table,) + column_names
         )
         indexes = defaultdict(list)
         for index_name, _, column_name in cursor.fetchall():
@@ -305,3 +307,9 @@ def index_name(model, *field_names, **kwargs):
         return indexes_by_columns[column_names]
     except KeyError:
         raise KeyError("There is no index on (" + ",".join(field_names) + ")")
+
+
+def get_list_sql(sequence):
+    return '({})'.format(
+        ','.join('%s' for x in sequence)
+    )
