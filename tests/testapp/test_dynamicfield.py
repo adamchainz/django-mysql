@@ -133,6 +133,7 @@ class DumbTransform(Transform):
         lhs, params = compiler.compile(self.lhs)
         return "%s", ['dumb']
 
+
 DynamicField.register_lookup(DumbTransform)
 
 

@@ -6,7 +6,7 @@ History
 Pending
 -------
 
-* New release notes here
+* Use pip-compile and requirements.in
 
 1.1.0 (2016-07-22)
 ------------------
