@@ -13,7 +13,7 @@ The following can be imported from ``django_mysql.utils``.
 
     Given a string ``query`` containing a MySQL query, returns a 'fingerprint'
     of the query from the Percona ``pt-fingerprint`` tool
-    (`docs <http://www.percona.com/doc/percona-toolkit/2.2/pt-fingerprint.html>`_).
+    (`docs <https://www.percona.com/doc/percona-toolkit/2.2/pt-fingerprint.html>`_).
     You must therefore have ``pt-fingerprint`` installed.
 
     Example usage:

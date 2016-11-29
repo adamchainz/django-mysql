@@ -7,8 +7,8 @@ Field Lookups
 ORM extensions for filtering. These are all automatically added for the
 appropriate field types when ``django_mysql`` is in your ``INSTALLED_APPS``.
 Note that lookups specific to included
-:doc:`model fields <model_fields>` are documented with the field, rather than
-here.
+:doc:`model fields <model_fields/index>` are documented with the field, rather
+than here.
 
 
 --------------------------------
@@ -42,7 +42,7 @@ Soundex
 -------
 
 MySQL implements the `Soundex algorithm
-<http://en.wikipedia.org/wiki/Soundex>`_ with its ``SOUNDEX`` function,
+<https://en.wikipedia.org/wiki/Soundex>`_ with its ``SOUNDEX`` function,
 allowing you to find words sounding similar to each other (in
 English only, regrettably). These lookups allow you to use that function in the
 ORM and are added for :class:`~django.db.fields.CharField` and

@@ -22,7 +22,7 @@ Approximate Counting
     full table scan to produce a consistent number, due to MVCC keeping several
     copies of rows when under transaction. If you have lots of rows, you will
     notice this as a slow query - `Percona have some more details
-    <http://www.percona.com/blog/2006/12/01/count-for-innodb-tables/>`_.
+    <https://www.percona.com/blog/2006/12/01/count-for-innodb-tables/>`_.
 
     This method returns the approximate count found by running ``EXPLAIN SELECT
     COUNT(*) ...``. It can be out by 30-50% in the worst case, but in many
@@ -182,9 +182,10 @@ Once you’ve done this, the following methods will work.
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/select/#straight_join>`_.
 
-    The MariaDB docs also have a good page `“How to Force Query Plans”
-    <https://mariadb.com/kb/en/mariadb/how-to-force-query-plans/>`_ which
-    covers some cases when you might want to use ``STRAIGHT_JOIN``.
+    The MariaDB docs also have a good page `Index Hints: How to Force Query
+    Plans”
+    <https://mariadb.com/kb/en/mariadb/index-hints-how-to-force-query-plans/>`_
+    which covers some cases when you might want to use ``STRAIGHT_JOIN``.
 
 .. method:: sql_small_result()
 
@@ -358,7 +359,7 @@ Once you’ve done this, the following methods will work.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/index-hints.html>`_ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/how-to-force-query-plans/>`_.
+    <https://mariadb.com/kb/en/mariadb/index-hints-how-to-force-query-plans/>`_.
 
 
 .. method:: force_index(*index_names, for_=None)
@@ -505,7 +506,7 @@ can be thought of in one of these two methods.
         dynamically adjusted to try and match this time, via a weighted average
         of the past and current speed of processing. The default and algorithm
         is taken from the analogous ``pt-online-schema-change`` flag
-        `--chunk-time <http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--chunk-time>`_.
+        `--chunk-time <https://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--chunk-time>`_.
 
     .. attribute:: chunk_size=2
 
@@ -630,10 +631,10 @@ Integration with pt-visual-explain
 ----------------------------------
 
 How does MySQL *really* execute a query? The ``EXPLAIN`` statement
-(docs: `MySQL <http://dev.mysql.com/doc/refman/5.6/en/explain.html>`_ /
+(docs: `MySQL <https://dev.mysql.com/doc/refman/5.6/en/explain.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/explain/>`_),
 gives a description of the execution plan, and the ``pt-visual-explain``
-`tool <http://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
+`tool <https://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
 can format this in an understandable tree.
 
 This function is a shortcut to turn a ``QuerySet`` into its visual explanation,
@@ -682,7 +683,7 @@ Handler
 MySQL's ``HANDLER`` commands give you simple NoSQL-style read access, faster
 than full SQL queries, with the ability to perform index lookups or paginated
 scans (docs:
-`MySQL <http://dev.mysql.com/doc/refman/5.6/en/handler.html>`_ /
+`MySQL <https://dev.mysql.com/doc/refman/5.6/en/handler.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/handler-commands/>`_).
 
 This extension adds an ORM-based API for handlers. You can instantiate them

@@ -21,7 +21,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <http://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-and>`_ /
+    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-and>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`_.
 
     Example usage:
@@ -41,7 +41,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <http://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-or>`_ /
+    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-or>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`_.
 
     Example usage:
@@ -61,7 +61,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <http://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-xor>`_ /
+    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-xor>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`_.
 
     Example usage:

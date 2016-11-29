@@ -57,4 +57,4 @@ take, e.g.:
     configuration being given in their DSN format; you must pass them via a
     MySQL configuration file instead.  ``dbparams`` will output a warning
     on stderr if this is the case. For more info see the `percona blog
-    <http://www.percona.com/blog/2014/10/16/percona-toolkit-for-mysql-with-mysql-ssl-connections/>`_.
+    <https://www.percona.com/blog/2014/10/16/percona-toolkit-for-mysql-with-mysql-ssl-connections/>`_.

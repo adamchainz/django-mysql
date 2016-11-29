@@ -93,7 +93,7 @@ class Command(BaseCommand):
             self.stderr.write(
                 "Warning: SSL params can't be passed in the DSN syntax; you "
                 "must pass them in your my.cnf. See: "
-                "http://www.percona.com/blog/2014/10/16/percona-toolkit-for-"
+                "https://www.percona.com/blog/2014/10/16/percona-toolkit-for-"
                 "mysql-with-mysql-ssl-connections/"
             )
 

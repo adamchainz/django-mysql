@@ -43,7 +43,7 @@ The following can all be imported from ``django_mysql.status``.
         47
 
     To see the names of all the available variables, refer to the documentation:
-    `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_. They vary
     based upon server version, plugins installed, etc.
 
@@ -82,7 +82,7 @@ The following can all be imported from ``django_mysql.status``.
                                     timeout=60.0, sleep=0.1)
 
         A helper method similar to the logic in ``pt-online-schema-change`` for
-        waiting with `--max-load <http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--max-load>`_.
+        waiting with `--max-load <https://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--max-load>`_.
 
         Polls global status every ``sleep`` seconds until every variable named
         in ``thresholds`` is at or below its specified threshold, or raises a
@@ -106,7 +106,7 @@ The following can all be imported from ``django_mysql.status``.
     STATUS``, so *some* variables are restricted to the current connection
     only, rather than the whole server. For which, you should refer to the
     documentation:
-    `MySQL <http://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_.
 
     Also it doesn't have the ``wait_until_load_low`` method, which only makes

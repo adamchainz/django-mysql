@@ -188,4 +188,4 @@ arguments after the ``--`` separator, for example:
     $ tox -- tests/testapp/test_some_feature.py
 
 There are lots of other useful features, most of which you can check out in the
-`pytest docs <http://pytest.org/latest/>`_!
+`pytest docs <http://docs.pytest.org/en/latest/>`_!
