@@ -29,7 +29,7 @@ truncation upon insertion, by escalating warnings into errors. It is strongly
 recommended you activate it.
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.5/en/sql-mode.html#sql-mode-strict>`_ /
+`MySQL <https://dev.mysql.com/doc/refman/en/sql-mode.html#sql-mode-strict>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/sql_mode/#strict-mode>`_.
 
 It is configured as part of ``sql_mode``, a system variable contains a list of
@@ -60,7 +60,7 @@ server on each new connection.
 You can change ``sql_mode`` permanently by using ``SET GLOBAL`` from an admin
 user on the server, plus changing your configuration files so the setting
 survives a server restart. For more information, see
-`Using System Variables system variables <https://dev.mysql.com/doc/refman/5.5/en/using-system-variables.html>`_
+`Using System Variables system variables <https://dev.mysql.com/doc/refman/en/using-system-variables.html>`_
 in the MySQL documentation.
 
 
@@ -73,7 +73,7 @@ Normally this just affects per-table settings for compression. It's recommended
 you activate this, but it's not very likely to affect you if you don't.
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.5/en/innodb-parameters.html#sysvar_innodb_strict_mode>`_ /
+`MySQL <https://dev.mysql.com/doc/refman/en/innodb-parameters.html#sysvar_innodb_strict_mode>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/xtradbinnodb-strict-mode/>`_.
 
 As above, the easiest way to set this is to add ``SET`` to ``init_command`` in
@@ -115,7 +115,7 @@ you'll never see any of these 'supplementary' Unicode characters (note: it's
 very easy for users to type emoji on phone keyboards these days!).
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html>`_ /
+`MySQL <https://dev.mysql.com/doc/refman/en/charset-unicode-utf8mb4.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/unicode/>`_.
 
 Also see this classic blogpost:

@@ -175,7 +175,7 @@ The following can be imported from ``django_mysql.locks``.
             fix_bad_instances_of_my_model2_using_my_model1_data()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/lock-tables.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/lock-tables.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/lock-tables-and-unlock-tables/>`_.
 
     .. attribute:: read

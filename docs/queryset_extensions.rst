@@ -179,7 +179,7 @@ Once you’ve done this, the following methods will work.
         Author.objects.distinct().straight_join().filter(books__age=12)[:10]
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/select/#straight_join>`_.
 
     The MariaDB docs also have a good page `“How to Force Query Plans”
@@ -200,7 +200,7 @@ Once you’ve done this, the following methods will work.
         Author.objects.values('birthday').distinct().sql_small_result()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`_.
 
@@ -218,7 +218,7 @@ Once you’ve done this, the following methods will work.
         Author.objects.distinct().sql_big_result()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`_.
 
@@ -237,7 +237,7 @@ Once you’ve done this, the following methods will work.
         HighThroughputModel.objects.filter(x=y).sql_buffer_result()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_buffer_result>`_.
 
@@ -245,7 +245,7 @@ Once you’ve done this, the following methods will work.
 
     Adds the ``SQL_CACHE`` hint, which means the result set will be stored in
     the `Query Cache
-    <https://dev.mysql.com/doc/refman/5.5/en/query-cache.html>`_. This only has
+    <https://dev.mysql.com/doc/refman/en/query-cache.html>`_. This only has
     an effect when the MySQL system variable ``query_cache_type`` is set to
     ``2`` or ``DEMAND``.
 
@@ -257,7 +257,7 @@ Once you’ve done this, the following methods will work.
         recent_posts = BlogPost.objects.sql_cache().order_by('-created')[:5]
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
 
@@ -265,7 +265,7 @@ Once you’ve done this, the following methods will work.
 
     Adds the ``SQL_NO_CACHE`` hint, which means the result set will not be
     fetched from or stored in the `Query Cache
-    <https://dev.mysql.com/doc/refman/5.5/en/query-cache.html>`_. This only has
+    <https://dev.mysql.com/doc/refman/en/query-cache.html>`_. This only has
     an effect when the MySQL system variable ``query_cache_type`` is set to
     ``1`` or ``ON``.
 
@@ -282,7 +282,7 @@ Once you’ve done this, the following methods will work.
         )
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
 
@@ -307,7 +307,7 @@ Once you’ve done this, the following methods will work.
         1942
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_calc_found_rows>`_.
 
@@ -356,7 +356,7 @@ Once you’ve done this, the following methods will work.
         >>> Book.objects.select_related('author').use_index('authbook', table_name='author')
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/index-hints.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/index-hints.html>`_ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/how-to-force-query-plans/>`_.
 

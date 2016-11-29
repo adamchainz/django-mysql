@@ -32,7 +32,7 @@ Comparison Functions
     With two or more arguments, returns the largest (maximum-valued) argument.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#function_greatest>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/comparison-operators.html#function_greatest>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/greatest/>`_.
 
     Usage example:
@@ -53,7 +53,7 @@ Comparison Functions
     With two or more arguments, returns the smallest (minimum-valued) argument.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/comparison-operators.html#function_least>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/comparison-operators.html#function_least>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/least/>`_.
 
     Usage example:
@@ -75,7 +75,7 @@ Control Flow Functions
     ``NULL``.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/control-flow-functions.html#function_if>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/control-flow-functions.html#function_if>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/if-function/>`_.
 
     Usage example:
@@ -100,7 +100,7 @@ Numeric Functions
     ``expression`` is not a number, it is converted to a numeric type.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_abs>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_abs>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/abs/>`_.
 
     Usage example:
@@ -115,7 +115,7 @@ Numeric Functions
     Returns the smallest integer value not less than `expression`.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_ceiling>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_ceiling>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/ceiling/>`_.
 
     Usage example:
@@ -132,7 +132,7 @@ Numeric Functions
     expected to be a string and (if possible) is treated as one if it is not.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_crc32>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_crc32>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/crc32/>`_.
 
     Usage example:
@@ -147,7 +147,7 @@ Numeric Functions
     Returns the largest integer value not greater than ``expression``.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_floor>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_floor>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/floor/>`_.
 
     Usage example:
@@ -166,7 +166,7 @@ Numeric Functions
     become zero.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_round>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_round>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/round/>`_.
 
     Usage example:
@@ -182,7 +182,7 @@ Numeric Functions
     ``expression`` is negative, zero, or positive.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/mathematical-functions.html#function_sign>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_sign>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/sign/>`_.
 
     Usage example:
@@ -210,7 +210,7 @@ String Functions
     field.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_concat-ws>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/string-functions.html#function_concat-ws>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/concat_ws/>`_.
 
     Usage example:
@@ -234,7 +234,7 @@ String Functions
     column, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_elt>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/string-functions.html#function_elt>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/elt/>`_.
 
     Usage example:
@@ -261,7 +261,7 @@ String Functions
     use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_field>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/string-functions.html#function_field>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/field/>`_.
 
     Usage example:
@@ -292,7 +292,7 @@ XML Functions
     to refer to columns, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/xml-functions.html#function_updatexml>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/xml-functions.html#function_updatexml>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/updatexml/>`_.
 
     Usage example:
@@ -318,7 +318,7 @@ XML Functions
     want ``xpath_expr`` to refer to a column, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/xml-functions.html#function_extractvalue>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/xml-functions.html#function_extractvalue>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/extractvalue/>`_.
 
     Usage example:
@@ -423,7 +423,7 @@ Encryption Functions
     Calculates an MD5 128-bit checksum for the string ``expression``.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/encryption-functions.html#function_md5>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/encryption-functions.html#function_md5>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/md5/>`_.
 
     Usage example:
@@ -439,7 +439,7 @@ Encryption Functions
     described in RFC 3174 (Secure Hash Algorithm).
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/encryption-functions.html#function_sha1>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/encryption-functions.html#function_sha1>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/sha1/>`_.
 
     Usage example:
@@ -458,7 +458,7 @@ Encryption Functions
     The default for ``hash_len`` is 512.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/encryption-functions.html#function_sha2>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/encryption-functions.html#function_sha2>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/sha2/>`_.
 
     Usage example:
@@ -497,7 +497,7 @@ Information Functions
             ``delete()`` with cascading.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/information-functions.html#function_last-insert-id>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/information-functions.html#function_last-insert-id>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/last_insert_id/>`_.
 
     Usage examples:

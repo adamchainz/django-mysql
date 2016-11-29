@@ -108,7 +108,7 @@ The ``contains`` lookup is overridden on ``SetCharField`` and ``SetTextField``
 to match where the set field contains the given element, using MySQL's
 ``FIND_IN_SET`` (docs:
 `MariaDB <https://mariadb.com/kb/en/mariadb/find_in_set/>`_ /
-`MySQL <http://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_find-in-set>`_).
+`MySQL <http://dev.mysql.com/doc/refman/en/string-functions.html#function_find-in-set>`_).
 
 For example:
 

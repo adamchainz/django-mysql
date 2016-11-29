@@ -15,7 +15,7 @@ Django.
 
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.5/en/enum.html>`_ /
+`MySQL <https://dev.mysql.com/doc/refman/en/enum.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/enum/>`_.
 
 

@@ -21,7 +21,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-and>`_ /
+    <http://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-and>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`_.
 
     Example usage:
@@ -41,7 +41,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-or>`_ /
+    <http://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-or>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`_.
 
     Example usage:
@@ -61,7 +61,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_bit-xor>`_ /
+    <http://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-xor>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`_.
 
     Example usage:
@@ -80,7 +80,7 @@ The following can be imported from ``django_mysql.models``.
     Useful mostly for bringing back lists of ids in a single query.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html#function_group-concat>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_group-concat>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/group_concat/>`_.
 
     Example usage:
@@ -101,7 +101,7 @@ The following can be imported from ``django_mysql.models``.
         increase it if you're using this for any sizeable groups.
 
         ``group_concat_max_len`` docs:
-        `MySQL <https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html#sysvar_group_concat_max_len>`_ /
+        `MySQL <https://dev.mysql.com/doc/refman/en/server-system-variables.html#sysvar_group_concat_max_len>`_ /
         `MariaDB <https://mariadb.com/kb/en/server-system-variables/#group_concat_max_len>`_.
 
     Optional arguments:

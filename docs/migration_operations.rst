@@ -21,7 +21,7 @@ Install Plugin
     plugin is already installed to make it more idempotent.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.5/en/install-plugin.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/install-plugin.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/install-plugin/>`_.
 
     .. attribute:: name

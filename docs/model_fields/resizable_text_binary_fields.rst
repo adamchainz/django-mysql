@@ -29,7 +29,7 @@ legacy database for example.
     empty string, for ``TEXT`` and ``BLOB`` columns.
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.5/en/storage-requirements.html>`_ /
+`MySQL <https://dev.mysql.com/doc/refman/en/storage-requirements.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/data-type-storage-requirements/>`_.
 
 

@@ -112,7 +112,7 @@ The ``contains`` lookup is overridden on ``ListCharField`` and
 ``ListTextField`` to match where the set field contains the given element,
 using MySQL's ``FIND_IN_SET`` function (docs:
 `MariaDB <https://mariadb.com/kb/en/mariadb/find_in_set/>`_ /
-`MySQL <http://dev.mysql.com/doc/refman/5.5/en/string-functions.html#function_find-in-set>`_ docs).
+`MySQL <http://dev.mysql.com/doc/refman/en/string-functions.html#function_find-in-set>`_ docs).
 
 For example:
 
