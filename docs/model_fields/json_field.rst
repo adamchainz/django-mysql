@@ -43,11 +43,24 @@ Django-MySQL supports the JSON data type and related functions through
     .. warning::
 
         If you give the field a ``default``, ensure it's a callable, such as
-        ``dict``, ``list``, or ``lambda: {'key': 'value'}``. Incorrectly using
-        a mutable object, such as ``default={}``, creates a single object that
-        is shared between all instances of the field. There's a field check
-        that errors if a plain ``list`` or ``dict`` instance is used for
+        a function, or the ``dict`` or ``list`` classes themselves. Incorrectly
+        using a mutable object, such as ``default={}``, creates a single object
+        that is shared between all instances of the field. There's a field
+        check that errors if a plain ``list`` or ``dict`` instance is used for
         ``default``, so there is some protection against this.
+
+        The correct way to provide a rich default like ``{'foo': 'bar'}`` is to
+        define a module level function that returns it, so it can be serialized
+        in migrations. For example:
+
+        .. code-block:: python
+
+            def my_default():
+                return {'foo': 'bar'}
+
+            class MyModel(Model):
+                attrs = JSONField(default=my_default)
+
 
 JSONFields in Forms
 -------------------
