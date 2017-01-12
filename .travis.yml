@@ -5,7 +5,7 @@ notifications:
   webhooks: https://coveralls.io/webhook?repo_token=7l8yKtg4su0M31T0eGIaM0tnjvH0Rd5PM
 
 language: python
-python: '3.5'
+python: '3.6'
 cache: pip
 
 env:
