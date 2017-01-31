@@ -63,7 +63,7 @@ class JSONField(Field):
         for db in conn_names:
             conn = connections[db]
             if (
-                hasattr(conn, 'mysql_version') and
+                hasattr(conn, 'mysql_version') and hasattr(conn, 'is_mariadb') and
                 (conn.is_mariadb or conn.mysql_version < (5, 7))
             ):
                 any_conn_works = False
