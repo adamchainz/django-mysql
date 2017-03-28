@@ -6,7 +6,7 @@ History
 Pending
 -------
 
-* New release notes here
+* (Insert new release notes below this line)
 
 1.1.1 (2017-03-28)
 ------------------
