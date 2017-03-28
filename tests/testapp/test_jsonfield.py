@@ -68,12 +68,8 @@ class TestSaveLoad(JSONFieldTestCase):
 
     def test_nan_raises_valueerror(self):
         m = JSONModel(attrs=float('nan'))
-        try:
+        with pytest.raises(ValueError):
             m.save()
-        except ValueError:
-            pass
-        else:
-            assert False
 
 
 class QueryTests(JSONFieldTestCase):
