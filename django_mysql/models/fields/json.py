@@ -103,7 +103,10 @@ class JSONField(Field):
         if value is not None and not isinstance(value, six.string_types):
             # For some reason this value gets string quoted in Django's SQL
             # compiler...
-            return json.dumps(value)
+
+            # Although json.dumps could serialize NaN, MySQL doesn't.
+            return json.dumps(value, allow_nan=False)
+
         return value
 
     def get_lookup(self, lookup_name):

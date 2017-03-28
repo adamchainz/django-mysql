@@ -66,6 +66,11 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel.objects.get()
         assert m.attrs == [chars]
 
+    def test_nan_raises_valueerror(self):
+        m = JSONModel(attrs=float('nan'))
+        with pytest.raises(ValueError):
+            m.save()
+
 
 class QueryTests(JSONFieldTestCase):
 

@@ -7,6 +7,7 @@ Pending
 -------
 
 * New release notes here
+* Don't allow NaN in JSONField because MySQL doesn't support it
 
 1.1.0 (2016-07-22)
 ------------------
