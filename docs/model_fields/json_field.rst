@@ -30,11 +30,12 @@ Django-MySQL supports the JSON data type and related functions through
 
     .. code-block:: python
 
-        mymodel.myfield = "a string"
         mymodel.myfield = 1
         mymodel.myfield = 0.3
         mymodel.myfield = ["a", "list"]
         mymodel.myfield = {"a": "dict"}
+
+    (N.B. plain strings are currently broken).
 
     This field requires Django 1.8+ and MySQL 5.7+. Both requirements are
     checked by the field and you'll get sensible errors for them when Django's

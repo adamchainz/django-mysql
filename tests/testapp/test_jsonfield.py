@@ -37,7 +37,29 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel.objects.get()
         assert m.attrs == {}
 
-    def test_values(self):
+    def test_int(self):
+        m = JSONModel(attrs=1337)
+        assert m.attrs == 1337
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == 1337
+
+    def test_float(self):
+        m = JSONModel(attrs=0.3)
+        assert m.attrs == 0.3
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == 0.3
+
+    @pytest.mark.xfail
+    def test_str(self):
+        m = JSONModel(attrs='test')
+        assert m.attrs == 'test'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == 'test'
+
+    def test_dict(self):
         m = JSONModel(attrs={'key': 'value'})
         assert m.attrs == {'key': 'value'}
         m.save()
