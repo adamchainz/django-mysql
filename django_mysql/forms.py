@@ -240,8 +240,6 @@ class JSONField(forms.CharField):
     widget = forms.Textarea
 
     def to_python(self, value):
-        if self.disabled:
-            return value
         if value in self.empty_values:
             return None
         elif isinstance(value, (list, dict, int, float, JSONString)):
@@ -260,8 +258,6 @@ class JSONField(forms.CharField):
             return converted
 
     def bound_data(self, data, initial):
-        if self.disabled:
-            return initial
         try:
             return json.loads(data)
         except ValueError:
