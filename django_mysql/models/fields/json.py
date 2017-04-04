@@ -109,6 +109,11 @@ class JSONField(Field):
 
         return value
 
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if not prepared and value is not None:
+            return json.dumps(value, allow_nan=False)
+        return value
+
     def get_lookup(self, lookup_name):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {

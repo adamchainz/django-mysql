@@ -44,12 +44,47 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel.objects.get()
         assert m.attrs == {'key': 'value'}
 
+    def test_string(self):
+        m = JSONModel(attrs='value')
+        assert m.attrs == 'value'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == 'value'
+
+    def test_awkward_1(self):
+        m = JSONModel(attrs='"')
+        assert m.attrs == '"'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == '"'
+
+    def test_awkward_2(self):
+        m = JSONModel(attrs='\\')
+        assert m.attrs == '\\'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == '\\'
+
     def test_list(self):
         m = JSONModel(attrs=[1, 2, 4])
         assert m.attrs == [1, 2, 4]
         m.save()
         m = JSONModel.objects.get()
         assert m.attrs == [1, 2, 4]
+
+    def test_true(self):
+        m = JSONModel(attrs=True)
+        assert m.attrs is True
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs is True
+
+    def test_false(self):
+        m = JSONModel(attrs=False)
+        assert m.attrs is False
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs is False
 
     def test_null(self):
         m = JSONModel(attrs=None)
@@ -81,6 +116,7 @@ class QueryTests(JSONFieldTestCase):
             JSONModel(attrs=1337),
             JSONModel(attrs=['an', 'array']),
             JSONModel(attrs=None),
+            JSONModel(attrs='foo'),
         ])
         self.objs = list(JSONModel.objects.all().order_by('id'))
 
@@ -94,6 +130,12 @@ class QueryTests(JSONFieldTestCase):
         assert (
             list(JSONModel.objects.filter(attrs=1337)) ==
             [self.objs[1]]
+        )
+
+    def test_equal_string(self):
+        assert (
+            list(JSONModel.objects.filter(attrs='foo')) ==
+            [self.objs[4]]
         )
 
     def test_equal_array(self):
@@ -111,7 +153,7 @@ class QueryTests(JSONFieldTestCase):
     def test_equal_F_attrs(self):
         assert (
             list(JSONModel.objects.filter(attrs=F('attrs'))) ==
-            [self.objs[0], self.objs[1], self.objs[2]]
+            [self.objs[0], self.objs[1], self.objs[2], self.objs[4]]
         )
 
     def test_isnull_True(self):
@@ -123,7 +165,7 @@ class QueryTests(JSONFieldTestCase):
     def test_isnull_False(self):
         assert (
             list(JSONModel.objects.filter(attrs__isnull=False)) ==
-            [self.objs[0], self.objs[1], self.objs[2]]
+            [self.objs[0], self.objs[1], self.objs[2], self.objs[4]]
         )
 
     def test_range_broken(self):
