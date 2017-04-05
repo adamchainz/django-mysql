@@ -16,8 +16,8 @@ from django.utils import six
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
     ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONKeys,
-    JSONLength, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
-    Round, Sign, UpdateXML, XMLExtractValue
+    JSONLength, JSONSet, LastInsertId, Least, RegexpInstr, RegexpReplace,
+    RegexpSubstr, Round, Sign, UpdateXML, XMLExtractValue
 )
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from testapp.test_dynamicfield import DynColTestCase
@@ -423,6 +423,17 @@ class JSONFunctionTests(JSONFieldTestCase):
             ).filter(x__range=[3, 5])
         )
         assert results == [self.obj]
+
+    def test_json_set_pairs(self):
+        obj = JSONModel.objects.get()
+        obj.attrs = JSONSet('attrs', {'$.int': 101})
+        obj.save()
+        assert JSONModel.objects.get().attrs['int'] == 101
+
+    def test_json_set_empty_data(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONSet('attrs', {})
+        assert '"data" cannot be empty' in str(excinfo.value)
 
 
 class RegexpFunctionTests(TestCase):

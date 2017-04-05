@@ -10,6 +10,8 @@ Pending
 * Only use Django's vendored six (``django.utils.six``). Fixes usage of
   ``EnumField`` and field lookups when ``six`` is not installed as a
   standalone package.
+* Added ``JSONSet`` database function that wraps the ``JSON_SET`` function from
+  MySQL 5.7.
 
 1.1.1 (2017-03-28)
 ------------------
