@@ -267,7 +267,9 @@ class JSONSet(Func):
         from django_mysql.models.fields import JSONField
 
         if len(pairs) == 0:
-            raise ValueError('Pairs argument requires one key/value set defined')
+            raise ValueError(
+                'Pairs requires one key/value set defined'
+            )
 
         exprs = [expression]
 
