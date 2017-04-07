@@ -433,7 +433,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_empty_pairs_json_set(self):
         with pytest.raises(ValueError) as excinfo:
             JSONSet(F('attrs'), {})
-        assert "Pairs requires one key/value set defined" in str(excinfo.value)
+        assert '"pairs" requires at least one entry' in str(excinfo.value)
 
 
 class RegexpFunctionTests(TestCase):
