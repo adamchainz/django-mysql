@@ -260,6 +260,33 @@ class JSONLength(Func):
         super(JSONLength, self).__init__(*exprs, output_field=output_field)
 
 
+class JSONSet(Func):
+    function = 'JSON_SET'
+
+    def __init__(self, expression, pairs):
+        from django_mysql.models.fields import JSONField
+
+        if not len(pairs):
+            raise ValueError(
+                '"pairs" requires at least one entry'
+            )
+
+        exprs = [expression]
+
+        for path, value in pairs.items():
+            if not hasattr(path, 'resolve_expression'):
+                path = Value(path)
+
+            exprs.append(path)
+
+            if not hasattr(value, 'resolve_expression'):
+                value = Value(value)
+
+            exprs.append(value)
+
+        super(JSONSet, self).__init__(*exprs, output_field=JSONField())
+
+
 # MariaDB Regexp Functions
 
 class RegexpInstr(Func):

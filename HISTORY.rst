@@ -6,7 +6,7 @@ History
 Pending
 -------
 
-* (Insert new release notes below this line)
+* Added JSONSet database function
 
 1.1.1 (2017-03-28)
 ------------------
