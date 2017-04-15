@@ -7,6 +7,8 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Fixed ``JSONField`` to allow storing strings as top-level json objects.
+* Fixed ``JSONField`` so that it doesn't overquote inputs when redisplaying the form due to invalid user input.
 
 1.1.1 (2017-03-28)
 ------------------
