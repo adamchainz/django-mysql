@@ -314,6 +314,26 @@ class RewriteQueryTests(TestCase):
             "WHERE (1) ORDER BY col_a"
         )
 
+    def test_index_hint_not_applied_to_nested(self):
+        assert (
+            rewrite_query(
+                "SELECT COUNT(*) FROM `sometable` "
+                "WHERE id IN ("
+                "  SELECT DISTINCT U1.id FROM `sometable` U0"
+                "  INNER JOIN `tag` U1 ON U1.fk_id=U0.id"
+                "  WHERE U1.name in ('a', 'b', 'c')"
+                ")"
+                "AND (/*QueryRewrite':index=`tag` USE `myindex` */1)"
+            ) ==
+            "SELECT COUNT(*) FROM `sometable` "
+            "WHERE id IN ("
+            "  SELECT DISTINCT U1.id FROM `sometable` U0"
+            "  INNER JOIN `tag` U1 ON U1.fk_id=U0.id"
+            "  WHERE U1.name in ('a', 'b', 'c')"
+            ")"
+            "AND (1)"
+        )
+
     def test_it_is_monkey_patched(self):
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute("SELECT 1 FROM DUAL "
