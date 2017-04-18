@@ -7,6 +7,7 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Use django.utils.six everywhere
 
 1.1.1 (2017-03-28)
 ------------------
