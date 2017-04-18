@@ -7,6 +7,9 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Only use Django's vendored six (``django.utils.six``). Fixes usage of
+  ``EnumField`` and field lookups when ``six`` is not installed as a
+  standalone package.
 
 1.1.1 (2017-03-28)
 ------------------
