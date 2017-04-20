@@ -8,12 +8,12 @@ import re
 from unittest import mock, skipUnless
 
 import pytest
-import six
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import six
 
 from django_mysql.models import (
     ApproximateInt, SmartIterator, add_QuerySetMixin
