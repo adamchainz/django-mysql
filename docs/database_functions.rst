@@ -626,15 +626,63 @@ more information on their syntax, refer to the MySQL documentation.
         [<ShopItem: Rainbow Wheel>, <ShopItem: Hard Candies>]
 
 
-.. class:: JSONSet(expression, data)
+.. class:: JSONInsert(expression, data)
 
-    Given ``expression`` that resolves to some JSON data, updates it using the
-    dictionary ``data`` of JSON paths to new values. If the any JSON path
-    within the pairs dictionary does not match, or if ``expression`` is
-    ``NULL``, it returns ``NULL``.
+    Given ``expression`` that resolves to some JSON data, adds to it using the
+    dictionary ``data`` of JSON paths to new values. If any JSON path in the
+    ``data`` dictionary does not match, or if ``expression`` is ``NULL``, it
+    returns ``NULL``. Paths that already exist in the original data are
+    ignored.
 
     Note that if ``expression`` is a string, it will refer to a field, whereas
     keys and values within the ``pairs`` dictionary will be wrapped with
+    ``Value`` automatically and thus interpreted as the given string. If you
+    want a key or value to refer to a field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-insert>`_.
+
+    .. code-block:: pycon
+
+        >>> # Add power_level = 0 for those items that don't have power_level
+        >>> ShopItem.objects.update(
+        ...     attrs=JSONInsert('attrs', {'$.power_level': 0})
+        ... )
+
+
+.. class:: JSONReplace(expression, data)
+
+    Given ``expression`` that resolves to some JSON data, replaces existing
+    paths in it using the dictionary ``data`` of JSON paths to new values. If
+    any JSON path within the ``data`` dictionary does not match, or if
+    ``expression`` is ``NULL``, it returns ``NULL``. Paths that do not exist in
+    the original data are ignored.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    keys and values within the ``pairs`` dictionary will be wrapped with
+    ``Value`` automatically and thus interpreted as the given string. If you
+    want a key or value to refer to a field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-replace>`_.
+
+    .. code-block:: pycon
+
+        >>> # Reset all items' monthly_sales to 0 directly in MySQL
+        >>> ShopItem.objects.update(
+        ...     attrs=JSONReplace('attrs', {'$.monthly_sales': 0})
+        ... )
+
+.. class:: JSONSet(expression, data)
+
+    Given ``expression`` that resolves to some JSON data, updates it using the
+    dictionary ``data`` of JSON paths to new values. If any of the JSON paths
+    within the data dictionary does not match, or if ``expression`` is
+    ``NULL``, it returns ``NULL``. All paths can be modified - those that did
+    not exist before and those that did.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    keys and values within the ``data`` dictionary will be wrapped with
     ``Value`` automatically and thus interpreted as the given string. If you
     want a key or value to refer to a field, use Django's ``F()`` class.
 
