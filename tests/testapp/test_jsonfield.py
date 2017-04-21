@@ -3,9 +3,11 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import json
 from unittest import SkipTest, mock
 
 import pytest
+from django.core import serializers
 from django.db import connection, connections
 from django.db.models import F
 from django.test import TestCase
@@ -475,3 +477,25 @@ class TestFormField(JSONFieldTestCase):
         model_field = JSONField()
         form_field = model_field.formfield()
         assert isinstance(form_field, forms.JSONField)
+
+
+class TestSerialization(JSONFieldTestCase):
+    test_data = '''[
+        {
+            "fields": {
+                "attrs": {"a": "b", "c": null}
+            },
+            "model": "testapp.jsonmodel",
+            "pk": null
+        }
+    ]'''
+
+    def test_dumping(self):
+        instance = JSONModel(attrs={'a': 'b', 'c': None})
+        data = serializers.serialize('json', [instance])
+        assert json.loads(data) == json.loads(self.test_data)
+
+    def test_loading(self):
+        instances = list(serializers.deserialize('json', self.test_data))
+        instance = instances[0].object
+        assert instance.attrs == {'a': 'b', 'c': None}

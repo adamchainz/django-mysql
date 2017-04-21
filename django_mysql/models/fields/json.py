@@ -120,6 +120,9 @@ class JSONField(Field):
             )
         return super(JSONField, self).get_lookup(lookup_name)
 
+    def value_to_string(self, obj):
+        return self.value_from_object(obj)
+
     def formfield(self, **kwargs):
         defaults = {'form_class': forms.JSONField}
         defaults.update(kwargs)

@@ -12,6 +12,8 @@ Pending
   standalone package.
 * Added ``JSONSet`` database function that wraps the ``JSON_SET`` function from
   MySQL 5.7.
+* Fixed ``JSONField`` to work with Django's serializer framework, as used in
+  e.g. ``dumpdata``.
 
 1.1.1 (2017-03-28)
 ------------------
