@@ -6,12 +6,12 @@ from __future__ import (
 import collections
 import json
 
-import six
 from django.db.models import CharField, Lookup, Transform
 from django.db.models.lookups import (
     BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan,
     LessThanOrEqual
 )
+from django.utils import six
 
 
 class CaseSensitiveExact(BuiltinLookup):

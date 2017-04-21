@@ -626,6 +626,28 @@ more information on their syntax, refer to the MySQL documentation.
         [<ShopItem: Rainbow Wheel>, <ShopItem: Hard Candies>]
 
 
+.. class:: JSONSet(expression, data)
+
+    Given ``expression`` that resolves to some JSON data, updates it using the
+    dictionary ``data`` of JSON paths to new values. If the any JSON path
+    within the pairs dictionary does not match, or if ``expression`` is
+    ``NULL``, it returns ``NULL``.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    keys and values within the ``pairs`` dictionary will be wrapped with
+    ``Value`` automatically and thus interpreted as the given string. If you
+    want a key or value to refer to a field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-set>`_.
+
+    .. code-block:: pycon
+
+        >>> # Modify 'size' value to '10m' directly in MySQL
+        >>> shop_item = ShopItem.objects.latest()
+        >>> shop_item.attrs = JSONSet('attrs', {'$.size': '10m'})
+        >>> shop_item.save()
+
 Dynamic Columns Functions
 -------------------------
 

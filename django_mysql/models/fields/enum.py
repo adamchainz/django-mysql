@@ -3,8 +3,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import six
 from django.db.models import CharField
+from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from _mysql import escape_string  # isort:skip

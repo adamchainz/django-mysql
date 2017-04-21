@@ -9,6 +9,11 @@ Pending
 * (Insert new release notes below this line)
 * Fixed ``JSONField`` to allow storing strings as top-level json objects.
 * Fixed ``JSONField`` so that it doesn't overquote inputs when redisplaying the form due to invalid user input.
+* Only use Django's vendored six (``django.utils.six``). Fixes usage of
+  ``EnumField`` and field lookups when ``six`` is not installed as a
+  standalone package.
+* Added ``JSONSet`` database function that wraps the ``JSON_SET`` function from
+  MySQL 5.7.
 
 1.1.1 (2017-03-28)
 ------------------
