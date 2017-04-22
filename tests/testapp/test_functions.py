@@ -15,9 +15,10 @@ from django.utils import six
 
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
-    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONKeys,
-    JSONLength, JSONSet, LastInsertId, Least, RegexpInstr, RegexpReplace,
-    RegexpSubstr, Round, Sign, UpdateXML, XMLExtractValue
+    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONInsert,
+    JSONKeys, JSONLength, JSONReplace, JSONSet, LastInsertId, Least,
+    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
+    XMLExtractValue
 )
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from testapp.test_dynamicfield import DynColTestCase
@@ -424,11 +425,36 @@ class JSONFunctionTests(JSONFieldTestCase):
         )
         assert results == [self.obj]
 
+    def test_json_insert(self):
+        self.obj.attrs = JSONInsert('attrs', {'$.int': 99, '$.int2': 102})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['int'] == 88
+        assert self.obj.attrs['int2'] == 102
+
+    def test_json_insert_empty_data(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONInsert('attrs', {})
+        assert '"data" cannot be empty' in str(excinfo.value)
+
+    def test_json_replace_pairs(self):
+        self.obj.attrs = JSONReplace('attrs', {'$.int': 101, '$.int2': 102})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['int'] == 101
+        assert 'int2' not in self.obj.attrs
+
+    def test_json_replace_empty_data(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONReplace('attrs', {})
+        assert '"data" cannot be empty' in str(excinfo.value)
+
     def test_json_set_pairs(self):
-        obj = JSONModel.objects.get()
-        obj.attrs = JSONSet('attrs', {'$.int': 101})
-        obj.save()
-        assert JSONModel.objects.get().attrs['int'] == 101
+        self.obj.attrs = JSONSet('attrs', {'$.int': 101, '$.int2': 102})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['int'] == 101
+        assert self.obj.attrs['int2'] == 102
 
     def test_json_set_empty_data(self):
         with pytest.raises(ValueError) as excinfo:

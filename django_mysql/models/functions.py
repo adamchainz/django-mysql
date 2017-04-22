@@ -260,9 +260,7 @@ class JSONLength(Func):
         super(JSONLength, self).__init__(*exprs, output_field=output_field)
 
 
-class JSONSet(Func):
-    function = 'JSON_SET'
-
+class BaseJSONModifyFunc(Func):
     def __init__(self, expression, data):
         from django_mysql.models.fields import JSONField
 
@@ -282,7 +280,20 @@ class JSONSet(Func):
 
             exprs.append(value)
 
-        super(JSONSet, self).__init__(*exprs, output_field=JSONField())
+        super(BaseJSONModifyFunc, self).__init__(*exprs,
+                                                 output_field=JSONField())
+
+
+class JSONInsert(BaseJSONModifyFunc):
+    function = 'JSON_INSERT'
+
+
+class JSONReplace(BaseJSONModifyFunc):
+    function = 'JSON_REPLACE'
+
+
+class JSONSet(BaseJSONModifyFunc):
+    function = 'JSON_SET'
 
 
 # MariaDB Regexp Functions
