@@ -247,4 +247,6 @@ class JSONField(forms.CharField):
             )
 
     def prepare_value(self, value):
-        return json.dumps(value)
+        if not isinstance(value, six.string_types):
+            return json.dumps(value)
+        return value

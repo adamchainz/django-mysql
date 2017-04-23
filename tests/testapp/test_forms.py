@@ -307,3 +307,8 @@ class TestJSONField(SimpleTestCase):
         field = JSONField()
         assert field.prepare_value({'a': 'b'}) == '{"a": "b"}'
         assert field.prepare_value(None) == 'null'
+
+    def test_prepare_already_string_value(self):
+        field = JSONField()
+        assert field.prepare_value('{"a": "b"}') == '{"a": "b"}'
+        assert field.prepare_value('null') == 'null'
