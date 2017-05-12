@@ -260,6 +260,17 @@ class JSONLength(Func):
         super(JSONLength, self).__init__(*exprs, output_field=output_field)
 
 
+class JSONValue(Func):
+    function = 'CAST'
+    template = '%(function)s(%(expressions)s as json)'
+    arity = 1
+
+    def __init__(self, expression):
+        import json
+        value = json.dumps(expression, allow_nan=False)
+        super(JSONValue, self).__init__(Value(value))
+
+
 class BaseJSONModifyFunc(Func):
     def __init__(self, expression, data):
         from django_mysql.models.fields import JSONField
@@ -276,7 +287,7 @@ class BaseJSONModifyFunc(Func):
             exprs.append(path)
 
             if not hasattr(value, 'resolve_expression'):
-                value = Value(value)
+                value = JSONValue(value)
 
             exprs.append(value)
 

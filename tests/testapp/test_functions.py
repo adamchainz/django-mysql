@@ -432,6 +432,28 @@ class JSONFunctionTests(JSONFieldTestCase):
         assert self.obj.attrs['int'] == 88
         assert self.obj.attrs['int2'] == 102
 
+    def test_json_insert_dict(self):
+        self.obj.attrs = JSONInsert(
+            'attrs',
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['sub'] == {'document': 'store'}
+        assert self.obj.attrs['sub2']['int'] == 42
+        assert self.obj.attrs['sub2']['foo'] == 'bar'
+
+    def test_json_insert_array(self):
+        self.obj.attrs = JSONInsert(
+            'attrs',
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == ['dee', 'arr', 'arr']
+        assert self.obj.attrs['arr2'][0] == 'one'
+        assert self.obj.attrs['arr2'][1] == 2
+
     def test_json_insert_empty_data(self):
         with pytest.raises(ValueError) as excinfo:
             JSONInsert('attrs', {})
@@ -444,6 +466,26 @@ class JSONFunctionTests(JSONFieldTestCase):
         assert self.obj.attrs['int'] == 101
         assert 'int2' not in self.obj.attrs
 
+    def test_json_replace_dict(self):
+        self.obj.attrs = JSONReplace(
+            'attrs',
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['sub'] == {'paper': 'drop'}
+        assert 'sub2' not in self.obj.attrs
+
+    def test_json_replace_array(self):
+        self.obj.attrs = JSONReplace(
+            'attrs',
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == [1, 'two', 3]
+        assert 'arr2' not in self.obj.attrs
+
     def test_json_replace_empty_data(self):
         with pytest.raises(ValueError) as excinfo:
             JSONReplace('attrs', {})
@@ -455,6 +497,45 @@ class JSONFunctionTests(JSONFieldTestCase):
         self.obj.refresh_from_db()
         assert self.obj.attrs['int'] == 101
         assert self.obj.attrs['int2'] == 102
+
+    def test_json_set_dict(self):
+        self.obj.attrs = JSONSet(
+            'attrs',
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['sub'] == {'paper': 'drop'}
+        assert self.obj.attrs['sub2']['int'] == 42
+        assert self.obj.attrs['sub2']['foo'] == 'bar'
+
+    def test_json_set_array(self):
+        self.obj.attrs = JSONSet(
+            'attrs',
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == [1, 'two', 3]
+        assert self.obj.attrs['arr2'][0] == 'one'
+        assert self.obj.attrs['arr2'][1] == 2
+
+    def test_json_set_complex_data(self):
+        data = {
+            'list': ['one', {'int': 2}, None],
+            'dict': {
+                'sub_list': [1, ['two', 3]],
+                'sub_dict': {'paper': 'drop'},
+                'sub_null': None,
+            },
+            'empty': [],
+            'null': None,
+            'value': 11,
+        }
+        self.obj.attrs = JSONSet('attrs', {'$.data': data})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['data'] == data
 
     def test_json_set_empty_data(self):
         with pytest.raises(ValueError) as excinfo:
