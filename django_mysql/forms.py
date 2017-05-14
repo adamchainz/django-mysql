@@ -5,6 +5,7 @@ from __future__ import (
 
 import json
 
+import django
 from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -240,6 +241,8 @@ class JSONField(forms.CharField):
     widget = forms.Textarea
 
     def to_python(self, value):
+        if django.VERSION[:2] >= (1, 9) and self.disabled:
+            return value
         if value in self.empty_values:
             return None
         elif isinstance(value, (list, dict, int, float, JSONString)):
@@ -258,6 +261,8 @@ class JSONField(forms.CharField):
             return converted
 
     def bound_data(self, data, initial):
+        if django.VERSION[:2] >= (1, 9) and self.disabled:
+            return initial
         try:
             return json.loads(data)
         except ValueError:

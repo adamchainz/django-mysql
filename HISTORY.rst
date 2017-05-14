@@ -14,8 +14,8 @@ Pending
   wraps the respective JSON-modifying functions from MySQL 5.7.
 * Fixed ``JSONField`` to work with Django's serializer framework, as used in
   e.g. ``dumpdata``.
-* Fixed ``JSONField`` to allow storing strings as top-level json objects.
-* Fixed ``JSONField`` so that it doesn't overquote inputs when redisplaying the form due to invalid user input.
+* Fixed ``JSONField`` form field so that it doesn't overquote inputs when
+  redisplaying the form due to invalid user input.
 
 1.1.1 (2017-03-28)
 ------------------

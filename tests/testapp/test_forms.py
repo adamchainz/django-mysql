@@ -3,6 +3,9 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+from unittest import skipUnless
+
+import django
 import pytest
 from django import forms
 from django.core import exceptions
@@ -325,19 +328,34 @@ class TestJSONField(SimpleTestCase):
 
         # JSONField input is fine, name is too long
         form = JsonForm({'name': 'xyz', 'jfield': '["foo"]'})
-        self.assertIn('[&quot;foo&quot;]</textarea>', form.as_p())
+        assert '[&quot;foo&quot;]</textarea>' in form.as_p()
 
         # This time, the JSONField input is wrong
         form = JsonForm({'name': 'xy', 'jfield': '{"foo"}'})
         # Appears once in the textarea and once in the error message
-        self.assertEqual(form.as_p().count(escape('{"foo"}')), 2)
+        assert form.as_p().count(escape('{"foo"}')) == 2
 
     def test_already_converted_value(self):
         field = JSONField(required=False)
         tests = [
-            '["a", "b", "c"]', '{"a": 1, "b": 2}', '1', '1.5', '"foo"',
-            'true', 'false', 'null',
+            '["a", "b", "c"]',
+            '{"a": 1, "b": 2}',
+            '1',
+            '1.5',
+            '"foo"',
+            'true',
+            'false',
+            'null',
         ]
         for json_string in tests:
             val = field.clean(json_string)
-            self.assertEqual(field.clean(val), val)
+            assert field.clean(val) == val
+
+    @skipUnless(django.VERSION[:2] >= (1, 9),
+                "Requires Django 1.9+ for Field.disabled")
+    def test_disabled(self):
+        class JsonForm(forms.Form):
+            jfield = JSONField(disabled=True)
+
+        form = JsonForm({'jfield': '["bar"]'}, initial={'jfield': ['foo']})
+        assert '[&quot;foo&quot;]</textarea>' in form.as_p()
