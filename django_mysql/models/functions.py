@@ -3,6 +3,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import json
+
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Field as DjangoField
 from django.db.models import CharField, Func, IntegerField, TextField, Value
@@ -262,13 +264,11 @@ class JSONLength(Func):
 
 class JSONValue(Func):
     function = 'CAST'
-    template = '%(function)s(%(expressions)s as json)'
-    arity = 1
+    template = '%(function)s(%(expressions)s AS JSON)'
 
     def __init__(self, expression):
-        import json
-        value = json.dumps(expression, allow_nan=False)
-        super(JSONValue, self).__init__(Value(value))
+        json_string = json.dumps(expression, allow_nan=False)
+        super(JSONValue, self).__init__(Value(json_string))
 
 
 class BaseJSONModifyFunc(Func):
