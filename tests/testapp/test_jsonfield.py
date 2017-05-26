@@ -53,6 +53,14 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel.objects.get()
         assert m.attrs == 'value'
 
+    def test_json_dumps_string(self):
+        json_string = json.dumps({'foo': 'bar'})
+        m = JSONModel(attrs=json_string)
+        assert m.attrs == json_string
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == json_string
+
     def test_awkward_1(self):
         m = JSONModel(attrs='"')
         assert m.attrs == '"'

@@ -7,6 +7,28 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Fixed ``JSONField`` model field string serialization. This is a small
+  backwards incompatible change.
+
+  Storing strings mostly used to crash with MySQL error -1 "error totally
+  whack", but in the case your string was valid JSON, it would store it as
+  a JSON object at the MySQL layer and deserialize it when returned. For
+  example you could do this:
+
+  .. code-block:: python
+
+      >>> mymodel.attrs = '{"foo": "bar"}'
+      >>> mymodel.save()
+      >>> mymodel = MyModel.objects.get(id=mymodel.id)
+      >>> mymodel.attrs
+      {'foo': 'bar'}
+
+  The new behaviour now correctly returns what you put in:
+
+  .. code-block:: python
+
+      >>> mymodel.attrs
+      '{"foo": "bar"}'
 
 1.2.0 (2017-05-14)
 ------------------
