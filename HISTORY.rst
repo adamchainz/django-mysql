@@ -7,6 +7,10 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+
+2.0.0 (2017-05-28)
+------------------
+
 * Fixed ``JSONField`` model field string serialization. This is a small
   backwards incompatible change.
 
