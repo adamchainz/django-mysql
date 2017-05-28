@@ -16,5 +16,6 @@ pyflakes==1.2.3
 pytest==3.0.2
 pytest-django==3.0.0
 pytest-super-check==1.0.0
+pytz==2017.2
 six==1.10.0
 sqlparse==0.2.1

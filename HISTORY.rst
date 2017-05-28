@@ -7,6 +7,7 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Django 1.11 compatibility
 
 2.0.0 (2017-05-28)
 ------------------
