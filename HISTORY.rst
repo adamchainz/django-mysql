@@ -29,6 +29,9 @@ Pending
 
       >>> mymodel.attrs
       '{"foo": "bar"}'
+* Removed the ``connection.is_mariadb`` monkey patch. This is a small backwards
+  incompatible change. Instead of using it, use
+  ``django_mysql.utils.connection_is_mariadb``.
 
 1.2.0 (2017-05-14)
 ------------------

@@ -429,19 +429,3 @@ specific one:
             self.run_it()
 
 :ref:`Read more <test_utilities>`
-
-
---------------
-Monkey Patches
---------------
-
-You can test to see if you are running MariaDB from the
-``django.db.connection`` object:
-
-.. code-block:: pycon
-
-    >>> from django.db import connections
-    >>> connections['default'].is_mariadb
-    False
-
-:ref:`Read more <monkey_patches>`

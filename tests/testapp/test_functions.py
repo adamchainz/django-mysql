@@ -20,6 +20,7 @@ from django_mysql.models.functions import (
     RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
     XMLExtractValue
 )
+from django_mysql.utils import connection_is_mariadb
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from testapp.test_dynamicfield import DynColTestCase
 from testapp.test_jsonfield import JSONFieldTestCase
@@ -548,7 +549,8 @@ class RegexpFunctionTests(TestCase):
     def setUp(self):
         super(RegexpFunctionTests, self).setUp()
         have_regex_functions = (
-            (connection.is_mariadb and connection.mysql_version >= (10, 0, 5))
+            connection_is_mariadb(connection) and
+            connection.mysql_version >= (10, 0, 5)
         )
         if not have_regex_functions:
             raise SkipTest("MariaDB 10.0.5+ is required")

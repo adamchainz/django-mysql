@@ -17,7 +17,7 @@ from django_mysql.models.lookups import (
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
     JSONLessThan, JSONLessThanOrEqual
 )
-from django_mysql.utils import collapse_spaces
+from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
 __all__ = ('JSONField',)
 
@@ -64,7 +64,7 @@ class JSONField(Field):
             conn = connections[db]
             if (
                 hasattr(conn, 'mysql_version') and
-                (conn.is_mariadb or conn.mysql_version < (5, 7))
+                (connection_is_mariadb(conn) or conn.mysql_version < (5, 7))
             ):
                 any_conn_works = False
 

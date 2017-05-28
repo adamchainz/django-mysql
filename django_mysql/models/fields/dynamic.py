@@ -18,6 +18,7 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.models.lookups import DynColHasKey
+from django_mysql.utils import connection_is_mariadb
 
 try:
     import mariadb_dyncol
@@ -69,7 +70,8 @@ class DynamicField(Field):
             conn = connections[db]
             if (
                 hasattr(conn, 'mysql_version') and
-                (not conn.is_mariadb or conn.mysql_version < (10, 0, 1))
+                (not connection_is_mariadb(conn) or
+                 conn.mysql_version < (10, 0, 1))
             ):
                 any_conn_works = False
 
@@ -92,7 +94,7 @@ class DynamicField(Field):
         for db in conn_names:
             if (
                 hasattr(connections[db], 'mysql_version') and
-                connections[db].is_mariadb and
+                connection_is_mariadb(connections[db]) and
                 connections[db].mysql_version >= (10, 0, 1)
             ):
                 conn = connections[db]

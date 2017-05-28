@@ -16,6 +16,7 @@ from django.test import TestCase
 from django.utils import six
 
 from django_mysql.models import DynamicField
+from django_mysql.utils import connection_is_mariadb
 from testapp.models import DynamicModel, TemporaryModel
 from testapp.utils import requiresPython2
 
@@ -25,7 +26,7 @@ class DynColTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         if not (
-            connection.is_mariadb and
+            connection_is_mariadb(connection) and
             connection.mysql_version >= (10, 0, 1)
         ):
             raise SkipTest("Dynamic Columns require MariaDB 10.0.1+")
@@ -132,6 +133,7 @@ class DumbTransform(Transform):
     def as_sql(self, compiler, connection):
         lhs, params = compiler.compile(self.lhs)
         return "%s", ['dumb']
+
 
 DynamicField.register_lookup(DumbTransform)
 
@@ -319,14 +321,9 @@ class QueryTests(DynColTestCase):
 
 class TestCheck(DynColTestCase):
 
-    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
-
-    @mock.patch(wrapper_path + '.is_mariadb', new=False)
-    def test_db_not_mariadb(self):
-        # Uncache cached_property
-        for db in connections:
-            if 'is_mariadb' in connections[db].__dict__:
-                del connections[db].__dict__['is_mariadb']
+    @mock.patch('django_mysql.models.fields.dynamic.connection_is_mariadb')
+    def test_db_not_mariadb(self, is_mariadb):
+        is_mariadb.return_value = False
 
         class ValidDynamicModel(TemporaryModel):
             field = DynamicField()
@@ -335,6 +332,8 @@ class TestCheck(DynColTestCase):
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
+
+    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
 
     @mock.patch(wrapper_path + '.mysql_version', new=(5, 5, 3))
     def test_mariadb_old_version(self):

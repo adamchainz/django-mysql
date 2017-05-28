@@ -9,6 +9,12 @@ Utilities
 The following can be imported from ``django_mysql.utils``.
 
 
+.. function:: connection_is_mariadb(connection)
+
+    Given a Django database connection (from ``django.db.connections``) return
+    ``True`` if it is a connection to a MariaDB database else ``False``. The
+    result is cached to avoid unnecessary connections.
+
 .. function:: pt_fingerprint(query)
 
     Given a string ``query`` containing a MySQL query, returns a 'fingerprint'

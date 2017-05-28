@@ -14,6 +14,7 @@ from django.test import TestCase
 
 from django_mysql import forms
 from django_mysql.models import JSONField
+from django_mysql.utils import connection_is_mariadb
 from testapp.models import JSONModel, TemporaryModel
 from testapp.utils import print_all_queries
 
@@ -23,7 +24,7 @@ class JSONFieldTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         if not (
-            not connection.is_mariadb and
+            not connection_is_mariadb(connection) and
             connection.mysql_version >= (5, 7)
         ):
             raise SkipTest("JSONField requires MySQL 5.7+")
@@ -488,14 +489,9 @@ class TestCheck(JSONFieldTestCase):
         assert errors[0].id == 'django_mysql.E017'
         assert 'Do not use mutable defaults for JSONField' in errors[0].msg
 
-    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
-
-    @mock.patch(wrapper_path + '.is_mariadb', new=True)
-    def test_db_not_mysql(self):
-        # Uncache cached_property
-        for db in connections:
-            if 'is_mariadb' in connections[db].__dict__:
-                del connections[db].__dict__['is_mariadb']
+    @mock.patch('django_mysql.models.fields.json.connection_is_mariadb')
+    def test_db_not_mysql(self, is_mariadb):
+        is_mariadb.return_value = True
 
         class InvalidJSONModel(TemporaryModel):
             field = JSONField()
@@ -504,6 +500,8 @@ class TestCheck(JSONFieldTestCase):
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E016'
         assert "MySQL 5.7+ is required" in errors[0].msg
+
+    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
 
     @mock.patch(wrapper_path + '.mysql_version', new=(5, 5, 3))
     def test_mysql_old_version(self):
