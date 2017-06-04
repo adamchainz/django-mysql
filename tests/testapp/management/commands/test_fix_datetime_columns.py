@@ -14,8 +14,9 @@ from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.utils.six.moves import StringIO
 
-from django_mysql.management.commands.fix_datetime_columns import \
+from django_mysql.management.commands.fix_datetime_columns import (
     parse_create_table
+)
 from django_mysql.utils import connection_is_mariadb
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
