@@ -4,6 +4,7 @@ from __future__ import (
 )
 
 import json
+import re
 
 import django
 from django.core import checks
@@ -15,7 +16,7 @@ from django_mysql import forms
 from django_mysql.models.lookups import (
     JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
-    JSONLessThan, JSONLessThanOrEqual
+    JSONLessThan, JSONLessThanOrEqual, JSONSearch
 )
 from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
@@ -118,7 +119,7 @@ class JSONField(Field):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
             'range', 'in', 'iexact', 'icontains', 'startswith',
-            'istartswith', 'endswith', 'iendswith', 'search', 'regex', 'iregex'
+            'istartswith', 'endswith', 'iendswith', 'regex', 'iregex'
         }:
             raise NotImplementedError(
                 "Lookup '{}' doesn't work with JSONField".format(lookup_name)
@@ -158,6 +159,7 @@ JSONField.register_lookup(JSONHasKeys)
 JSONField.register_lookup(JSONLength)
 JSONField.register_lookup(JSONLessThan)
 JSONField.register_lookup(JSONLessThanOrEqual)
+JSONField.register_lookup(JSONSearch)
 
 
 class KeyTransform(Transform):
@@ -182,12 +184,16 @@ class KeyTransform(Transform):
     def compile_json_path(self, key_transforms):
         path = ['$']
         for key_transform in key_transforms:
-            try:
-                num = int(key_transform)
-                path.append('[{}]'.format(num))
-            except ValueError:  # non-integer
-                path.append('.')
-                path.append(key_transform)
+            if re.match(r'\b[a-z]+', key_transform):
+                key_transform = re.sub(r'\b[a-z]+', '', key_transform)
+                path.append('."{}"'.format(key_transform))
+            else:
+                try:
+                    num = int(key_transform)
+                    path.append('."{}"'.format(num))
+                except ValueError:  # non-integer
+                    path.append('.')
+                    path.append(key_transform)
         return ''.join(path)
 
 
