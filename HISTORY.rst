@@ -7,6 +7,8 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Added the ``manage.py`` command ``change_db_charset`` that ouputs the SQL to
+  change database's charset and collation.
 
 2.1.0 (2017-06-11)
 ------------------
@@ -53,8 +55,6 @@ Pending
   wraps the respective JSON-modifying functions from MySQL 5.7.
 * Fixed ``JSONField`` to work with Django's serializer framework, as used in
   e.g. ``dumpdata``.
-* Added the ``manage.py`` command ``change_db_charset`` that ouputs the SQL to
-  change database's charset and collation.
 * Fixed ``JSONField`` form field so that it doesn't overquote inputs when
   redisplaying the form due to invalid user input.
 
