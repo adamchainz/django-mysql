@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 import logging
 import re
 import textwrap
 
-import django
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -14,14 +15,9 @@ from django.utils import timezone
 
 from django_mysql.utils import collapse_spaces
 
-try:
-    from shlex import quote as shell_quote
-except ImportError:
-    from pipes import quote as shell_quote
-
-
 INNODB_INDEX_BYTE_LIMIT = 767
 logger = logging.getLogger(__name__)
+
 
 class AlterDB(object):
     def __init__(self, connection, db_name, sql):
@@ -54,14 +50,27 @@ class AlterTable(object):
 
     def __add__(self, other):
         if not isinstance(other, AlterTable):
-            raise TypeError('Can only join another AlterTable to this AlterTable instance, not {}'.format(other))
+            raise TypeError(
+                'Can only join another AlterTable to '
+                'this AlterTable instance, not {}'.format(other),
+            )
 
-        if self.db_name != other.db_name or self.table_name != other.table_name:
-            raise ValueError("Can't join AlterTable instances for different tables (left is for {}.{}, right is for {}.{})".format(
-                self.db_name, self.table_name, other.db_name, other.table_name,
-            ))
+        if self.db_name != other.db_name or \
+           self.table_name != other.table_name:
+            raise ValueError(
+                "Can't join AlterTable instances for different tables "
+                "(left is for {}.{}, right is for {}.{})".format(
+                    self.db_name, self.table_name,
+                    other.db_name, other.table_name,
+                ),
+            )
 
-        return AlterTable(self.connection, self.db_name, self.table_name, self.sql + ', ' + other.sql)
+        return AlterTable(
+            self.connection,
+            self.db_name,
+            self.table_name,
+            self.sql + ', ' + other.sql,
+        )
 
     def as_sql(self):
         return 'ALTER TABLE {}.{} {};'.format(
@@ -98,7 +107,8 @@ class Command(BaseCommand):
         parser.add_argument(
             'alias', nargs='?',
             default=DEFAULT_DB_ALIAS,
-            help='Specify the database connection alias to output parameters for.',
+            help='Specify the database connection alias '
+            'to output parameters for.',
         )
 
         parser.add_argument(
@@ -120,7 +130,9 @@ class Command(BaseCommand):
             raise CommandError("Connection '{}' does not exist".format(alias))
 
         if connection.vendor != 'mysql':
-            raise CommandError('{} is not a MySQL database connection'.format(alias))
+            raise CommandError(
+                '{} is not a MySQL database connection'.format(alias),
+            )
 
         self.new_charset = options['charset']
         self.new_collation = options['collation']
@@ -130,21 +142,30 @@ class Command(BaseCommand):
             # Validate charset and collation choice
             charset_widths = self.charset_widths(cursor)
             if self.new_charset not in charset_widths:
-                raise CommandError('{} is not a valid charset for this database (expected one of {})'.format(
-                    self.new_charset, ', '.join(sorted(charset_widths.keys())),
-                ))
+                raise CommandError(
+                    '{} is not a valid charset for '
+                    'this database (expected one of {})'.format(
+                        self.new_charset,
+                        ', '.join(sorted(charset_widths.keys())),
+                    ),
+                )
 
             valid_collations = self.valid_collations_for_new_charset(cursor)
             if self.new_collation not in valid_collations:
-                raise CommandError('{} is not a valid collation for charset {} (expected one of {})'.format(
-                    self.new_collation, self.new_charset,
-                    ', '.join(sorted(valid_collations)),
-                ))
+                raise CommandError(
+                    '{} is not a valid collation for '
+                    'charset {} (expected one of {})'.format(
+                        self.new_collation, self.new_charset,
+                        ', '.join(sorted(valid_collations)),
+                    ),
+                )
 
             cursor.execute("""SELECT DATABASE()""")
             (self.db_name,) = cursor.fetchone()
 
-            database_defaults_fixes = self.database_defaults_fixes(connection, cursor)
+            database_defaults_fixes = self.database_defaults_fixes(
+                connection, cursor,
+            )
             if database_defaults_fixes:
                 actions.extend(database_defaults_fixes)
 
@@ -170,18 +191,30 @@ FROM INFORMATION_SCHEMA.SCHEMATA
 WHERE SCHEMA_NAME = DATABASE()
 """)
         ((old_default_charset, old_default_collation),) = cursor.fetchall()
-        if old_default_charset == self.new_charset and old_default_collation == self.new_collation:
+        if old_default_charset == self.new_charset and \
+           old_default_collation == self.new_collation:
             return []
 
+        if not old_default_collation and old_default_charset:
+            old_default_collation = self.default_collation_for_charset(
+                cursor,
+                old_default_charset,
+            )
+        if not old_default_collation:
+            old_default_collation = '<Unknown>'
+
+        if not old_default_charset:
+            old_default_charset = '<Unknown>'
+
         return [
-            Comment('Previous character set: {}'.format(old_default_charset or '<Unknown>')),
-            Comment('Previous collation: {}'.format(
-                old_default_collation
-                or (old_default_charset
-                    and self.default_collation_for_charset(cursor, old_default_charset))
-                or '<Unknown>',
-            )),
-            AlterDB(connection, self.db_name, 'CHARACTER SET = {} COLLATE = {}'.format(self.new_charset, self.new_collation)),
+            Comment('Previous character set: {}'.format(old_default_charset)),
+            Comment('Previous collation: {}'.format(old_default_collation)),
+            AlterDB(
+                connection, self.db_name,
+                'CHARACTER SET = {} COLLATE = {}'.format(
+                    self.new_charset, self.new_collation,
+                ),
+            ),
         ]
 
     def table_fixes(self, connection, cursor, table_name):
@@ -199,42 +232,67 @@ WHERE SCHEMA_NAME = DATABASE()
             raise
         create_table = parse_create_table(cursor.fetchone()[1])
 
-        if create_table['default_charset'] != self.new_charset or create_table['default_collation'] != self.new_collation:
-            table_actions.append(Comment('Previous character set: {}'.format(create_table['default_charset'] or '<Unknown>')))
+        if create_table['default_charset'] != self.new_charset \
+           or create_table['default_collation'] != self.new_collation:
+            table_actions.append(Comment('Previous character set: {}'.format(
+                create_table['default_charset'] or '<Unknown>',
+            )))
+
+            previous_collation = create_table['default_collation']
+            if not previous_collation and create_table['default_charset']:
+                previous_collation = self.default_collation_for_charset(
+                    cursor, create_table['default_charset'],
+                )
+            if not previous_collation:
+                previous_collation = '<Unknown>'
+
             table_actions.append(Comment('Previous collation: {}'.format(
-                create_table['default_collation']
-                or (create_table['default_charset']
-                    and self.default_collation_for_charset(cursor, create_table['default_charset']))
-                or '<Unknown>',
+                previous_collation,
             )))
             table_actions.append(AlterTable(
                 connection, self.db_name, table_name,
-                'CONVERT TO CHARACTER SET {} COLLATE {}'.format(self.new_charset, self.new_collation),
+                'CONVERT TO CHARACTER SET {} COLLATE {}'.format(
+                    self.new_charset, self.new_collation,
+                ),
             ))
 
         # Next, get all of the columns that need to be resized.
         bad_columns = self.get_bad_columns(cursor, table_name)
 
-        # Indexes have to be adjusted as well, since the bytes per character may
-        # have changed. InnoDB allows a maximum of 767 bytes for an index. Either
-        # the indexes need to be rebuilt or the constraints need to change the
-        # correct character lengths.
+        # Indexes have to be adjusted as well, since the bytes per character
+        # may have changed. InnoDB allows a maximum of 767 bytes for an index.
+        # Either the indexes need to be rebuilt or the constraints need to
+        # change the correct character lengths.
         indexes = self.build_index_map_for_table(create_table)
 
-        for column_name, column_spec in create_table['column_types'].iteritems():
+        columns = create_table['column_types'].iteritems()
+        for column_name, column_spec in columns:
             if column_name not in bad_columns:
                 continue
 
             bad_columns[column_name]['spec'] = column_spec
 
-            spec_no_charset = re.sub(r' CHARACTER SET \w+', '', column_spec, flags=re.IGNORECASE)
-            spec_no_charset_or_collate = re.sub(r' COLLATE \w+', '', spec_no_charset, flags=re.IGNORECASE)
+            spec_no_charset = re.sub(
+                r' CHARACTER SET \w+', '',
+                column_spec, flags=re.IGNORECASE,
+            )
+            spec_no_charset_or_collate = re.sub(
+                r' COLLATE \w+', '',
+                spec_no_charset, flags=re.IGNORECASE,
+            )
 
-            logger.debug('Setting charset and collation on column %s.%s', qn(table_name), qn(column_name))
-            table_actions.append(AlterTable(connection, self.db_name, table_name, 'CHANGE {} {} {} CHARACTER SET {} COLLATE {}'.format(
-                qn(column_name), qn(column_name), spec_no_charset_or_collate,
-                self.new_charset, self.new_collation,
-            )))
+            logger.debug(
+                'Setting charset and collation on column %s.%s',
+                qn(table_name), qn(column_name),
+            )
+            table_actions.append(AlterTable(
+                connection, self.db_name, table_name,
+                'CHANGE {} {} {} CHARACTER SET {} COLLATE {}'.format(
+                    qn(column_name), qn(column_name),
+                    spec_no_charset_or_collate, self.new_charset,
+                    self.new_collation,
+                ),
+            ))
 
             index_actions.extend(self.rebuild_indexes_for_column(
                 connection, cursor, table_name,
@@ -242,7 +300,10 @@ WHERE SCHEMA_NAME = DATABASE()
             ))
 
         if index_actions:
-            logger.debug('Indexes for table %s:', table_name, extra=indexes['by_name'])
+            logger.debug(
+                'Indexes for table %s:',
+                table_name, extra=indexes['by_name'],
+            )
 
         return table_actions + index_actions
 
@@ -255,7 +316,10 @@ WHERE TABLE_SCHEMA = DATABASE()
   AND (CHARACTER_SET_NAME != %s OR COLLATION_NAME = %s)
 ORDER BY COLUMN_NAME
 """, (table_name, self.new_charset, self.new_collation))
-        return {r[0]: {'name': r[0], 'charset': r[1], 'collation': r[2]} for r in cursor.fetchall()}
+        return {
+            r[0]: {'name': r[0], 'charset': r[1], 'collation': r[2]}
+            for r in cursor.fetchall()
+        }
 
     def build_index_map_for_table(self, create_table):
         bad_indexes = {}
@@ -276,10 +340,13 @@ ORDER BY COLUMN_NAME
             'by_column': bad_indexes_by_column,
         }
 
-    _text_column_type_regex = re.compile(
-r"""^(?:                                # Start searching at the start of the definition
-(?:TINY|MEDIUM|LONG)?TEXT               # TINY = 2^8, <none> = 2^16, MEDIUM = 2^24, LONG = 2^32
-| (?:VAR)?CHAR\((?P<char_count>\d+)\)   # Charwidth * N bytes
+    _text_column_type_regex = re.compile(r"""\
+# Start searching at the start of the definition
+^(?:
+# TINY = 2^8, <none> = 2^16, MEDIUM = 2^24, LONG = 2^32
+(?:TINY|MEDIUM|LONG)?TEXT
+# Charwidth * N bytes
+| (?:VAR)?CHAR\((?P<char_count>\d+)\)
 )""", re.IGNORECASE | re.VERBOSE)
     _text_col_sizes = {
         'TINYTEXT': 2 ** 8,
@@ -287,7 +354,10 @@ r"""^(?:                                # Start searching at the start of the de
         'MEDIUMTEXT': 2 ** 24,
         'LONGTEXT': 2 ** 32,
     }
-    def rebuild_indexes_for_column(self, connection, cursor, table_name, column, indexes):
+
+    def rebuild_indexes_for_column(
+            self, connection, cursor, table_name, column, indexes
+    ):
         actions = []
 
         if column['name'] not in indexes['by_column']:
@@ -297,7 +367,12 @@ r"""^(?:                                # Start searching at the start of the de
 
         match = self._text_column_type_regex.match(column['spec'].upper())
         if not match:
-            raise ValueError('Unknown column spec {!r} for bad column {} in table {}'.format(column['spec'], column['name'], table_name))
+            raise ValueError(
+                'Unknown column spec {!r} for '
+                'bad column {} in table {}'.format(
+                    column['spec'], column['name'], table_name,
+                ),
+            )
 
         charset_widths = self.charset_widths(cursor)
 
@@ -310,12 +385,17 @@ r"""^(?:                                # Start searching at the start of the de
         old_char_count = int(old_char_count)
         new_size_in_bytes = old_char_count * charset_widths[self.new_charset]
         if new_size_in_bytes > INNODB_INDEX_BYTE_LIMIT:
-            index_size_chars = INNODB_INDEX_BYTE_LIMIT // charset_widths[self.new_charset]
+            index_size_chars = (
+                INNODB_INDEX_BYTE_LIMIT // charset_widths[self.new_charset]
+            )
             qn = connection.ops.quote_name
             for index_name in indexes['by_column'][column['name']]:
                 index_columns = indexes['by_name'][index_name]
                 if len(index_columns) > 1:
-                    logger.warning('TODO: Need to deal with composite key %s on table %s', index_name, table_name)
+                    logger.warning(
+                        'TODO: Need to deal with composite key %s on table %s',
+                        index_name, table_name,
+                    )
                     actions.append(Comment("""\
 After this migration runs, you'll need to manually migrate the {} \
 index, because django_mysql's change_db_charset command doesn't \
@@ -324,23 +404,42 @@ currently support composite keys.""".format(
                     )))
                     continue
 
-                logger.debug('Rebuilding key %s on table %s', index_name, table_name)
-                actions.append(AlterTable(connection, self.db_name, table_name, 'DROP KEY {}'.format(qn(index_name))))
-                actions.append(AlterTable(connection, self.db_name, table_name, 'ADD KEY  {} ({}({}))'.format(qn(index_name), qn(column['name']), index_size_chars)))
+                logger.debug(
+                    'Rebuilding key %s on table %s',
+                    index_name, table_name,
+                )
+                actions.append(AlterTable(
+                    connection, self.db_name, table_name,
+                    'DROP KEY {}'.format(qn(index_name)),
+                ))
+                actions.append(AlterTable(
+                    connection, self.db_name, table_name,
+                    'ADD KEY  {} ({}({}))'.format(
+                        qn(index_name), qn(column['name']), index_size_chars,
+                    ),
+                ))
 
         return actions
 
     def charset_widths(self, cursor):
         if not hasattr(self, '_cached_charset_widths'):
             logger.debug('Getting charset widths from the database')
-            cursor.execute("""SELECT CHARACTER_SET_NAME, MAXLEN FROM information_schema.CHARACTER_SETS""")
-            self._cached_charset_widths = {charset: maxlen for (charset, maxlen) in cursor.fetchall()}
+            cursor.execute("""\
+SELECT CHARACTER_SET_NAME, MAXLEN FROM information_schema.CHARACTER_SETS
+""")
+            self._cached_charset_widths = {
+                charset: maxlen
+                for (charset, maxlen) in cursor.fetchall()
+            }
 
         return self._cached_charset_widths
 
     def valid_collations_for_new_charset(self, cursor):
         if not hasattr(self, '_cached_valid_collations'):
-            logger.debug('Getting valid collations for charset %r from the database', self.new_charset)
+            logger.debug(
+                'Getting valid collations for charset %r from the database',
+                self.new_charset,
+            )
             self._cached_valid_collations = set()
             self._cached_default_collations = {}
             cursor.execute("""\
@@ -361,7 +460,7 @@ FROM information_schema.COLLATIONS
     def default_collation_for_charset(self, cursor, charset):
         if not hasattr(self, '_cached_default_collations'):
             # These two things populate at the same time.
-            _ = self.valid_collations_for_new_charset(cursor)
+            self.valid_collations_for_new_charset(cursor)
         return self._cached_default_collations[charset]
 
     def combine_alter_tables(self, actions):
@@ -369,11 +468,14 @@ FROM information_schema.COLLATIONS
         for action in actions:
             if combined_actions and isinstance(action, AlterTable):
                 last = combined_actions.pop()
-                if isinstance(last, AlterTable) and action.db_name == last.db_name and action.table_name == last.table_name:
+                if isinstance(last, AlterTable) \
+                   and action.db_name == last.db_name \
+                   and action.table_name == last.table_name:
                     # Consume the popped action to build a new combined action.
                     action = last + action
                 else:
-                    # Not a match, so put `last` back in place and deal with action normally.
+                    # Not a match, so put `last` back in place and deal with
+                    # action normally.
                     combined_actions.append(last)
 
             combined_actions.append(action)
@@ -381,9 +483,10 @@ FROM information_schema.COLLATIONS
         return combined_actions
 
     def output_sql(self, actions):
-        self.stdout.write("-- Generated by django_mysql's change_db_charset command on {}\n\n".format(
-            timezone.now().replace(microsecond=0),
-        ))
+        self.stdout.write(
+            "-- Generated by django_mysql's change_db_charset "
+            "command on {}\n\n".format(timezone.now().replace(microsecond=0)),
+        )
 
         for action in actions:
             logger.debug('Getting SQL for action %r', action)
@@ -393,6 +496,7 @@ FROM information_schema.COLLATIONS
                 # exactly one present.
                 sql += '\n'
             self.stdout.write(sql)
+
 
 def parse_create_table(sql):
     """
@@ -435,7 +539,8 @@ def parse_create_table(sql):
         match = key_regex.match(sline)
         assert match, 'Failed to match key line {!r}'.format(sline)
         key_name = match.group('key_name')
-        assert key_name not in table_info['keys'], 'Found duplicate key name `{}`'.format(match.group('key_name'))
+        assert key_name not in table_info['keys'], \
+            'Found duplicate key name `{}`'.format(match.group('key_name'))
         col_pieces = match.group('cols').split('`')
         cols = []
         while col_pieces:
