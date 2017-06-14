@@ -84,7 +84,7 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
    .. code-block:: sh
 
        $ mkvirtualenv django-mysql
-       $ pip install -r requirements.txt
+       $ pip install -r requirements.txt Django
 
 4. Check you have MySQL or MariaDB running and that the settings in
    ``tests/settings.py`` will work for connecting. This involves making sure

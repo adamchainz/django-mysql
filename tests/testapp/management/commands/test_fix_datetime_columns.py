@@ -14,8 +14,10 @@ from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.utils.six.moves import StringIO
 
-from django_mysql.management.commands.fix_datetime_columns import \
+from django_mysql.management.commands.fix_datetime_columns import (
     parse_create_table
+)
+from django_mysql.utils import connection_is_mariadb
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module
@@ -47,7 +49,7 @@ class Datetime6TestMixin(object):
     @classmethod
     def setUpClass(cls):
         if (
-            connection.is_mariadb or
+            connection_is_mariadb(connection) or
             connection.mysql_version[:2] < (5, 6)
         ):
             raise SkipTest(

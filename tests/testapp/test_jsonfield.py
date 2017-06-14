@@ -14,6 +14,7 @@ from django.test import TestCase
 
 from django_mysql import forms
 from django_mysql.models import JSONField
+from django_mysql.utils import connection_is_mariadb
 from testapp.models import JSONModel, TemporaryModel
 from testapp.utils import print_all_queries
 
@@ -23,7 +24,7 @@ class JSONFieldTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         if not (
-            not connection.is_mariadb and
+            not connection_is_mariadb(connection) and
             connection.mysql_version >= (5, 7)
         ):
             raise SkipTest("JSONField requires MySQL 5.7+")
@@ -46,12 +47,55 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel.objects.get()
         assert m.attrs == {'key': 'value'}
 
+    def test_string(self):
+        m = JSONModel(attrs='value')
+        assert m.attrs == 'value'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == 'value'
+
+    def test_json_dumps_string(self):
+        json_string = json.dumps({'foo': 'bar'})
+        m = JSONModel(attrs=json_string)
+        assert m.attrs == json_string
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == json_string
+
+    def test_awkward_1(self):
+        m = JSONModel(attrs='"')
+        assert m.attrs == '"'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == '"'
+
+    def test_awkward_2(self):
+        m = JSONModel(attrs='\\')
+        assert m.attrs == '\\'
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs == '\\'
+
     def test_list(self):
         m = JSONModel(attrs=[1, 2, 4])
         assert m.attrs == [1, 2, 4]
         m.save()
         m = JSONModel.objects.get()
         assert m.attrs == [1, 2, 4]
+
+    def test_true(self):
+        m = JSONModel(attrs=True)
+        assert m.attrs is True
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs is True
+
+    def test_false(self):
+        m = JSONModel(attrs=False)
+        assert m.attrs is False
+        m.save()
+        m = JSONModel.objects.get()
+        assert m.attrs is False
 
     def test_null(self):
         m = JSONModel(attrs=None)
@@ -83,6 +127,7 @@ class QueryTests(JSONFieldTestCase):
             JSONModel(attrs=1337),
             JSONModel(attrs=['an', 'array']),
             JSONModel(attrs=None),
+            JSONModel(attrs='foo'),
         ])
         self.objs = list(JSONModel.objects.all().order_by('id'))
 
@@ -96,6 +141,12 @@ class QueryTests(JSONFieldTestCase):
         assert (
             list(JSONModel.objects.filter(attrs=1337)) ==
             [self.objs[1]]
+        )
+
+    def test_equal_string(self):
+        assert (
+            list(JSONModel.objects.filter(attrs='foo')) ==
+            [self.objs[4]]
         )
 
     def test_equal_array(self):
@@ -113,7 +164,7 @@ class QueryTests(JSONFieldTestCase):
     def test_equal_F_attrs(self):
         assert (
             list(JSONModel.objects.filter(attrs=F('attrs'))) ==
-            [self.objs[0], self.objs[1], self.objs[2]]
+            [self.objs[0], self.objs[1], self.objs[2], self.objs[4]]
         )
 
     def test_isnull_True(self):
@@ -125,7 +176,7 @@ class QueryTests(JSONFieldTestCase):
     def test_isnull_False(self):
         assert (
             list(JSONModel.objects.filter(attrs__isnull=False)) ==
-            [self.objs[0], self.objs[1], self.objs[2]]
+            [self.objs[0], self.objs[1], self.objs[2], self.objs[4]]
         )
 
     def test_range_broken(self):
@@ -438,14 +489,9 @@ class TestCheck(JSONFieldTestCase):
         assert errors[0].id == 'django_mysql.E017'
         assert 'Do not use mutable defaults for JSONField' in errors[0].msg
 
-    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
-
-    @mock.patch(wrapper_path + '.is_mariadb', new=True)
-    def test_db_not_mysql(self):
-        # Uncache cached_property
-        for db in connections:
-            if 'is_mariadb' in connections[db].__dict__:
-                del connections[db].__dict__['is_mariadb']
+    @mock.patch('django_mysql.models.fields.json.connection_is_mariadb')
+    def test_db_not_mysql(self, is_mariadb):
+        is_mariadb.return_value = True
 
         class InvalidJSONModel(TemporaryModel):
             field = JSONField()
@@ -454,6 +500,8 @@ class TestCheck(JSONFieldTestCase):
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E016'
         assert "MySQL 5.7+ is required" in errors[0].msg
+
+    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
 
     @mock.patch(wrapper_path + '.mysql_version', new=(5, 5, 3))
     def test_mysql_old_version(self):

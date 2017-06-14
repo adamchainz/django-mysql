@@ -772,14 +772,19 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     @skipUnless(django.VERSION[:2] >= (1, 9),
                 "Requires Django 1.9+ for cache.get_or_set")
     def test_get_or_set_version(self):
+        msg = "get_or_set() missing 1 required positional argument: 'default'"
         cache.get_or_set('brian', 1979, version=2)
-        with pytest.raises(ValueError) as excinfo:
-            cache.get_or_set('brian')
-        assert 'You need to specify a value.' in str(excinfo.value)
 
-        with pytest.raises(ValueError):
+        if django.VERSION[:2] >= (1, 11):
+            exc_class = TypeError
+        else:
+            exc_class = ValueError
+
+        with pytest.raises(exc_class, message=msg):
+            cache.get_or_set('brian')
+
+        with pytest.raises(exc_class, message=msg):
             cache.get_or_set('brian', version=1)
-        assert 'You need to specify a value.' in str(excinfo.value)
 
         assert cache.get('brian', version=1) is None
         assert cache.get_or_set('brian', 42, version=1) == 42

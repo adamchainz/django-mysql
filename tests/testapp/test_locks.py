@@ -14,6 +14,7 @@ from django.utils.six.moves import queue
 from django_mysql.exceptions import TimeoutError
 from django_mysql.locks import Lock, TableLock
 from django_mysql.models import Model
+from django_mysql.utils import connection_is_mariadb
 from testapp.models import (
     AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer
 )
@@ -26,7 +27,8 @@ class LockTests(TestCase):
         super(LockTests, cls).setUpClass()
 
         cls.supports_lock_info = (
-            connection.is_mariadb and connection.mysql_version >= (10, 0, 7)
+            connection_is_mariadb(connection) and
+            connection.mysql_version >= (10, 0, 7)
         )
         if cls.supports_lock_info:
             with connection.cursor() as cursor:
@@ -163,10 +165,10 @@ class LockTests(TestCase):
             pass
 
     def test_holding_more_than_one(self):
-        conn = connection
+        is_mariadb = connection_is_mariadb(connection)
         supports_multiple_locks = (
-            (conn.is_mariadb and conn.mysql_version >= (10, 0, 2)) or
-            (not conn.is_mariadb and conn.mysql_version >= (5, 7))
+            (is_mariadb and connection.mysql_version >= (10, 0, 2)) or
+            (not is_mariadb and connection.mysql_version >= (5, 7))
         )
         if not supports_multiple_locks:
             self.skipTest(

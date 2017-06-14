@@ -7,6 +7,45 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+
+2.1.0 (2017-06-11)
+------------------
+
+* Django 1.11 compatibility
+* Some fixes to work with new versions of ``mysqlclient``
+
+2.0.0 (2017-05-28)
+------------------
+
+* Fixed ``JSONField`` model field string serialization. This is a small
+  backwards incompatible change.
+
+  Storing strings mostly used to crash with MySQL error -1 "error totally
+  whack", but in the case your string was valid JSON, it would store it as
+  a JSON object at the MySQL layer and deserialize it when returned. For
+  example you could do this:
+
+  .. code-block:: python
+
+      >>> mymodel.attrs = '{"foo": "bar"}'
+      >>> mymodel.save()
+      >>> mymodel = MyModel.objects.get(id=mymodel.id)
+      >>> mymodel.attrs
+      {'foo': 'bar'}
+
+  The new behaviour now correctly returns what you put in:
+
+  .. code-block:: python
+
+      >>> mymodel.attrs
+      '{"foo": "bar"}'
+* Removed the ``connection.is_mariadb`` monkey patch. This is a small backwards
+  incompatible change. Instead of using it, use
+  ``django_mysql.utils.connection_is_mariadb``.
+
+1.2.0 (2017-05-14)
+------------------
+
 * Only use Django's vendored six (``django.utils.six``). Fixes usage of
   ``EnumField`` and field lookups when ``six`` is not installed as a
   standalone package.
@@ -16,6 +55,8 @@ Pending
   e.g. ``dumpdata``.
 * Added the ``manage.py`` command ``change_db_charset`` that ouputs the SQL to
   change database's charset and collation.
+* Fixed ``JSONField`` form field so that it doesn't overquote inputs when
+  redisplaying the form due to invalid user input.
 
 1.1.1 (2017-03-28)
 ------------------

@@ -10,6 +10,7 @@ from copy import copy
 from functools import wraps
 from subprocess import PIPE, Popen
 
+import django
 from django.conf import settings
 from django.db import connections, models
 from django.db.models.sql.where import ExtraWhere
@@ -159,8 +160,24 @@ class QuerySetMixin(object):
         return self._found_rows
 
     def iterator(self):
-        for row in super(QuerySetMixin, self).iterator():
-            yield row
+        if (
+            django.VERSION[:2] >= (1, 11) and
+            getattr(self, '_found_rows', 0) is None
+        ):
+            raise ValueError(
+                "sql_calc_found_rows() doesn't work with iterator()"
+            )
+        return super(QuerySetMixin, self).iterator()
+
+    @property
+    def _result_cache(self):
+        # This is a bit of a hack so that we can listen to when _result_cache
+        # gets set and calculate _found_rows then
+        return self.__dict__['_result_cache']
+
+    @_result_cache.setter
+    def _result_cache(self, value):
+        self.__dict__['_result_cache'] = value
         if getattr(self, '_found_rows', 0) is None:
             with connections[self.db].cursor() as cursor:
                 cursor.execute("SELECT FOUND_ROWS()")

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding:utf-8 -*-
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
@@ -49,6 +48,7 @@ setup(
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',

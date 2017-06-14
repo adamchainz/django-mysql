@@ -3,14 +3,17 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import os
+import shutil
 import sys
 from contextlib import contextmanager
+from tempfile import mkdtemp
 from unittest import skipUnless
 
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
-from flake8.main.application import Application as Flake8Application
+from flake8.main.cli import main as flake8_main
 
 requiresPython2 = skipUnless(six.PY2, "Python 2 only")
 
@@ -112,17 +115,29 @@ def fetchall_dicts(cursor):
 
 
 def flake8_code(code):
-    orig_stdin = sys.stdin
-    if six.PY2:
-        stdin = six.BytesIO(code)
-    else:
-        stdin = six.StringIO(code)
+    tmpdir = mkdtemp()
+    with open(os.path.join(tmpdir, 'example.py'), 'w') as tempf:
+        tempf.write(code)
+
+    orig_dir = os.getcwd()
+    os.chdir(tmpdir)
+    orig_args = sys.argv
 
     try:
-        sys.stdin = stdin
+        sys.argv = [
+            'flake8',
+            '--jobs', '1',
+            '--exit-zero',
+            'example.py'
+        ]
         with captured_stdout() as stdout:
-            Flake8Application().run(['-'])
+            flake8_main()
+        out = stdout.getvalue().strip()
+        lines = out.split('\n')
+        if lines[-1] == '':
+            lines = lines[:-1]
+        return lines
     finally:
-        sys.stdin = orig_stdin
-
-    return [line for line in stdout.getvalue().split('\n') if line]
+        sys.argv = orig_args
+        os.chdir(orig_dir)
+        shutil.rmtree(tmpdir)
