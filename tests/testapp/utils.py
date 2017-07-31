@@ -3,17 +3,13 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import os
-import shutil
 import sys
 from contextlib import contextmanager
-from tempfile import mkdtemp
 from unittest import skipUnless
 
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
-from flake8.main.cli import main as flake8_main
 
 requiresPython2 = skipUnless(six.PY2, "Python 2 only")
 
@@ -112,32 +108,3 @@ def fetchall_dicts(cursor):
             dict(zip(columns, row))
         )
     return rows
-
-
-def flake8_code(code):
-    tmpdir = mkdtemp()
-    with open(os.path.join(tmpdir, 'example.py'), 'w') as tempf:
-        tempf.write(code)
-
-    orig_dir = os.getcwd()
-    os.chdir(tmpdir)
-    orig_args = sys.argv
-
-    try:
-        sys.argv = [
-            'flake8',
-            '--jobs', '1',
-            '--exit-zero',
-            'example.py'
-        ]
-        with captured_stdout() as stdout:
-            flake8_main()
-        out = stdout.getvalue().strip()
-        lines = out.split('\n')
-        if lines[-1] == '':
-            lines = lines[:-1]
-        return lines
-    finally:
-        sys.argv = orig_args
-        os.chdir(orig_dir)
-        shutil.rmtree(tmpdir)

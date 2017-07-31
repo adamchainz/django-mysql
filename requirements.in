@@ -12,6 +12,7 @@ nose-parameterized
 pygments
 pytest
 pytest-django
+pytest-flake8dir
 pytest-super-check
 pytz
 sqlparse

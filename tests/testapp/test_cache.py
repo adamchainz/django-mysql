@@ -27,7 +27,6 @@ from nose_parameterized import parameterized
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
 from testapp.models import Poll, expensive_calculation
-from testapp.utils import flake8_code
 
 try:    # Use the same idiom as in cache backends
     from django.utils.six.moves import cPickle as pickle
@@ -1301,18 +1300,19 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 @override_cache_settings()
 class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
 
+    @pytest.fixture(autouse=True)
+    def flake8dir(self, flake8dir):
+        self.flake8dir = flake8dir
+
     def test_mysql_cache_migration(self):
         out = StringIO()
         call_command('mysql_cache_migration', stdout=out)
         output = out.getvalue()
 
         # Lint it
-        errors = flake8_code(output)
-        assert errors == [], (
-            "Encountered {} errors whilst trying to lint the mysql cache "
-            "migration.\nMigration:\n\n{}\n\nLint errors:\n\n{}"
-            .format(len(errors), output, '\n'.join(errors))
-        )
+        self.flake8dir.make_example_py(output)
+        result = self.flake8dir.run_flake8()
+        assert result.out_lines == []
 
         # Dynamic import and check
         migration_mod = imp.new_module('0001_add_cache_tables')
