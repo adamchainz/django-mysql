@@ -3,6 +3,8 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import json
+
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Field as DjangoField
 from django.db.models import CharField, Func, IntegerField, TextField, Value
@@ -258,6 +260,51 @@ class JSONLength(Func):
             exprs.append(path)
 
         super(JSONLength, self).__init__(*exprs, output_field=output_field)
+
+
+class JSONValue(Func):
+    function = 'CAST'
+    template = '%(function)s(%(expressions)s AS JSON)'
+
+    def __init__(self, expression):
+        json_string = json.dumps(expression, allow_nan=False)
+        super(JSONValue, self).__init__(Value(json_string))
+
+
+class BaseJSONModifyFunc(Func):
+    def __init__(self, expression, data):
+        from django_mysql.models.fields import JSONField
+
+        if not data:
+            raise ValueError('"data" cannot be empty')
+
+        exprs = [expression]
+
+        for path, value in data.items():
+            if not hasattr(path, 'resolve_expression'):
+                path = Value(path)
+
+            exprs.append(path)
+
+            if not hasattr(value, 'resolve_expression'):
+                value = JSONValue(value)
+
+            exprs.append(value)
+
+        super(BaseJSONModifyFunc, self).__init__(*exprs,
+                                                 output_field=JSONField())
+
+
+class JSONInsert(BaseJSONModifyFunc):
+    function = 'JSON_INSERT'
+
+
+class JSONReplace(BaseJSONModifyFunc):
+    function = 'JSON_REPLACE'
+
+
+class JSONSet(BaseJSONModifyFunc):
+    function = 'JSON_SET'
 
 
 # MariaDB Regexp Functions

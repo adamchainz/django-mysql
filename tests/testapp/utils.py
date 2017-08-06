@@ -10,7 +10,6 @@ from unittest import skipUnless
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
-from flake8.main.application import Application as Flake8Application
 
 requiresPython2 = skipUnless(six.PY2, "Python 2 only")
 
@@ -109,20 +108,3 @@ def fetchall_dicts(cursor):
             dict(zip(columns, row))
         )
     return rows
-
-
-def flake8_code(code):
-    orig_stdin = sys.stdin
-    if six.PY2:
-        stdin = six.BytesIO(code)
-    else:
-        stdin = six.StringIO(code)
-
-    try:
-        sys.stdin = stdin
-        with captured_stdout() as stdout:
-            Flake8Application().run(['-'])
-    finally:
-        sys.stdin = orig_stdin
-
-    return [line for line in stdout.getvalue().split('\n') if line]

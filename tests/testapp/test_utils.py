@@ -4,17 +4,53 @@ from __future__ import (
 )
 
 from time import sleep
-from unittest import skipUnless
+from unittest import mock, skipUnless
 
 import pytest
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test import SimpleTestCase, TestCase
 from django.utils import six
 
 from django_mysql.utils import (
-    PTFingerprintThread, WeightedAverageRate, format_duration, have_program,
-    index_name, pt_fingerprint
+    PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache,
+    connection_is_mariadb, format_duration, have_program, index_name,
+    pt_fingerprint
 )
 from testapp.models import Author, AuthorMultiIndex
+
+
+class ConnectionIsMariaDBTests(TestCase):
+
+    def setUp(self):
+        super(ConnectionIsMariaDBTests, self).setUp()
+        _is_mariadb_cache.clear()
+
+    def test_connection_proxy(self):
+        connection_is_mariadb(connection)
+
+    def test_connection(self):
+        connection_is_mariadb(connections[DEFAULT_DB_ALIAS])
+
+    def test_non_mysql(self):
+        conn = mock.MagicMock(vendor='sqlite3')
+        assert not connection_is_mariadb(conn)
+
+    def test_oracle_mysql(self):
+        conn = mock.MagicMock(vendor='mysql')
+        conn.connection.get_server_info.return_value = '5.7.19'
+        assert not connection_is_mariadb(conn)
+        # check cached
+        conn.connection.get_server_info.side_effect = ValueError('re-called')
+        assert not connection_is_mariadb(conn)
+
+    def test_mariadb(self):
+        conn = mock.MagicMock(vendor='mysql')
+        conn.connection.get_server_info.return_value = (
+            '10.0.3-MariaDB-1~precise-log'
+        )
+        assert connection_is_mariadb(conn)
+        conn.connection.get_server_info.side_effect = ValueError('re-called')
+        assert connection_is_mariadb(conn)
 
 
 class WeightedAverageRateTests(SimpleTestCase):

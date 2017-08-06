@@ -6,12 +6,14 @@ from __future__ import (
 import collections
 import json
 
-import six
 from django.db.models import CharField, Lookup, Transform
 from django.db.models.lookups import (
     BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan,
     LessThanOrEqual
 )
+from django.utils import six
+
+from django_mysql.models.functions import JSONValue
 
 
 class CaseSensitiveExact(BuiltinLookup):
@@ -44,15 +46,6 @@ class Soundex(Transform):
 
 
 # JSONField
-
-
-class JSONValue(object):
-    def __init__(self, value):
-        self.json_string = json.dumps(value)
-
-    def as_sql(self, *args, **kwargs):
-        return 'CAST(%s AS JSON)', [self.json_string]
-
 
 class JSONLookupMixin(object):
 

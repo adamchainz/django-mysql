@@ -140,7 +140,8 @@ class DynamicModel(Model):
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
         if not (
-            connection.is_mariadb and connection.mysql_version >= (10, 0, 1)
+            connection_is_mariadb(connection) and
+            connection.mysql_version >= (10, 0, 1)
         ):
             return []
         return super(DynamicModel, cls).check(**kwargs)

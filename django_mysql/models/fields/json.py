@@ -17,7 +17,7 @@ from django_mysql.models.lookups import (
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
     JSONLessThan, JSONLessThanOrEqual
 )
-from django_mysql.utils import collapse_spaces
+from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
 __all__ = ('JSONField',)
 
@@ -64,7 +64,7 @@ class JSONField(Field):
             conn = connections[db]
             if (
                 hasattr(conn, 'mysql_version') and
-                (conn.is_mariadb or conn.mysql_version < (5, 7))
+                (connection_is_mariadb(conn) or conn.mysql_version < (5, 7))
             ):
                 any_conn_works = False
 
@@ -109,6 +109,11 @@ class JSONField(Field):
 
         return value
 
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if not prepared and value is not None:
+            return json.dumps(value, allow_nan=False)
+        return value
+
     def get_lookup(self, lookup_name):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
@@ -119,6 +124,9 @@ class JSONField(Field):
                 "Lookup '{}' doesn't work with JSONField".format(lookup_name)
             )
         return super(JSONField, self).get_lookup(lookup_name)
+
+    def value_to_string(self, obj):
+        return self.value_from_object(obj)
 
     def formfield(self, **kwargs):
         defaults = {'form_class': forms.JSONField}

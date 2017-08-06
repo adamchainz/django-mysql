@@ -9,7 +9,9 @@ from collections import defaultdict
 from contextlib import contextmanager
 from subprocess import PIPE, Popen, call
 from threading import Lock, Thread
+from weakref import WeakKeyDictionary
 
+from django.db import connection as default_connection
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.utils import six
 from django.utils.six.moves.queue import Empty, Queue
@@ -94,10 +96,24 @@ def format_duration(total_seconds):
     return ''.join(out)
 
 
+_is_mariadb_cache = WeakKeyDictionary()
+
+
 def connection_is_mariadb(connection):
-    with connection.temporary_connection():
-        server_info = connection.connection.get_server_info()
-        return 'MariaDB' in server_info
+    if connection.vendor != 'mysql':
+        return False
+
+    if connection is default_connection:
+        connection = connections[DEFAULT_DB_ALIAS]
+
+    try:
+        return _is_mariadb_cache[connection]
+    except KeyError:
+        with connection.temporary_connection():
+            server_info = connection.connection.get_server_info()
+        is_mariadb = 'MariaDB' in server_info
+        _is_mariadb_cache[connection] = is_mariadb
+        return is_mariadb
 
 
 def settings_to_cmd_args(settings_dict):
@@ -269,6 +285,7 @@ def index_name(model, *field_names, **kwargs):
         unfound_names = set(field_names) - set(field.name for field in fields)
         raise ValueError("Fields do not exist: " + ",".join(unfound_names))
     column_names = tuple(field.column for field in fields)
+    list_sql = get_list_sql(column_names)
 
     with connections[using].cursor() as cursor:
         cursor.execute(
@@ -276,9 +293,10 @@ def index_name(model, *field_names, **kwargs):
                FROM INFORMATION_SCHEMA.STATISTICS
                WHERE TABLE_SCHEMA = DATABASE() AND
                      TABLE_NAME = %s AND
-                     COLUMN_NAME IN %s
-               ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC""",
-            (model._meta.db_table, column_names)
+                     COLUMN_NAME IN {list_sql}
+               ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC
+            """.format(list_sql=list_sql),
+            (model._meta.db_table,) + column_names
         )
         indexes = defaultdict(list)
         for index_name, _, column_name in cursor.fetchall():
@@ -289,3 +307,9 @@ def index_name(model, *field_names, **kwargs):
         return indexes_by_columns[column_names]
     except KeyError:
         raise KeyError("There is no index on (" + ",".join(field_names) + ")")
+
+
+def get_list_sql(sequence):
+    return '({})'.format(
+        ','.join('%s' for x in sequence)
+    )

@@ -1,30 +1,28 @@
-#!/usr/bin/env python
 # -*- encoding:utf-8 -*-
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import codecs
 import os
 import re
 
 from setuptools import find_packages, setup
 
 
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    init_py = open(os.path.join(package, '__init__.py')).read()
-    return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
+def get_version(filename):
+    with codecs.open(filename, 'r', 'utf-8') as fp:
+        contents = fp.read()
+    return re.search(r"__version__ = ['\"]([^'\"]+)['\"]", contents).group(1)
 
 
-version = get_version('django_mysql')
+version = get_version(os.path.join('django_mysql', '__init__.py'))
 
 
-with open('README.rst') as readme_file:
+with codecs.open('README.rst', 'r', 'utf-8') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
+with codecs.open('HISTORY.rst', 'r', 'utf-8') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 setup(
@@ -49,6 +47,7 @@ setup(
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',

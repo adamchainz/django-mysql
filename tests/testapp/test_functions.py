@@ -15,10 +15,12 @@ from django.utils import six
 
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
-    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONKeys,
-    JSONLength, LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr,
-    Round, Sign, UpdateXML, XMLExtractValue
+    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONInsert,
+    JSONKeys, JSONLength, JSONReplace, JSONSet, LastInsertId, Least,
+    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
+    XMLExtractValue
 )
+from django_mysql.utils import connection_is_mariadb
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from testapp.test_dynamicfield import DynColTestCase
 from testapp.test_jsonfield import JSONFieldTestCase
@@ -424,13 +426,131 @@ class JSONFunctionTests(JSONFieldTestCase):
         )
         assert results == [self.obj]
 
+    def test_json_insert(self):
+        self.obj.attrs = JSONInsert('attrs', {'$.int': 99, '$.int2': 102})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['int'] == 88
+        assert self.obj.attrs['int2'] == 102
+
+    def test_json_insert_dict(self):
+        self.obj.attrs = JSONInsert(
+            'attrs',
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['sub'] == {'document': 'store'}
+        assert self.obj.attrs['sub2']['int'] == 42
+        assert self.obj.attrs['sub2']['foo'] == 'bar'
+
+    def test_json_insert_array(self):
+        self.obj.attrs = JSONInsert(
+            'attrs',
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == ['dee', 'arr', 'arr']
+        assert self.obj.attrs['arr2'][0] == 'one'
+        assert self.obj.attrs['arr2'][1] == 2
+
+    def test_json_insert_empty_data(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONInsert('attrs', {})
+        assert '"data" cannot be empty' in str(excinfo.value)
+
+    def test_json_replace_pairs(self):
+        self.obj.attrs = JSONReplace('attrs', {'$.int': 101, '$.int2': 102})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['int'] == 101
+        assert 'int2' not in self.obj.attrs
+
+    def test_json_replace_dict(self):
+        self.obj.attrs = JSONReplace(
+            'attrs',
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['sub'] == {'paper': 'drop'}
+        assert 'sub2' not in self.obj.attrs
+
+    def test_json_replace_array(self):
+        self.obj.attrs = JSONReplace(
+            'attrs',
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == [1, 'two', 3]
+        assert 'arr2' not in self.obj.attrs
+
+    def test_json_replace_empty_data(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONReplace('attrs', {})
+        assert '"data" cannot be empty' in str(excinfo.value)
+
+    def test_json_set_pairs(self):
+        self.obj.attrs = JSONSet('attrs', {'$.int': 101, '$.int2': 102})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['int'] == 101
+        assert self.obj.attrs['int2'] == 102
+
+    def test_json_set_dict(self):
+        self.obj.attrs = JSONSet(
+            'attrs',
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['sub'] == {'paper': 'drop'}
+        assert self.obj.attrs['sub2']['int'] == 42
+        assert self.obj.attrs['sub2']['foo'] == 'bar'
+
+    def test_json_set_array(self):
+        self.obj.attrs = JSONSet(
+            'attrs',
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == [1, 'two', 3]
+        assert self.obj.attrs['arr2'][0] == 'one'
+        assert self.obj.attrs['arr2'][1] == 2
+
+    def test_json_set_complex_data(self):
+        data = {
+            'list': ['one', {'int': 2}, None],
+            'dict': {
+                'sub_list': [1, ['two', 3]],
+                'sub_dict': {'paper': 'drop'},
+                'sub_null': None,
+            },
+            'empty': [],
+            'null': None,
+            'value': 11,
+        }
+        self.obj.attrs = JSONSet('attrs', {'$.data': data})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['data'] == data
+
+    def test_json_set_empty_data(self):
+        with pytest.raises(ValueError) as excinfo:
+            JSONSet('attrs', {})
+        assert '"data" cannot be empty' in str(excinfo.value)
+
 
 class RegexpFunctionTests(TestCase):
 
     def setUp(self):
         super(RegexpFunctionTests, self).setUp()
         have_regex_functions = (
-            (connection.is_mariadb and connection.mysql_version >= (10, 0, 5))
+            connection_is_mariadb(connection) and
+            connection.mysql_version >= (10, 0, 5)
         )
         if not have_regex_functions:
             raise SkipTest("MariaDB 10.0.5+ is required")

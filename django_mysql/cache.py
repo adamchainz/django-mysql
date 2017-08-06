@@ -17,7 +17,7 @@ from django.utils import six
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
-from django_mysql.utils import collapse_spaces
+from django_mysql.utils import collapse_spaces, get_list_sql
 
 try:
     from django.utils.six.moves import cPickle as pickle
@@ -178,8 +178,11 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                self._get_many_query.format(table=table),
-                (made_keys, self._now())
+                self._get_many_query.format(
+                    table=table,
+                    list_sql=get_list_sql(made_keys)
+                ),
+                made_keys + [self._now()]
             )
             rows = cursor.fetchall()
 
@@ -194,7 +197,7 @@ class MySQLCache(BaseDatabaseCache):
     _get_many_query = collapse_spaces("""
         SELECT cache_key, value, value_type
         FROM {table}
-        WHERE cache_key IN %s AND
+        WHERE cache_key IN {list_sql} AND
               expires >= %s
     """)
 
@@ -312,13 +315,16 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                self._delete_many_query.format(table=table),
-                (made_keys,)
+                self._delete_many_query.format(
+                    table=table,
+                    list_sql=get_list_sql(made_keys),
+                ),
+                made_keys
             )
 
     _delete_many_query = collapse_spaces("""
         DELETE FROM {table}
-        WHERE cache_key IN %s
+        WHERE cache_key IN {list_sql}
     """)
 
     def has_key(self, key, version=None):
