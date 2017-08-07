@@ -13,7 +13,7 @@ from django.db.models.lookups import (
 )
 from django.utils import six
 
-from django_mysql.models.functions import JSONValue
+from django_mysql.models.functions import JSONValue, CharValue
 
 
 class CaseSensitiveExact(BuiltinLookup):
@@ -56,6 +56,14 @@ class JSONLookupMixin(object):
         return super(JSONLookupMixin, self).get_prep_lookup()
 
 
+class CharLookupMixin(object):
+    def get_prep_lookup(self):
+        value = self.rhs
+        if not hasattr(value, '_prepare') and value is not None:
+            return CharValue(value)
+        return super(CharLookupMixin, self).get_prep_lookup()
+
+
 class JSONExact(JSONLookupMixin, Exact):
     pass
 
@@ -94,6 +102,15 @@ class JSONContains(JSONLookupMixin, Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
         return 'JSON_CONTAINS({}, {})'.format(lhs, rhs), params
+
+class JSONSearch(CharLookupMixin, Lookup):
+    lookup_name = 'search'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return 'JSON_SEARCH({}, "all", {}) IS NOT NULL'.format(lhs, rhs), params
 
 
 class JSONHasKey(Lookup):

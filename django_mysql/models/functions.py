@@ -271,6 +271,17 @@ class JSONValue(Func):
         super(JSONValue, self).__init__(Value(json_string))
 
 
+class CharValue(Func):
+    function = 'CAST'
+    template = '%(function)s(%(expressions)s AS CHAR)'
+    def __init__(self, expression):
+        try:
+            expression = unicode(expression, "utf-8")
+        except:
+            super(CharValue, self).__init__(Value('%{}%'.format(expression)))
+        super(CharValue, self).__init__(Value('%{}%'.format(expression)))
+
+
 class BaseJSONModifyFunc(Func):
     def __init__(self, expression, data):
         from django_mysql.models.fields import JSONField
