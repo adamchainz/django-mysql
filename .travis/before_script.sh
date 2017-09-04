@@ -21,8 +21,8 @@ then
     sudo apt-get -y autoremove --purge
     sudo rm -rf /var/lib/mysql
     # Install new
-    echo "deb http://repo.mysql.com/apt/ubuntu/ precise mysql-$DB_VERSION" | sudo tee /etc/apt/sources.list.d/mysql.list >/dev/null
-    echo "deb-src http://repo.mysql.com/apt/ubuntu/ precise mysql-$DB_VERSION" | sudo tee -a /etc/apt/sources.list.d/mysql.list >/dev/null
+    echo "deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-$DB_VERSION" | sudo tee /etc/apt/sources.list.d/mysql.list >/dev/null
+    echo "deb-src http://repo.mysql.com/apt/ubuntu/ trusty mysql-$DB_VERSION" | sudo tee -a /etc/apt/sources.list.d/mysql.list >/dev/null
     sudo apt-get update
     yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install mysql-server
   fi
@@ -36,9 +36,9 @@ then
   # Install
   sudo apt-get install -y python-software-properties
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-  sudo add-apt-repository "deb http://ftp.osuosl.org/pub/mariadb/repo/$DB_VERSION/ubuntu precise main"
+  sudo add-apt-repository "deb http://ftp.osuosl.org/pub/mariadb/repo/$DB_VERSION/ubuntu trusty main"
   sudo apt-get update -qq
-  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server libmariadbclient-dev
+  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "mariadb-client-$DB_VERSION" "mariadb-server-core-$DB_VERSION" "mariadb-server-$DB_VERSION" libmariadbclient-dev
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
