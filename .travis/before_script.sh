@@ -1,4 +1,7 @@
-#!/bin/bash -e
+#!/bin/bash
+
+set -e
+set -x
 
 # percona-toolkit - have to use non-apt version since Travis' ubuntu 12.04 repo
 # is way out of date
@@ -29,15 +32,11 @@ then
 
 elif [[ $DB == 'mariadb' ]]
 then
-  # Nuke default
-  sudo apt-get -y autoremove --purge
-  sudo rm -rf /var/lib/mysql /etc/mysql
   # Install
   sudo apt-get install -y software-properties-common
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
   sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://mirror.sax.uk.as61049.net/mariadb/repo/$DB_VERSION/ubuntu trusty main"
   sudo apt-get update
-  sudo apt-get -f install
   sudo DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends mariadb-server mariadb-client
 fi
 
