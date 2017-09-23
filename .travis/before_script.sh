@@ -37,8 +37,8 @@ then
   sudo apt-get install -y software-properties-common
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
   sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://mirror.sax.uk.as61049.net/mariadb/repo/$DB_VERSION/ubuntu trusty main"
-  sudo apt-get update -qq
-  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
+  sudo apt-get update
+  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -f -y mariadb-server mariadb-client
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
