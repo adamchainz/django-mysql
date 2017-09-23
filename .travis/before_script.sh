@@ -30,7 +30,6 @@ then
 elif [[ $DB == 'mariadb' ]]
 then
   # Nuke default
-  sudo apt-get -y purge mysql-server
   sudo apt-get -y autoremove --purge
   sudo rm -rf /var/lib/mysql /etc/mysql
   # Install
@@ -38,7 +37,8 @@ then
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
   sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://mirror.sax.uk.as61049.net/mariadb/repo/$DB_VERSION/ubuntu trusty main"
   sudo apt-get update
-  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -f -y mariadb-server mariadb-client
+  sudo apt-get -f install
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -f -y mariadb-server mariadb-client
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
