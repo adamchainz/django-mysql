@@ -29,8 +29,16 @@ then
 
 elif [[ $DB == 'mariadb' ]]
 then
-  # Installed via addons
-  echo 'installed already'
+  # Nuke default
+  sudo apt-get -y purge mysql-server
+  sudo apt-get -y autoremove --purge
+  sudo rm -rf /var/lib/mysql /etc/mysql
+  # Install
+  sudo apt-get install -y python-software-properties
+  sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
+  sudo add-apt-repository "deb http://ftp.osuosl.org/pub/mariadb/repo/$DB_VERSION/ubuntu trusty main"
+  sudo apt-get update -qq
+  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "mariadb-client-$DB_VERSION" "mariadb-server-core-$DB_VERSION" "mariadb-server-$DB_VERSION" libmariadbclient-dev
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
