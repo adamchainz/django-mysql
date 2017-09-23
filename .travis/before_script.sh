@@ -38,7 +38,7 @@ then
   sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://mirror.sax.uk.as61049.net/mariadb/repo/$DB_VERSION/ubuntu trusty main"
   sudo apt-get update
   sudo apt-get -f install
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -f -y mariadb-server mariadb-client
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends mariadb-server mariadb-client
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
