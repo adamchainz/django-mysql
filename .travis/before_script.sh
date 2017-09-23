@@ -38,7 +38,7 @@ then
   sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://mirror.sax.uk.as61049.net/mariadb/repo/$DB_VERSION/ubuntu trusty main"
   echo 'Package: *
 Pin: origin mirror.sax.uk.as61049.net
-Pin-Priority: 1000' > /etc/apt/preferences.d/pin-mariadb.pref
+Pin-Priority: 1000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
   sudo apt-get update
   sudo apt-config dump
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends mariadb-server mariadb-client
