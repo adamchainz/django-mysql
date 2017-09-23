@@ -34,11 +34,11 @@ then
   sudo apt-get -y autoremove --purge
   sudo rm -rf /var/lib/mysql /etc/mysql
   # Install
-  sudo apt-get install -y python-software-properties
+  sudo apt-get install -y software-properties-common
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-  sudo add-apt-repository "deb http://ftp.osuosl.org/pub/mariadb/repo/$DB_VERSION/ubuntu trusty main"
+  sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://mirror.sax.uk.as61049.net/mariadb/repo/10.0/ubuntu trusty main"
   sudo apt-get update -qq
-  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "mariadb-client-$DB_VERSION" "mariadb-server-core-$DB_VERSION" "mariadb-server-$DB_VERSION" libmariadbclient-dev
+  yes Y | sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariab-client
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
