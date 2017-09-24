@@ -16,8 +16,8 @@ isort==4.2.15
 mariadb-dyncol==1.2.0
 mccabe==0.6.1             # via flake8
 mock==2.0.0
-multilint==2.1.0
-mysqlclient==1.3.10
+multilint==2.2.0
+mysqlclient==1.3.12
 nose-parameterized==0.6.0
 pbr==3.1.1                # via mock
 py==1.4.34                # via pytest
@@ -27,7 +27,7 @@ pygments==2.2.0
 pytest-django==3.1.2
 pytest-flake8dir==1.1.0
 pytest-super-check==1.0.0
-pytest==3.2.1
+pytest==3.2.2
 pytz==2017.2
 six==1.9.0                # via mariadb-dyncol, mock, pytest-flake8dir, pytest-super-check
 sqlparse==0.2.3
