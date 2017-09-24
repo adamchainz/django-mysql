@@ -42,7 +42,12 @@ then
 Pin: origin sfo1.mirrors.digitalocean.com
 Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
     sudo apt-get update
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client libmariadbclient-dev
+    PACKAGES="mariadb-server mariadb-client"
+    if [[ $DB_VERSION != '10.2' ]]
+    then
+        PACKAGES="$PACKAGES libmariadbclient-dev"
+    fi
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$PACKAGES"
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
