@@ -47,7 +47,8 @@ Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
     then
         PACKAGES="$PACKAGES libmariadbclient-dev"
     fi
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$PACKAGES"
+    # shellcheck disable=SC2086
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $PACKAGES
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
