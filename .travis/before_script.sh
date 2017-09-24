@@ -20,6 +20,9 @@ then
     # Install new
     sudo add-apt-repository "deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-$DB_VERSION"
     sudo apt-get update
+    echo 'Package: *
+Pin: origin repo.mysql.com
+Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mysql.pref
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
 elif [[ $DB == 'mariadb' ]]
 then
