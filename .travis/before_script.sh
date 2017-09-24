@@ -32,6 +32,8 @@ then
 
 elif [[ $DB == 'mariadb' ]]
 then
+  # Nuke default
+  sudo rm -rf /var/lib/mysql
   # Install
   sudo apt-get install -y software-properties-common
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
