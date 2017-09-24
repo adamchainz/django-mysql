@@ -45,7 +45,7 @@ Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
   curl icanhazip.com
   sudo apt-get update
   sudo apt-config dump
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client libmysqlclient18
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
