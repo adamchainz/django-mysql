@@ -9,8 +9,8 @@ Tested with all combinations of:
 
 * Python: 2.7, 3.6
 * Django: 1.8, 1.9, 1.10, 1.11
-* MySQL: 5.5, 5.6, 5.7 / MariaDB: 5.5, 10.0, 10.1
-* mysqlclient: 1.3.7 (Python 3 compatible version of ``MySQL-python``)
+* MySQL: 5.5, 5.6, 5.7 / MariaDB: 10.0, 10.1, 10.2
+* mysqlclient: 1.3 (Python 3 compatible version of ``MySQL-python``)
 
 Any combination of these should be good, and also ``MySQL-python`` should work
 since it's just an older version of ``mysqlclient``.
