@@ -35,15 +35,15 @@ then
   # Install
   sudo apt-get install -y software-properties-common
   sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-  sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://ftp.osuosl.org/pub/mariadb/repo/$DB_VERSION/ubuntu trusty main"
+  sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/$DB_VERSION/ubuntu trusty main"
   echo 'Package: *
-Pin: origin ftp.osuosl.org
+Pin: origin sfo1.mirrors.digitalocean.com
 Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
   sudo cat /etc/apt/preferences.d/*
   curl icanhazip.com
   sudo apt-get update
   sudo apt-config dump
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends mariadb-server mariadb-client
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
 fi
 
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
