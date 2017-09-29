@@ -30,4 +30,4 @@ pytest-super-check==1.0.0
 pytest==3.2.2
 pytz==2017.2
 six==1.9.0                # via mariadb-dyncol, mock, pytest-flake8dir, pytest-super-check
-sqlparse==0.2.3
+sqlparse==0.2.4
