@@ -19,7 +19,7 @@ if [[ $DB == 'mysql' ]]
 then
     # Install new
     sudo add-apt-repository "deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-$DB_VERSION"
-    sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
+    sudo cat .travis/oracle.pgp-key | sudo apt-key add -
     sudo apt-get update
     echo 'Package: *
 Pin: origin repo.mysql.com
