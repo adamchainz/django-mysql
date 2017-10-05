@@ -99,6 +99,8 @@ your ``DATABASES`` setting:
 Also, as above for ``django_mysql.W001``, it's better that you set it
 permanently for the server with ``SET GLOBAL`` and a configuration file change.
 
+.. _check-w003:
+
 django_mysql.W003: utf8mb4
 --------------------------
 

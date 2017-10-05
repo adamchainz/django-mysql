@@ -7,6 +7,8 @@ Pending
 -------
 
 * (Insert new release notes below this line)
+* Added the ``manage.py`` command ``change_db_charset`` that ouputs the SQL to
+  change database's charset and collation.
 
 2.1.0 (2017-06-11)
 ------------------
