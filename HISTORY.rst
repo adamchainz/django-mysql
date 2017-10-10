@@ -6,7 +6,8 @@ History
 Pending
 -------
 
-* (Insert new release notes below this line)
+-* (Insert new release notes below this line)
+* Changed subprocess imports for compatibility with Google App Engine.
 
 2.1.0 (2017-06-11)
 ------------------
