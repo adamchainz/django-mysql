@@ -4,11 +4,11 @@ from __future__ import (
 )
 
 import operator
+import subprocess
 import sys
 import time
 from copy import copy
 from functools import wraps
-from subprocess import PIPE, Popen
 
 import django
 from django.conf import settings
@@ -638,11 +638,11 @@ def pt_visual_explain(queryset, display=True):
         settings_to_cmd_args(connection.settings_dict) +
         ['-e', explain_query]
     )
-    mysql = Popen(mysql_command, stdout=PIPE)
-    visual_explain = Popen(
+    mysql = subprocess.Popen(mysql_command, stdout=subprocess.PIPE)
+    visual_explain = subprocess.Popen(
         ['pt-visual-explain', '-'],
         stdin=mysql.stdout,
-        stdout=PIPE
+        stdout=subprocess.PIPE
     )
     mysql.stdout.close()
     explanation = visual_explain.communicate()[0].decode(encoding="utf-8")
