@@ -12,6 +12,8 @@ Pending
 ------------------
 
 * Changed subprocess imports for compatibility with Google App Engine.
+* (Insert new release notes below this line)
+* Made ``MySQLCache.set_many`` return a list as per Django 2.0.
 
 2.1.0 (2017-06-11)
 ------------------

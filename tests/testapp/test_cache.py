@@ -846,11 +846,16 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         caches['no_cull'].get('nonexistent')
 
         with self.assertNumQueries(1):
-            caches['no_cull'].set_many({"key1": "spam"})
+            result = caches['no_cull'].set_many({"key1": "spam"})
+        assert result == []
 
         # Multiple keys can be set using set_many
         with self.assertNumQueries(1):
-            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"})
+            result = caches['no_cull'].set_many({
+                'key1': 'spam',
+                'key2': 'eggs',
+            })
+        assert result == []
         assert cache.get("key1") == "spam"
         assert cache.get("key2") == "eggs"
 

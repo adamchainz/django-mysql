@@ -289,6 +289,7 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(query, params)
+        return []
 
     def delete(self, key, version=None):
         key = self.make_key(key, version=version)
