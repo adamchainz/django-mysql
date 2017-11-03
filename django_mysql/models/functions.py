@@ -220,7 +220,7 @@ class LastInsertId(Func):
 class JSONExtract(Func):
     function = 'JSON_EXTRACT'
 
-    def __init__(self, expression, *paths):
+    def __init__(self, expression, *paths, **kwargs):
         from django_mysql.models.fields import JSONField
 
         exprs = [expression]
@@ -229,7 +229,23 @@ class JSONExtract(Func):
                 path = Value(path)
             exprs.append(path)
 
-        super(JSONExtract, self).__init__(*exprs, output_field=JSONField())
+        # kwarg validation - for Python 2 compat
+        if list(kwargs.keys()) not in ([], ['output_field']):
+            raise TypeError(
+                'Only supported keyword argument is "output_field"'
+            )
+
+        if 'output_field' in kwargs:
+            if len(paths) > 1:
+                raise TypeError(
+                    "output_field won't work with more than one path, as a "
+                    "JSON Array will be returned"
+                )
+            output_field = kwargs['output_field']
+        else:
+            output_field = JSONField()
+
+        super(JSONExtract, self).__init__(*exprs, output_field=output_field)
 
 
 class JSONKeys(Func):

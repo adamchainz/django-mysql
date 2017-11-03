@@ -8,6 +8,8 @@ Pending
 
 .. Insert new release notes below this line
 
+* Add ``output_field`` argument to ``JSONExtract`` function.
+
 2.1.1 (2017-10-10)
 ------------------
 
