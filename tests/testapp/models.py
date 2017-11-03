@@ -9,7 +9,7 @@ from datetime import date, datetime, time
 from django.db import connection
 from django.db.models import Model as VanillaModel
 from django.db.models import (
-    CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
+    CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
     OneToOneField, TextField
 )
 from django.utils import six, timezone
@@ -155,7 +155,9 @@ class DynamicModel(Model):
 
 class Author(Model):
     name = CharField(max_length=32, db_index=True)
-    tutor = ForeignKey('self', null=True, related_name='tutees')
+    tutor = ForeignKey(
+        'self', on_delete=CASCADE, null=True, related_name='tutees'
+    )
     bio = TextField()
     birthday = DateTimeField(null=True)
     deathday = DateTimeField(null=True)
@@ -166,7 +168,7 @@ class Author(Model):
 
 class Book(Model):
     title = CharField(max_length=32, db_index=True)
-    author = ForeignKey(Author, related_name='books')
+    author = ForeignKey(Author, on_delete=CASCADE, related_name='books')
 
 
 class VanillaAuthor(VanillaModel):
@@ -177,7 +179,7 @@ class VanillaAuthor(VanillaModel):
 
 
 class AuthorExtra(Model):
-    author = OneToOneField(Author, primary_key=True)
+    author = OneToOneField(Author, on_delete=CASCADE, primary_key=True)
     legs = IntegerField(default=2)
 
 
@@ -189,7 +191,7 @@ class NameAuthor(Model):
 
 
 class NameAuthorExtra(Model):
-    name = OneToOneField(NameAuthor, primary_key=True)
+    name = OneToOneField(NameAuthor, on_delete=CASCADE, primary_key=True)
 
 
 class AuthorMultiIndex(Model):
