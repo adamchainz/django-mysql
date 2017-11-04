@@ -325,10 +325,10 @@ class TestCheck(DynColTestCase):
     def test_db_not_mariadb(self, is_mariadb):
         is_mariadb.return_value = False
 
-        class ValidDynamicModel(TemporaryModel):
+        class ValidDynamicModel1(TemporaryModel):
             field = DynamicField()
 
-        errors = ValidDynamicModel.check(actually_check=True)
+        errors = ValidDynamicModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
@@ -342,10 +342,10 @@ class TestCheck(DynColTestCase):
             if 'mysql_version' in connections[db].__dict__:
                 del connections[db].__dict__['mysql_version']
 
-        class ValidDynamicModel(TemporaryModel):
+        class ValidDynamicModel2(TemporaryModel):
             field = DynamicField()
 
-        errors = ValidDynamicModel.check(actually_check=True)
+        errors = ValidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
@@ -372,22 +372,22 @@ class TestCheck(DynColTestCase):
         assert "The MySQL charset must be 'utf8'" in errors[0].msg
 
     def test_spec_not_dict(self):
-        class InvalidDynamicModel(TemporaryModel):
+        class InvalidDynamicModel1(TemporaryModel):
             field = DynamicField(spec=['woops', 'a', 'list'])
 
-        errors = InvalidDynamicModel.check(actually_check=True)
+        errors = InvalidDynamicModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E009'
         assert "'spec' must be a dict" in errors[0].msg
         assert "The value passed is of type list" in errors[0].hint
 
     def test_spec_key_not_valid(self):
-        class InvalidDynamicModel(TemporaryModel):
+        class InvalidDynamicModel2(TemporaryModel):
             field = DynamicField(spec={
                 2.0: six.text_type
             })
 
-        errors = InvalidDynamicModel.check(actually_check=True)
+        errors = InvalidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E010'
         assert "The key '2.0' in 'spec' is not a string" in errors[0].msg
@@ -395,10 +395,10 @@ class TestCheck(DynColTestCase):
         assert "'2.0' is of type float" in errors[0].hint
 
     def test_spec_value_not_valid(self):
-        class InvalidDynamicModel(TemporaryModel):
+        class InvalidDynamicModel3(TemporaryModel):
             field = DynamicField(spec={'bad': list})
 
-        errors = InvalidDynamicModel.check(actually_check=True)
+        errors = InvalidDynamicModel3.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E011'
         assert (
@@ -412,14 +412,14 @@ class TestCheck(DynColTestCase):
         )
 
     def test_spec_nested_value_not_valid(self):
-        class InvalidDynamicModel(TemporaryModel):
+        class InvalidDynamicModel4(TemporaryModel):
             field = DynamicField(spec={
                 'l1': {
                     'bad': tuple
                 }
             })
 
-        errors = InvalidDynamicModel.check(actually_check=True)
+        errors = InvalidDynamicModel4.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E011'
         assert (

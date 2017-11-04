@@ -376,34 +376,34 @@ class TestCheck(SimpleTestCase):
         assert field.base_field.model.__name__ == 'IntSetModel'
 
     def test_base_field_checks(self):
-        class InvalidSetCharFieldModel(TemporaryModel):
+        class InvalidSetCharFieldModel1(TemporaryModel):
             field = SetCharField(models.CharField(), max_length=32)
 
-        errors = InvalidSetCharFieldModel.check(actually_check=True)
+        errors = InvalidSetCharFieldModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E001'
         assert 'Base field for set has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidSetCharFieldModel(TemporaryModel):
+        class InvalidSetCharFieldModel2(TemporaryModel):
             field = SetCharField(
                 models.ForeignKey('testapp.Author'),
                 max_length=32
             )
 
-        errors = InvalidSetCharFieldModel.check(actually_check=True)
+        errors = InvalidSetCharFieldModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E002'
         assert 'Base field for set must be' in errors[0].msg
 
     def test_max_length_including_base(self):
-        class InvalidSetCharFieldModel(TemporaryModel):
+        class InvalidSetCharFieldModel3(TemporaryModel):
             field = SetCharField(
                 models.CharField(max_length=32),
                 size=2, max_length=32)
 
-        errors = InvalidSetCharFieldModel.check(actually_check=True)
+        errors = InvalidSetCharFieldModel3.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E003'
         assert 'Field can overrun' in errors[0].msg
