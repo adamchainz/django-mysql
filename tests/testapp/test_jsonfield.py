@@ -472,19 +472,19 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
 class TestCheck(JSONFieldTestCase):
 
     def test_mutable_default_list(self):
-        class InvalidJSONModel(TemporaryModel):
+        class InvalidJSONModel1(TemporaryModel):
             field = JSONField(default=[])
 
-        errors = InvalidJSONModel.check(actually_check=True)
+        errors = InvalidJSONModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E017'
         assert 'Do not use mutable defaults for JSONField' in errors[0].msg
 
     def test_mutable_default_dict(self):
-        class InvalidJSONModel(TemporaryModel):
+        class InvalidJSONModel2(TemporaryModel):
             field = JSONField(default=[])
 
-        errors = InvalidJSONModel.check(actually_check=True)
+        errors = InvalidJSONModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E017'
         assert 'Do not use mutable defaults for JSONField' in errors[0].msg
@@ -493,10 +493,10 @@ class TestCheck(JSONFieldTestCase):
     def test_db_not_mysql(self, is_mariadb):
         is_mariadb.return_value = True
 
-        class InvalidJSONModel(TemporaryModel):
+        class InvalidJSONModel3(TemporaryModel):
             field = JSONField()
 
-        errors = InvalidJSONModel.check(actually_check=True)
+        errors = InvalidJSONModel3.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E016'
         assert "MySQL 5.7+ is required" in errors[0].msg
@@ -510,10 +510,10 @@ class TestCheck(JSONFieldTestCase):
             if 'mysql_version' in connections[db].__dict__:
                 del connections[db].__dict__['mysql_version']
 
-        class InvalidJSONModel(TemporaryModel):
+        class InvalidJSONModel4(TemporaryModel):
             field = JSONField()
 
-        errors = InvalidJSONModel.check(actually_check=True)
+        errors = InvalidJSONModel4.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E016'
         assert "MySQL 5.7+ is required" in errors[0].msg

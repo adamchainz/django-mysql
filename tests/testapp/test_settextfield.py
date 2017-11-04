@@ -221,22 +221,22 @@ class TestCheck(SimpleTestCase):
         assert field.base_field.model.__name__ == 'BigIntSetModel'
 
     def test_base_field_checks(self):
-        class InvalidSetTextModel(TemporaryModel):
+        class InvalidSetTextModel1(TemporaryModel):
             field = SetTextField(models.CharField())
 
-        errors = InvalidSetTextModel.check(actually_check=True)
+        errors = InvalidSetTextModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E001'
         assert 'Base field for set has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidSetTextModel(TemporaryModel):
+        class InvalidSetTextModel2(TemporaryModel):
             field = SetTextField(
                 models.ForeignKey('testapp.Author')
             )
 
-        errors = InvalidSetTextModel.check(actually_check=True)
+        errors = InvalidSetTextModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E002'
         assert 'Base field for set must be' in errors[0].msg

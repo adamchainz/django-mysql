@@ -419,34 +419,34 @@ class TestValidation(SimpleTestCase):
 class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
-        class InvalidListCharModel(TemporaryModel):
+        class InvalidListCharModel1(TemporaryModel):
             field = ListCharField(models.CharField(), max_length=32)
 
-        errors = InvalidListCharModel.check(actually_check=True)
+        errors = InvalidListCharModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E004'
         assert 'Base field for list has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidListCharModel(TemporaryModel):
+        class InvalidListCharModel2(TemporaryModel):
             field = ListCharField(
                 models.ForeignKey('testapp.Author'),
                 max_length=32
             )
 
-        errors = InvalidListCharModel.check(actually_check=True)
+        errors = InvalidListCharModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E005'
         assert 'Base field for list must be' in errors[0].msg
 
     def test_max_length_including_base(self):
-        class InvalidListCharModel(TemporaryModel):
+        class InvalidListCharModel3(TemporaryModel):
             field = ListCharField(
                 models.CharField(max_length=32),
                 size=2, max_length=32)
 
-        errors = InvalidListCharModel.check(actually_check=True)
+        errors = InvalidListCharModel3.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E006'
         assert 'Field can overrun' in errors[0].msg
