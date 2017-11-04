@@ -232,7 +232,7 @@ class Handler(object):
             not query.group_by and
             not query.distinct and
             not query.order_by and
-            len(query.alias_map) == 0
+            len(query.alias_map) <= 1
         )
 
         if hasattr(query, 'having'):  # Django < 1.9
