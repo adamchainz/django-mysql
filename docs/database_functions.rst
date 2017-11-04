@@ -532,13 +532,18 @@ These functions use JSON paths to address content inside JSON documents - for
 more information on their syntax, refer to the MySQL documentation.
 
 
-.. class:: JSONExtract(expression, *paths)
+.. class:: JSONExtract(expression, *paths, output_field=None)
 
     Given ``expression`` that resolves to some JSON data, extract the given
     JSON paths. If there is a single path, the plain value is returned; if
     there is more than one path, the output is a JSON array with the list of
     values represented by the paths. If the expression does not match for a
     particular JSON object, returns ``NULL``.
+
+    If only one path is given, ``output_field`` may also be given as a model
+    field instance like ``IntegerField()``, into which Django will load the
+    value; the default is ``JSONField()``, as it supports all return types
+    including the array of values for multiple paths.
 
     Note that if ``expression`` is a string, it will refer to a field, whereas
     members of ``paths`` that are strings will be wrapped with ``Value``

@@ -8,7 +8,7 @@ from unittest import SkipTest
 
 import pytest
 from django.db import connection
-from django.db.models import F, Q, Value
+from django.db.models import F, FloatField, Q, Value
 from django.db.models.functions import Length, Lower, Upper
 from django.test import TestCase
 from django.utils import six
@@ -357,10 +357,34 @@ class JSONFunctionTests(JSONFieldTestCase):
             'arr': ['dee', 'arr', 'arr'],
         })
 
+    def test_json_extract_kwarg_bad(self):
+        with pytest.raises(TypeError) as excinfo:
+            JSONExtract('foo', 'bar', foo=1)
+        assert 'Only supported keyword' in six.text_type(excinfo.value)
+
+    def test_json_extract_output_field_too_many_paths(self):
+        with pytest.raises(TypeError) as excinfo:
+            JSONExtract('foo', 'bar', 'baz', output_field=1)
+        assert (
+            "output_field won't work with more than one path" in
+            six.text_type(excinfo.value)
+        )
+
     def test_json_extract_flote(self):
         results = list(
             JSONModel.objects.annotate(
                 x=JSONExtract('attrs', '$.flote')
+            ).values_list('x', flat=True)
+        )
+        assert results == [1.5]
+        assert isinstance(results[0], float)
+
+    def test_json_extract_flote_as_float(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONExtract('attrs', '$.flote', output_field=FloatField())
+            ).filter(
+                x__gt=0.1
             ).values_list('x', flat=True)
         )
         assert results == [1.5]
