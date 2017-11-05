@@ -4,15 +4,12 @@ from __future__ import (
 )
 
 import sys
-import warnings
 from contextlib import contextmanager
 from unittest import skipUnless
 
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
 from django.utils import six
-
-from django_mysql.utils import connection_is_mariadb
 
 requiresPython2 = skipUnless(six.PY2, "Python 2 only")
 
@@ -99,19 +96,7 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
     """
     connection = connections[using]
     with connection.cursor() as cursor:
-        with warnings.catch_warnings(record=True) as warn_list:
-            cursor.execute("EXPLAIN " + query)
-
-        # Jump through hoops to suppress the forced full query from MySQL 5.7+
-        if (
-            not connection_is_mariadb(connection) and
-            connection.mysql_version >= (5, 7)
-        ):
-            expected_warnings = 1
-        else:
-            expected_warnings = 0
-        assert len(warn_list) == expected_warnings
-        assert all('1003' in str(w) for w in warn_list)
+        cursor.execute("EXPLAIN " + query)
 
         return {row['key'] for row in fetchall_dicts(cursor)
                 if row['key'] is not None}
