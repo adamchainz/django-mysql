@@ -44,6 +44,8 @@ Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $PACKAGES
 fi
 
-sudo mysql -u root -e "create user travis@localhost identified by '';" || true
+sudo mysql -u root -e "SET GLOBAL sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER';"
 
-sudo mysql -u root -e 'grant all privileges on *.* to travis@localhost;'
+sudo mysql -u root -e "CREATE USER travis@localhost IDENTIFIED BY '';" || true
+
+sudo mysql -u root -e 'GRANT ALL PRIVILEGES on *.* TO travis@localhost;'
