@@ -8,7 +8,7 @@ mariadb-dyncol
 mock
 multilint
 mysqlclient
-nose-parameterized
+parameterized
 pygments
 pytest
 pytest-django
