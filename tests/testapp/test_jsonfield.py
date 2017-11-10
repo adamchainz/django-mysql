@@ -501,15 +501,9 @@ class TestCheck(JSONFieldTestCase):
         assert errors[0].id == 'django_mysql.E016'
         assert "MySQL 5.7+ is required" in errors[0].msg
 
-    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
-
-    @mock.patch(wrapper_path + '.mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections['default'], 'mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections['other'], 'mysql_version', new=(5, 5, 1))
     def test_mysql_old_version(self):
-        # Uncache cached_property
-        for db in connections:
-            if 'mysql_version' in connections[db].__dict__:
-                del connections[db].__dict__['mysql_version']
-
         class InvalidJSONModel4(TemporaryModel):
             field = JSONField()
 
@@ -517,6 +511,15 @@ class TestCheck(JSONFieldTestCase):
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E016'
         assert "MySQL 5.7+ is required" in errors[0].msg
+
+    @mock.patch.object(connections['default'], 'mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections['other'], 'mysql_version', new=(5, 7, 1))
+    def test_mysql_one_conn_old_version(self):
+        class InvalidJSONModel5(TemporaryModel):
+            field = JSONField()
+
+        errors = InvalidJSONModel5.check(actually_check=True)
+        assert len(errors) == 0
 
 
 class TestFormField(JSONFieldTestCase):

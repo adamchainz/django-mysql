@@ -9,6 +9,8 @@ Pending
 .. Insert new release notes below this line
 
 * Add ``output_field`` argument to ``JSONExtract`` function.
+* Improved DB version checks for ``JSONField`` and ``DynamicField`` so you can
+  have just one connection that supports them.
 
 2.1.1 (2017-10-10)
 ------------------
