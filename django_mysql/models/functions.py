@@ -439,9 +439,7 @@ class ColumnGet(Func):
             raise ValueError("Invalid data_type '{}'".format(data_type))
 
         if data_type == 'BINARY':
-            output_field = output_field()  # no spec
-        else:
-            output_field = output_field
+            output_field = output_field()
 
         super(ColumnGet, self).__init__(expression, column_name,
                                         output_field=output_field,

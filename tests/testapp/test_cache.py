@@ -919,6 +919,11 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     # Original tests
 
+    def test_base_set_bad_value(self):
+        with pytest.raises(ValueError) as excinfo:
+            cache._base_set('foo', 'key', 'value')
+        assert "'mode' should be" in str(excinfo.value)
+
     def test_add_with_expired(self):
         cache.add("mykey", "value", 0.3)
         assert cache.get("mykey") == "value"

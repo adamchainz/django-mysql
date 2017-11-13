@@ -128,7 +128,7 @@ class PopListF(BaseExpression):
     """)
 
     def __init__(self, lhs):
-        super(BaseExpression, self).__init__()
+        super(PopListF, self).__init__()
         self.lhs = lhs
 
     def get_source_expressions(self):
@@ -155,7 +155,7 @@ class PopLeftListF(BaseExpression):
     """)
 
     def __init__(self, lhs):
-        super(BaseExpression, self).__init__()
+        super(PopLeftListF, self).__init__()
         self.lhs = lhs
 
     def get_source_expressions(self):
