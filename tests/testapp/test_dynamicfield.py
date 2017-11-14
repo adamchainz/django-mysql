@@ -335,13 +335,9 @@ class TestCheck(DynColTestCase):
 
     wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
 
-    @mock.patch(wrapper_path + '.mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections['default'], 'mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections['other'], 'mysql_version', new=(5, 5, 3))
     def test_mariadb_old_version(self):
-        # Uncache cached_property
-        for db in connections:
-            if 'mysql_version' in connections[db].__dict__:
-                del connections[db].__dict__['mysql_version']
-
         class ValidDynamicModel2(TemporaryModel):
             field = DynamicField()
 
@@ -349,6 +345,15 @@ class TestCheck(DynColTestCase):
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E013'
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
+
+    @mock.patch.object(connections['default'], 'mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections['other'], 'mysql_version', new=(10, 0, 1))
+    def test_mariadb_one_conn_old_version(self):
+        class ValidDynamicModel3(TemporaryModel):
+            field = DynamicField()
+
+        errors = ValidDynamicModel3.check(actually_check=True)
+        assert len(errors) == 0
 
     @mock.patch(DynamicField.__module__ + '.mariadb_dyncol', new=None)
     def test_mariadb_dyncol_missing(self):
