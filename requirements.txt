@@ -22,14 +22,14 @@ multilint==2.2.0
 mysqlclient==1.3.12
 parameterized==0.6.1
 pbr==3.1.1                # via mock
-py==1.4.34                # via pytest
+py==1.5.2                 # via pytest
 pycodestyle==2.3.1        # via flake8
 pyflakes==1.6.0           # via flake8
 pygments==2.2.0
 pytest-django==3.1.2
 pytest-flake8dir==1.1.0
 pytest-super-check==1.0.0
-pytest==3.2.3
+pytest==3.2.5
 pytz==2017.3
 six==1.9.0                # via mariadb-dyncol, mock, pytest-flake8dir, pytest-super-check
 sqlparse==0.2.4
