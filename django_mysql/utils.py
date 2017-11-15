@@ -283,7 +283,7 @@ def index_name(model, *field_names, **kwargs):
               if name in existing_fields]
 
     if len(fields) != len(field_names):
-        unfound_names = set(field_names) - set(field.name for field in fields)
+        unfound_names = set(field_names) - {field.name for field in fields}
         raise ValueError("Fields do not exist: " + ",".join(unfound_names))
     column_names = tuple(field.column for field in fields)
     list_sql = get_list_sql(column_names)

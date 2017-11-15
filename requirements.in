@@ -3,6 +3,8 @@ coverage
 docutils
 flake8
 flake8-coding
+flake8-comprehensions
+flake8-tidy-imports
 isort
 mariadb-dyncol
 mock
