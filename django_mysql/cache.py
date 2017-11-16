@@ -212,6 +212,9 @@ class MySQLCache(BaseDatabaseCache):
         return self._base_set('add', key, value, timeout)
 
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
+        if mode not in ('set', 'add'):
+            raise ValueError("'mode' should be 'set' or 'add'")
+
         exp = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
@@ -224,7 +227,7 @@ class MySQLCache(BaseDatabaseCache):
             if mode == 'set':
                 query = self._set_query
                 params = (key, value, value_type, exp)
-            elif mode == 'add':
+            else:  # mode = 'add'
                 query = self._add_query
                 params = (key, value, value_type, exp, self._now())
 
@@ -232,7 +235,7 @@ class MySQLCache(BaseDatabaseCache):
 
             if mode == 'set':
                 return True
-            elif mode == 'add':
+            else:  # mode = 'add'
                 # Use a special code in the add query for "did insert"
                 insert_id = cursor.lastrowid
                 return (insert_id != 444)
