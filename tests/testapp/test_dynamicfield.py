@@ -20,6 +20,11 @@ from django_mysql.utils import connection_is_mariadb
 from testapp.models import DynamicModel, TemporaryModel
 from testapp.utils import requiresPython2
 
+try:
+    import mariadb_dyncol
+except ImportError:  # pragma: no cover
+    mariadb_dyncol = None
+
 
 class DynColTestCase(TestCase):
 
@@ -436,6 +441,23 @@ class TestCheck(DynColTestCase):
             "date, datetime" in
             errors[0].hint
         )
+
+
+class TestToPython(TestCase):
+    def test_mariadb_dyncol_value(self):
+        value = mariadb_dyncol.pack({'foo': 'bar'})
+        result = DynamicField().to_python(value)
+        assert result == {'foo': 'bar'}
+
+    def test_json(self):
+        value = six.text_type(json.dumps({'foo': 'bar'}))
+        result = DynamicField().to_python(value)
+        assert result == {'foo': 'bar'}
+
+    def test_pass_through(self):
+        value = {'foo': 'bar'}
+        result = DynamicField().to_python(value)
+        assert result == {'foo': 'bar'}
 
 
 class SubDynamicField(DynamicField):
