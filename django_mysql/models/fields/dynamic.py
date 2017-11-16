@@ -324,7 +324,7 @@ class KeyTransform(Transform):
             params + [self.key_name]
         )
 
-    if django.VERSION[:3] <= (1, 8, 2):
+    if django.VERSION[:3] <= (1, 8, 2):  # pragma: no cover
         # Backport of bugfix for transforms with arguments, taken from:
         # https://code.djangoproject.com/ticket/24744
         def copy(self):

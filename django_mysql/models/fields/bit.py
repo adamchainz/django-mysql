@@ -11,15 +11,6 @@ class Bit1Mixin(object):
     def db_type(self, connection):
         return 'bit(1)'
 
-    def to_python(self, value):
-        # Meant to be binary/bytes but can come back as unicode strings
-        if isinstance(value, six.binary_type):
-            value = (value == b'\x01')
-        elif isinstance(value, six.text_type):
-            # Only on older versions of mysqlclient and Py 2.7
-            value = (value == '\x01')  # pragma: no cover
-        return value
-
     def from_db_value(self, value, expression, connection, context):
         # Meant to be binary/bytes but can come back as unicode strings
         if isinstance(value, six.binary_type):

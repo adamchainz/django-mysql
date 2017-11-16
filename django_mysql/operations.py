@@ -85,21 +85,11 @@ class AlterStorageEngine(Operation):
         if engine is None:
             engine = self.engine
 
-        if hasattr(to_state, 'render'):
-            apps = to_state.render()  # Django 1.7
-        else:
-            apps = to_state.apps  # Django 1.8+
-
-        new_model = apps.get_model(app_label, self.name)
-
-        if hasattr(self, 'allowed_to_migrate'):
-            allowed = self.allowed_to_migrate  # Django 1.7
-        else:
-            allowed = self.allow_migrate_model  # Django 1.8+
+        new_model = to_state.apps.get_model(app_label, self.name)
 
         qn = schema_editor.connection.ops.quote_name
 
-        if allowed(schema_editor.connection.alias, new_model):
+        if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             with schema_editor.connection.cursor() as cursor:
                 cursor.execute(
                     """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
