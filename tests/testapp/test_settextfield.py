@@ -233,7 +233,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidSetTextModel2(TemporaryModel):
             field = SetTextField(
-                models.ForeignKey('testapp.Author')
+                models.ForeignKey('testapp.Author', on_delete=models.CASCADE)
             )
 
         errors = InvalidSetTextModel2.check(actually_check=True)
