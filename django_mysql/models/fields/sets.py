@@ -127,7 +127,12 @@ class SetFieldMixin(object):
         return value
 
     def value_to_string(self, obj):
-        vals = self._get_val_from_obj(obj)
+        try:
+            # Django 1.10+, removed in 2.0
+            method = self.value_from_object
+        except AttributeError:
+            method = self._get_val_from_obj
+        vals = method(obj)
         return self.get_prep_value(vals)
 
     def formfield(self, **kwargs):
