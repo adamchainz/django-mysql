@@ -44,6 +44,8 @@ Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $PACKAGES
 fi
 
+sudo mysql -u root -e "set global binlog_format=MIXED"
+
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
 
 sudo mysql -u root -e 'grant all privileges on *.* to travis@localhost;'
