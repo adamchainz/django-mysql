@@ -1026,7 +1026,9 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.set('underwhelm', BIGINT_SIGNED_MIN + 1)
         cache.decr('underwhelm')
         if django.VERSION >= (2, 0):
-            expected = IntegrityError
+            # IntegrityError on MySQL 5.7+ and MariaDB,
+            # OperationalError on MySQL 5.6...
+            expected = (IntegrityError, OperationalError)
         else:
             expected = OperationalError
         with pytest.raises(expected):
