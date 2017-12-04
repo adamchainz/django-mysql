@@ -13,7 +13,7 @@ import django
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
-from django.db import OperationalError, connection
+from django.db import IntegrityError, OperationalError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
@@ -1015,13 +1015,23 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     def test_incr_range(self):
         cache.set('overwhelm', BIGINT_SIGNED_MAX - 1)
         cache.incr('overwhelm')
-        with pytest.raises(OperationalError):
+        if django.VERSION >= (2, 0):
+            expected = IntegrityError
+        else:
+            expected = OperationalError
+        with pytest.raises(expected):
             cache.incr('overwhelm')
 
     def test_decr_range(self):
         cache.set('underwhelm', BIGINT_SIGNED_MIN + 1)
         cache.decr('underwhelm')
-        with pytest.raises(OperationalError):
+        if django.VERSION >= (2, 0):
+            # IntegrityError on MySQL 5.7+ and MariaDB,
+            # OperationalError on MySQL 5.6...
+            expected = (IntegrityError, OperationalError)
+        else:
+            expected = OperationalError
+        with pytest.raises(expected):
             cache.decr('underwhelm')
 
     def test_cant_incr_decimals(self):

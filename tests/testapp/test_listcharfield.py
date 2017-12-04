@@ -431,7 +431,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidListCharModel2(TemporaryModel):
             field = ListCharField(
-                models.ForeignKey('testapp.Author'),
+                models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
                 max_length=32
             )
 

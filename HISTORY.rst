@@ -11,6 +11,7 @@ Pending
 * Add ``output_field`` argument to ``JSONExtract`` function.
 * Improved DB version checks for ``JSONField`` and ``DynamicField`` so you can
   have just one connection that supports them.
+* Django 2.0 compatibility.
 
 2.1.1 (2017-10-10)
 ------------------

@@ -388,7 +388,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidSetCharFieldModel2(TemporaryModel):
             field = SetCharField(
-                models.ForeignKey('testapp.Author'),
+                models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
                 max_length=32
             )
 

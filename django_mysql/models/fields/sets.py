@@ -127,7 +127,7 @@ class SetFieldMixin(object):
         return value
 
     def value_to_string(self, obj):
-        vals = self._get_val_from_obj(obj)
+        vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
     def formfield(self, **kwargs):
