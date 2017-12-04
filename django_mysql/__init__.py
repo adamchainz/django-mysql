@@ -5,7 +5,7 @@ from __future__ import (
 
 __author__ = 'Adam Johnson'
 __email__ = 'me@adamj.eu'
-__version__ = '2.1.1'
+__version__ = '2.2.0'
 
 
 default_app_config = 'django_mysql.apps.MySQLConfig'
