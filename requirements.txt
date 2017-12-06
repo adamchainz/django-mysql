@@ -31,7 +31,7 @@ pygments==2.2.0
 pytest-django==3.1.2
 pytest-flake8dir==1.1.0
 pytest-super-check==1.0.0
-pytest==3.3.0
+pytest==3.3.1
 pytz==2017.3
 six==1.11.0               # via mariadb-dyncol, mock, pytest, pytest-flake8dir, pytest-super-check
 sqlparse==0.2.4
