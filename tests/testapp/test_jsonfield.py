@@ -17,7 +17,7 @@ from django.test import TestCase
 
 from django_mysql import forms
 from django_mysql.models import JSONField
-from django_mysql.utils import connection_is_mariadb
+from django_mysql.models.fields.json import json_type_supported
 from testapp.models import JSONModel, TemporaryModel
 from testapp.utils import print_all_queries
 
@@ -26,11 +26,8 @@ class JSONFieldTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        if not (
-            not connection_is_mariadb(connection) and
-            connection.mysql_version >= (5, 7)
-        ):
-            raise SkipTest("JSONField requires MySQL 5.7+")
+        if not json_type_supported(connection):
+            raise SkipTest("JSONField requires MySQL 5.7+ / MariaDB 10.2+")
         super(JSONFieldTestCase, cls).setUpClass()
 
 

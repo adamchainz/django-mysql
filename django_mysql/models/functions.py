@@ -10,6 +10,8 @@ from django.db.models import CharField
 from django.db.models import Field as DjangoField
 from django.db.models import Func, IntegerField, TextField, Value
 
+from django_mysql.utils import connection_is_mariadb
+
 
 class SingleArgFunc(Func):
 
@@ -286,6 +288,15 @@ class JSONValue(Func):
     def __init__(self, expression):
         json_string = json.dumps(expression, allow_nan=False)
         super(JSONValue, self).__init__(Value(json_string))
+
+    def as_sql(self, compiler, connection, function=None, template=None,
+               *args, **kwargs):
+        if connection_is_mariadb(connection):
+            template = '(%(expressions)s)'
+        return super(JSONValue, self).as_sql(compiler, connection,
+                                             function=function,
+                                             template=template,
+                                             *args, **kwargs)
 
 
 class BaseJSONModifyFunc(Func):

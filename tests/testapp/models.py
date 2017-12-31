@@ -19,6 +19,7 @@ from django_mysql.models import (
     ListTextField, Model, NullBit1BooleanField, SetCharField, SetTextField,
     SizedBinaryField, SizedTextField,
 )
+from django_mysql.models.fields.json import json_type_supported
 from django_mysql.utils import connection_is_mariadb
 
 
@@ -287,10 +288,7 @@ class NullBit1Model(Model):
 
 
 class JSONModel(Model):
-    if (
-        not connection_is_mariadb(connection._nodb_connection) and
-        connection._nodb_connection.mysql_version >= (5, 7)
-    ):
+    if json_type_supported(connection._nodb_connection):
         attrs = JSONField(null=True)
 
     def __unicode__(self):

@@ -22,6 +22,12 @@ from django_mysql.utils import collapse_spaces, connection_is_mariadb
 __all__ = ('JSONField',)
 
 
+def json_type_supported(connection):
+    if connection_is_mariadb(connection):
+        return (connection.mysql_version >= (10, 2))
+    return (connection.mysql_version >= (5, 7))
+
+
 class JSONField(Field):
 
     _default_json_encoder = json.JSONEncoder(allow_nan=False)
@@ -66,19 +72,15 @@ class JSONField(Field):
 
         any_conn_works = False
         for alias, conn in mysql_connections():
-            if (
-                hasattr(conn, 'mysql_version') and
-                not connection_is_mariadb(conn) and
-                conn.mysql_version >= (5, 7)
-            ):
+            if json_type_supported(conn):
                 any_conn_works = True
 
         if not any_conn_works:
             errors.append(
                 checks.Error(
-                    'MySQL 5.7+ is required to use JSONField',
+                    'MySQL 5.7+ / MariaDB 10.2+ are required to use JSONField',
                     hint='At least one of your DB connections should be to '
-                         'MySQL 5.7+',
+                         'MySQL 5.7+ or MariaDB 10.2+',
                     obj=self,
                     id='django_mysql.E016',
                 ),
@@ -124,6 +126,17 @@ class JSONField(Field):
 
     def db_type(self, connection):
         return 'json'
+
+    def db_check(self, connection):
+        """
+        This ends up in the CHECK() SQL of the column.
+        MySQL and MariaDB <10.2 parse but do not apply CHECK descriptions,
+        whilst MariaDB 10.2+ applies it. We don't need it on MySQL since the
+        JSON type there can only store JSON, whilst on MariaDB JSON is
+        basically an alias for 'TEXT' so we do need this. So it all works out.
+        """
+        data = self.db_type_parameters(connection)
+        return 'JSON_VALID(%(column)s)' % data
 
     def get_transform(self, name):
         transform = super(JSONField, self).get_transform(name)
