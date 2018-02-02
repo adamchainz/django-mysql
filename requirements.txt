@@ -15,7 +15,8 @@ flake8-comprehensions==1.4.1
 flake8-tidy-imports==1.1.0
 flake8==3.5.0
 funcsigs==1.0.2           # via mock, pytest
-isort==4.2.15
+futures==3.2.0            # via isort
+isort==4.3.0
 mariadb-dyncol==1.2.1
 mccabe==0.6.1             # via flake8
 mock==2.0.0
