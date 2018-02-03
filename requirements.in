@@ -5,6 +5,7 @@ flake8
 flake8-coding
 flake8-comprehensions
 flake8-tidy-imports
+futures<3.2.0
 isort
 mariadb-dyncol
 mock
