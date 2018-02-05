@@ -6,8 +6,9 @@ from __future__ import (
 import json
 
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import CharField
 from django.db.models import Field as DjangoField
-from django.db.models import CharField, Func, IntegerField, TextField, Value
+from django.db.models import Func, IntegerField, TextField, Value
 
 
 class SingleArgFunc(Func):
