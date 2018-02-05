@@ -7,11 +7,11 @@ import json
 from datetime import date, datetime, time
 
 from django.db import connection
-from django.db.models import Model as VanillaModel
 from django.db.models import (
-    CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
-    OneToOneField, TextField
+    CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField
 )
+from django.db.models import Model as VanillaModel
+from django.db.models import OneToOneField, TextField
 from django.utils import six, timezone
 
 from django_mysql.models import (

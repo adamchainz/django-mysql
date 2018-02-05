@@ -11,8 +11,9 @@ from contextlib import contextmanager
 from threading import Lock, Thread
 from weakref import WeakKeyDictionary
 
+from django.db import DEFAULT_DB_ALIAS
 from django.db import connection as default_connection
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import connections
 from django.utils import six
 from django.utils.six.moves.queue import Empty, Queue
 
