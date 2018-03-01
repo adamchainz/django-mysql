@@ -9,7 +9,6 @@ from datetime import date, datetime, time
 
 import django
 from django.core import checks
-from django.db import connections
 from django.db.models import (
     DateField, DateTimeField, Field, FloatField, IntegerField, TextField,
     TimeField, Transform
@@ -17,6 +16,7 @@ from django.db.models import (
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
+from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
 from django_mysql.utils import connection_is_mariadb
 
@@ -65,9 +65,7 @@ class DynamicField(Field):
         errors = []
 
         any_conn_works = False
-        conn_names = ['default'] + list(set(connections) - {'default'})
-        for db in conn_names:
-            conn = connections[db]
+        for alias, conn in mysql_connections():
             if (
                 hasattr(conn, 'mysql_version') and
                 connection_is_mariadb(conn) and
@@ -91,14 +89,13 @@ class DynamicField(Field):
         errors = []
 
         conn = None
-        conn_names = ['default'] + list(set(connections) - {'default'})
-        for db in conn_names:
+        for alias, check_conn in mysql_connections():
             if (
-                hasattr(connections[db], 'mysql_version') and
-                connection_is_mariadb(connections[db]) and
-                connections[db].mysql_version >= (10, 0, 1)
+                hasattr(check_conn, 'mysql_version') and
+                connection_is_mariadb(check_conn) and
+                check_conn.mysql_version >= (10, 0, 1)
             ):
-                conn = connections[db]
+                conn = check_conn
                 break
 
         if conn is not None:
