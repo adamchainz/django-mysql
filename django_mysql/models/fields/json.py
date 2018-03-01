@@ -7,11 +7,11 @@ import json
 
 import django
 from django.core import checks
-from django.db import connections
 from django.db.models import Field, IntegerField, Transform
 from django.utils import six
 
 from django_mysql import forms
+from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import (
     JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
@@ -59,9 +59,7 @@ class JSONField(Field):
         errors = []
 
         any_conn_works = False
-        conn_names = ['default'] + list(set(connections) - {'default'})
-        for db in conn_names:
-            conn = connections[db]
+        for alias, conn in mysql_connections():
             if (
                 hasattr(conn, 'mysql_version') and
                 not connection_is_mariadb(conn) and
