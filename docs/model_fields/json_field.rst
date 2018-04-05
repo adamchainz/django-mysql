@@ -206,7 +206,7 @@ of keys:
 .. code-block:: python
 
     # Find all ShopItems with both origin and certification information
-    >>> ShopItem.objects.filter(attrs_has_keys=['origin', 'certifications'])
+    >>> ShopItem.objects.filter(attrs__has_keys=['origin', 'certifications'])
     [<ShopItem: Gruyère>]
 
 To find objects with one of several keys, use the ``has_any_keys`` lookup with
@@ -215,7 +215,7 @@ a list of keys:
 .. code-block:: python
 
     # Find all ShopItems with either a smelliness or a hardness rating
-    >>> ShopItem.objects.filter(attrs_has_any_keys=['smelliness', 'hardness'])
+    >>> ShopItem.objects.filter(attrs__has_any_keys=['smelliness', 'hardness'])
     [<ShopItem: Gruyère>, <ShopItem: Feta>]
 
 Length Lookup
