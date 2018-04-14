@@ -35,7 +35,7 @@ class DynamicField(Field):
             kwargs['default'] = dict
         if 'blank' not in kwargs:
             kwargs['blank'] = True
-        self.spec = kwargs.pop('spec', None)
+        self.spec = kwargs.pop('spec', {})
         super(DynamicField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
