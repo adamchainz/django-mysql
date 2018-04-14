@@ -247,11 +247,11 @@ class DynamicField(Field):
         name, path, args, kwargs = super(DynamicField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.dynamic.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.dynamic.DynamicField',
+            'django_mysql.models.fields.DynamicField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.DynamicField'
 
         # Remove defaults
         if 'default' in kwargs and kwargs['default'] is dict:

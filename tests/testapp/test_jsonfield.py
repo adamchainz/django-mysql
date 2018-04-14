@@ -530,6 +530,27 @@ class TestFormField(JSONFieldTestCase):
         assert isinstance(form_field, forms.JSONField)
 
 
+class JSONFieldSubclass(JSONField):
+    pass
+
+
+class TestDeconstruct(JSONFieldTestCase):
+
+    def test_deconstruct(self):
+        field = JSONField()
+        name, path, args, kwargs = field.deconstruct()
+
+        new = JSONField(*args, **kwargs)
+
+        assert path == 'django_mysql.models.JSONField'
+        assert new.default == field.default
+
+    def test_deconstruct_subclass(self):
+        field = JSONFieldSubclass()
+        name, path, args, kwargs = field.deconstruct()
+        assert path == 'tests.testapp.test_jsonfield.JSONFieldSubclass'
+
+
 class TestSerialization(JSONFieldTestCase):
     test_data = '''[
         {

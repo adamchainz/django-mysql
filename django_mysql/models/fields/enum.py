@@ -45,12 +45,13 @@ class EnumField(CharField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()
+
         bad_paths = (
-            'django_mysql.models.fields.enum.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.enum.EnumField',
+            'django_mysql.models.fields.EnumField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.EnumField'
 
         kwargs['choices'] = self.choices
         del kwargs['max_length']

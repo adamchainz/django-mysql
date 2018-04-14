@@ -29,11 +29,11 @@ class SizedBinaryField(BinaryField):
         name, path, args, kwargs = super(SizedBinaryField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.sizes.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.sizes.SizedBinaryField',
+            'django_mysql.models.fields.SizedBinaryField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.SizedBinaryField'
 
         kwargs['size_class'] = self.size_class
         return name, path, args, kwargs
@@ -71,11 +71,11 @@ class SizedTextField(TextField):
         name, path, args, kwargs = super(SizedTextField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.sizes.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.sizes.SizedTextField',
+            'django_mysql.models.fields.SizedTextField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.SizedTextField'
 
         kwargs['size_class'] = self.size_class
         return name, path, args, kwargs

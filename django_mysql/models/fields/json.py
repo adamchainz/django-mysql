@@ -81,7 +81,14 @@ class JSONField(Field):
 
     def deconstruct(self):
         name, path, args, kwargs = super(JSONField, self).deconstruct()
-        path = 'django_mysql.models.%s' % self.__class__.__name__
+
+        bad_paths = (
+            'django_mysql.models.fields.json.JSONField',
+            'django_mysql.models.fields.JSONField',
+        )
+        if path in bad_paths:
+            path = 'django_mysql.models.JSONField'
+
         return name, path, args, kwargs
 
     def db_type(self, connection):

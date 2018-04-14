@@ -8,6 +8,8 @@ Pending
 
 .. Insert new release notes below this line
 
+* Fixed ``JSONField.deconstruct()`` to not break the path for subclasses.
+
 2.2.0 (2017-12-04)
 ------------------
 
