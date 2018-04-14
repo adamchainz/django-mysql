@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import django
@@ -24,7 +24,7 @@ class Command(BaseCommand):
         def add_arguments(self, parser):
             parser.add_argument(
                 'aliases', metavar='aliases', nargs='*',
-                help='Specify the cache alias(es) to create migrations for.'
+                help='Specify the cache alias(es) to create migrations for.',
             )
 
     def handle(self, *args, **options):
@@ -62,7 +62,7 @@ class Command(BaseCommand):
         out = [header]
         for table in tables:
             out.append(
-                table_operation.replace('{{ table }}', table)
+                table_operation.replace('{{ table }}', table),
             )
         out.append(footer)
         return ''.join(out)
@@ -97,7 +97,7 @@ table_operation = '''
             """
 ''' + create_table_sql + '''
             """,
-            "DROP TABLE `{{ table }}`"
+            "DROP TABLE `{{ table }}`",
         ),
 '''.rstrip()
 

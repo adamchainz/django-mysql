@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -98,13 +98,13 @@ class TestSaveLoad(TestCase):
             list(BigCharListModel.objects.filter(**{lname: ["a", "b"]}))
 
         both = BigCharListModel.objects.filter(
-            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
+            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"}),
         )
         assert both.count() == 1
         assert both[0] == mymodel
 
         either = BigCharListModel.objects.filter(
-            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
+            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"}),
         )
         assert either.count() == 1
 
@@ -162,7 +162,7 @@ class TestSaveLoad(TestCase):
         assert list(red0_blue1) == [mymodel]
 
         red0_or_blue0 = BigCharListModel.objects.filter(
-            Q(field__0="red") | Q(field__0="blue")
+            Q(field__0="red") | Q(field__0="blue"),
         )
         assert list(red0_or_blue0) == [mymodel]
 
@@ -190,18 +190,18 @@ class TestSaveLoad(TestCase):
             list(BigIntListModel.objects.filter(field__contains=[1, 2]))
 
         ones_and_twos = BigIntListModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=2)
+            Q(field__contains=1) & Q(field__contains=2),
         )
         assert ones_and_twos.count() == 1
         assert ones_and_twos[0] == onetwo
 
         ones_and_threes = BigIntListModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=3)
+            Q(field__contains=1) & Q(field__contains=3),
         )
         assert ones_and_threes.count() == 0
 
         ones_or_threes = BigIntListModel.objects.filter(
-            Q(field__contains=1) | Q(field__contains=3)
+            Q(field__contains=1) | Q(field__contains=3),
         )
         assert ones_or_threes.count() == 1
 
@@ -230,7 +230,7 @@ class TestValidation(SimpleTestCase):
         field = ListTextField(
             models.CharField(max_length=32),
             size=3,
-            max_length=32
+            max_length=32,
         )
 
         field.clean({'a', 'b', 'c'}, None)
@@ -259,7 +259,7 @@ class TestCheck(SimpleTestCase):
         class InvalidListTextModel2(TemporaryModel):
             field = ListTextField(
                 models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
-                max_length=32
+                max_length=32,
             )
 
         errors = InvalidListTextModel2.check(actually_check=True)
@@ -329,14 +329,14 @@ class TestMigrationWriter(TestCase):
                 )
                 \)$
             """,
-            re.VERBOSE
+            re.VERBOSE,
         ).match(statement)
 
     def test_makemigrations_with_size(self):
         field = ListTextField(
             models.CharField(max_length=5),
             max_length=32,
-            size=5
+            size=5,
         )
         statement, imports = MigrationWriter.serialize(field)
 
@@ -351,7 +351,7 @@ class TestMigrationWriter(TestCase):
                 )
                 \)$
             """,
-            re.VERBOSE
+            re.VERBOSE,
         ).match(statement)
 
 

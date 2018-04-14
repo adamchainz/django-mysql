@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import os
@@ -28,8 +28,8 @@ DATABASES = {
         },
         'TEST': {
             'COLLATION': "utf8mb4_general_ci",
-            'CHARSET': "utf8mb4"
-        }
+            'CHARSET': "utf8mb4",
+        },
     },
     'other': {
         'ENGINE': 'django.db.backends.mysql',
@@ -47,13 +47,13 @@ DATABASES = {
         },
         'TEST': {
             'COLLATION': "utf8mb4_general_ci",
-            'CHARSET': "utf8mb4"
-        }
+            'CHARSET': "utf8mb4",
+        },
     },
     'other2': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
 }
 
 DATABASE_ROUTERS = [
@@ -70,7 +70,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_mysql',
-    'testapp'
+    'testapp',
 )
 
 MIDDLEWARE_CLASSES = (

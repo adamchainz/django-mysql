@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from textwrap import dedent
@@ -15,7 +15,7 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.utils.six.moves import StringIO
 
 from django_mysql.management.commands.fix_datetime_columns import (
-    parse_create_table
+    parse_create_table,
 )
 from django_mysql.utils import connection_is_mariadb
 
@@ -27,7 +27,7 @@ command_connections = (
 )
 
 sqlite = ConnectionHandler({
-    'default': {'ENGINE': 'django.db.backends.sqlite3'}
+    'default': {'ENGINE': 'django.db.backends.sqlite3'},
 })
 
 
@@ -53,7 +53,7 @@ class Datetime6TestMixin(object):
             connection.mysql_version[:2] < (5, 6)
         ):
             raise SkipTest(
-                "Django only uses datetime(6) columns on MySQL 5.6+"
+                "Django only uses datetime(6) columns on MySQL 5.6+",
             )
         super(Datetime6TestMixin, cls).setUpClass()
 
@@ -161,5 +161,5 @@ class ParseCreateTableTests(SimpleTestCase):
         """)  # noqa
 
         assert parse_create_table(sql) == {
-            'the_data': 'longtext COLLATE utf8mb4_unicode_ci NOT NULL'
+            'the_data': 'longtext COLLATE utf8mb4_unicode_ci NOT NULL',
         }

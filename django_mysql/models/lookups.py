@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import collections
@@ -9,7 +9,7 @@ import json
 from django.db.models import CharField, Lookup, Transform
 from django.db.models.lookups import (
     BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan,
-    LessThanOrEqual
+    LessThanOrEqual,
 )
 from django.utils import six
 
@@ -103,7 +103,7 @@ class JSONHasKey(Lookup):
         if not isinstance(self.rhs, six.text_type):
             raise ValueError(
                 "JSONField's 'has_key' lookup only works with {} values"
-                .format(six.text_type.__name__)
+                .format(six.text_type.__name__),
             )
         return super(JSONHasKey, self).get_prep_lookup()
 
@@ -120,7 +120,7 @@ class JSONSequencesMixin(object):
         if not isinstance(self.rhs, collections.Sequence):
             raise ValueError(
                 "JSONField's '{}' lookup only works with Sequences"
-                .format(self.lookup_name)
+                .format(self.lookup_name),
             )
         return self.rhs
 
@@ -172,7 +172,7 @@ class SetContains(Lookup):
             raise ValueError(
                 "Can't do contains with a set and {klass}, you should "
                 "pass them as separate filters."
-                .format(klass=self.lhs.__class__.__name__)
+                .format(klass=self.lhs.__class__.__name__),
             )
         return super(SetContains, self).get_prep_lookup()
 

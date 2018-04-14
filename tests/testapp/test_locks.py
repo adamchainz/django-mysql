@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from threading import Thread
@@ -16,7 +16,7 @@ from django_mysql.locks import Lock, TableLock
 from django_mysql.models import Model
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import (
-    AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer
+    AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer,
 )
 
 
@@ -173,7 +173,7 @@ class LockTests(TestCase):
         if not supports_multiple_locks:
             self.skipTest(
                 "Only MySQL 5.7+ and MariaDB 10.0.2+ have the ability to hold "
-                "more than one named lock"
+                "more than one named lock",
             )
 
         lock_a = Lock("a")
@@ -194,7 +194,7 @@ class LockTests(TestCase):
         if not self.supports_lock_info:
             self.skipTest(
                 "Only MariaDB 10.0.7+ has the metadata_lock_info plugin on "
-                "which held_with_prefix relies"
+                "which held_with_prefix relies",
             )
 
         assert Lock.held_with_prefix('') == {}

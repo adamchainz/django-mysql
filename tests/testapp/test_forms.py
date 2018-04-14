@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from unittest import skipUnless
@@ -61,7 +61,7 @@ class TestSimpleListField(SimpleTestCase):
     def test_validate_fail(self):
         field = SimpleListField(
             forms.ChoiceField(choices=(('a', 'The letter A'),
-                                       ('b', 'The letter B')))
+                                       ('b', 'The letter B'))),
         )
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean('a,c')
@@ -206,7 +206,7 @@ class TestSimpleSetField(SimpleTestCase):
     def test_validate_fail(self):
         field = SimpleSetField(
             forms.ChoiceField(choices=(('a', 'The letter A'),
-                                       ('b', 'The letter B')))
+                                       ('b', 'The letter B'))),
         )
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean('a,c')

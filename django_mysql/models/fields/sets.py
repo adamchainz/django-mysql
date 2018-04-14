@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.core import checks
@@ -39,8 +39,8 @@ class SetFieldMixin(object):
                     'Base field for set must be a CharField or IntegerField.',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E002'
-                )
+                    id='django_mysql.E002',
+                ),
             )
             return errors
 
@@ -56,15 +56,15 @@ class SetFieldMixin(object):
                     'Base field for set has errors:\n    %s' % messages,
                     hint=None,
                     obj=self,
-                    id='django_mysql.E001'
-                )
+                    id='django_mysql.E001',
+                ),
             )
         return errors
 
     @property
     def description(self):
         return _('Set of %(base_description)s') % {
-            'base_description': self.base_field.description
+            'base_description': self.base_field.description,
         }
 
     def set_attributes_from_name(self, name):
@@ -76,7 +76,7 @@ class SetFieldMixin(object):
 
         bad_paths = (
             'django_mysql.models.fields.sets.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.' + self.__class__.__name__,
         )
         if path in bad_paths:
             path = 'django_mysql.models.' + self.__class__.__name__
@@ -115,13 +115,13 @@ class SetFieldMixin(object):
                     raise ValueError(
                         "Set members in {klass} {name} cannot contain commas"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
                 elif not len(v):
                     raise ValueError(
                         "The empty string cannot be stored in {klass} {name}"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
             return ','.join(value)
         return value
@@ -176,8 +176,8 @@ class SetCharField(SetFieldMixin, CharField):
                             self.max_length),
                         hint=None,
                         obj=self,
-                        id='django_mysql.E003'
-                    )
+                        id='django_mysql.E003',
+                    ),
                 )
         return errors
 

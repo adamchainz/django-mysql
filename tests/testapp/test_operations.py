@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from unittest import SkipTest
@@ -12,7 +12,7 @@ from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 
 from django_mysql.operations import (
-    AlterStorageEngine, InstallPlugin, InstallSOName
+    AlterStorageEngine, InstallPlugin, InstallSOName,
 )
 from django_mysql.test.utils import override_mysql_variables
 from django_mysql.utils import connection_is_mariadb
@@ -23,7 +23,7 @@ def plugin_exists(plugin_name):
         cursor.execute(
             """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
                WHERE PLUGIN_NAME = %s""",
-            (plugin_name,)
+            (plugin_name,),
         )
         return (cursor.fetchone()[0] > 0)
 
@@ -33,7 +33,7 @@ def table_storage_engine(table_name):
         cursor.execute(
             """SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES
                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s""",
-            (table_name,)
+            (table_name,),
         )
         return cursor.fetchone()[0]
 
@@ -239,14 +239,14 @@ class AlterStorageEngineTests(TransactionTestCase):
                 "Stable",
                 [
                     ("id", models.AutoField(primary_key=True)),
-                ]
+                ],
             ))
         if third_model:
             operations.append(migrations.CreateModel(
                 "Van",
                 [
                     ("id", models.AutoField(primary_key=True)),
-                ]
+                ],
             ))
         if related_model:
             operations.append(migrations.CreateModel(
@@ -254,7 +254,7 @@ class AlterStorageEngineTests(TransactionTestCase):
                 [
                     ("id", models.AutoField(primary_key=True)),
                     ("pony", models.ForeignKey("Pony")),
-                    ("friend", models.ForeignKey("self"))
+                    ("friend", models.ForeignKey("self")),
                 ],
             ))
         if mti_model:

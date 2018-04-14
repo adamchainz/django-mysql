@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import django
@@ -27,7 +27,7 @@ class Command(BaseCommand):
                 'alias', metavar='alias', nargs='?',
                 default=DEFAULT_DB_ALIAS,
                 help='Specify the database connection alias to output '
-                     'parameters for.'
+                     'parameters for.',
             )
 
         parser.add_argument(
@@ -37,7 +37,7 @@ class Command(BaseCommand):
             default=False,
             help='Outputs flags for tools that take parameters in the '
                  'same format as the mysql client, e.g. mysql '
-                 '$(./manage.py dbparams --mysql)'
+                 '$(./manage.py dbparams --mysql)',
         )
         parser.add_argument(
             '--dsn',
@@ -45,8 +45,8 @@ class Command(BaseCommand):
             dest='dsn',
             default=False,
             help='Output a DSN for e.g. percona tools, e.g. '
-                 'pt-online-schema-change $(./manage.py dbparams --dsn)'
-        ),
+                 'pt-online-schema-change $(./manage.py dbparams --dsn)',
+        )
 
     def handle(self, *args, **options):
         if django.VERSION[:2] >= (1, 10):
@@ -94,7 +94,7 @@ class Command(BaseCommand):
                 "Warning: SSL params can't be passed in the DSN syntax; you "
                 "must pass them in your my.cnf. See: "
                 "https://www.percona.com/blog/2014/10/16/percona-toolkit-for-"
-                "mysql-with-mysql-ssl-connections/"
+                "mysql-with-mysql-ssl-connections/",
             )
 
         db = settings_dict['OPTIONS'].get('db', settings_dict['NAME'])

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.db import migrations, models
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False,
                  auto_created=True, primary_key=True)),
                 ('field', EnumField(choices=[
-                    ('lion', 'Lion'), ('tiger', 'Tiger'), 'bear'
+                    ('lion', 'Lion'), ('tiger', 'Tiger'), 'bear',
                 ])),
             ],
             options={

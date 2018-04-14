@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import pytest
@@ -11,7 +11,7 @@ from django.test import TestCase
 from django_mysql.models.handler import Handler
 from django_mysql.utils import index_name
 from testapp.models import (
-    Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
+    Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor,
 )
 
 
@@ -24,7 +24,7 @@ def get_index_names(model):
             FROM INFORMATION_SCHEMA.STATISTICS
             WHERE TABLE_SCHEMA = %s AND
                   TABLE_NAME = %s""",
-            (connection.settings_dict['NAME'], model._meta.db_table)
+            (connection.settings_dict['NAME'], model._meta.db_table),
         )
 
         index_names = [x[0] for x in cursor.fetchall()]

@@ -5,7 +5,7 @@ queries and using them to rewrite that query. This is done to support query
 hints whilst obviating patching Django's ORM in complex ways.
 """
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import operator
@@ -38,7 +38,7 @@ index_rule_re = re.compile(
     )?
     (?P<index_names>(`[^`]+`(,`[^`]+`)*)|NONE)
     """,
-    re.VERBOSE
+    re.VERBOSE,
 )
 
 
@@ -76,25 +76,25 @@ def rewrite_query(sql):
 # A translation of the grammar for SELECT - all the possible hints that can
 # appear afterwards
 SELECT_HINTS = OrderedDict([
-    ('distinctness', ('ALL', 'DISTINCT', 'DISTINCTROW',)),
+    ('distinctness', ('ALL', 'DISTINCT', 'DISTINCTROW')),
     ('priority', ('HIGH_PRIORITY',)),
     ('join_order', ('STRAIGHT_JOIN',)),
-    ('result_size', ('SQL_SMALL_RESULT', 'SQL_BIG_RESULT',)),
+    ('result_size', ('SQL_SMALL_RESULT', 'SQL_BIG_RESULT')),
     ('buffer_result', ('SQL_BUFFER_RESULT',)),
-    ('query_cache', ('SQL_CACHE', 'SQL_NO_CACHE',)),
+    ('query_cache', ('SQL_CACHE', 'SQL_NO_CACHE')),
     ('found_rows', ('SQL_CALC_FOUND_ROWS',)),
 ])
 
 # Any pre-expression tokens that are query hints
 SELECT_HINT_TOKENS = frozenset(
-    six.moves.reduce(operator.add, SELECT_HINTS.values())
+    six.moves.reduce(operator.add, SELECT_HINTS.values()),
 )
 
 # Don't go crazy reading this - it's just templating a piece of the below regex
 hints_re_piece = '\n'.join(
     r'(?P<{group_name}>({tokens})\s+)?'.format(
         group_name=group_name,
-        tokens='|'.join(token_set)
+        tokens='|'.join(token_set),
     )
     for group_name, token_set in six.iteritems(SELECT_HINTS)
 )
@@ -113,7 +113,7 @@ query_start_re = re.compile(
         # comments - N times /*a*/whitespace
         (?P<comments>(\s*/\*.*?\*/\s*)+|\s+)
     """ + hints_re_piece,
-    re.VERBOSE | re.IGNORECASE
+    re.VERBOSE | re.IGNORECASE,
 )
 
 
@@ -189,6 +189,6 @@ def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
         table_name=table_name,
         rule=rule,
         for_section=for_section,
-        index_names=('' if index_names == 'NONE' else index_names)
+        index_names=('' if index_names == 'NONE' else index_names),
     )
     return re.sub(table_spec_re, replacement, sql, count=1, flags=re.VERBOSE)

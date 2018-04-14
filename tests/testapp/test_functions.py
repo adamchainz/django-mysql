@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import hashlib
@@ -18,7 +18,7 @@ from django_mysql.models.functions import (
     ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONInsert,
     JSONKeys, JSONLength, JSONReplace, JSONSet, LastInsertId, Least,
     RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
-    XMLExtractValue
+    XMLExtractValue,
 )
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
@@ -52,7 +52,7 @@ class ControlFlowFunctionTests(TestCase):
         Alphabet.objects.create(d='')
 
         results = list(Alphabet.objects.annotate(
-            has_d=If(Length('d'), Value(True), Value(False))
+            has_d=If(Length('d'), Value(True), Value(False)),
         ).order_by('id').values_list('has_d', flat=True))
         assert results == [True, False, True, False]
 
@@ -62,7 +62,7 @@ class ControlFlowFunctionTests(TestCase):
         Alphabet.objects.create(a=14, b=17)
 
         result = list(Alphabet.objects.annotate(
-            conditional=If(Q(a__lte=13), 'a', 'b')
+            conditional=If(Q(a__lte=13), 'a', 'b'),
         ).order_by('id').values_list('conditional', flat=True))
         assert result == [12, 13, 17]
 
@@ -72,7 +72,7 @@ class ControlFlowFunctionTests(TestCase):
         Alphabet.objects.create(a=3, d='Rice')
 
         result = list(Alphabet.objects.annotate(
-            conditional=If(Q(a=2), Upper('d'), Lower('d'))
+            conditional=If(Q(a=2), Upper('d'), Lower('d')),
         ).order_by('id').values_list('conditional', flat=True))
         assert result == ['lentils', 'CABBAGE', 'rice']
 
@@ -82,9 +82,9 @@ class ControlFlowFunctionTests(TestCase):
         Alphabet.objects.create(a=3, d='Rice')
 
         result = list(Alphabet.objects.annotate(
-            conditional=If(Q(a__gte=2), Upper('d'), Value(''))
+            conditional=If(Q(a__gte=2), Upper('d'), Value('')),
         ).filter(
-            conditional__startswith='C'
+            conditional__startswith='C',
         ).order_by('id').values_list('conditional', flat=True))
         assert result == ['CABBAGE']
 
@@ -92,9 +92,9 @@ class ControlFlowFunctionTests(TestCase):
         Alphabet.objects.create(a=1)
 
         result = list(Alphabet.objects.annotate(
-            conditional=If(Q(a=2), Value(1))
+            conditional=If(Q(a=2), Value(1)),
         ).filter(
-            conditional__isnull=True
+            conditional__isnull=True,
         ).values_list('conditional', flat=True))
         assert result == [None]
 
@@ -239,7 +239,7 @@ class StringFunctionTests(TestCase):
         Alphabet.objects.create(a=3, d='BBB')
         avalues = list(
             Alphabet.objects.order_by(Field('d', ['AAA', 'BBB']), 'a')
-                            .values_list('a', flat=True)
+                            .values_list('a', flat=True),
         )
         assert avalues == [2, 1, 3, 4]
 
@@ -249,7 +249,7 @@ class XMLFunctionTests(TestCase):
     def test_updatexml_simple(self):
         Alphabet.objects.create(d='<value>123</value>')
         Alphabet.objects.update(
-            d=UpdateXML('d', '/value', '<value>456</value>')
+            d=UpdateXML('d', '/value', '<value>456</value>'),
         )
         d = Alphabet.objects.get().d
         assert d == '<value>456</value>'
@@ -257,7 +257,7 @@ class XMLFunctionTests(TestCase):
     def test_updatexml_annotate(self):
         Alphabet.objects.create(d='<value>123</value>')
         d2 = Alphabet.objects.annotate(
-            d2=UpdateXML('d', '/value', '<value>456</value>')
+            d2=UpdateXML('d', '/value', '<value>456</value>'),
         ).get().d2
         assert d2 == '<value>456</value>'
 
@@ -267,7 +267,7 @@ class XMLFunctionTests(TestCase):
         Alphabet.objects.create(d='<some></some><some></some>')
         evs = list(
             Alphabet.objects.annotate(ev=XMLExtractValue('d', 'count(/some)'))
-                            .values_list('ev', flat=True)
+                            .values_list('ev', flat=True),
         )
         assert evs == ['1', '0', '2']
 
@@ -352,7 +352,7 @@ class JSONFunctionTests(JSONFieldTestCase):
             'int': 88,
             'flote': 1.5,
             'sub': {
-                'document': 'store'
+                'document': 'store',
             },
             'arr': ['dee', 'arr', 'arr'],
         })
@@ -373,8 +373,8 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_extract_flote(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONExtract('attrs', '$.flote')
-            ).values_list('x', flat=True)
+                x=JSONExtract('attrs', '$.flote'),
+            ).values_list('x', flat=True),
         )
         assert results == [1.5]
         assert isinstance(results[0], float)
@@ -382,10 +382,10 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_extract_flote_as_float(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONExtract('attrs', '$.flote', output_field=FloatField())
+                x=JSONExtract('attrs', '$.flote', output_field=FloatField()),
             ).filter(
-                x__gt=0.1
-            ).values_list('x', flat=True)
+                x__gt=0.1,
+            ).values_list('x', flat=True),
         )
         assert results == [1.5]
         assert isinstance(results[0], float)
@@ -393,8 +393,8 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_extract_multiple(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONExtract('attrs', '$.int', '$.flote')
-            ).values_list('x', flat=True)
+                x=JSONExtract('attrs', '$.int', '$.flote'),
+            ).values_list('x', flat=True),
         )
         assert results == [[88, 1.5]]
         assert isinstance(results[0][0], six.integer_types)
@@ -403,50 +403,50 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_extract_filter(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONExtract('attrs', '$.sub')
+                x=JSONExtract('attrs', '$.sub'),
             ).filter(
-                x={'document': 'store'}
-            )
+                x={'document': 'store'},
+            ),
         )
         assert results == [self.obj]
 
     def test_json_keys(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONKeys('attrs')
-            ).values_list('x', flat=True)
+                x=JSONKeys('attrs'),
+            ).values_list('x', flat=True),
         )
         assert set(results[0]) == set(self.obj.attrs.keys())
 
     def test_json_keys_path(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONKeys('attrs', '$.sub')
-            ).values_list('x', flat=True)
+                x=JSONKeys('attrs', '$.sub'),
+            ).values_list('x', flat=True),
         )
         assert set(results[0]) == set(self.obj.attrs['sub'].keys())
 
     def test_json_length(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONLength('attrs')
-            ).values_list('x', flat=True)
+                x=JSONLength('attrs'),
+            ).values_list('x', flat=True),
         )
         assert results == [len(self.obj.attrs)]
 
     def test_json_length_path(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONLength('attrs', '$.sub')
-            ).values_list('x', flat=True)
+                x=JSONLength('attrs', '$.sub'),
+            ).values_list('x', flat=True),
         )
         assert results == [len(self.obj.attrs['sub'])]
 
     def test_json_length_type(self):
         results = list(
             JSONModel.objects.annotate(
-                x=JSONLength('attrs')
-            ).filter(x__range=[3, 5])
+                x=JSONLength('attrs'),
+            ).filter(x__range=[3, 5]),
         )
         assert results == [self.obj]
 
@@ -460,7 +460,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_insert_dict(self):
         self.obj.attrs = JSONInsert(
             'attrs',
-            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}},
         )
         self.obj.save()
         self.obj.refresh_from_db()
@@ -471,7 +471,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_insert_array(self):
         self.obj.attrs = JSONInsert(
             'attrs',
-            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]},
         )
         self.obj.save()
         self.obj.refresh_from_db()
@@ -494,7 +494,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_replace_dict(self):
         self.obj.attrs = JSONReplace(
             'attrs',
-            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}},
         )
         self.obj.save()
         self.obj.refresh_from_db()
@@ -504,7 +504,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_replace_array(self):
         self.obj.attrs = JSONReplace(
             'attrs',
-            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]},
         )
         self.obj.save()
         self.obj.refresh_from_db()
@@ -526,7 +526,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_set_dict(self):
         self.obj.attrs = JSONSet(
             'attrs',
-            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}}
+            {'$.sub': {'paper': 'drop'}, '$.sub2': {'int': 42, 'foo': 'bar'}},
         )
         self.obj.save()
         self.obj.refresh_from_db()
@@ -537,7 +537,7 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_set_array(self):
         self.obj.attrs = JSONSet(
             'attrs',
-            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]}
+            {'$.arr': [1, 'two', 3], '$.arr2': ['one', 2]},
         )
         self.obj.save()
         self.obj.refresh_from_db()
@@ -595,7 +595,7 @@ class RegexpFunctionTests(TestCase):
         Alphabet.objects.create(d="Something to query")
         Alphabet.objects.create(d="Please do inspect me")
         Alphabet.objects.update(
-            a=RegexpInstr('d', r'search|query|inspect') - 1
+            a=RegexpInstr('d', r'search|query|inspect') - 1,
         )
         all_abs = Alphabet.objects.all().order_by('id')
         assert all_abs[0].a == 12
@@ -621,7 +621,7 @@ class RegexpFunctionTests(TestCase):
         Author.objects.create(name="Roald Dahl")
         qs = (
             Author.objects.annotate(
-                surname_first=RegexpReplace('name', r'^(.*) (.*)$', r'\2, \1')
+                surname_first=RegexpReplace('name', r'^(.*) (.*)$', r'\2, \1'),
             ).order_by('surname_first')
         )
         assert qs[0].name == "Roald Dahl"
@@ -652,9 +652,9 @@ class RegexpFunctionTests(TestCase):
         Author.objects.create(name="Sophocles")
         qs = list(
             Author.objects.annotate(
-                name_has_space=Length(RegexpSubstr('name', r'\s'))
+                name_has_space=Length(RegexpSubstr('name', r'\s')),
             ).filter(name_has_space=0)
-            .order_by('id').values_list('name', flat=True)
+            .order_by('id').values_list('name', flat=True),
         )
         assert qs == ['Euripides', 'Sophocles']
 
@@ -666,15 +666,15 @@ class DynamicColumnsFunctionTests(DynColTestCase):
         DynamicModel.objects.create(attrs={
             'flote': 1.0,
             'sub': {
-                'document': 'store'
-            }
+                'document': 'store',
+            },
         })
 
     def test_get_float(self):
         results = list(
             DynamicModel.objects.annotate(
-                x=ColumnGet('attrs', 'flote', 'DOUBLE')
-            ).values_list('x', flat=True)
+                x=ColumnGet('attrs', 'flote', 'DOUBLE'),
+            ).values_list('x', flat=True),
         )
         assert results == [1.0]
         assert isinstance(results[0], float)
@@ -682,8 +682,8 @@ class DynamicColumnsFunctionTests(DynColTestCase):
     def test_get_int(self):
         results = list(
             DynamicModel.objects.annotate(
-                x=ColumnGet('attrs', 'flote', 'INTEGER')
-            ).values_list('x', flat=True)
+                x=ColumnGet('attrs', 'flote', 'INTEGER'),
+            ).values_list('x', flat=True),
         )
         assert results == [1]
         assert isinstance(results[0], int)
@@ -691,8 +691,8 @@ class DynamicColumnsFunctionTests(DynColTestCase):
     def test_get_null(self):
         results = list(
             DynamicModel.objects.annotate(
-                x=ColumnGet('attrs', 'nonexistent', 'INTEGER')
-            ).values_list('x', flat=True)
+                x=ColumnGet('attrs', 'nonexistent', 'INTEGER'),
+            ).values_list('x', flat=True),
         )
         assert results == [None]
 
@@ -702,9 +702,9 @@ class DynamicColumnsFunctionTests(DynColTestCase):
                 x=ColumnGet(
                     ColumnGet('attrs', 'sub', 'BINARY'),
                     'document',
-                    'CHAR'
-                )
-            ).values_list('x', flat=True)
+                    'CHAR',
+                ),
+            ).values_list('x', flat=True),
         )
         assert results == ['store']
 
@@ -716,21 +716,21 @@ class DynamicColumnsFunctionTests(DynColTestCase):
     def test_add(self):
         results = list(
             DynamicModel.objects.annotate(
-                attrs2=ColumnAdd('attrs', {'another': 'key'})
-            ).values_list('attrs2', flat=True)
+                attrs2=ColumnAdd('attrs', {'another': 'key'}),
+            ).values_list('attrs2', flat=True),
         )
         assert results == [{
             'flote': 1.0,
             'sub': {'document': 'store'},
-            'another': 'key'
+            'another': 'key',
         }]
 
     def test_add_nested(self):
         with pytest.raises(ValueError) as excinfo:
             list(
                 DynamicModel.objects.annotate(
-                    attrs2=ColumnAdd('attrs', {'sub2': {'document': 'store'}})
-                ).values_list('attrs2', flat=True)
+                    attrs2=ColumnAdd('attrs', {'sub2': {'document': 'store'}}),
+                ).values_list('attrs2', flat=True),
             )
         assert "nested values is not supported" in str(excinfo.value)
 
@@ -750,7 +750,7 @@ class DynamicColumnsFunctionTests(DynColTestCase):
 
     def test_add_update_typed(self):
         DynamicModel.objects.update(
-            attrs=ColumnAdd('attrs', {'over': AsType(9000, 'DOUBLE')})
+            attrs=ColumnAdd('attrs', {'over': AsType(9000, 'DOUBLE')}),
         )
         m = DynamicModel.objects.get()
         assert isinstance(m.attrs['over'], float)

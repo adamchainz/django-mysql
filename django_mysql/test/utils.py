@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import uuid
@@ -40,7 +40,7 @@ class override_mysql_variables(object):
             if not issubclass(test_func, TestCase):
                 raise Exception(
                     "{} only works with TestCase classes."
-                    .format(self.__class__.__name__)
+                    .format(self.__class__.__name__),
                 )
 
             self.wrap_class(test_func)
@@ -74,7 +74,7 @@ class override_mysql_variables(object):
                     """SET @overridden_{prefix}_{name} = @@{name},
                            @@{name} = %s
                     """.format(prefix=self.prefix, name=key),
-                    (value,)
+                    (value,),
                 )
 
     def disable(self):
@@ -84,5 +84,5 @@ class override_mysql_variables(object):
                 cursor.execute(
                     """SET @@{name} = @overridden_{prefix}_{name},
                            @overridden_{prefix}_{name} = NULL
-                    """.format(name=key, prefix=self.prefix)
+                    """.format(name=key, prefix=self.prefix),
                 )

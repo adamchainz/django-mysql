@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import re
@@ -25,7 +25,7 @@ class Handler(object):
         # Undocumented max of 64 chars (get error on HANDLER CLOSE only!)
         return '{}_{}'.format(
             table_name[-31:],
-            randint(1, 2e10)
+            randint(1, 2e10),
         )
 
     # Context manager
@@ -86,7 +86,7 @@ class Handler(object):
             except KeyError:
                 raise ValueError(
                     "'mode' must be one of: {}"
-                    .format(",".join(self._read_modes.keys()))
+                    .format(",".join(self._read_modes.keys())),
                 )
 
         if where is None:
@@ -115,7 +115,7 @@ class Handler(object):
         'first': 'FIRST',
         'last': 'LAST',
         'next': 'NEXT',
-        'prev': 'PREV'
+        'prev': 'PREV',
     }
 
     def _parse_index_value(self, kwargs):
@@ -150,8 +150,8 @@ class Handler(object):
                 "Valid operators are {valid}"
                 .format(
                     op=operator,
-                    valid=",".join(self._operator_values.keys())
-                )
+                    valid=",".join(self._operator_values.keys()),
+                ),
             )
 
     _operator_values = {

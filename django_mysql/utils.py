@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import os
@@ -229,7 +229,7 @@ class PTFingerprintThread(Thread):
             ['pt-fingerprint'],
             stdin=subprocess.PIPE,
             stdout=slave,
-            close_fds=True
+            close_fds=True,
         )
         stdin = proc.stdin
         stdout = os.fdopen(master)
@@ -298,7 +298,7 @@ def index_name(model, *field_names, **kwargs):
                      COLUMN_NAME IN {list_sql}
                ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC
             """.format(list_sql=list_sql),
-            (model._meta.db_table,) + column_names
+            (model._meta.db_table,) + column_names,
         )
         indexes = defaultdict(list)
         for index_name, _, column_name in cursor.fetchall():
@@ -313,5 +313,5 @@ def index_name(model, *field_names, **kwargs):
 
 def get_list_sql(sequence):
     return '({})'.format(
-        ','.join('%s' for x in sequence)
+        ','.join('%s' for x in sequence),
     )

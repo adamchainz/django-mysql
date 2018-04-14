@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import pytest
@@ -137,18 +137,18 @@ class GroupConcatTests(TestCase):
     def test_ordering_invalid(self):
         with pytest.raises(ValueError) as excinfo:
             self.shakes.tutees.aggregate(
-                tids=GroupConcat('id', ordering='asceding')
+                tids=GroupConcat('id', ordering='asceding'),
             )
         assert "'ordering' must be one of" in str(excinfo.value)
 
     def test_ordering_asc(self):
         out = self.shakes.tutees.aggregate(
-            tids=GroupConcat('id', ordering='asc')
+            tids=GroupConcat('id', ordering='asc'),
         )
         assert out == {'tids': ",".join(self.str_tutee_ids)}
 
     def test_ordering_desc(self):
         out = self.shakes.tutees.aggregate(
-            tids=GroupConcat('id', ordering='desc')
+            tids=GroupConcat('id', ordering='desc'),
         )
         assert out == {'tids': ",".join(reversed(self.str_tutee_ids))}

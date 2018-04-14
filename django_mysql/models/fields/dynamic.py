@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -11,7 +11,7 @@ import django
 from django.core import checks
 from django.db.models import (
     DateField, DateTimeField, Field, FloatField, IntegerField, TextField,
-    TimeField, Transform
+    TimeField, Transform,
 )
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
@@ -56,8 +56,8 @@ class DynamicField(Field):
                     "'mariadb_dyncol' is required to use DynamicField",
                     hint="Install the 'mariadb_dyncol' library from 'pip'",
                     obj=self,
-                    id='django_mysql.E012'
-                )
+                    id='django_mysql.E012',
+                ),
             )
         return errors
 
@@ -80,8 +80,8 @@ class DynamicField(Field):
                     hint='At least one of your DB connections should be to '
                          'MariaDB 10.0.1+',
                     obj=self,
-                    id='django_mysql.E013'
-                )
+                    id='django_mysql.E013',
+                ),
             )
         return errors
 
@@ -114,8 +114,8 @@ class DynamicField(Field):
                              "DATABASES setting to fix this"
                              .format(charset),
                         obj=self,
-                        id='django_mysql.E014'
-                    )
+                        id='django_mysql.E014',
+                    ),
                 )
 
         return errors
@@ -131,7 +131,7 @@ class DynamicField(Field):
                          .format(type(spec).__name__),
                     obj=self,
                     id='django_mysql.E009',
-                )
+                ),
             )
             return errors
 
@@ -148,7 +148,7 @@ class DynamicField(Field):
                                      type(key).__name__),
                         obj=self,
                         id='django_mysql.E010',
-                    )
+                    ),
                 )
                 continue
 
@@ -165,7 +165,7 @@ class DynamicField(Field):
                              .format(KeyTransform.SPEC_MAP_NAMES),
                         obj=self,
                         id='django_mysql.E011',
-                    )
+                    ),
                 )
 
         return errors
@@ -231,7 +231,7 @@ class DynamicField(Field):
                         type_msg = ','.join(e.__name__ for e in expected_type)
                     raise TypeError(
                         "Key '{}{}' should be of type {}"
-                        .format(prefix, key, type_msg)
+                        .format(prefix, key, type_msg),
                     )
 
                 if isinstance(subspec, dict):
@@ -318,7 +318,7 @@ class KeyTransform(Transform):
         lhs, params = compiler.compile(self.lhs)
         return (
             "COLUMN_GET({}, %s AS {})".format(lhs, self.data_type),
-            params + [self.key_name]
+            params + [self.key_name],
         )
 
     if django.VERSION[:3] <= (1, 8, 2):  # pragma: no cover

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.db import migrations
@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='sizedbinaryaltermodel',
             name='field',
-            field=SizedBinaryField(size_class=2)
+            field=SizedBinaryField(size_class=2),
         ),
     ]

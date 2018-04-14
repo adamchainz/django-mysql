@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -8,7 +8,7 @@ from datetime import date, datetime, time
 
 from django.db import connection
 from django.db.models import (
-    CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField
+    CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
 )
 from django.db.models import Model as VanillaModel
 from django.db.models import OneToOneField, TextField
@@ -17,7 +17,7 @@ from django.utils import six, timezone
 from django_mysql.models import (
     Bit1BooleanField, DynamicField, EnumField, JSONField, ListCharField,
     ListTextField, Model, NullBit1BooleanField, SetCharField, SetTextField,
-    SizedBinaryField, SizedTextField
+    SizedBinaryField, SizedTextField,
 )
 from django_mysql.utils import connection_is_mariadb
 
@@ -68,7 +68,7 @@ class CharSetModel(Model):
     )
     field2 = SetCharField(
         base_field=CharField(max_length=8),
-        max_length=255
+        max_length=255,
     )
 
 
@@ -131,9 +131,9 @@ class DynamicModel(Model):
             'stry': six.text_type,
             'timey': time,
             'nesty': {
-                'level2': six.text_type
-            }
-        }
+                'level2': six.text_type,
+            },
+        },
     )
 
     @classmethod
@@ -156,7 +156,7 @@ class DynamicModel(Model):
 class Author(Model):
     name = CharField(max_length=32, db_index=True)
     tutor = ForeignKey(
-        'self', on_delete=CASCADE, null=True, related_name='tutees'
+        'self', on_delete=CASCADE, null=True, related_name='tutees',
     )
     bio = TextField()
     birthday = DateTimeField(null=True)
@@ -289,5 +289,5 @@ class Poll(VanillaModel):
     answer = CharField(max_length=200)
     pub_date = DateTimeField(
         'date published',
-        default=expensive_calculation
+        default=expensive_calculation,
     )

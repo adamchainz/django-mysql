@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import pytest
@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from django_mysql.exceptions import TimeoutError
 from django_mysql.status import (
-    GlobalStatus, SessionStatus, global_status, session_status
+    GlobalStatus, SessionStatus, global_status, session_status,
 )
 
 
@@ -96,7 +96,7 @@ class GlobalStatusTests(TestCase):
             global_status.wait_until_load_low(
                 {'Threads_running': -1},  # obviously impossible
                 timeout=0.001,
-                sleep=0.0005
+                sleep=0.0005,
             )
         message = str(excinfo.value)
         assert 'Threads_running' in message
@@ -107,7 +107,7 @@ class GlobalStatusTests(TestCase):
                 {'Threads_running': 1000000,
                  'Uptime': -1},  # obviously impossible
                 timeout=0.001,
-                sleep=0.0005
+                sleep=0.0005,
             )
         message = str(excinfo.value)
         assert 'Uptime' in message

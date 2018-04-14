@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -15,7 +15,7 @@ from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import (
     JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
-    JSONLessThan, JSONLessThanOrEqual
+    JSONLessThan, JSONLessThanOrEqual,
 )
 from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
@@ -51,7 +51,7 @@ class JSONField(Field):
                     '''.format(self.default)),
                     obj=self,
                     id='django_mysql.E017',
-                )
+                ),
             )
         return errors
 
@@ -74,8 +74,8 @@ class JSONField(Field):
                     hint='At least one of your DB connections should be to '
                          'MySQL 5.7+',
                     obj=self,
-                    id='django_mysql.E016'
-                )
+                    id='django_mysql.E016',
+                ),
             )
         return errors
 
@@ -125,10 +125,11 @@ class JSONField(Field):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
             'range', 'in', 'iexact', 'icontains', 'startswith',
-            'istartswith', 'endswith', 'iendswith', 'search', 'regex', 'iregex'
+            'istartswith', 'endswith', 'iendswith', 'search', 'regex',
+            'iregex',
         }:
             raise NotImplementedError(
-                "Lookup '{}' doesn't work with JSONField".format(lookup_name)
+                "Lookup '{}' doesn't work with JSONField".format(lookup_name),
             )
         return super(JSONField, self).get_lookup(lookup_name)
 

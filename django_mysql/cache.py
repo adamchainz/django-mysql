@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import re
@@ -10,7 +10,7 @@ from textwrap import dedent
 from time import time
 
 from django.core.cache.backends.base import (
-    DEFAULT_TIMEOUT, BaseCache, default_key_func
+    DEFAULT_TIMEOUT, BaseCache, default_key_func,
 )
 from django.db import connections, router
 from django.utils import six
@@ -130,7 +130,7 @@ class MySQLCache(BaseDatabaseCache):
                 raise ValueError(
                     "Cannot use the default KEY_FUNCTION and "
                     "REVERSE_KEY_FUNCTION if you have a colon in your "
-                    "KEY_PREFIX."
+                    "KEY_PREFIX.",
                 )
         else:
             reverse_key_func = params.get('REVERSE_KEY_FUNCTION', None)
@@ -147,7 +147,7 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             cursor.execute(
                 self._get_query.format(table=table),
-                (key, self._now())
+                (key, self._now()),
             )
             row = cursor.fetchone()
 
@@ -180,9 +180,9 @@ class MySQLCache(BaseDatabaseCache):
             cursor.execute(
                 self._get_many_query.format(
                     table=table,
-                    list_sql=get_list_sql(made_keys)
+                    list_sql=get_list_sql(made_keys),
                 ),
-                made_keys + [self._now()]
+                made_keys + [self._now()],
             )
             rows = cursor.fetchall()
 
@@ -287,7 +287,7 @@ class MySQLCache(BaseDatabaseCache):
 
         query = self._set_many_query.replace(
             '{{VALUES_CLAUSE}}',
-            ','.join('(%s, %s, %s, %s)' for key in data)
+            ','.join('(%s, %s, %s, %s)' for key in data),
         ).format(table=table)
 
         with connections[db].cursor() as cursor:
@@ -323,7 +323,7 @@ class MySQLCache(BaseDatabaseCache):
                     table=table,
                     list_sql=get_list_sql(made_keys),
                 ),
-                made_keys
+                made_keys,
             )
 
     _delete_many_query = collapse_spaces("""
@@ -341,7 +341,7 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             cursor.execute(
                 self._has_key_query.format(table=table),
-                (key, self._now())
+                (key, self._now()),
             )
             return cursor.fetchone() is not None
 
@@ -366,7 +366,7 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             updated = cursor.execute(
                 self._delta_query.format(table=table, operation=operation),
-                (delta, key)
+                (delta, key),
             )
 
             if not updated:
@@ -401,7 +401,7 @@ class MySQLCache(BaseDatabaseCache):
         if len(key) > 250:
             raise ValueError(
                 "Cache key is longer than the maxmimum 250 characters: {}"
-                .format(key)
+                .format(key),
             )
         return super(MySQLCache, self).validate_key(key)
 
@@ -449,7 +449,7 @@ class MySQLCache(BaseDatabaseCache):
 
         raise ValueError(
             "Unknown value_type '{}' read from the cache table."
-            .format(value_type)
+            .format(value_type),
         )
 
     def _maybe_cull(self):
@@ -469,7 +469,7 @@ class MySQLCache(BaseDatabaseCache):
         if self.reverse_key_func is None:
             raise ValueError(
                 "To use the _with_prefix commands with a custom KEY_FUNCTION, "
-                "you need to specify a custom REVERSE_KEY_FUNCTION too."
+                "you need to specify a custom REVERSE_KEY_FUNCTION too.",
             )
 
         if version is None:
@@ -485,7 +485,7 @@ class MySQLCache(BaseDatabaseCache):
                 """SELECT cache_key FROM {table}
                    WHERE cache_key LIKE %s AND
                          expires >= %s""".format(table=table),
-                (prefix, self._now())
+                (prefix, self._now()),
             )
             rows = cursor.fetchall()
             full_keys = {row[0] for row in rows}
@@ -502,7 +502,7 @@ class MySQLCache(BaseDatabaseCache):
         if self.reverse_key_func is None:
             raise ValueError(
                 "To use the _with_prefix commands with a custom KEY_FUNCTION, "
-                "you need to specify a custom REVERSE_KEY_FUNCTION too."
+                "you need to specify a custom REVERSE_KEY_FUNCTION too.",
             )
 
         if version is None:
@@ -520,7 +520,7 @@ class MySQLCache(BaseDatabaseCache):
                    FROM {table}
                    WHERE cache_key LIKE %s AND
                          expires >= %s""".format(table=table),
-                (prefix, self._now())
+                (prefix, self._now()),
             )
             rows = cursor.fetchall()
 
@@ -544,7 +544,7 @@ class MySQLCache(BaseDatabaseCache):
             return cursor.execute(
                 """DELETE FROM {table}
                    WHERE cache_key LIKE %s""".format(table=table),
-                (prefix,)
+                (prefix,),
             )
 
     def cull(self):
@@ -555,7 +555,7 @@ class MySQLCache(BaseDatabaseCache):
             # First, try just deleting expired keys
             num_deleted = cursor.execute(
                 "DELETE FROM {table} WHERE expires < %s".format(table=table),
-                (self._now(),)
+                (self._now(),),
             )
 
             # -1 means "Don't limit size"
@@ -571,7 +571,7 @@ class MySQLCache(BaseDatabaseCache):
             # Now do a key-based cull
             if self._cull_frequency == 0:
                 num_deleted += cursor.execute(
-                    "DELETE FROM {table}".format(table=table)
+                    "DELETE FROM {table}".format(table=table),
                 )
             else:
                 cull_num = num // self._cull_frequency
@@ -579,12 +579,12 @@ class MySQLCache(BaseDatabaseCache):
                     """SELECT cache_key FROM {table}
                        ORDER BY cache_key
                        LIMIT 1 OFFSET %s""".format(table=table),
-                    (cull_num,)
+                    (cull_num,),
                 )
                 max_key = cursor.fetchone()[0]
                 num_deleted += cursor.execute(
                     """DELETE FROM {table}
                        WHERE cache_key < %s""".format(table=table),
-                    (max_key,)
+                    (max_key,),
                 )
             return num_deleted

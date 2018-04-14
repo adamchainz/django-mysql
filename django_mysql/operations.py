@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.db.migrations.operations.base import Operation
@@ -36,7 +36,7 @@ class InstallPlugin(Operation):
                 """SELECT COUNT(*)
                 FROM INFORMATION_SCHEMA.PLUGINS
                 WHERE PLUGIN_NAME LIKE %s""",
-                (self.name,)
+                (self.name,),
             )
             count = cursor.fetchone()[0]
             return (count > 0)
@@ -96,7 +96,7 @@ class AlterStorageEngine(Operation):
                        WHERE TABLE_SCHEMA=DATABASE() AND
                              TABLE_NAME = %s AND
                              ENGINE = %s""",
-                    (new_model._meta.db_table, engine)
+                    (new_model._meta.db_table, engine),
                 )
                 uses_engine_already = (cursor.fetchone()[0] > 0)
 
@@ -106,8 +106,8 @@ class AlterStorageEngine(Operation):
             schema_editor.execute(
                 "ALTER TABLE {table} ENGINE={engine}".format(
                     table=qn(new_model._meta.db_table),
-                    engine=engine
-                )
+                    engine=engine,
+                ),
             )
 
     def database_backwards(self, app_label, schema_editor, from_state,
@@ -134,5 +134,5 @@ class AlterStorageEngine(Operation):
                .format(
                    model=self.name,
                    from_clause=from_clause,
-                   engine=self.engine
+                   engine=self.engine,
                )

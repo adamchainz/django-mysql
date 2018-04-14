@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -266,7 +266,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
                 'a': 'b',
                 'c': 1,
                 '"': 'awkward',
-                '\n': 'super awkward'
+                '\n': 'super awkward',
             }),
             JSONModel.objects.create(attrs={
                 'a': 'b',
@@ -281,7 +281,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
             JSONModel.objects.create(attrs={
                 'k': True,
                 'l': False,
-                '\\': 'awkward'
+                '\\': 'awkward',
             }),
         ]
 
@@ -463,7 +463,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
     def test_usage_in_subquery(self):
         assert (
             list(JSONModel.objects.filter(
-                id__in=JSONModel.objects.filter(attrs__c=1)
+                id__in=JSONModel.objects.filter(attrs__c=1),
             )) ==
             [self.objs[1], self.objs[2]]
         )

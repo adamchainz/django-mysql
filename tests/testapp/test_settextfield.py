@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -103,13 +103,13 @@ class TestSaveLoad(TestCase):
             list(BigCharSetModel.objects.filter(**{lname: {"a", "b"}}))
 
         both = BigCharSetModel.objects.filter(
-            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
+            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"}),
         )
         assert both.count() == 1
         assert both[0] == mymodel
 
         either = BigCharSetModel.objects.filter(
-            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
+            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"}),
         )
         assert either.count() == 1
 
@@ -174,18 +174,18 @@ class TestSaveLoad(TestCase):
             list(BigIntSetModel.objects.filter(field__contains={1, 2}))
 
         ones_and_twos = BigIntSetModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=2)
+            Q(field__contains=1) & Q(field__contains=2),
         )
         assert ones_and_twos.count() == 1
         assert ones_and_twos[0] == onetwo
 
         ones_and_threes = BigIntSetModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=3)
+            Q(field__contains=1) & Q(field__contains=3),
         )
         assert ones_and_threes.count() == 0
 
         ones_or_threes = BigIntSetModel.objects.filter(
-            Q(field__contains=1) | Q(field__contains=3)
+            Q(field__contains=1) | Q(field__contains=3),
         )
         assert ones_or_threes.count() == 1
 
@@ -233,7 +233,7 @@ class TestCheck(SimpleTestCase):
     def test_invalid_base_fields(self):
         class InvalidSetTextModel2(TemporaryModel):
             field = SetTextField(
-                models.ForeignKey('testapp.Author', on_delete=models.CASCADE)
+                models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
             )
 
         errors = InvalidSetTextModel2.check(actually_check=True)
