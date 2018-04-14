@@ -135,6 +135,25 @@ class DynamicModel(Model):
             },
         },
     )
+    @classmethod
+    def check(cls, **kwargs):
+        # Disable the checks on MySQL so that checks tests don't fail
+        if not (
+            connection_is_mariadb(connection) and
+            connection.mysql_version >= (10, 0, 1)
+        ):
+            return []
+        return super(DynamicModel, cls).check(**kwargs)
+
+    def __unicode__(self):
+        return ",".join(
+            '{}:{}'.format(key, value)
+            for key, value in six.iteritems(self.attrs)
+        )
+
+
+class SpeclessDynamicModel(Model):
+    attrs = DynamicField()
 
     @classmethod
     def check(cls, **kwargs):

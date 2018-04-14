@@ -17,7 +17,7 @@ from django.utils import six
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
-from testapp.models import DynamicModel, TemporaryModel
+from testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
 from testapp.utils import requiresPython2
 
 try:
@@ -91,6 +91,9 @@ class TestSaveLoad(DynColTestCase):
 
 class SpecTests(DynColTestCase):
 
+    def test_spec_empty(self):
+        DynamicField.validate_spec({}, {})  # no errors
+
     def test_spec_dict_type(self):
         DynamicField.validate_spec(
             {'a': dict},
@@ -128,9 +131,8 @@ class SpecTests(DynColTestCase):
 
 class DumbTransform(Transform):
     """
-    Used to test existing transform behaviour - by default in Django there are
-    no transforms on BinaryField.
-    Really dumb, returns the string 'dumb' always
+    Used to test existing transform behaviour. Really dumb, returns the string
+    'dumb' always.
     """
     lookup_name = 'dumb'
     output_field = CharField()
@@ -321,6 +323,23 @@ class QueryTests(DynColTestCase):
                 attrs__nesty__level2__startswith='chi',
             )) ==
             [self.objs[4]]
+        )
+
+
+class SpeclessQueryTests(DynColTestCase):
+    def setUp(self):
+        super(SpeclessQueryTests, self).setUp()
+        objs = [
+            SpeclessDynamicModel(attrs={'a': 'b'}),
+            SpeclessDynamicModel(attrs={'a': 'c'}),
+        ]
+        SpeclessDynamicModel.objects.bulk_create(objs)
+        self.objs = list(SpeclessDynamicModel.objects.all().order_by('id'))
+
+    def test_simple(self):
+        assert (
+            list(SpeclessDynamicModel.objects.filter(attrs__a_CHAR='b')) ==
+            [self.objs[0]]
         )
 
 
