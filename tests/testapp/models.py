@@ -135,6 +135,7 @@ class DynamicModel(Model):
             },
         },
     )
+
     @classmethod
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
