@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.apps import AppConfig
@@ -25,7 +25,7 @@ class MySQLConfig(AppConfig):
     def add_lookups(self):
         from django.db.models import CharField, TextField
         from django_mysql.models.lookups import (
-            CaseSensitiveExact, Soundex, SoundsLike
+            CaseSensitiveExact, Soundex, SoundsLike,
         )
 
         CharField.register_lookup(CaseSensitiveExact)

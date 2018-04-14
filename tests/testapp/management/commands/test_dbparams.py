@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from unittest import mock, skipIf
@@ -17,7 +17,7 @@ from django.utils.six.moves import StringIO
 command_connections = 'django_mysql.management.commands.dbparams.connections'
 
 sqlite = ConnectionHandler({
-    'default': {'ENGINE': 'django.db.backends.sqlite3'}
+    'default': {'ENGINE': 'django.db.backends.sqlite3'},
 })
 
 full_db = ConnectionHandler({'default': {
@@ -29,8 +29,8 @@ full_db = ConnectionHandler({'default': {
     'PORT': '12345',
     'OPTIONS': {
         'read_default_file': '/tmp/defaults.cnf',
-        'ssl': {'ca': '/tmp/mysql.cert'}
-    }
+        'ssl': {'ca': '/tmp/mysql.cert'},
+    },
 }})
 
 socket_db = ConnectionHandler({'default': {

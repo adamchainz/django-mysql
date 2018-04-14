@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import operator
@@ -25,7 +25,7 @@ from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
     StopWatch, WeightedAverageRate, format_duration, have_program,
-    noop_context, settings_to_cmd_args
+    noop_context, settings_to_cmd_args,
 )
 
 
@@ -35,7 +35,7 @@ def requires_query_rewrite(func):
         if not settings.DJANGO_MYSQL_REWRITE_QUERIES:
             raise RuntimeError(
                 "You need to set DJANGO_MYSQL_REWRITE_QUERIES = True in your "
-                "settings to use query hints."
+                "settings to use query hints.",
             )
         return func(*args, **kwargs)
     return wrapper
@@ -51,7 +51,7 @@ class QuerySetMixin(object):
         clone = super(QuerySetMixin, self)._clone(*args, **kwargs)
 
         clone._count_tries_approx = copy(
-            getattr(self, '_count_tries_approx', False)
+            getattr(self, '_count_tries_approx', False),
         )
 
         if hasattr(self, '_found_rows'):
@@ -150,12 +150,12 @@ class QuerySetMixin(object):
     def found_rows(self):
         if not hasattr(self, '_found_rows'):
             raise ValueError(
-                "found_rows can only be used if you call sql_calc_found_rows()"
+                "found_rows can only be used if you call sql_calc_found_rows()",
             )
         if self._found_rows is None:
             raise RuntimeError(
                 "A QuerySet with sql_calc_found_rows must be iterated before "
-                "found_rows can be accessed"
+                "found_rows can be accessed",
             )
         return self._found_rows
 
@@ -165,7 +165,7 @@ class QuerySetMixin(object):
             getattr(self, '_found_rows', 0) is None
         ):
             raise ValueError(
-                "sql_calc_found_rows() doesn't work with iterator()"
+                "sql_calc_found_rows() doesn't work with iterator()",
             )
         return super(QuerySetMixin, self).iterator()
 
@@ -204,13 +204,13 @@ class QuerySetMixin(object):
             raise ValueError(
                 "{}_index accepts only 'for_' and 'table_name' as keyword "
                 "arguments"
-                .format(hint.lower())
+                .format(hint.lower()),
             )
 
         if hint != 'USE' and not len(index_names):
             raise ValueError(
                 "{}_index requires at least one index name"
-                .format(hint.lower())
+                .format(hint.lower()),
             )
 
         if table_name is None:
@@ -296,7 +296,7 @@ class ApproximateInt(int):
     """
     def __str__(self):
         return _("Approximately %(number)s") % {
-            'number': super(ApproximateInt, self).__str__()
+            'number': super(ApproximateInt, self).__str__(),
         }
 
 
@@ -372,13 +372,13 @@ class SmartChunkedIterator(object):
         if queryset.ordered:
             raise ValueError(
                 "You can't use %s on a QuerySet with an ordering." %
-                self.__class__.__name__
+                self.__class__.__name__,
             )
 
         if queryset.query.low_mark or queryset.query.high_mark:
             raise ValueError(
                 "You can't use %s on a sliced QuerySet." %
-                self.__class__.__name__
+                self.__class__.__name__,
             )
 
         pk = queryset.model._meta.pk
@@ -393,7 +393,7 @@ class SmartChunkedIterator(object):
             # ALLOWED_PK_FIELD_CLASSES
             raise ValueError(
                 "You can't use %s on a model with a non-integer primary key." %
-                self.__class__.__name__
+                self.__class__.__name__,
             )
 
         return queryset.order_by('pk')
@@ -523,7 +523,7 @@ class SmartChunkedIterator(object):
                 n_remaining = self.total - self.objects_done
                 s_remaining = max(0, int(n_remaining // self.rate.avg_rate))
                 report += ', {} remaining'.format(
-                    format_duration(s_remaining)
+                    format_duration(s_remaining),
                 )
 
         # Add spaces to avoid problem with reverse iteration, see #177.
@@ -548,8 +548,8 @@ class SmartChunkedIterator(object):
             "\nFinished! Iterated over {n} object{s} in {duration}.\n".format(
                 n=self.objects_done,
                 s='s' if self.objects_done != 1 else '',
-                duration=format_duration(total_time)
-            )
+                duration=format_duration(total_time),
+            ),
         )
 
     @cached_property
@@ -589,7 +589,7 @@ def approx_count(queryset):
                WHERE TABLE_SCHEMA = DATABASE() AND
                      TABLE_NAME = %s
             """,
-            (table_name,)
+            (table_name,),
         )
         # N.B. when we support more complex QuerySets they should be estimated
         # with 'EXPLAIN SELECT'
@@ -642,7 +642,7 @@ def pt_visual_explain(queryset, display=True):
     visual_explain = subprocess.Popen(
         ['pt-visual-explain', '-'],
         stdin=mysql.stdout,
-        stdout=subprocess.PIPE
+        stdout=subprocess.PIPE,
     )
     mysql.stdout.close()
     explanation = visual_explain.communicate()[0].decode(encoding="utf-8")

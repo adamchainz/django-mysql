@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from collections import OrderedDict
@@ -29,7 +29,7 @@ class Lock(object):
     def make_name(cls, db, name):
         return '.'.join((
             connections[db].settings_dict['NAME'],
-            name
+            name,
         ))
 
     @classmethod
@@ -51,7 +51,7 @@ class Lock(object):
         with self.get_cursor() as cursor:
             cursor.execute(
                 "SELECT GET_LOCK(%s, %s)",
-                (self.name, self.acquire_timeout)
+                (self.name, self.acquire_timeout),
             )
             result = cursor.fetchone()[0]
             if result == 1:
@@ -59,7 +59,7 @@ class Lock(object):
             else:
                 raise TimeoutError(
                     "Waited >{} seconds to gain lock".format(
-                        self.acquire_timeout)
+                        self.acquire_timeout),
                 )
 
     def release(self):
@@ -90,7 +90,7 @@ class Lock(object):
                    FROM INFORMATION_SCHEMA.METADATA_LOCK_INFO
                    WHERE TABLE_SCHEMA LIKE %s AND
                          LOCK_TYPE = 'User Lock'""",
-                (prefix + '%',)
+                (prefix + '%',),
             )
             return {
                 cls.unmake_name(using, row[0]): row[1]

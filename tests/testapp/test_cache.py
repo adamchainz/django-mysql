@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import imp
@@ -17,7 +17,7 @@ from django.db import IntegrityError, OperationalError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
-    FetchFromCacheMiddleware, UpdateCacheMiddleware
+    FetchFromCacheMiddleware, UpdateCacheMiddleware,
 )
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
@@ -122,7 +122,7 @@ def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
             BACKEND=BACKEND,
             LOCATION=LOCATION,
             **kwargs
-        )
+        ),
     )
 
 
@@ -305,7 +305,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             'ascii': 'ascii_value',
             'unicode_ascii': 'Iñtërnâtiônàlizætiøn1',
             'Iñtërnâtiônàlizætiøn': 'Iñtërnâtiônàlizætiøn2',
-            'ascii2': {'x': 1}
+            'ascii2': {'x': 1},
         }
         # Test `set`
         for (key, value) in stuff.items():
@@ -876,7 +876,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         with self.assertNumQueries(1):
             caches['no_cull'].set_many(
                 {"key1": "spam", "key2": "egg", "key3": "spam", "key4": "ham"},
-                1
+                1,
             )
         v = cache.get("key1")
         assert v == "spam"
@@ -1065,7 +1065,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.set('mykey', 123)
         with connection.cursor() as cursor:
             cursor.execute(
-                "UPDATE `%s` SET value_type = '?'" % self.table_name
+                "UPDATE `%s` SET value_type = '?'" % self.table_name,
             )
 
         with pytest.raises(ValueError):
@@ -1262,7 +1262,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             call_command('mysql_cache_migration', 'nonexistent', stdout=out)
 
     @override_cache_settings(
-        BACKEND='django.core.cache.backends.dummy.DummyCache'
+        BACKEND='django.core.cache.backends.dummy.DummyCache',
     )
     def test_mysql_cache_migration_no_mysql_caches(self):
         err = StringIO()
@@ -1369,6 +1369,6 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
                 """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
                    WHERE TABLE_SCHEMA = DATABASE() AND
                          TABLE_NAME = %s""",
-                (table_name,)
+                (table_name,),
             )
             return bool(cursor.fetchone()[0])

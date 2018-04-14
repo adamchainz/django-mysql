@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import sys
@@ -47,7 +47,7 @@ def column_type(table_name, column_name):
             """SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND
                      COLUMN_NAME = %s""",
-            (table_name, column_name)
+            (table_name, column_name),
         )
         return cursor.fetchone()[0]
 
@@ -107,6 +107,6 @@ def fetchall_dicts(cursor):
     rows = []
     for row in cursor.fetchall():
         rows.append(
-            dict(zip(columns, row))
+            dict(zip(columns, row)),
         )
     return rows

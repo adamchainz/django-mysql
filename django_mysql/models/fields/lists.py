@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.core import checks
@@ -40,8 +40,8 @@ class ListFieldMixin(object):
                     'Base field for list must be a CharField or IntegerField.',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E005'
-                )
+                    id='django_mysql.E005',
+                ),
             )
             return errors
 
@@ -57,15 +57,15 @@ class ListFieldMixin(object):
                     'Base field for list has errors:\n    %s' % messages,
                     hint=None,
                     obj=self,
-                    id='django_mysql.E004'
-                )
+                    id='django_mysql.E004',
+                ),
             )
         return errors
 
     @property
     def description(self):
         return _('List of %(base_description)s') % {
-            'base_description': self.base_field.description
+            'base_description': self.base_field.description,
         }
 
     def set_attributes_from_name(self, name):
@@ -77,7 +77,7 @@ class ListFieldMixin(object):
 
         bad_paths = (
             'django_mysql.models.fields.lists.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.' + self.__class__.__name__,
         )
         if path in bad_paths:
             path = 'django_mysql.models.' + self.__class__.__name__
@@ -116,13 +116,13 @@ class ListFieldMixin(object):
                     raise ValueError(
                         "List members in {klass} {name} cannot contain commas"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
                 elif not len(v):
                     raise ValueError(
                         "The empty string cannot be stored in {klass} {name}"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
             return ','.join(value)
         return value
@@ -192,8 +192,8 @@ class ListCharField(ListFieldMixin, CharField):
                             self.max_length),
                         hint=None,
                         obj=self,
-                        id='django_mysql.E006'
-                    )
+                        id='django_mysql.E006',
+                    ),
                 )
         return errors
 

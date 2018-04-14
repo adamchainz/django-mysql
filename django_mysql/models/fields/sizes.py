@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.core import checks
@@ -20,8 +20,8 @@ class SizedBinaryField(BinaryField):
                     'size_class must be 1, 2, 3, or 4',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E007'
-                )
+                    id='django_mysql.E007',
+                ),
             )
         return errors
 
@@ -62,8 +62,8 @@ class SizedTextField(TextField):
                     'size_class must be 1, 2, 3, or 4',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E008'
-                )
+                    id='django_mysql.E008',
+                ),
             )
         return errors
 

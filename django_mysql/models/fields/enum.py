@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.db.models import CharField
@@ -16,7 +16,7 @@ class EnumField(CharField):
     def __init__(self, *args, **kwargs):
         if 'choices' not in kwargs or len(kwargs['choices']) == 0:
             raise ValueError(
-                '"choices" argument must be be a non-empty list'
+                '"choices" argument must be be a non-empty list',
             )
 
         choices = []
@@ -30,7 +30,7 @@ class EnumField(CharField):
                     'Invalid choice "{choice}". '
                     'Expected string or tuple as elements in choices'.format(
                         choice=choice,
-                    )
+                    ),
                 )
 
         kwargs['choices'] = choices

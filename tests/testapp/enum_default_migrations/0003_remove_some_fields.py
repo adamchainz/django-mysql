@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.db import migrations
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name='EnumDefaultModel',
             name='field',
             field=EnumField(choices=[
-                ('lion', 'Lion'), ('tiger', 'Tiger'), 'oh my!'
-            ])
+                ('lion', 'Lion'), ('tiger', 'Tiger'), 'oh my!',
+            ]),
         ),
     ]

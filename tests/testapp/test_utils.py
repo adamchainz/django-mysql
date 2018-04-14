@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from time import sleep
@@ -14,7 +14,7 @@ from django.utils import six
 from django_mysql.utils import (
     PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache,
     connection_is_mariadb, format_duration, have_program, index_name,
-    pt_fingerprint
+    pt_fingerprint,
 )
 from testapp.models import Author, AuthorMultiIndex
 

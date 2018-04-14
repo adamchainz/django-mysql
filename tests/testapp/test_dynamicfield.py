@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -65,7 +65,7 @@ class TestSaveLoad(DynColTestCase):
 
     def test_create(self):
         DynamicModel.objects.create(attrs={
-            'a': 'value'
+            'a': 'value',
         })
         s = DynamicModel.objects.get()
         assert s.attrs == {'a': 'value'}
@@ -94,7 +94,7 @@ class SpecTests(DynColTestCase):
     def test_spec_dict_type(self):
         DynamicField.validate_spec(
             {'a': dict},
-            {'a': {'this': 'that'}}
+            {'a': {'this': 'that'}},
         )  # no errors
 
     def test_illegal_int(self):
@@ -161,8 +161,8 @@ class QueryTests(DynColTestCase):
                 'str_underscorey': "strvalue2",
                 'timey': time(14, 15, 16),
                 'nesty': {
-                    'level2': 'chirp'
-                }
+                    'level2': 'chirp',
+                },
             }),
         ]
         DynamicModel.objects.bulk_create(self.objs)
@@ -201,7 +201,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_datey_DATE(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__datey_DATE=date(2001, 1, 4)
+                attrs__datey_DATE=date(2001, 1, 4),
             )) ==
             [self.objs[4]]
         )
@@ -209,7 +209,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_datetimey(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16)
+                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16),
             )) ==
             [self.objs[4]]
         )
@@ -223,7 +223,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_datetimey_DATETIME(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16)
+                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16),
             )) ==
             [self.objs[4]]
         )
@@ -288,7 +288,7 @@ class QueryTests(DynColTestCase):
         # Check that underscores in key names are parsed fine
         assert (
             list(DynamicModel.objects.filter(
-                attrs__str_underscorey_CHAR="strvalue2"
+                attrs__str_underscorey_CHAR="strvalue2",
             )) ==
             [self.objs[4]]
         )
@@ -302,7 +302,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_timey_TIME(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__timey_TIME=time(14, 15, 16)
+                attrs__timey_TIME=time(14, 15, 16),
             )) ==
             [self.objs[4]]
         )
@@ -310,7 +310,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_nesty__level2(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__nesty__level2='chirp'
+                attrs__nesty__level2='chirp',
             )) ==
             [self.objs[4]]
         )
@@ -318,7 +318,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_nesty__level2__startswith(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__nesty__level2__startswith='chi'
+                attrs__nesty__level2__startswith='chi',
             )) ==
             [self.objs[4]]
         )
@@ -394,7 +394,7 @@ class TestCheck(DynColTestCase):
     def test_spec_key_not_valid(self):
         class InvalidDynamicModel2(TemporaryModel):
             field = DynamicField(spec={
-                2.0: six.text_type
+                2.0: six.text_type,
             })
 
         errors = InvalidDynamicModel2.check(actually_check=True)
@@ -425,8 +425,8 @@ class TestCheck(DynColTestCase):
         class InvalidDynamicModel4(TemporaryModel):
             field = DynamicField(spec={
                 'l1': {
-                    'bad': tuple
-                }
+                    'bad': tuple,
+                },
             })
 
         errors = InvalidDynamicModel4.check(actually_check=True)

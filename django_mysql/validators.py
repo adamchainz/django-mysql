@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.core.validators import MaxLengthValidator, MinLengthValidator
@@ -15,7 +15,7 @@ class ListMaxLengthValidator(MaxLengthValidator):
         'List contains %(show_value)d items, '
         'it should contain no more than %(limit_value)d.',
 
-        'limit_value'
+        'limit_value',
     )
 
 
@@ -27,7 +27,7 @@ class ListMinLengthValidator(MinLengthValidator):
         'List contains %(show_value)d items, '
         'it should contain no fewer than %(limit_value)d.',
 
-        'limit_value'
+        'limit_value',
     )
 
 
@@ -39,7 +39,7 @@ class SetMaxLengthValidator(MaxLengthValidator):
         'Set contains %(show_value)d items, '
         'it should contain no more than %(limit_value)d.',
 
-        'limit_value'
+        'limit_value',
     )
 
 
@@ -51,5 +51,5 @@ class SetMinLengthValidator(MinLengthValidator):
         'Set contains %(show_value)d items, '
         'it should contain no fewer than %(limit_value)d.',
 
-        'limit_value'
+        'limit_value',
     )

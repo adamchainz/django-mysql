@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import pickle
@@ -17,12 +17,12 @@ from django.test.utils import override_settings
 from django.utils import six
 
 from django_mysql.models import (
-    ApproximateInt, SmartIterator, add_QuerySetMixin
+    ApproximateInt, SmartIterator, add_QuerySetMixin,
 )
 from django_mysql.utils import have_program, index_name
 from testapp.models import (
     Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra,
-    VanillaAuthor
+    VanillaAuthor,
 )
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
@@ -78,7 +78,7 @@ class ApproximateCountTests(TestCase):
 
         approx_count2 = Author.objects.approx_count(
             min_size=1,
-            return_approx_int=False
+            return_approx_int=False,
         )
         text = Template('{{ var }}').render(Context({'var': approx_count2}))
         assert not text.startswith('Approximately ')
@@ -130,7 +130,7 @@ class QueryHintTests(TestCase):
                                .label("test_label_twice")
                                .all())
         assert cap.query.startswith(
-            "SELECT /*QueryHintTests*/ /*test_label_twice*/ "
+            "SELECT /*QueryHintTests*/ /*test_label_twice*/ ",
         )
 
     def test_label_star(self):
@@ -154,7 +154,7 @@ class QueryHintTests(TestCase):
                                .straight_join()
                                .all())
         assert cap.query.startswith(
-            "SELECT /*QueryHintTests.test_label_and*/ STRAIGHT_JOIN "
+            "SELECT /*QueryHintTests.test_label_and*/ STRAIGHT_JOIN ",
         )
 
     def test_straight_join(self):
@@ -212,7 +212,7 @@ class QueryHintTests(TestCase):
                                .sql_big_result()
                                .sql_buffer_result())
         assert cap.query.startswith(
-            "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT SQL_CACHE "
+            "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT SQL_CACHE ",
         )
 
     def test_complex_query_1(self):
@@ -595,7 +595,7 @@ class SmartIteratorTests(TestCase):
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             seen.extend(
                 Author.objects.filter(id__gte=start_pk, id__lt=end_pk)
-                              .values_list('id', flat=True)
+                              .values_list('id', flat=True),
             )
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
@@ -643,7 +643,7 @@ class SmartIteratorTests(TestCase):
                 r"^Author SmartChunkedIterator processed \d+/10 objects "
                 r"\(\d+\.\d+%\) in \d+ chunks"
                 r"(; highest pk so far \d+(, [\dhms]+ remaining)?)?$",
-                report
+                report,
             )
 
         assert re.match(
@@ -669,7 +669,7 @@ class SmartIteratorTests(TestCase):
                 r"^Author SmartChunkedIterator processed \d+/11 objects "
                 r"\(\d+\.\d+%\) in \d+ chunks"
                 r"(; lowest pk so far \d+(, [\dhms]+ remaining)?)?( )*$",
-                report
+                report,
             )
 
         assert re.match(
@@ -691,7 +691,7 @@ class SmartIteratorTests(TestCase):
                 r"^Author SmartChunkedIterator processed \d+/4 objects "
                 r"\(\d+\.\d+%\) in \d+ chunks"
                 r"(; highest pk so far \d+(, [\dhms]+ remaining)?)?$",
-                report
+                report,
             )
 
         assert re.match(
@@ -716,7 +716,7 @@ class SmartIteratorTests(TestCase):
                 # aren't fetched into python
                 r"Author SmartChunkedIterator processed (0|\?\?\?)/1 objects "
                 r"\(\d+\.\d+%\) in \d+ chunks(; highest pk so far \d+)?",
-                report
+                report,
             )
 
         assert re.match(

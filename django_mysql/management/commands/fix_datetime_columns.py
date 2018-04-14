@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import django
@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 'alias', metavar='alias', nargs='?',
                 default=DEFAULT_DB_ALIAS,
                 help='Specify the database connection alias to output '
-                     'parameters for.'
+                     'parameters for.',
             )
 
     def handle(self, *args, **options):
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                   DATETIME_PRECISION = 0
             ORDER BY COLUMN_NAME
             """,
-            (table_name,)
+            (table_name,),
         )
         bad_column_names = [r[0] for r in cursor.fetchall()]
         if not bad_column_names:
@@ -97,7 +97,7 @@ class Command(BaseCommand):
 
             new_column_spec = column_spec.replace('datetime', 'datetime(6)', 1)
             modify_columns.append(
-                'MODIFY COLUMN {} {}'.format(qn(column_name), new_column_spec)
+                'MODIFY COLUMN {} {}'.format(qn(column_name), new_column_spec),
             )
 
         return 'ALTER TABLE {table_name}\n    {columns};'.format(

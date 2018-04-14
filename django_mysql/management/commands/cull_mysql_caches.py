@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import django
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         def add_arguments(self, parser):
             parser.add_argument(
                 'aliases', metavar='aliases', nargs='*',
-                help='Specify the cache alias(es) to cull.'
+                help='Specify the cache alias(es) to cull.',
             )
 
     def handle(self, *args, **options):
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stdout.write(
                     "Deleting from cache '{}'... ".format(alias),
-                    ending=''
+                    ending='',
                 )
             num_deleted = cache.cull()
             if verbosity >= 1:

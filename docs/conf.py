@@ -252,7 +252,7 @@ latex_documents = [
 man_pages = [
     ('index', 'django-mysql',
      u'Django-MySQL Documentation',
-     [u'Adam Johnson'], 1)
+     [u'Adam Johnson'], 1),
 ]
 
 # If true, show URL addresses after external links.
