@@ -150,7 +150,8 @@ class QuerySetMixin(object):
     def found_rows(self):
         if not hasattr(self, '_found_rows'):
             raise ValueError(
-                "found_rows can only be used if you call sql_calc_found_rows()",
+                'found_rows can only be used if you call '
+                'sql_calc_found_rows()',
             )
         if self._found_rows is None:
             raise RuntimeError(

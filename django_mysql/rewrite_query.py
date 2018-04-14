@@ -76,12 +76,12 @@ def rewrite_query(sql):
 # A translation of the grammar for SELECT - all the possible hints that can
 # appear afterwards
 SELECT_HINTS = OrderedDict([
-    ('distinctness', ('ALL', 'DISTINCT', 'DISTINCTROW',)),
+    ('distinctness', ('ALL', 'DISTINCT', 'DISTINCTROW')),
     ('priority', ('HIGH_PRIORITY',)),
     ('join_order', ('STRAIGHT_JOIN',)),
-    ('result_size', ('SQL_SMALL_RESULT', 'SQL_BIG_RESULT',)),
+    ('result_size', ('SQL_SMALL_RESULT', 'SQL_BIG_RESULT')),
     ('buffer_result', ('SQL_BUFFER_RESULT',)),
-    ('query_cache', ('SQL_CACHE', 'SQL_NO_CACHE',)),
+    ('query_cache', ('SQL_CACHE', 'SQL_NO_CACHE')),
     ('found_rows', ('SQL_CALC_FOUND_ROWS',)),
 ])
 

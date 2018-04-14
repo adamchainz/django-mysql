@@ -46,7 +46,7 @@ class Command(BaseCommand):
             default=False,
             help='Output a DSN for e.g. percona tools, e.g. '
                  'pt-online-schema-change $(./manage.py dbparams --dsn)',
-        ),
+        )
 
     def handle(self, *args, **options):
         if django.VERSION[:2] >= (1, 10):

@@ -125,7 +125,8 @@ class JSONField(Field):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
             'range', 'in', 'iexact', 'icontains', 'startswith',
-            'istartswith', 'endswith', 'iendswith', 'search', 'regex', 'iregex',
+            'istartswith', 'endswith', 'iendswith', 'search', 'regex',
+            'iregex',
         }:
             raise NotImplementedError(
                 "Lookup '{}' doesn't work with JSONField".format(lookup_name),
