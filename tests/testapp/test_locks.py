@@ -6,7 +6,7 @@ from __future__ import (
 from threading import Thread
 
 import pytest
-from django.db import OperationalError, connection
+from django.db import OperationalError, connection, connections
 from django.db.transaction import TransactionManagementError, atomic
 from django.test import TestCase, TransactionTestCase
 from django.utils.six.moves import queue
@@ -232,54 +232,64 @@ class TableLockTests(TransactionTestCase):
         Customer.objects.using('other').all().delete()
         super(TableLockTests, self).tearDown()
 
+    def is_locked(self, connection_name, table_name):
+        conn = connections[connection_name]
+        with conn.cursor() as cursor:
+            cursor.execute(
+                '''
+                    SHOW OPEN TABLES FROM {} LIKE %s
+                '''.format(conn.settings_dict['NAME']),
+                [table_name],
+            )
+            rows = cursor.fetchall()
+            assert len(rows) == 1
+            return rows[0][2] > 0
+
     def test_write(self):
         Alphabet.objects.create(a=12345)
+        assert not self.is_locked('default', Alphabet._meta.db_table)
+
         with TableLock(write=[Alphabet]):
+            assert self.is_locked('default', Alphabet._meta.db_table)
             assert Alphabet.objects.count() == 1
 
             Alphabet.objects.all().delete()
             assert Alphabet.objects.count() == 0
 
+        assert not self.is_locked('default', Alphabet._meta.db_table)
         assert Alphabet.objects.count() == 0
 
     def test_write_with_table_name(self):
-        Alphabet.objects.create(a=71718)
+        assert not self.is_locked('default', Alphabet._meta.db_table)
         with TableLock(write=[Alphabet._meta.db_table]):
-            assert Alphabet.objects.count() == 1
-
-            Alphabet.objects.all().delete()
-            assert Alphabet.objects.count() == 0
-
-        assert Alphabet.objects.count() == 0
+            assert self.is_locked('default', Alphabet._meta.db_table)
 
     def test_write_with_using(self):
         Alphabet.objects.using('other').create(a=878787)
+        assert not self.is_locked('other', Alphabet._meta.db_table)
 
         with TableLock(write=[Alphabet], using='other'):
+            assert self.is_locked('other', Alphabet._meta.db_table)
             assert Alphabet.objects.using('other').count() == 1
 
             Alphabet.objects.using('other').all().delete()
             assert Alphabet.objects.using('other').count() == 0
 
+        assert not self.is_locked('other', Alphabet._meta.db_table)
         assert Alphabet.objects.using('other').count() == 0
-
-    def test_write_twice(self):
-        with TableLock(write=[Alphabet]):
-            Alphabet.objects.create(a=1)
-
-        with TableLock(write=[Alphabet]):
-            Alphabet.objects.create(a=2)
 
     def test_write_fails_touching_other_table(self):
         with pytest.raises(OperationalError) as excinfo:
             with TableLock(write=[Alphabet]):
                 Customer.objects.create(name="Lizzy")
 
-        assert "was not locked with LOCK TABLES" in str(excinfo.value)
+        assert excinfo.value.args[0] == 1100  # ER_TABLE_NOT_LOCKED
 
     def test_read_and_write(self):
         Customer.objects.create(name="Fred")
         with TableLock(read=[Customer], write=[Alphabet]):
+            assert self.is_locked('default', Alphabet._meta.db_table)
+            assert self.is_locked('default', Customer._meta.db_table)
             ab = Alphabet.objects.create(a=Customer.objects.count())
             assert ab.a == 1
 
@@ -325,10 +335,10 @@ class TableLockTests(TransactionTestCase):
             with pytest.raises(OperationalError) as excinfo:
                 Alphabet.objects.update(a=2)
 
-            assert (
-                "was locked with a READ lock and can't be updated" in
-                str(excinfo.value)
-            )
+        assert (
+            "was locked with a READ lock and can't be updated" in
+            str(excinfo.value)
+        )
 
     def test_fails_with_abstract_model(self):
         with pytest.raises(ValueError) as excinfo:
@@ -355,6 +365,7 @@ class TableLockTests(TransactionTestCase):
         TitledAgedCustomer.objects.create(title="Sir", name="Knighty")
 
         with TableLock(write=[TitledAgedCustomer]):
+            assert self.is_locked('default', TitledAgedCustomer._meta.db_table)
             assert Customer.objects.count() == 1
 
             TitledAgedCustomer.objects.create(name="Grandpa Potts", age=99)
@@ -379,33 +390,10 @@ class TableLockTests(TransactionTestCase):
                 Customer.objects.all().delete()
         assert "was not locked with LOCK TABLES" in str(excinfo.value)
 
-    def test_read_and_write_with_threads(self):
-        to_me = queue.Queue()
-
-        def get_read_lock():
-            with TableLock(read=[Alphabet]):
-                to_me.put("Reading")
-
-        try:
-            # Thread can obtain lock alone
-            other_thread = Thread(target=get_read_lock)
-            other_thread.start()
-            assert to_me.get() == "Reading"
-
-            with TableLock(write=[Alphabet]):
-                other_thread = Thread(target=get_read_lock)
-                other_thread.start()
-
-                # Doesn't lock now
-                with pytest.raises(queue.Empty):
-                    to_me.get(timeout=0.2)
-
-            # Gets now
-            assert to_me.get() == "Reading"
-        finally:
-            other_thread.join()
-
     def test_acquire_release(self):
         my_lock = TableLock(read=[Alphabet])
+        assert not self.is_locked('default', Alphabet._meta.db_table)
         my_lock.acquire()
+        assert self.is_locked('default', Alphabet._meta.db_table)
         my_lock.release()
+        assert not self.is_locked('default', Alphabet._meta.db_table)
