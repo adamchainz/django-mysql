@@ -387,6 +387,8 @@ class HandlerStandaloneTests(TestCase):
 
 class HandlerMultiDBTests(TestCase):
 
+    multi_db = True
+
     def setUp(self):
         super(HandlerMultiDBTests, self).setUp()
         self.jk = Author.objects.using('other').create(name='JK Rowling')

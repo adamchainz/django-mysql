@@ -22,6 +22,8 @@ from testapp.models import (
 
 class LockTests(TestCase):
 
+    multi_db = True
+
     @classmethod
     def setUpClass(cls):
         super(LockTests, cls).setUpClass()

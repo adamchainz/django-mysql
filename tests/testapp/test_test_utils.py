@@ -28,6 +28,8 @@ class OverrideVarsMethodTest(TestCase):
 @override_mysql_variables(SQL_MODE="ANSI")
 class OverrideVarsClassTest(OverrideVarsMethodTest):
 
+    multi_db = True
+
     def test_class_sets_ansi(self):
         self.check_sql_mode("ANSI")
 

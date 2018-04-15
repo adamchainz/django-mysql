@@ -320,6 +320,8 @@ class EncryptionFunctionTests(TestCase):
 
 class InformationFunctionTests(TestCase):
 
+    multi_db = True
+
     def test_last_insert_id(self):
         Alphabet.objects.create(a=7891)
         Alphabet.objects.update(a=LastInsertId('a') + 1)
