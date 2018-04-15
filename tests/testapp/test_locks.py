@@ -253,11 +253,7 @@ class TableLockTests(TransactionTestCase):
         assert Alphabet.objects.count() == 0
 
     def test_write_with_using(self):
-        print(list(Alphabet.objects.values_list('a', flat=True)))
-        print(list(Alphabet.objects.using('other').values_list('a', flat=True)))
-        assert Alphabet.objects.using('other').count() == 0
         Alphabet.objects.using('other').create(a=878787)
-        assert Alphabet.objects.using('other').count() == 1
 
         with TableLock(write=[Alphabet], using='other'):
             assert Alphabet.objects.using('other').count() == 1
