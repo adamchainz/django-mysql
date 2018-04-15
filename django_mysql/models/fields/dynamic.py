@@ -43,9 +43,7 @@ class DynamicField(Field):
         errors.extend(self._check_mariadb_dyncol())
         errors.extend(self._check_mariadb_version())
         errors.extend(self._check_character_set())
-
-        if self.spec is not None:
-            errors.extend(self._check_spec_recursively(self.spec))
+        errors.extend(self._check_spec_recursively(self.spec))
         return errors
 
     def _check_mariadb_dyncol(self):

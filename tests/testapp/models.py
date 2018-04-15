@@ -153,6 +153,26 @@ class DynamicModel(Model):
         )
 
 
+class SpeclessDynamicModel(Model):
+    attrs = DynamicField()
+
+    @classmethod
+    def check(cls, **kwargs):
+        # Disable the checks on MySQL so that checks tests don't fail
+        if not (
+            connection_is_mariadb(connection) and
+            connection.mysql_version >= (10, 0, 1)
+        ):
+            return []
+        return super(SpeclessDynamicModel, cls).check(**kwargs)
+
+    def __unicode__(self):
+        return ",".join(
+            '{}:{}'.format(key, value)
+            for key, value in six.iteritems(self.attrs)
+        )
+
+
 class Author(Model):
     name = CharField(max_length=32, db_index=True)
     tutor = ForeignKey(

@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+* Fixed some crashes from ``DynamicField`` instances without explicit ``spec``
+  definitions.
+
 2.2.1 (2018-04-14)
 ------------------
 
