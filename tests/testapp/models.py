@@ -164,7 +164,7 @@ class SpeclessDynamicModel(Model):
             connection.mysql_version >= (10, 0, 1)
         ):
             return []
-        return super(DynamicModel, cls).check(**kwargs)
+        return super(SpeclessDynamicModel, cls).check(**kwargs)
 
     def __unicode__(self):
         return ",".join(
