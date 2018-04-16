@@ -60,6 +60,8 @@ class Datetime6TestMixin(object):
 
 class FixDatetimeColumnsTests(Datetime6TestMixin, TestCase):
 
+    multi_db = True
+
     def test_nothing_by_default(self):
         assert run_it() == ''
 

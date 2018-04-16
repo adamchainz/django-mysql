@@ -37,6 +37,8 @@ class BaseStatusTests(TestCase):
 
 class GlobalStatusTests(TestCase):
 
+    multi_db = True
+
     def test_get(self):
         running = global_status.get('Threads_running')
         assert running >= 1 and isinstance(running, int)

@@ -161,6 +161,9 @@ class PTFingerprintTests(SimpleTestCase):
 
 
 class IndexNameTests(TestCase):
+
+    multi_db = True
+
     def test_requires_field_names(self):
         with pytest.raises(ValueError) as excinfo:
             index_name(Author)

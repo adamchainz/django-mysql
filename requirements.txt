@@ -33,6 +33,7 @@ pyflakes==1.6.0           # via flake8
 pygments==2.2.0
 pytest-django==3.2.1
 pytest-flake8dir==1.2.0
+pytest-randomly==1.2.3
 pytest-super-check==1.0.0
 pytest==3.5.0
 pytz==2018.4
