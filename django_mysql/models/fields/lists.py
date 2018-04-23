@@ -172,6 +172,7 @@ class ListCharField(ListFieldMixin, CharField):
         has_base_error = any(e.id == 'django_mysql.E004' for e in errors)
         if (
             not has_base_error and
+            self.max_length is not None and
             isinstance(self.base_field, CharField) and
             self.size
         ):

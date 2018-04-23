@@ -10,6 +10,8 @@ Pending
 
 * Fixed some crashes from ``DynamicField`` instances without explicit ``spec``
   definitions.
+* Fixed a crash in system checks for ``ListCharField`` and ``SetCharField``
+  instances missing ``max_length``.
 
 2.2.1 (2018-04-14)
 ------------------
