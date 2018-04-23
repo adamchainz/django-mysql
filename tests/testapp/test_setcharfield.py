@@ -408,6 +408,21 @@ class TestCheck(SimpleTestCase):
         assert errors[0].id == 'django_mysql.E003'
         assert 'Field can overrun' in errors[0].msg
 
+    def test_max_length_missing_doesnt_crash(self):
+        class InvalidSetCharFieldModel4(TemporaryModel):
+            field = SetCharField(
+                models.CharField(max_length=2),
+                size=2,
+            )
+
+        errors = InvalidSetCharFieldModel4.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'fields.E120'
+        assert (
+            errors[0].msg ==
+            "CharFields must define a 'max_length' attribute."
+        )
+
 
 class TestDeconstruct(TestCase):
 
