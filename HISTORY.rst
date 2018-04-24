@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+2.2.2 (2018-04-24)
+------------------
+
 * Fixed some crashes from ``DynamicField`` instances without explicit ``spec``
   definitions.
 * Fixed a crash in system checks for ``ListCharField`` and ``SetCharField``
