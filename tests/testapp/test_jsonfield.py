@@ -265,6 +265,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
             JSONModel.objects.create(attrs={
                 'a': 'b',
                 'c': 1,
+                9001: 9002,
                 '"': 'awkward',
                 '\n': 'super awkward',
             }),
@@ -424,6 +425,12 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         assert (
             list(JSONModel.objects.filter(attrs__a='b')) ==
             [self.objs[1], self.objs[2]]
+        )
+
+    def test_shallow_obj_lookup_number_key(self):
+        assert (
+            list(JSONModel.objects.filter(**{'attrs__"9001"': 9002})) ==
+            [self.objs[1]]
         )
 
     def test_deep_lookup_objs(self):
