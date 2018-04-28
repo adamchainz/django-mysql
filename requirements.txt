@@ -22,7 +22,7 @@ mariadb-dyncol==1.2.1
 mccabe==0.6.1             # via flake8
 mock==2.0.0
 more-itertools==4.1.0     # via pytest
-multilint==2.2.1
+multilint==2.3.0
 mysqlclient==1.3.12
 parameterized==0.6.1
 pbr==4.0.2                # via mock
@@ -35,7 +35,7 @@ pytest-django==3.2.1
 pytest-flake8dir==1.2.0
 pytest-randomly==1.2.3
 pytest-super-check==1.0.0
-pytest==3.5.0
+pytest==3.5.1
 pytz==2018.4
-six==1.11.0               # via mariadb-dyncol, mock, more-itertools, pytest, pytest-flake8dir, pytest-super-check
+six==1.11.0               # via mariadb-dyncol, mock, more-itertools, multilint, pytest, pytest-flake8dir, pytest-super-check
 sqlparse==0.2.4
