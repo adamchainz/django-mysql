@@ -23,9 +23,19 @@ __all__ = ('JSONField',)
 
 
 class JSONField(Field):
+
+    _default_json_encoder = json.JSONEncoder(allow_nan=False)
+    _default_json_decoder = json.JSONDecoder(strict=False)
+
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
             kwargs['default'] = dict
+        self.json_encoder = kwargs.pop('encoder', None)
+        if self.json_encoder is None:
+            self.json_encoder = self._default_json_encoder
+        self.json_decoder = kwargs.pop('decoder', None)
+        if self.json_decoder is None:
+            self.json_decoder = self._default_json_decoder
         super(JSONField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
@@ -101,24 +111,21 @@ class JSONField(Field):
         return KeyTransformFactory(name)
 
     def from_db_value(self, value, expression, connection, context):
-        # Similar to to_python, for Django 1.8+
         if isinstance(value, six.string_types):
-            return json.loads(value, strict=False)
+            return self.json_decoder.decode(value)
         return value
 
     def get_prep_value(self, value):
         if value is not None and not isinstance(value, six.string_types):
             # For some reason this value gets string quoted in Django's SQL
             # compiler...
-
-            # Although json.dumps could serialize NaN, MySQL doesn't.
-            return json.dumps(value, allow_nan=False)
+            return self.json_encoder.encode(value)
 
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared and value is not None:
-            return json.dumps(value, allow_nan=False)
+            return self.json_encoder.encode(value)
         return value
 
     def get_lookup(self, lookup_name):
