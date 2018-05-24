@@ -489,7 +489,7 @@ class TestCheck(JSONFieldTestCase):
 
     def test_mutable_default_dict(self):
         class InvalidJSONModel2(TemporaryModel):
-            field = JSONField(default=[])
+            field = JSONField(default={})
 
         errors = InvalidJSONModel2.check(actually_check=True)
         assert len(errors) == 1
