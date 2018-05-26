@@ -99,7 +99,7 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
        $ mysql -uroot -p -e "CREATE USER '$(whoami)'@localhost; GRANT ALL PRIVILEGES ON *.* TO '$(whoami)'@localhost;"
        # Enter the password for root you set in the apt dialog
 
-   On Max OS X, this can be done with something like:
+   On Mac OS X, this can be done with something like:
 
    .. code-block:: sh
 
