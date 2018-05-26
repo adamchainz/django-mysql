@@ -36,7 +36,7 @@ Pin: origin sfo1.mirrors.digitalocean.com
 Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
     sudo apt-get update
     PACKAGES="mariadb-server mariadb-client"
-    if [[ $DB_VERSION != '10.2' ]]
+    if [[ $DB_VERSION < '10.2' ]]
     then
         PACKAGES="$PACKAGES libmariadbclient-dev"
     fi
