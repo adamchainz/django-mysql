@@ -78,7 +78,7 @@ The following can all be imported from ``django_mysql.status``.
 
         Uses the same type-casting strategy as ``get()``.
 
-    .. method:: wait_until_load_low(thresholds={'Threads_running': 5}, \
+    .. method:: wait_until_load_low(thresholds={'Threads_running': 10}, \
                                     timeout=60.0, sleep=0.1)
 
         A helper method similar to the logic in ``pt-online-schema-change`` for
@@ -89,9 +89,9 @@ The following can all be imported from ``django_mysql.status``.
         :class:`django_mysql.exceptions.TimeoutError` if this does not occur
         within ``timeout`` seconds. Set ``timeout`` to 0 to never time out.
 
-        ``thresholds`` defaults to ``{'Threads_running': 5}``, which is the
+        ``thresholds`` defaults to ``{'Threads_running': 10}``, which is the
         default variable used in ``pt-online-schema-change``, but with a lower
-        threshold of 5 that is more suitable for small servers. You will very
+        threshold of 10 that is more suitable for small servers. You will very
         probably need to tweak it to your server.
 
         You can use this method during large background operations which you

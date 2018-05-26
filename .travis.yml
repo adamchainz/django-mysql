@@ -22,6 +22,7 @@ env:
     - DB=mariadb DB_VERSION=10.0
     - DB=mariadb DB_VERSION=10.1
     - DB=mariadb DB_VERSION=10.2
+    - DB=mariadb DB_VERSION=10.3
 
 before_script: .travis/before_script.sh
 

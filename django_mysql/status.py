@@ -89,7 +89,7 @@ class GlobalStatus(BaseStatus):
 
     def wait_until_load_low(self, thresholds=None, timeout=60.0, sleep=0.1):
         if thresholds is None:
-            thresholds = {'Threads_running': 5}
+            thresholds = {'Threads_running': 10}
 
         start = time.time()
         names = thresholds.keys()
