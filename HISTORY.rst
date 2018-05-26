@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+* Added ``encoder`` and ``decoder`` arguments to ``JSONField`` for customizing
+  the way JSON is encoded and decoded from the database.
+
 2.2.2 (2018-04-24)
 ------------------
 
