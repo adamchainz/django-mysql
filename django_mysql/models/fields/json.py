@@ -99,7 +99,7 @@ class JSONField(Field):
                     'does not support NaN/Infinity in JSON.',
                     obj=self,
                     id='django_mysql.E018',
-                )
+                ),
             )
 
         if self.json_decoder.strict:
@@ -109,7 +109,7 @@ class JSONField(Field):
                     'all the characters that MySQL does.',
                     obj=self,
                     id='django_mysql.E019',
-                )
+                ),
             )
 
         return errors
