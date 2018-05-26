@@ -11,6 +11,8 @@ Pending
 * Added ``encoder`` and ``decoder`` arguments to ``JSONField`` for customizing
   the way JSON is encoded and decoded from the database.
 
+* Added a ``touch`` method to the ``MySQLCache`` to refresh cache keys.
+
 2.2.2 (2018-04-24)
 ------------------
 
