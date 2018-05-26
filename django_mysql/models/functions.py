@@ -323,6 +323,35 @@ class JSONReplace(BaseJSONModifyFunc):
 class JSONSet(BaseJSONModifyFunc):
     function = 'JSON_SET'
 
+# MySQL Merge Functions
+
+class JSONMergePatch(Func):
+    function = 'JSON_MERGE_PATCH'
+
+    def __init__(self,  *expressions):
+        from django_mysql.models.fields import JSONField
+
+        super(Func, self).__init__(*expressions,
+                                   output_field=JSONField())
+
+class JSONMergePreserve(Func):
+    function = 'JSON_MERGE_PRESERVE'
+
+    def __init__(self,  *expressions):
+        from django_mysql.models.fields import JSONField
+
+        super(Func, self).__init__(*expressions,
+                                   output_field=JSONField())
+# MariaDB Merge Function
+
+class JSONMerge(Func):
+    function = 'JSON_MERGE'
+
+    def __init__(self,  *expressions):
+        from django_mysql.models.fields import JSONField
+
+        super(Func, self).__init__(*expressions,
+                                   output_field=JSONField())
 
 # MariaDB Regexp Functions
 
