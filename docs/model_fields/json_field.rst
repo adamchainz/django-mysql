@@ -295,4 +295,3 @@ For example:
         'smelliness': 5,
     })
     [<ShopItem: Feta>]
-g
