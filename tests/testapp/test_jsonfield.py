@@ -4,10 +4,12 @@ from __future__ import (
 )
 
 import json
+from decimal import Decimal
 from unittest import SkipTest, mock
 
 import pytest
 from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection, connections
 from django.db.models import F
 from django.test import TestCase
@@ -116,6 +118,19 @@ class TestSaveLoad(JSONFieldTestCase):
         m = JSONModel(attrs=float('nan'))
         with pytest.raises(ValueError):
             m.save()
+
+    def test_custom_json_encoder(self):
+        field = JSONField(encoder=DjangoJSONEncoder(allow_nan=False))
+        value = field.get_prep_value({'a': Decimal(1)})
+        assert value == '{"a": "1"}'
+
+    def test_custom_json_decoder(self):
+        class CustomDecoder(json.JSONDecoder):
+            def decode(self, *args, **kwargs):
+                return 'lol'
+        field = JSONField(decoder=CustomDecoder(strict=False))
+        value = field.from_db_value('"anything"', None, None, None)
+        assert value == 'lol'
 
 
 class QueryTests(JSONFieldTestCase):
@@ -527,6 +542,24 @@ class TestCheck(JSONFieldTestCase):
 
         errors = InvalidJSONModel5.check(actually_check=True)
         assert len(errors) == 0
+
+    def test_bad_custom_encoder(self):
+        class InvalidJSONModel6(TemporaryModel):
+            field = JSONField(encoder=json.JSONEncoder())
+
+        errors = InvalidJSONModel6.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E018'
+        assert errors[0].msg.startswith('Custom JSON encoder should have')
+
+    def test_bad_custom_decoder(self):
+        class InvalidJSONModel7(TemporaryModel):
+            field = JSONField(decoder=json.JSONDecoder())
+
+        errors = InvalidJSONModel7.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E019'
+        assert errors[0].msg.startswith('Custom JSON decoder should have')
 
 
 class TestFormField(JSONFieldTestCase):

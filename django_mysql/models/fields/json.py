@@ -23,16 +23,22 @@ __all__ = ('JSONField',)
 
 
 class JSONField(Field):
+
+    _default_json_encoder = json.JSONEncoder(allow_nan=False)
+    _default_json_decoder = json.JSONDecoder(strict=False)
+
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
             kwargs['default'] = dict
+        self.json_encoder = kwargs.pop('encoder', self._default_json_encoder)
+        self.json_decoder = kwargs.pop('decoder', self._default_json_decoder)
         super(JSONField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
         errors = super(JSONField, self).check(**kwargs)
         errors.extend(self._check_default())
         errors.extend(self._check_mysql_version())
-
+        errors.extend(self._check_json_encoder_decoder())
         return errors
 
     def _check_default(self):
@@ -79,6 +85,31 @@ class JSONField(Field):
             )
         return errors
 
+    def _check_json_encoder_decoder(self):
+        errors = []
+
+        if self.json_encoder.allow_nan:
+            errors.append(
+                checks.Error(
+                    'Custom JSON encoder should have allow_nan=False as MySQL '
+                    'does not support NaN/Infinity in JSON.',
+                    obj=self,
+                    id='django_mysql.E018',
+                ),
+            )
+
+        if self.json_decoder.strict:
+            errors.append(
+                checks.Error(
+                    'Custom JSON decoder should have strict=False to support '
+                    'all the characters that MySQL does.',
+                    obj=self,
+                    id='django_mysql.E019',
+                ),
+            )
+
+        return errors
+
     def deconstruct(self):
         name, path, args, kwargs = super(JSONField, self).deconstruct()
 
@@ -101,24 +132,21 @@ class JSONField(Field):
         return KeyTransformFactory(name)
 
     def from_db_value(self, value, expression, connection, context):
-        # Similar to to_python, for Django 1.8+
         if isinstance(value, six.string_types):
-            return json.loads(value, strict=False)
+            return self.json_decoder.decode(value)
         return value
 
     def get_prep_value(self, value):
         if value is not None and not isinstance(value, six.string_types):
             # For some reason this value gets string quoted in Django's SQL
             # compiler...
-
-            # Although json.dumps could serialize NaN, MySQL doesn't.
-            return json.dumps(value, allow_nan=False)
+            return self.json_encoder.encode(value)
 
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared and value is not None:
-            return json.dumps(value, allow_nan=False)
+            return self.json_encoder.encode(value)
         return value
 
     def get_lookup(self, lookup_name):
