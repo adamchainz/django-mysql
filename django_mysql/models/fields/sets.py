@@ -3,6 +3,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
+import django
 from django.core import checks
 from django.db.models import CharField, IntegerField, TextField
 from django.utils import six
@@ -94,15 +95,26 @@ class SetFieldMixin(object):
                          v in value.split(',')}
         return value
 
-    def from_db_value(self, value, expression, connection, context):
-        # Similar to to_python, for Django 1.8+
-        if isinstance(value, six.string_types):
-            if not len(value):
-                value = set()
-            else:
-                value = {self.base_field.to_python(v) for
-                         v in value.split(',')}
-        return value
+    if django.VERSION >= (2, 0):
+        def from_db_value(self, value, expression, connection):
+            # Similar to to_python, for Django 1.8+
+            if isinstance(value, six.string_types):
+                if not len(value):
+                    value = set()
+                else:
+                    value = {self.base_field.to_python(v) for
+                             v in value.split(',')}
+            return value
+    else:
+        def from_db_value(self, value, expression, connection, context):
+            # Similar to to_python, for Django 1.8+
+            if isinstance(value, six.string_types):
+                if not len(value):
+                    value = set()
+                else:
+                    value = {self.base_field.to_python(v) for
+                             v in value.split(',')}
+            return value
 
     def get_prep_value(self, value):
         if isinstance(value, set):
