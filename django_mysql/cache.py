@@ -394,6 +394,25 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             cursor.execute("DELETE FROM {table}".format(table=table))
 
+    def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        key = self.make_key(key, version=version)
+        self.validate_key(key)
+        exp = self.get_backend_timeout(timeout)
+        db = router.db_for_write(self.cache_model_class)
+        table = connections[db].ops.quote_name(self._table)
+        with connections[db].cursor() as cursor:
+            cursor.execute(
+                self._touch_query.format(table=table),
+                [exp, key, self._now()],
+            )
+
+    _touch_query = collapse_spaces("""
+        UPDATE {table}
+        SET expires = %s
+        WHERE cache_key = %s AND
+              expires >= %s
+    """)
+
     def validate_key(self, key):
         """
         Django normally warns about maximum key length, but we error on it.

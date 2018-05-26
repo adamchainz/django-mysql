@@ -357,6 +357,24 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.get("key1") is None
         assert cache.get("key2") is None
 
+    def test_touch_without_timeout(self):
+        cache.set("key1", "spam", timeout=0.1)
+        cache.touch("key1", timeout=0.4)
+        time.sleep(0.2)
+        assert "key1" in cache
+
+    def test_touch_with_timeout(self):
+        cache.set("key1", "spam", timeout=0.1)
+        cache.touch("key1")
+        time.sleep(0.2)
+        assert "key1" in cache
+
+    def test_touch_already_expired(self):
+        cache.set("key1", "spam", timeout=0.1)
+        time.sleep(0.2)
+        cache.touch("key1", timeout=0.4)
+        assert "key1" not in cache
+
     def test_long_timeout(self):
         '''
         Using a timeout greater than 30 days makes memcached think
