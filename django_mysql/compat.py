@@ -8,10 +8,7 @@ try:
     from django.utils.text import format_lazy
 
     def lazy_string_concat(*strings):
-        return format_lazy(
-            '{}' * len(strings),
-            *strings,
-        )
+        return format_lazy('{}' * len(strings), *strings)
 
 except ImportError:
     from django.utils.translation import string_concat as lazy_string_concat

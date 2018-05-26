@@ -68,7 +68,7 @@ class SimpleListField(forms.CharField):
                     errors.append(ValidationError(
                         lazy_string_concat(
                             self.error_messages['item_n_invalid'],
-                            error.message
+                            error.message,
                         ),
                         code='item_n_invalid',
                         params={'nth': i},
