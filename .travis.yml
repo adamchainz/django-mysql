@@ -18,7 +18,7 @@ env:
     - DB=mysql DB_VERSION=5.6
     - DB=mysql DB_VERSION=5.7
     # Can't get this to work, as above
-    # - DB=mariadb DB_VERSION=5.5
+    #- DB=mariadb DB_VERSION=5.5
     - DB=mariadb DB_VERSION=10.0
     - DB=mariadb DB_VERSION=10.1
     - DB=mariadb DB_VERSION=10.2

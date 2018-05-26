@@ -27,6 +27,8 @@ Pending
 * Changed ``GlobalStatus.wait_until_load_low()`` to increase the default number
   of allowed running threads from 5 to 10, to account for the new default
   threads in MariaDB 10.3.
+* Changed the default number of allowed threads for ``wait_until_load_low``
+  to account for the default threads in MariaDB 10.3
 
 * Added ``encoder`` and ``decoder`` arguments to ``JSONField`` for customizing
   the way JSON is encoded and decoded from the database.
