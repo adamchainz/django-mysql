@@ -42,7 +42,7 @@ class JSONField(Field):
         errors = super(JSONField, self).check(**kwargs)
         errors.extend(self._check_default())
         errors.extend(self._check_mysql_version())
-
+        errors.extend(self._check_json_encoder_decoder())
         return errors
 
     def _check_default(self):
@@ -87,6 +87,31 @@ class JSONField(Field):
                     id='django_mysql.E016',
                 ),
             )
+        return errors
+
+    def _check_json_encoder_decoder(self):
+        errors = []
+
+        if self.json_encoder.allow_nan:
+            errors.append(
+                checks.Error(
+                    'Custom JSON encoder should have allow_nan=False as MySQL '
+                    'does not support NaN/Infinity in JSON.',
+                    obj=self,
+                    id='django_mysql.E018',
+                )
+            )
+
+        if self.json_decoder.strict:
+            errors.append(
+                checks.Error(
+                    'Custom JSON decoder should have strict=False to support '
+                    'all the characters that MySQL does.',
+                    obj=self,
+                    id='django_mysql.E019',
+                )
+            )
+
         return errors
 
     def deconstruct(self):

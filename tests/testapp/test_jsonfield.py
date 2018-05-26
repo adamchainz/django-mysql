@@ -543,6 +543,24 @@ class TestCheck(JSONFieldTestCase):
         errors = InvalidJSONModel5.check(actually_check=True)
         assert len(errors) == 0
 
+    def test_bad_custom_encoder(self):
+        class InvalidJSONModel6(TemporaryModel):
+            field = JSONField(encoder=json.JSONEncoder())
+
+        errors = InvalidJSONModel6.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E018'
+        assert errors[0].msg.startswith('Custom JSON encoder should have')
+
+    def test_bad_custom_decoder(self):
+        class InvalidJSONModel7(TemporaryModel):
+            field = JSONField(decoder=json.JSONDecoder())
+
+        errors = InvalidJSONModel7.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == 'django_mysql.E019'
+        assert errors[0].msg.startswith('Custom JSON decoder should have')
+
 
 class TestFormField(JSONFieldTestCase):
 
