@@ -10,9 +10,9 @@ from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils import six
-from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 
+from django_mysql.compat import lazy_string_concat
 from django_mysql.validators import (
     ListMaxLengthValidator, ListMinLengthValidator, SetMaxLengthValidator,
     SetMinLengthValidator,
@@ -66,8 +66,10 @@ class SimpleListField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     errors.append(ValidationError(
-                        string_concat(self.error_messages['item_n_invalid'],
-                                      error.message),
+                        lazy_string_concat(
+                            self.error_messages['item_n_invalid'],
+                            error.message,
+                        ),
                         code='item_n_invalid',
                         params={'nth': i},
                     ))
@@ -89,9 +91,10 @@ class SimpleListField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            string_concat(
+                            lazy_string_concat(
                                 self.error_messages['item_n_invalid'],
-                                message),
+                                message,
+                            ),
                             code='item_invalid',
                             params={'nth': i},
                         ))
@@ -108,9 +111,10 @@ class SimpleListField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            string_concat(
+                            lazy_string_concat(
                                 self.error_messages['item_n_invalid'],
-                                message),
+                                message,
+                            ),
                             code='item_n_invalid',
                             params={'nth': i},
                         ))
@@ -169,8 +173,10 @@ class SimpleSetField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     errors.append(ValidationError(
-                        string_concat(self.error_messages['item_n_invalid'],
-                                      error.message),
+                        lazy_string_concat(
+                            self.error_messages['item_n_invalid'],
+                            error.message,
+                        ),
                         code='item_n_invalid',
                         params={'nth': i},
                     ))
@@ -199,8 +205,10 @@ class SimpleSetField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            string_concat(self.error_messages['item_invalid'],
-                                          message),
+                            lazy_string_concat(
+                                self.error_messages['item_invalid'],
+                                message,
+                            ),
                             code='item_invalid',
                             params={'item': item},
                         ))
@@ -217,8 +225,10 @@ class SimpleSetField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            string_concat(self.error_messages['item_invalid'],
-                                          message),
+                            lazy_string_concat(
+                                self.error_messages['item_invalid'],
+                                message,
+                            ),
                             code='item_invalid',
                             params={'item': item},
                         ))
