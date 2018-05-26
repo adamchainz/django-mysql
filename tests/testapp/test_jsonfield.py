@@ -7,6 +7,7 @@ import json
 from decimal import Decimal
 from unittest import SkipTest, mock
 
+import django
 import pytest
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
@@ -129,7 +130,10 @@ class TestSaveLoad(JSONFieldTestCase):
             def decode(self, *args, **kwargs):
                 return 'lol'
         field = JSONField(decoder=CustomDecoder(strict=False))
-        value = field.from_db_value('"anything"', None, None, None)
+        if django.VERSION >= (2, 0):
+            value = field.from_db_value('"anything"', None, None)
+        else:
+            value = field.from_db_value('"anything"', None, None, None)
         assert value == 'lol'
 
 

@@ -131,10 +131,16 @@ class JSONField(Field):
             return transform  # pragma: no cover
         return KeyTransformFactory(name)
 
-    def from_db_value(self, value, expression, connection, context):
-        if isinstance(value, six.string_types):
-            return self.json_decoder.decode(value)
-        return value
+    if django.VERSION >= (2, 0):
+        def from_db_value(self, value, expression, connection):
+            if isinstance(value, six.string_types):
+                return self.json_decoder.decode(value)
+            return value
+    else:
+        def from_db_value(self, value, expression, connection, context):
+            if isinstance(value, six.string_types):
+                return self.json_decoder.decode(value)
+            return value
 
     def get_prep_value(self, value):
         if value is not None and not isinstance(value, six.string_types):
