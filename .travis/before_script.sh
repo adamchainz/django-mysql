@@ -25,6 +25,7 @@ then
 Pin: origin repo.mysql.com
 Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mysql.pref
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libmysqlclient-dev
 elif [[ $DB == 'mariadb' ]]
 then
     # Install
