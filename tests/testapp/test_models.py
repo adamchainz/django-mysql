@@ -26,6 +26,12 @@ from testapp.models import (
 )
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
+try:
+    from django.db.models import Subquery
+except ImportError:
+    # Django < 1.11
+    Subquery = None
+
 
 class MixinQuerysetTests(TestCase):
 
@@ -343,6 +349,16 @@ class QueryHintTests(TestCase):
                        .select_related('authorextra')
                        .force_index('PRIMARY', table_name='nonexistent'))
         assert ' FORCE INDEX ' not in cap.query
+
+    @skipUnless(django.VERSION >= (1, 11), "Need Django 1.11+")
+    def test_rewrite_subquery(self):
+        with CaptureLastQuery() as cap:
+            list(Book.objects.filter(
+                author_id__in=Author.objects.filter(name__startswith="A")
+                                            .force_index('PRIMARY')
+                                            .values_list('id')
+            ))
+        assert 'FORCE INDEX (`PRIMARY`)' in cap.query
 
 
 class FoundRowsTests(TestCase):

@@ -314,6 +314,16 @@ class RewriteQueryTests(TestCase):
             "WHERE (1) ORDER BY col_a"
         )
 
+    def test_index_ignore_with_alias(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a FROM `sometable` `tablealias` WHERE "
+                "(/*QueryRewrite':index=`sometable` IGNORE `col_a_idx`*/1)",
+            ) ==
+            "SELECT col_a FROM `sometable` `tablealias` IGNORE INDEX "
+            "(`col_a_idx`) WHERE (1)"
+        )
+
     def test_it_is_monkey_patched(self):
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute("SELECT 1 FROM DUAL "

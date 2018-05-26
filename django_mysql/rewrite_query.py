@@ -169,13 +169,17 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 table_spec_re_template = r'''
     \b(?P<operator>FROM|JOIN)
     \s+
-    {table_name}
+    (?P<table>
+        {table_name}
+        (\ [^ ]+)?  # alias/WHERE
+    )
     \s+
+    WHERE
 '''
 
 replacement_template = (
-    r'\g<operator> {table_name} '
-    r'{rule} INDEX {for_section}({index_names}) '
+    r'\g<operator> \g<table> '
+    r'{rule} INDEX {for_section}({index_names}) WHERE'
 )
 
 
