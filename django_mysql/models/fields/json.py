@@ -30,12 +30,8 @@ class JSONField(Field):
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
             kwargs['default'] = dict
-        self.json_encoder = kwargs.pop('encoder', None)
-        if self.json_encoder is None:
-            self.json_encoder = self._default_json_encoder
-        self.json_decoder = kwargs.pop('decoder', None)
-        if self.json_decoder is None:
-            self.json_decoder = self._default_json_decoder
+        self.json_encoder = kwargs.pop('encoder', self._default_json_encoder)
+        self.json_decoder = kwargs.pop('decoder', self._default_json_decoder)
         super(JSONField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
