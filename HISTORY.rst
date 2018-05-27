@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+* Changed the default number of allowed threads for ``wait_until_load_low``
+  to account for the default threads in MariaDB 10.3
+
 * Added ``encoder`` and ``decoder`` arguments to ``JSONField`` for customizing
   the way JSON is encoded and decoded from the database.
 
