@@ -77,25 +77,16 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
        $ git clone git@github.com:your_name_here/django-mysql.git
        $ cd django-mysql/
 
-3. Install your local copy into a virtualenv. Assuming you have
-   ``virtualenvwrapper`` installed, this is how you set up your fork for local
-   development:
-
-   .. code-block:: sh
-
-       $ mkvirtualenv django-mysql
-       $ pip install -r requirements.txt Django
-
-4. Check you have MySQL or MariaDB running and that the settings in
-   ``tests/settings.py`` will work for connecting. This involves making sure
-   you can connect from your terminal with the plain command ``mysql``, i.e.
-   as your current user.
+3. Check you have a supported version of MySQL or MariaDB running and that the
+   settings in ``tests/settings.py`` will work for connecting. This involves
+   making sure you can connect from your terminal with the plain command
+   ``mysql`` with no options, i.e. as your current user.
 
    On Ubuntu, this can be done with the commands below:
 
    .. code-block:: sh
 
-       $ sudo apt-get install mysql-server-5.6
+       $ sudo apt-get install mysql-server-5.7
        $ mysql -uroot -p -e "CREATE USER '$(whoami)'@localhost; GRANT ALL PRIVILEGES ON *.* TO '$(whoami)'@localhost;"
        # Enter the password for root you set in the apt dialog
 
@@ -105,44 +96,42 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
 
        $ brew install mariadb
        $ mysql.server start
-       $ mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO ''@localhost;"
+       $ mysql -uroot -e "CREATE USER '$(whoami)'@localhost; GRANT ALL PRIVILEGES ON *.* TO '$(whoami)'@localhost;"
 
    If you want to use a different user or add a password, you can patch the
    settings file in your local install.
 
-5. Then run the tests with:
+5. Install ``tox`` and run the tests for Python 3.6 + Django 2.1:
 
    .. code-block:: sh
 
-       $ ./runtests.py
+       $ pip install tox
+       $ tox -e py36-django21
 
-   To test every version of Python and Django, make sure you have ``tox``
-   installed globally (outside of your virtualenv), then run:
+   The ``tox.ini`` file defines a large number of test environments, for
+   different Python and Django versions, plus for checking codestyle. During
+   development of a feature/fix, you'll probably want to run just one plus the
+   relevant codestyle:
+
+   .. code-block:: sh
+
+       $ tox -e py36-codestyle,py36-django21
+
+   You can run all the environments to check your code is okay for them with:
 
    .. code-block:: sh
 
        $ tox
 
-6. Now to make changes, create a branch for local development:
+6. To make changes, create a branch for local development:
 
    .. code-block:: sh
 
        $ git checkout -b name-of-your-bugfix-or-feature
 
-   And hack away!
+   ...and hack away!
 
-7. When you're done making changes, check that your changes pass the code style
-   rules and the tests on all versions of Python and Django, by running tox:
-
-   .. code-block:: sh
-
-       $ tox
-
-   If it's too tricky setting up multiple versions of Python, don't worry about
-   it - it will be picked up by the Travis build from Github. As long as
-   ``runtests`` passes, you have a good start.
-
-8. Commit your changes and push your branch to GitHub:
+7. Commit your changes and push your branch to GitHub:
 
    .. code-block:: sh
 
@@ -150,42 +139,19 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
        $ git commit -m "Your detailed description of your changes."
        $ git push origin name-of-your-bugfix-or-feature
 
-9. Submit a pull request through the GitHub website. This will trigger the
+8. Submit a pull request through the GitHub website. This will trigger the
    Travis build which runs the tests against all supported versions of Python,
    Django, and MySQL/MariaDB.
 
-
-Pull Request Checklist
-----------------------
-
-When you open a Pull Request on Github, a checklist will be pre-populated in
-the message. Please check all of the steps have been done, or ask for
-assistance in doing so!
-
 Testing Tips
 ------------
-
-The tests do a lot of work that you can reduce by using some features that are
-available.
-
-To skip the linting phase, run them with:
-
-.. code-block:: sh
-
-    $ ./runtests.py --nolint
 
 To only run a particular test file, you can run with the path to that file:
 
 .. code-block:: sh
 
-    $ ./runtests.py tests/testapp/test_some_feature.py
-
-You can also pass arguments through ``tox`` to ``runtests.py`` by passing these
-arguments after the ``--`` separator, for example:
-
-.. code-block:: sh
-
     $ tox -- tests/testapp/test_some_feature.py
 
-There are lots of other useful features, most of which you can check out in the
-`pytest docs <http://docs.pytest.org/en/latest/>`_!
+You can also pass other pytest arguments through ``tox`` after the ``--``
+separator. There are lots of other useful features, most of which you can check
+out in the `pytest docs <http://docs.pytest.org/en/latest/>`_!
