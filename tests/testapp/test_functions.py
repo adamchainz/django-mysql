@@ -18,7 +18,7 @@ from django_mysql.models.functions import (
     ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONInsert,
     JSONKeys, JSONLength, JSONReplace, JSONSet, LastInsertId, Least,
     RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
-    XMLExtractValue,
+    XMLExtractValue, JSONMergePatch, JSONMergePreserve
 )
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
@@ -569,6 +569,17 @@ class JSONFunctionTests(JSONFieldTestCase):
             JSONSet('attrs', {})
         assert '"data" cannot be empty' in str(excinfo.value)
 
+    def test_mergepatch(self):
+        self.obj.attrs = JSONMergePatch(Value("""{"a":1}"""), Value("""{"b":2}"""))
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs == {'a': 1, 'b': 2}
+
+    def test_mergepreserve(self):
+        self.obj.attrs = JSONMergePreserve(Value("""{"a":1,"b":1}"""), Value("""{"b":2}"""))
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs == {'a': 1, 'b': [1, 2]}
 
 class RegexpFunctionTests(TestCase):
 

@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+* Added ``JSONMergePatch``, ``JSONMergePreserve`` database functions that
+  wrap the respective JSON-modifying functions from MySQL.
+
 2.2.2 (2018-04-24)
 ------------------
 
