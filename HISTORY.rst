@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+2.3.0 (2018-06-19)
+------------------
+
 * Started testing with MariaDB 10.3.
 
 * Changed ``GlobalStatus.wait_until_load_low()`` to increase the default number
