@@ -17,7 +17,7 @@ def check_variables(app_configs, **kwargs):
     errors = []
 
     for alias, connection in mysql_connections():
-        with connection.cursor() as cursor:
+        with connection.temporary_connection() as cursor:
             cursor.execute("""SELECT @@sql_mode,
                                      @@innodb_strict_mode,
                                      @@character_set_connection""")
