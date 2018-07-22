@@ -11,6 +11,27 @@ TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = 'THISuISdNOT9A$SECRET9x&ji!vceayg+wwt472!bgs$0!i3k4'
 
+
+init_command = """
+    set sql_mode = if(
+        locate('MariaDB', @@version),
+        /* MariaDB */
+        'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER',
+        /* MySQL */
+        if(
+            @@version > '5.7',
+            'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO',
+            if(
+                @@version > '5.6',
+                'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO',
+                'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER'
+            )
+        )
+    );
+
+"""
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
