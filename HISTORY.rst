@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+2.3.1 (2018-07-22)
+------------------
+
 * Made ``EnumField`` escape its arguments in a ``pymysql``-friendly fashion.
 
 2.3.0 (2018-06-19)
