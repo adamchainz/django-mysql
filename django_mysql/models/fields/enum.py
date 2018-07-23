@@ -5,9 +5,8 @@ from __future__ import (
 
 from django.db.models import CharField
 from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
-
-from _mysql import escape_string  # isort:skip
 
 
 class EnumField(CharField):
@@ -59,7 +58,14 @@ class EnumField(CharField):
         return name, path, args, kwargs
 
     def db_type(self, connection):
-        values = [escape_string(c) for c, _ in self.flatchoices]
+        connection.ensure_connection()
+        values = [
+            connection.connection.escape_string(c)
+            for c, _ in self.flatchoices
+        ]
+        # Use force_text because MySQLdb escape_string() returns bytes, but
+        # pymysql returns str
         return 'enum(%s)' % ','.join(
-            "'%s'" % v.decode('utf8') for v in values
+            "'%s'" % force_text(v)
+            for v in values
         )
