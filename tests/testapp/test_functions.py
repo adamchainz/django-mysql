@@ -15,10 +15,10 @@ from django.utils import six
 
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
-    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONExtract, JSONInsert,
-    JSONKeys, JSONLength, JSONReplace, JSONSet, LastInsertId, Least,
-    RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML,
-    XMLExtractValue,
+    ColumnGet, ConcatWS, Field, Floor, Greatest, If, JSONArrayAppend,
+    JSONExtract, JSONInsert, JSONKeys, JSONLength, JSONReplace, JSONSet,
+    LastInsertId, Least, RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign,
+    UpdateXML, XMLExtractValue,
 )
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import Alphabet, Author, DynamicModel, JSONModel
@@ -568,6 +568,16 @@ class JSONFunctionTests(JSONFieldTestCase):
         with pytest.raises(ValueError) as excinfo:
             JSONSet('attrs', {})
         assert '"data" cannot be empty' in str(excinfo.value)
+
+    def test_json_array_append(self):
+        self.obj.attrs = JSONArrayAppend(
+            'attrs',
+            {'$.arr': 'max', '$.arr[0]': 1.1, '$.sub.document': 3},
+        )
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs['arr'] == [['dee', 1.1], 'arr', 'arr', 'max']
+        assert self.obj.attrs['sub']['document'] == ['store', 3]
 
 
 class RegexpFunctionTests(TestCase):
