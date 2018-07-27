@@ -121,11 +121,11 @@ class ApproximateCountTests(TestCase):
 class QueryHintTests(TestCase):
 
     def _skip_for_mysql8(self):
-            if not (
-                not connection_is_mariadb(connection) and
-                connection.mysql_version < (8, 0)
-            ):
-                raise SkipTest("SQL_CACHE is not supported with mysql8")
+        if (
+            not connection_is_mariadb(connection) and
+            connection.mysql_version >= (8, 0)
+        ):
+            raise SkipTest("Query cache removed in MySQL 8.0")
 
     def test_label(self):
         with CaptureLastQuery() as cap:
