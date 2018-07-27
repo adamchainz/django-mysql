@@ -120,6 +120,13 @@ class ApproximateCountTests(TestCase):
 
 class QueryHintTests(TestCase):
 
+    def _skip_for_mysql8(self):
+            if not (
+                not connection_is_mariadb(connection) and
+                connection.mysql_version < (8, 0)
+            ):
+                raise SkipTest("SQL_CACHE is not supported with mysql8")
+
     def test_label(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.label("QueryHintTests.test_label").all())
@@ -182,11 +189,7 @@ class QueryHintTests(TestCase):
         assert 'DJANGO_MYSQL_REWRITE_QUERIES' in six.text_type(excinfo.value)
 
     def test_sql_cache(self):
-        if not (
-            not connection_is_mariadb(connection) and
-            connection.mysql_version < (8, 0)
-        ):
-            raise SkipTest("JSONField requires MySQL 5.7+")
+        self._skip_for_mysql8()
 
         with CaptureLastQuery() as cap:
             list(Author.objects.sql_cache().all())
@@ -213,6 +216,8 @@ class QueryHintTests(TestCase):
         assert cap.query.startswith("SELECT SQL_BUFFER_RESULT ")
 
     def test_adding_many(self):
+        self._skip_for_mysql8()
+
         with CaptureLastQuery() as cap:
             list(Author.objects.straight_join()
                                .sql_cache()
