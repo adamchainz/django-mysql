@@ -5,7 +5,7 @@ from __future__ import (
 
 import pickle
 import re
-from unittest import mock, skipUnless, SkipTest
+from unittest import SkipTest, mock, skipUnless
 
 import django
 import pytest
@@ -20,7 +20,7 @@ from django.utils import six
 from django_mysql.models import (
     ApproximateInt, SmartIterator, add_QuerySetMixin,
 )
-from django_mysql.utils import have_program, index_name, connection_is_mariadb
+from django_mysql.utils import connection_is_mariadb, have_program, index_name
 from testapp.models import (
     Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra,
     VanillaAuthor,
