@@ -5,11 +5,12 @@ from __future__ import (
 
 import pickle
 import re
-from unittest import mock, skipUnless
+from unittest import mock, skipUnless, SkipTest
 
 import django
 import pytest
 from django.contrib.auth.models import User
+from django.db import connection
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
@@ -19,7 +20,7 @@ from django.utils import six
 from django_mysql.models import (
     ApproximateInt, SmartIterator, add_QuerySetMixin,
 )
-from django_mysql.utils import have_program, index_name
+from django_mysql.utils import have_program, index_name, connection_is_mariadb
 from testapp.models import (
     Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra,
     VanillaAuthor,
@@ -181,6 +182,12 @@ class QueryHintTests(TestCase):
         assert 'DJANGO_MYSQL_REWRITE_QUERIES' in six.text_type(excinfo.value)
 
     def test_sql_cache(self):
+        if not (
+            not connection_is_mariadb(connection) and
+            connection.mysql_version < (8, 0)
+        ):
+            raise SkipTest("JSONField requires MySQL 5.7+")
+
         with CaptureLastQuery() as cap:
             list(Author.objects.sql_cache().all())
         assert cap.query.startswith("SELECT SQL_CACHE ")
