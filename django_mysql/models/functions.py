@@ -324,6 +324,10 @@ class JSONSet(BaseJSONModifyFunc):
     function = 'JSON_SET'
 
 
+class JSONArrayAppend(BaseJSONModifyFunc):
+    function = 'JSON_ARRAY_APPEND'
+
+
 # MariaDB Regexp Functions
 
 class RegexpInstr(Func):

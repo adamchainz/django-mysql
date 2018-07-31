@@ -678,6 +678,7 @@ more information on their syntax, refer to the MySQL documentation.
         ...     attrs=JSONReplace('attrs', {'$.monthly_sales': 0})
         ... )
 
+
 .. class:: JSONSet(expression, data)
 
     Given ``expression`` that resolves to some JSON data, updates it using the
@@ -700,6 +701,33 @@ more information on their syntax, refer to the MySQL documentation.
         >>> shop_item = ShopItem.objects.latest()
         >>> shop_item.attrs = JSONSet('attrs', {'$.size': '10m'})
         >>> shop_item.save()
+
+
+.. class:: JSONArrayAppend(expression, data)
+
+    Given ``expression`` that resolves to some JSON data, adds to it using the
+    dictionary ``data`` of JSON paths to new values. If a path selects an
+    array, the new value will be appended to it. On the other hand, if a path
+    selects a scalar or object value, that value is autowrapped within an array
+    and the new value is added to that array. If any of the JSON paths within
+    the data dictionary does not match, or if ``expression`` is ``NULL``, it
+    returns ``NULL``.
+
+    Note that if ``expression`` is a string, it will refer to a field, whereas
+    keys and values within the ``data`` dictionary will be wrapped with
+    ``Value`` automatically and thus interpreted as the given string. If you
+    want a key or value to refer to a field, use Django's ``F()`` class.
+
+    Docs:
+    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-array-append>`_.
+
+    .. code-block:: pycon
+
+        >>> # Append the string '10m' to the array 'sizes' directly in MySQL
+        >>> shop_item = ShopItem.objects.latest()
+        >>> shop_item.attrs = JSONArrayAppend('attrs', {'$.sizes': '10m'})
+        >>> shop_item.save()
+
 
 Dynamic Columns Functions
 -------------------------
