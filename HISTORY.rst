@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+2.4.0 (2018-07-31)
+------------------
+
 * Added ``JSONArrayAppend`` database function that wraps the respective
   JSON-modifying function from MySQL 5.7.
 
