@@ -234,6 +234,7 @@ class TableLockTests(TransactionTestCase):
         Customer.objects.using('other').all().delete()
         super(TableLockTests, self).tearDown()
 
+
     def is_locked(self, connection_name, table_name):
         conn = connections[connection_name]
         with conn.cursor() as cursor:
@@ -262,27 +263,12 @@ class TableLockTests(TransactionTestCase):
         assert Alphabet.objects.count() == 0
 
     def test_write_with_table_name(self):
+        Alphabet.objects.create(a=1)
         assert not self.is_locked('default', Alphabet._meta.db_table)
         with TableLock(write=[Alphabet._meta.db_table]):
             assert self.is_locked('default', Alphabet._meta.db_table)
 
-    def test_write_with_using(self):
-        Alphabet.objects.using('other').create(a=878787)
-        assert not self.is_locked('other', Alphabet._meta.db_table)
-
-        with TableLock(write=[Alphabet], using='other'):
-            assert self.is_locked('other', Alphabet._meta.db_table)
-            assert Alphabet.objects.using('other').count() == 1
-
-            Alphabet.objects.using('other').all().delete()
-            assert Alphabet.objects.using('other').count() == 0
-
-        assert not self.is_locked('other', Alphabet._meta.db_table)
-        assert Alphabet.objects.using('other').count() == 0
-
-    def test_write_fails_touching_other_table(self):
-        with pytest.raises(OperationalError) as excinfo:
-            with TableLock(write=[Alphabet]):
+    def test_write_witgit lphabet]):
                 Customer.objects.create(name="Lizzy")
 
         assert excinfo.value.args[0] == 1100  # ER_TABLE_NOT_LOCKED
@@ -393,6 +379,7 @@ class TableLockTests(TransactionTestCase):
         assert "was not locked with LOCK TABLES" in str(excinfo.value)
 
     def test_acquire_release(self):
+        Alphabet.objects.create(a=1)
         my_lock = TableLock(read=[Alphabet])
         assert not self.is_locked('default', Alphabet._meta.db_table)
         my_lock.acquire()
