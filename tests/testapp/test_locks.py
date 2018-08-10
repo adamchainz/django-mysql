@@ -234,7 +234,6 @@ class TableLockTests(TransactionTestCase):
         Customer.objects.using('other').all().delete()
         super(TableLockTests, self).tearDown()
 
-
     def is_locked(self, connection_name, table_name):
         conn = connections[connection_name]
         with conn.cursor() as cursor:
