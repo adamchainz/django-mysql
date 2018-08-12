@@ -39,6 +39,6 @@ pytest-randomly==1.2.3
 pytest-super-check==1.0.0
 pytest==3.7.1
 pytz==2018.5
-scandir==1.8              # via pathlib2
+scandir==1.9.0            # via pathlib2
 six==1.11.0               # via mariadb-dyncol, mock, more-itertools, multilint, pathlib2, pytest, pytest-flake8dir, pytest-super-check
 sqlparse==0.2.4
