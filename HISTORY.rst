@@ -8,6 +8,9 @@ Pending
 
 .. Insert new release notes below this line
 
+2.4.1 (2018-08-18)
+------------------
+
 * Django 2.1 compatibility - no code changes were required, releasing for PyPI
   trove classifiers and documentation.
 
