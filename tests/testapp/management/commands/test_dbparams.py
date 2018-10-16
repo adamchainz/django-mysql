@@ -3,7 +3,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
-from unittest import mock, skipIf
+from unittest import skipIf
 
 import django
 import pytest
@@ -11,6 +11,11 @@ from django.core.management import CommandError, call_command
 from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase
 from django.utils.six.moves import StringIO
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module

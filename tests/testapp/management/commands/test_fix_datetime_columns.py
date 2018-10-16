@@ -4,7 +4,7 @@ from __future__ import (
 )
 
 from textwrap import dedent
-from unittest import SkipTest, mock, skipIf
+from unittest import SkipTest, skipIf
 
 import django
 import pytest
@@ -18,6 +18,11 @@ from django_mysql.management.commands.fix_datetime_columns import (
     parse_create_table,
 )
 from django_mysql.utils import connection_is_mariadb
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module

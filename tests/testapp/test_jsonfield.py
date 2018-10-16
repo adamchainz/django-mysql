@@ -5,7 +5,7 @@ from __future__ import (
 
 import json
 from decimal import Decimal
-from unittest import SkipTest, mock
+from unittest import SkipTest
 
 import django
 import pytest
@@ -20,6 +20,11 @@ from django_mysql.models import JSONField
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import JSONModel, TemporaryModel
 from testapp.utils import print_all_queries
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 
 class JSONFieldTestCase(TestCase):

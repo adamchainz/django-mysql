@@ -6,7 +6,6 @@
 #
 atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via pytest
-backports.unittest-mock==1.4
 configparser==3.5.0       # via flake8
 coverage==4.5.1
 docutils==0.14
