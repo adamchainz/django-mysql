@@ -5,7 +5,7 @@ from __future__ import (
 
 import json
 from datetime import date, datetime, time
-from unittest import SkipTest, mock
+from unittest import SkipTest
 
 import pytest
 from django.core import serializers
@@ -19,6 +19,11 @@ from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
 from testapp.utils import requiresPython2
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 try:
     import mariadb_dyncol

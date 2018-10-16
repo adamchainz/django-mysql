@@ -5,7 +5,7 @@ from __future__ import (
 
 import pickle
 import re
-from unittest import mock, skipUnless
+from unittest import skipUnless
 
 import django
 import pytest
@@ -25,6 +25,11 @@ from testapp.models import (
     VanillaAuthor,
 )
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 
 class MixinQuerysetTests(TestCase):

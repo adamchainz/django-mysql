@@ -4,7 +4,7 @@ from __future__ import (
 )
 
 from time import sleep
-from unittest import mock, skipUnless
+from unittest import skipUnless
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
@@ -17,6 +17,11 @@ from django_mysql.utils import (
     pt_fingerprint,
 )
 from testapp.models import Author, AuthorMultiIndex
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 
 class ConnectionIsMariaDBTests(TestCase):

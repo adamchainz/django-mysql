@@ -1,4 +1,3 @@
-backports.unittest_mock
 coverage
 docutils
 flake8
