@@ -87,11 +87,6 @@ USE_I18N = True
 USE_L10N = True
 STATIC_URL = '/static/'
 
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
