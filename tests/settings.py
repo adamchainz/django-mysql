@@ -62,7 +62,7 @@ DATABASE_ROUTERS = [
 
 ALLOWED_HOSTS = []
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin.apps.AdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,27 +71,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_mysql',
     'testapp',
-)
-
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'urls'
-LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
-STATIC_URL = '/static/'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
