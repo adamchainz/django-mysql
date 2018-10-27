@@ -90,8 +90,8 @@ class SizedBinaryFieldTests(TestCase):
         statement, imports = MigrationWriter.serialize(field)
 
         assert (
-            statement ==
-            "django_mysql.models.SizedBinaryField(size_class=1)"
+            statement
+            == "django_mysql.models.SizedBinaryField(size_class=1)"
         )
 
     def test_makemigrations_size_class_implicit(self):
@@ -99,8 +99,8 @@ class SizedBinaryFieldTests(TestCase):
         statement, imports = MigrationWriter.serialize(field)
 
         assert (
-            statement ==
-            "django_mysql.models.SizedBinaryField(size_class=4)"
+            statement
+            == "django_mysql.models.SizedBinaryField(size_class=4)"
         )
 
 
@@ -199,8 +199,8 @@ class SizedTextFieldTests(TestCase):
         statement, imports = MigrationWriter.serialize(field)
 
         assert (
-            statement ==
-            "django_mysql.models.SizedTextField(size_class=1)"
+            statement
+            == "django_mysql.models.SizedTextField(size_class=1)"
         )
 
     def test_makemigrations_size_class_implicit(self):
@@ -208,8 +208,8 @@ class SizedTextFieldTests(TestCase):
         statement, imports = MigrationWriter.serialize(field)
 
         assert (
-            statement ==
-            "django_mysql.models.SizedTextField(size_class=4)"
+            statement
+            == "django_mysql.models.SizedTextField(size_class=4)"
         )
 
 

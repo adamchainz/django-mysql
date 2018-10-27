@@ -65,9 +65,9 @@ class DynamicField(Field):
         any_conn_works = False
         for alias, conn in mysql_connections():
             if (
-                hasattr(conn, 'mysql_version') and
-                connection_is_mariadb(conn) and
-                conn.mysql_version >= (10, 0, 1)
+                hasattr(conn, 'mysql_version')
+                and connection_is_mariadb(conn)
+                and conn.mysql_version >= (10, 0, 1)
             ):
                 any_conn_works = True
 
@@ -89,9 +89,9 @@ class DynamicField(Field):
         conn = None
         for alias, check_conn in mysql_connections():
             if (
-                hasattr(check_conn, 'mysql_version') and
-                connection_is_mariadb(check_conn) and
-                check_conn.mysql_version >= (10, 0, 1)
+                hasattr(check_conn, 'mysql_version')
+                and connection_is_mariadb(check_conn)
+                and check_conn.mysql_version >= (10, 0, 1)
             ):
                 conn = check_conn
                 break

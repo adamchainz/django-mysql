@@ -435,8 +435,8 @@ class MySQLCache(BaseDatabaseCache):
         value = pickle.dumps(obj, pickle.HIGHEST_PROTOCOL)
         value_type = 'p'
         if (
-            self._compress_min_length and
-            len(value) >= self._compress_min_length
+            self._compress_min_length
+            and len(value) >= self._compress_min_length
         ):
             value = zlib.compress(value, self._compress_level)
             value_type = 'z'
@@ -446,9 +446,9 @@ class MySQLCache(BaseDatabaseCache):
         return(
             # Can't support int/long subclasses since they should are expected
             # to decode back to the same object
-            (type(value) in six.integer_types) and
+            (type(value) in six.integer_types)
             # Can't go beyond these ranges
-            BIGINT_SIGNED_MIN <= value <= BIGINT_SIGNED_MAX
+            and BIGINT_SIGNED_MIN <= value <= BIGINT_SIGNED_MAX
         )
 
     def decode(self, value, value_type):

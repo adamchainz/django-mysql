@@ -140,8 +140,8 @@ class DynamicModel(Model):
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
         if not (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 1)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 1)
         ):
             return []
         return super(DynamicModel, cls).check(**kwargs)
@@ -160,8 +160,8 @@ class SpeclessDynamicModel(Model):
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
         if not (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 1)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 1)
         ):
             return []
         return super(SpeclessDynamicModel, cls).check(**kwargs)
@@ -288,8 +288,8 @@ class NullBit1Model(Model):
 
 class JSONModel(Model):
     if (
-        not connection_is_mariadb(connection._nodb_connection) and
-        connection._nodb_connection.mysql_version >= (5, 7)
+        not connection_is_mariadb(connection._nodb_connection)
+        and connection._nodb_connection.mysql_version >= (5, 7)
     ):
         attrs = JSONField(null=True)
 

@@ -361,8 +361,8 @@ class TestValidation(SimpleTestCase):
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean({'a', 'b', 'c', 'd'}, None)
         assert (
-            excinfo.value.messages[0] ==
-            'Set contains 4 items, it should contain no more than 3.'
+            excinfo.value.messages[0]
+            == 'Set contains 4 items, it should contain no more than 3.'
         )
 
 
@@ -419,8 +419,8 @@ class TestCheck(SimpleTestCase):
         assert len(errors) == 1
         assert errors[0].id == 'fields.E120'
         assert (
-            errors[0].msg ==
-            "CharFields must define a 'max_length' attribute."
+            errors[0].msg
+            == "CharFields must define a 'max_length' attribute."
         )
 
 

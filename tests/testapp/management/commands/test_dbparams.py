@@ -74,10 +74,12 @@ class DBParamsTests(SimpleTestCase):
         call_command('dbparams', stdout=out, skip_checks=True)
         output = out.getvalue()
         assert (
-            output ==
-            "--defaults-file=/tmp/defaults.cnf --user=ausername "
-            "--password=apassword --host=ahost.example.com --port=12345 "
-            "--ssl-ca=/tmp/mysql.cert mydatabase"
+            output
+            == (
+                "--defaults-file=/tmp/defaults.cnf --user=ausername "
+                + "--password=apassword --host=ahost.example.com --port=12345 "
+                + "--ssl-ca=/tmp/mysql.cert mydatabase"
+            )
         )
 
     @mock.patch(command_connections, socket_db)
@@ -95,9 +97,11 @@ class DBParamsTests(SimpleTestCase):
                      stdout=out, stderr=err, skip_checks=True)
         output = out.getvalue()
         assert (
-            output ==
-            "F=/tmp/defaults.cnf,u=ausername,p=apassword,h=ahost.example.com,"
-            "P=12345,D=mydatabase"
+            output
+            == (
+                "F=/tmp/defaults.cnf,u=ausername,p=apassword,"
+                + "h=ahost.example.com,P=12345,D=mydatabase"
+            )
         )
 
         errors = err.getvalue()

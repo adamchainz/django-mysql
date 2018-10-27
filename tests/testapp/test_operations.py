@@ -44,8 +44,8 @@ class PluginOperationTests(TransactionTestCase):
     def setUpClass(cls):
         super(PluginOperationTests, cls).setUpClass()
         has_metadata_lock_plugin = (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 7)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 7)
         )
         if not has_metadata_lock_plugin:
             raise SkipTest("The metadata_lock_info plugin is required")
@@ -61,8 +61,8 @@ class PluginOperationTests(TransactionTestCase):
         operation = InstallPlugin("metadata_lock_info",
                                   "metadata_lock_info.so")
         assert (
-            operation.describe() ==
-            "Installs plugin metadata_lock_info from metadata_lock_info.so"
+            operation.describe()
+            == "Installs plugin metadata_lock_info from metadata_lock_info.so"
         )
         new_state = state.clone()
         with connection.schema_editor() as editor:
@@ -119,14 +119,18 @@ class AlterStorageEngineTests(TransactionTestCase):
 
     def test_describe_without_from(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
-        assert (operation.describe() ==
-                "Alter storage engine for Pony to InnoDB")
+        assert (
+            operation.describe()
+            == "Alter storage engine for Pony to InnoDB"
+        )
 
     def test_describe_with_from(self):
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
                                        to_engine="InnoDB")
-        assert (operation.describe() ==
-                "Alter storage engine for Pony from MyISAM to InnoDB")
+        assert (
+            operation.describe()
+            == "Alter storage engine for Pony from MyISAM to InnoDB"
+        )
 
     def test_references_model(self):
         operation = AlterStorageEngine("Pony", "InnoDB")

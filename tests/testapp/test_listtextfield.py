@@ -238,8 +238,8 @@ class TestValidation(SimpleTestCase):
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean({'a', 'b', 'c', 'd'}, None)
         assert (
-            excinfo.value.messages[0] ==
-            'List contains 4 items, it should contain no more than 3.'
+            excinfo.value.messages[0]
+            == 'List contains 4 items, it should contain no more than 3.'
         )
 
 

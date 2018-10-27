@@ -301,8 +301,8 @@ class QueryHintTests(TestCase):
         with pytest.raises(ValueError) as excinfo:
             Author.objects.force_index()
         assert (
-            str(excinfo.value) ==
-            "force_index requires at least one index name"
+            str(excinfo.value)
+            == "force_index requires at least one index name"
         )
 
     def test_force_index_invalid_for(self):

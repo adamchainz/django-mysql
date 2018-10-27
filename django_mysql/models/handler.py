@@ -226,13 +226,13 @@ class Handler(object):
         can be used in a HANDLER statement
         """
         useable = (
-            not query.low_mark and
-            not query.high_mark and
-            not query.select and
-            not query.group_by and
-            not query.distinct and
-            not query.order_by and
-            len(query.alias_map) <= 1
+            not query.low_mark
+            and not query.high_mark
+            and not query.select
+            and not query.group_by
+            and not query.distinct
+            and not query.order_by
+            and len(query.alias_map) <= 1
         )
 
         if hasattr(query, 'having'):  # Django < 1.9
