@@ -223,7 +223,7 @@ class RewriteQueryTests(TestCase):
     def test_bad_query_not_rewritten(self):
         assert (
             rewrite_query(
-                "SELECTSTRAIGHT_JOIN col_a FROM sometable"
+                "SELECTSTRAIGHT_JOIN col_a FROM sometable "
                 "WHERE (/*QueryRewrite':label=hi*/1)",
             )
             == "SELECTSTRAIGHT_JOIN col_a FROM sometable WHERE (1)"
