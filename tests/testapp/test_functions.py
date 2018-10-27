@@ -585,8 +585,8 @@ class RegexpFunctionTests(TestCase):
     def setUp(self):
         super(RegexpFunctionTests, self).setUp()
         have_regex_functions = (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 5)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 5)
         )
         if not have_regex_functions:
             raise SkipTest("MariaDB 10.0.5+ is required")

@@ -28,8 +28,8 @@ def patch_CursorWrapper_execute():
     @functools.wraps(orig_execute)
     def execute(self, sql, args=None):
         if (
-            getattr(settings, 'DJANGO_MYSQL_REWRITE_QUERIES', False) and
-            REWRITE_MARKER in sql
+            getattr(settings, 'DJANGO_MYSQL_REWRITE_QUERIES', False)
+            and REWRITE_MARKER in sql
         ):
             sql = rewrite_query(sql)
         return orig_execute(self, sql, args)

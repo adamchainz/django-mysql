@@ -29,8 +29,8 @@ class LockTests(TestCase):
         super(LockTests, cls).setUpClass()
 
         cls.supports_lock_info = (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 7)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 7)
         )
         if cls.supports_lock_info:
             with connection.cursor() as cursor:
@@ -169,8 +169,8 @@ class LockTests(TestCase):
     def test_holding_more_than_one(self):
         is_mariadb = connection_is_mariadb(connection)
         supports_multiple_locks = (
-            (is_mariadb and connection.mysql_version >= (10, 0, 2)) or
-            (not is_mariadb and connection.mysql_version >= (5, 7))
+            (is_mariadb and connection.mysql_version >= (10, 0, 2))
+            or (not is_mariadb and connection.mysql_version >= (5, 7))
         )
         if not supports_multiple_locks:
             self.skipTest(
@@ -204,16 +204,16 @@ class LockTests(TestCase):
 
         with Lock('mylock-alpha') as lock:
             assert (
-                Lock.held_with_prefix('') ==
-                {'mylock-alpha': lock.holding_connection_id()}
+                Lock.held_with_prefix('')
+                == {'mylock-alpha': lock.holding_connection_id()}
             )
             assert (
-                Lock.held_with_prefix('mylock') ==
-                {'mylock-alpha': lock.holding_connection_id()}
+                Lock.held_with_prefix('mylock')
+                == {'mylock-alpha': lock.holding_connection_id()}
             )
             assert (
-                Lock.held_with_prefix('mylock-beta') ==
-                {}
+                Lock.held_with_prefix('mylock-beta')
+                == {}
             )
 
         assert Lock.held_with_prefix('') == {}

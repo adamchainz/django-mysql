@@ -162,8 +162,8 @@ class QuerySetMixin(object):
 
     def iterator(self):
         if (
-            django.VERSION[:2] >= (1, 11) and
-            getattr(self, '_found_rows', 0) is None
+            django.VERSION[:2] >= (1, 11)
+            and getattr(self, '_found_rows', 0) is None
         ):
             raise ValueError(
                 "sql_calc_found_rows() doesn't work with iterator()",
@@ -384,10 +384,12 @@ class SmartChunkedIterator(object):
 
         pk = queryset.model._meta.pk
         allowed_field = (
-            isinstance(pk, self.ALLOWED_PK_FIELD_CLASSES) or
-            (isinstance(pk, models.ForeignKey) and
-             isinstance(pk.foreign_related_fields[0],
-                        self.ALLOWED_PK_FIELD_CLASSES))
+            isinstance(pk, self.ALLOWED_PK_FIELD_CLASSES)
+            or (
+                isinstance(pk, models.ForeignKey)
+                and isinstance(pk.foreign_related_fields[0],
+                               self.ALLOWED_PK_FIELD_CLASSES)
+            )
         )
         if not allowed_field:
             # If your custom field class should be allowed, just add it to
@@ -407,8 +409,8 @@ class SmartChunkedIterator(object):
     def get_first_and_last(self):
         if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
             should_be_reversed = (
-                self.pk_range[1] < self.pk_range[0] and
-                self.queryset.query.standard_ordering
+                self.pk_range[1] < self.pk_range[0]
+                and self.queryset.query.standard_ordering
             )
             if should_be_reversed:
                 self.queryset = self.queryset.reverse()
@@ -636,8 +638,8 @@ def pt_visual_explain(queryset, display=True):
 
     # Now do the explain and pass through pt-visual-explain
     mysql_command = (
-        settings_to_cmd_args(connection.settings_dict) +
-        ['-e', explain_query]
+        settings_to_cmd_args(connection.settings_dict)
+        + ['-e', explain_query]
     )
     mysql = subprocess.Popen(mysql_command, stdout=subprocess.PIPE)
     visual_explain = subprocess.Popen(

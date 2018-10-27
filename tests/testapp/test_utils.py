@@ -146,15 +146,18 @@ class PTFingerprintTests(SimpleTestCase):
                     CURRENT_DATE()
             LIMIT 5"""
         assert (
-            pt_fingerprint(query) ==
-            "select concat(customer.last_name, ?, customer.first_name) as "
-            "customer, address.phone, film.title from rental inner join "
-            "customer on rental.customer_id = customer.customer_id inner join "
-            "address on customer.address_id = address.address_id inner join "
-            "inventory on rental.inventory_id = inventory.inventory_id inner "
-            "join film on inventory.film_id = film.film_id where "
-            "rental.return_date is ? and rental_date ? interval "
-            "film.rental_duration day < current_date() limit ?"
+            pt_fingerprint(query)
+            == (
+                "select concat(customer.last_name, ?, customer.first_name) as "
+                + "customer, address.phone, film.title from rental inner join "
+                + "customer on rental.customer_id = customer.customer_id "
+                + "inner join address on customer.address_id = "
+                + "address.address_id inner join inventory on "
+                + "rental.inventory_id = inventory.inventory_id inner join "
+                + "film on inventory.film_id = film.film_id where "
+                + "rental.return_date is ? and rental_date ? interval "
+                + "film.rental_duration day < current_date() limit ?"
+            )
         )
 
     def test_the_thread_shuts_on_time_out(self):

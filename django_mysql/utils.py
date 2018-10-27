@@ -242,8 +242,8 @@ class PTFingerprintThread(Thread):
                 # We timed out, but there was something put into the queue
                 # since
                 if (
-                    self.__class__.the_thread is self and
-                    self.in_queue.qsize()
+                    self.__class__.the_thread is self
+                    and self.in_queue.qsize()
                 ):  # pragma: no cover
                     self.life_lock.release()
                     break

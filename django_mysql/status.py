@@ -107,8 +107,8 @@ class GlobalStatus(BaseStatus):
 
             if timeout and time.time() > start + timeout:
                 raise TimeoutError(
-                    "Span too long waiting for load to drop: " +
-                    ",".join(
+                    "Span too long waiting for load to drop: "
+                    + ",".join(
                         "{} > {}".format(name, thresholds[name])
                         for name in higher
                     ),
