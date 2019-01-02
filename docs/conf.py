@@ -62,7 +62,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Django-MySQL'
-copyright = u'2017, Adam Johnson'
+copyright = u'2017-2019 Adam Johnson'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
