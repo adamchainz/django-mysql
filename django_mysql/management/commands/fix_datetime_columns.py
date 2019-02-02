@@ -3,7 +3,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
-import django
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -20,26 +19,16 @@ class Command(BaseCommand):
         'datetime(6)' and outputs the SQL to fix them.
     """)
 
-    if django.VERSION[:2] >= (1, 10):
-        def add_arguments(self, parser):
-            parser.add_argument(
-                'alias', metavar='alias', nargs='?',
-                default=DEFAULT_DB_ALIAS,
-                help='Specify the database connection alias to output '
-                     'parameters for.',
-            )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'alias', metavar='alias', nargs='?',
+            default=DEFAULT_DB_ALIAS,
+            help='Specify the database connection alias to output '
+                 'parameters for.',
+        )
 
     def handle(self, *args, **options):
-        if django.VERSION[:2] >= (1, 10):
-            alias = options['alias']
-        else:
-            if len(args) > 1:
-                raise CommandError('Cannot connect to more than one '
-                                   'connection.')
-            elif len(args) == 0:
-                alias = DEFAULT_DB_ALIAS
-            else:
-                alias = args[0]
+        alias = options['alias']
 
         try:
             connection = connections[alias]

@@ -3,9 +3,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
-from unittest import skipIf
-
-import django
 import pytest
 from django.core.management import CommandError, call_command
 from django.db.utils import ConnectionHandler
@@ -45,13 +42,6 @@ socket_db = ConnectionHandler({'default': {
 
 
 class DBParamsTests(SimpleTestCase):
-
-    @skipIf(django.VERSION[:2] >= (1, 10),
-            'argument parsing uses a fixed single argument in Django 1.10+')
-    def test_invalid_number_of_databases(self):
-        with pytest.raises(CommandError) as excinfo:
-            call_command('dbparams', 'default', 'default', skip_checks=True)
-        assert "more than one connection" in str(excinfo.value)
 
     def test_invalid_database(self):
         with pytest.raises(CommandError) as excinfo:

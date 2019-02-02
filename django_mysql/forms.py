@@ -5,14 +5,13 @@ from __future__ import (
 
 import json
 
-import django
 from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils import six
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from django_mysql.compat import lazy_string_concat
 from django_mysql.validators import (
     ListMaxLengthValidator, ListMinLengthValidator, SetMaxLengthValidator,
     SetMinLengthValidator,
@@ -66,7 +65,8 @@ class SimpleListField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     errors.append(ValidationError(
-                        lazy_string_concat(
+                        format_lazy(
+                            '{}{}',
                             self.error_messages['item_n_invalid'],
                             error.message,
                         ),
@@ -91,7 +91,8 @@ class SimpleListField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            lazy_string_concat(
+                            format_lazy(
+                                '{}{}',
                                 self.error_messages['item_n_invalid'],
                                 message,
                             ),
@@ -111,7 +112,8 @@ class SimpleListField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            lazy_string_concat(
+                            format_lazy(
+                                '{}{}',
                                 self.error_messages['item_n_invalid'],
                                 message,
                             ),
@@ -173,7 +175,8 @@ class SimpleSetField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     errors.append(ValidationError(
-                        lazy_string_concat(
+                        format_lazy(
+                            '{}{}',
                             self.error_messages['item_n_invalid'],
                             error.message,
                         ),
@@ -205,7 +208,8 @@ class SimpleSetField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            lazy_string_concat(
+                            format_lazy(
+                                '{}{}',
                                 self.error_messages['item_invalid'],
                                 message,
                             ),
@@ -225,7 +229,8 @@ class SimpleSetField(forms.CharField):
                 for error in e.error_list:
                     for message in error.messages:
                         errors.append(ValidationError(
-                            lazy_string_concat(
+                            format_lazy(
+                                '{}{}',
                                 self.error_messages['item_invalid'],
                                 message,
                             ),
@@ -251,7 +256,7 @@ class JSONField(forms.CharField):
     widget = forms.Textarea
 
     def to_python(self, value):
-        if django.VERSION[:2] >= (1, 9) and self.disabled:
+        if self.disabled:
             return value
         if value in self.empty_values:
             return None
@@ -271,7 +276,7 @@ class JSONField(forms.CharField):
             return converted
 
     def bound_data(self, data, initial):
-        if django.VERSION[:2] >= (1, 9) and self.disabled:
+        if self.disabled:
             return initial
         try:
             return json.loads(data)

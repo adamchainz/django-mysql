@@ -7,7 +7,6 @@ import pickle
 import re
 from unittest import skipUnless
 
-import django
 import pytest
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
@@ -366,11 +365,14 @@ class FoundRowsTests(TestCase):
         with self.assertRaises(RuntimeError):
             authors.found_rows
 
-    @skipUnless(django.VERSION[:2] >= (1, 11), "Need Django 1.11+")
     def test_it_doesnt_work_with_iterator(self):
         authors = Author.objects.sql_calc_found_rows()[:5]
         with pytest.raises(ValueError, message="doesn't work with iterator()"):
             authors.iterator()
+
+    def test_iterator_without_it_works(self):
+        authors = Author.objects.all()[:5]
+        authors.iterator()
 
     def test_it_working(self):
         with self.assertNumQueries(2):

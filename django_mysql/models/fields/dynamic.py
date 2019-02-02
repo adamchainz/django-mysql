@@ -4,7 +4,6 @@ from __future__ import (
 )
 
 import json
-from copy import copy
 from datetime import date, datetime, time
 
 import django
@@ -323,17 +322,6 @@ class KeyTransform(Transform):
             "COLUMN_GET({}, %s AS {})".format(lhs, self.data_type),
             params + [self.key_name],
         )
-
-    if django.VERSION[:3] <= (1, 8, 2):  # pragma: no cover
-        # Backport of bugfix for transforms with arguments, taken from:
-        # https://code.djangoproject.com/ticket/24744
-        def copy(self):
-            return copy(self)
-
-        def relabeled_clone(self, relabels):
-            copy = self.copy()
-            copy.lhs = self.lhs.relabeled_clone(relabels)
-            return copy
 
 
 class KeyTransformFactory(object):

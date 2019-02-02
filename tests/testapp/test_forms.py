@@ -3,9 +3,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
-from unittest import skipUnless
-
-import django
 import pytest
 from django import forms
 from django.core import exceptions
@@ -369,8 +366,6 @@ class TestJSONField(SimpleTestCase):
             val = field.clean(json_string)
             assert field.clean(val) == val
 
-    @skipUnless(django.VERSION[:2] >= (1, 9),
-                "Requires Django 1.9+ for Field.disabled")
     def test_disabled(self):
         class JsonForm(forms.Form):
             jfield = JSONField(disabled=True)
