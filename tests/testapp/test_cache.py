@@ -7,7 +7,6 @@ import imp
 import os
 import time
 from decimal import Decimal
-from unittest import skipUnless
 
 import django
 import pytest
@@ -771,36 +770,25 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         with pytest.raises(pickle.PickleError):
             cache.set('unpickable', Unpickable())
 
-    @skipUnless(django.VERSION[:2] >= (1, 9),
-                "Requires Django 1.9+ for cache.get_or_set")
     def test_get_or_set(self):
         assert cache.get('projector') is None
         assert cache.get_or_set('projector', 42) == 42
         assert cache.get('projector') == 42
 
-    @skipUnless(django.VERSION[:2] >= (1, 9),
-                "Requires Django 1.9+ for cache.get_or_set")
     def test_get_or_set_callable(self):
         def my_callable():
             return 'value'
 
         assert cache.get_or_set('mykey', my_callable) == 'value'
 
-    @skipUnless(django.VERSION[:2] >= (1, 9),
-                "Requires Django 1.9+ for cache.get_or_set")
     def test_get_or_set_version(self):
         msg = "get_or_set() missing 1 required positional argument: 'default'"
         cache.get_or_set('brian', 1979, version=2)
 
-        if django.VERSION[:2] >= (1, 11):
-            exc_class = TypeError
-        else:
-            exc_class = ValueError
-
-        with pytest.raises(exc_class, message=msg):
+        with pytest.raises(TypeError, message=msg):
             cache.get_or_set('brian')
 
-        with pytest.raises(exc_class, message=msg):
+        with pytest.raises(TypeError, message=msg):
             cache.get_or_set('brian', version=1)
 
         assert cache.get('brian', version=1) is None

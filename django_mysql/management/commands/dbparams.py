@@ -3,7 +3,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
-import django
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import ConnectionDoesNotExist
@@ -22,13 +21,12 @@ class Command(BaseCommand):
     requires_system_checks = False
 
     def add_arguments(self, parser):
-        if django.VERSION[:2] >= (1, 10):
-            parser.add_argument(
-                'alias', metavar='alias', nargs='?',
-                default=DEFAULT_DB_ALIAS,
-                help='Specify the database connection alias to output '
-                     'parameters for.',
-            )
+        parser.add_argument(
+            'alias', metavar='alias', nargs='?',
+            default=DEFAULT_DB_ALIAS,
+            help='Specify the database connection alias to output '
+                 'parameters for.',
+        )
 
         parser.add_argument(
             '--mysql',
@@ -49,16 +47,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if django.VERSION[:2] >= (1, 10):
-            alias = options['alias']
-        else:
-            if len(args) > 1:
-                raise CommandError('Cannot output the parameters for more '
-                                   'than one connection.')
-            elif len(args) == 0:
-                alias = DEFAULT_DB_ALIAS
-            else:
-                alias = args[0]
+        alias = options['alias']
 
         try:
             settings_dict = connections[alias].settings_dict

@@ -10,7 +10,6 @@ import time
 from copy import copy
 from functools import wraps
 
-import django
 from django.conf import settings
 from django.db import connections, models
 from django.db.models.sql.where import ExtraWhere
@@ -161,10 +160,7 @@ class QuerySetMixin(object):
         return self._found_rows
 
     def iterator(self):
-        if (
-            django.VERSION[:2] >= (1, 11)
-            and getattr(self, '_found_rows', 0) is None
-        ):
+        if getattr(self, '_found_rows', 0) is None:
             raise ValueError(
                 "sql_calc_found_rows() doesn't work with iterator()",
             )

@@ -3,7 +3,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals,
 )
 
-import django
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
@@ -19,19 +18,14 @@ class Command(BaseCommand):
         Outputs a migration that will create a table.
     """)
 
-    if django.VERSION[:2] >= (1, 10):
-
-        def add_arguments(self, parser):
-            parser.add_argument(
-                'aliases', metavar='aliases', nargs='*',
-                help='Specify the cache alias(es) to create migrations for.',
-            )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'aliases', metavar='aliases', nargs='*',
+            help='Specify the cache alias(es) to create migrations for.',
+        )
 
     def handle(self, *args, **options):
-        if django.VERSION[:2] >= (1, 10):
-            aliases = set(options['aliases'])
-        else:
-            aliases = set(args)
+        aliases = set(options['aliases'])
 
         if not aliases:
             aliases = settings.CACHES

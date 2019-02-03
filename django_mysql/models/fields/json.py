@@ -181,12 +181,7 @@ class JSONLength(Transform):
 
     output_field = IntegerField()
 
-    if django.VERSION[:2] < (1, 9):
-        def as_sql(self, compiler, connection):
-            lhs, params = compiler.compile(self.lhs)
-            return 'JSON_LENGTH({})'.format(lhs), params
-    else:
-        function = 'JSON_LENGTH'
+    function = 'JSON_LENGTH'
 
 
 JSONField.register_lookup(JSONContainedBy)

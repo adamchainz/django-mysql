@@ -4,9 +4,8 @@ from __future__ import (
 )
 
 from textwrap import dedent
-from unittest import SkipTest, skipIf
+from unittest import SkipTest
 
-import django
 import pytest
 from django.core.management import CommandError, call_command
 from django.db import connection
@@ -78,13 +77,6 @@ class FixDatetimeColumnsTests(Datetime6TestMixin, TestCase):
             run_it('bla')
 
         assert "does not exist" in str(excinfo.value)
-
-    @skipIf(django.VERSION[:2] >= (1, 10),
-            'argument parsing uses a fixed single argument in Django 1.10+')
-    def test_invalid_number_of_databases(self):
-        with pytest.raises(CommandError) as excinfo:
-            run_it('other', 'default')
-        assert "more than one connection" in str(excinfo.value)
 
     @mock.patch(command_connections, sqlite)
     def test_invalid_not_mysql(self):
