@@ -1,12 +1,9 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import imp
 import os
+import pickle
 import time
 from decimal import Decimal
+from io import StringIO
 
 import django
 import pytest
@@ -20,17 +17,10 @@ from django.middleware.cache import (
 )
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
-from django.utils import six
-from django.utils.six.moves import StringIO
 from parameterized import parameterized
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
 from testapp.models import Poll, expensive_calculation
-
-try:    # Use the same idiom as in cache backends
-    from django.utils.six.moves import cPickle as pickle
-except ImportError:  # pragma: no cover
-    import pickle
 
 
 # functions/classes for complex data type tests
@@ -1287,10 +1277,10 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         time.sleep(0.2)
 
         # 90 non-expired keys
-        for n in six.moves.range(9):
+        for n in range(9):
             cache.set_many({
                 str(n * 10 + i): True
-                for i in six.moves.range(10)
+                for i in range(10)
             })
 
         cache.cull()
@@ -1342,7 +1332,7 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
 
         # Dynamic import and check
         migration_mod = imp.new_module('0001_add_cache_tables')
-        six.exec_(output, migration_mod.__dict__)
+        exec(output, migration_mod.__dict__)
         assert hasattr(migration_mod, 'Migration')
         migration = migration_mod.Migration
         assert hasattr(migration, 'dependencies')

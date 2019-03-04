@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import operator
 import subprocess
 import sys
@@ -15,7 +10,6 @@ from django.db import connections, models
 from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
 from django.test.utils import CaptureQueriesContext
-from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
@@ -277,15 +271,11 @@ def _make_mixin_class(klass):
         class MixedInQuerySet(QuerySetMixin, klass):
             pass
 
-        if six.PY2:
-            MixedInQuerySet.__name__ = b'MySQL' + klass.__name__
-        else:
-            MixedInQuerySet.__name__ = 'MySQL' + klass.__name__
+        MixedInQuerySet.__name__ = 'MySQL' + klass.__name__
         _mixin_classes[klass] = MixedInQuerySet
     return _mixin_classes[klass]
 
 
-@six.python_2_unicode_compatible
 class ApproximateInt(int):
     """
     An int subclass purely for displaying the fact that this represents an

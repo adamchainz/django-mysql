@@ -1,18 +1,13 @@
-# -*- coding:utf-8 -*-
 """
 Implements a function for hoisting specially constructed comments in SQL
 queries and using them to rewrite that query. This is done to support query
 hints whilst obviating patching Django's ORM in complex ways.
 """
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
 
 import operator
 import re
 from collections import OrderedDict
-
-from django.utils import six
+from functools import reduce
 
 # The rewrite comments contain a single quote mark that would need be escaped
 # if entered in a column name or something like that. We aren't too worried
@@ -87,7 +82,7 @@ SELECT_HINTS = OrderedDict([
 
 # Any pre-expression tokens that are query hints
 SELECT_HINT_TOKENS = frozenset(
-    six.moves.reduce(operator.add, SELECT_HINTS.values()),
+    reduce(operator.add, SELECT_HINTS.values()),
 )
 
 # Don't go crazy reading this - it's just templating a piece of the below regex
@@ -96,7 +91,7 @@ hints_re_piece = '\n'.join(
         group_name=group_name,
         tokens='|'.join(token_set),
     )
-    for group_name, token_set in six.iteritems(SELECT_HINTS)
+    for group_name, token_set in SELECT_HINTS.items()
 )
 
 
@@ -141,7 +136,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
     # Don't bother with SELECT rewrite rules on non-SELECT queries
     if tokens[0] == "SELECT":
 
-        for group_name, hint_set in six.iteritems(SELECT_HINTS):
+        for group_name, hint_set in SELECT_HINTS.items():
 
             try:
                 # Take the last hint we were told to add from this hint_set

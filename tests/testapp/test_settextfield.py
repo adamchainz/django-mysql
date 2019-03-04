@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 
 import pytest
@@ -12,7 +7,6 @@ from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
 from django.test import SimpleTestCase, TestCase
-from django.utils import six
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
@@ -22,7 +16,7 @@ from testapp.models import BigCharSetModel, BigIntSetModel, TemporaryModel
 class TestSaveLoad(TestCase):
 
     def test_char_easy(self):
-        big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
+        big_set = {str(i ** 2) for i in range(1000)}
         s = BigCharSetModel.objects.create(field=big_set)
         assert s.field == big_set
         s = BigCharSetModel.objects.get(id=s.id)
@@ -37,7 +31,7 @@ class TestSaveLoad(TestCase):
         assert s.field == bigger_set
 
     def test_char_string_direct(self):
-        big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
+        big_set = {str(i ** 2) for i in range(1000)}
         big_str = ','.join(big_set)
         s = BigCharSetModel.objects.create(field=big_str)
         s = BigCharSetModel.objects.get(id=s.id)
@@ -150,7 +144,7 @@ class TestSaveLoad(TestCase):
         assert three.count() == 0
 
     def test_int_easy(self):
-        big_set = {i ** 2 for i in six.moves.range(1000)}
+        big_set = {i ** 2 for i in range(1000)}
         mymodel = BigIntSetModel.objects.create(field=big_set)
         assert mymodel.field == big_set
         mymodel = BigIntSetModel.objects.get(id=mymodel.id)
@@ -320,7 +314,7 @@ class TestMigrationWriter(TestCase):
 class TestSerialization(SimpleTestCase):
 
     def test_dumping(self):
-        big_set = {six.text_type(i ** 2) for i in six.moves.range(1000)}
+        big_set = {str(i ** 2) for i in range(1000)}
         instance = BigCharSetModel(field=big_set)
         data = json.loads(serializers.serialize('json', [instance]))[0]
         field = data['fields']['field']

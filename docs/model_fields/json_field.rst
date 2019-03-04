@@ -20,11 +20,11 @@ Django-MySQL supports the JSON data type and related functions through
 
 .. class:: JSONField(**kwargs)
 
-    A field for storing JSON. The Python data type may be either ``str``
-    (``unicode`` on Python 2), ``int``, ``float``, ``dict``, or ``list`` -
-    basically anything that is supported by ``json.dumps``. There is no
-    restriction between these types - this may be surprising if you expect it
-    to just store JSON objects/``dict``\s.
+    A field for storing JSON. The Python data type may be either ``str``,
+    ``int``, ``float``, ``dict``, or ``list`` - basically anything that is
+    supported by ``json.dumps``. There is no restriction between these types -
+    this may be surprising if you expect it to just store JSON
+    objects/``dict``\s.
 
     So for example, the following all work:
 
@@ -101,7 +101,7 @@ We'll use the following example model:
         name = models.CharField(max_length=200)
         attrs = JSONField()
 
-        def __str__(self):  # __unicode__ on Python 2
+        def __str__(self):
             return self.name
 
 Exact Lookups

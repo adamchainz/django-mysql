@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
@@ -63,9 +58,6 @@ class Command(BaseCommand):
 
 
 header = '''
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import migrations
 
 

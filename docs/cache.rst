@@ -61,9 +61,6 @@ example:
 .. code-block:: console
 
     $ python manage.py mysql_cache_migration
-    # -*- coding: utf-8 -*-
-    from __future__ import unicode_literals
-
     from django.db import migrations
 
 
@@ -414,9 +411,6 @@ can upgrade by adding a migration with the following SQL, if you replace
 Or as a reversible migration:
 
 .. code-block:: python
-
-    # -*- coding: utf-8 -*-
-    from __future__ import unicode_literals
 
     from django.db import migrations
 

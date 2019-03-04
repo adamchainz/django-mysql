@@ -21,11 +21,11 @@ to pack and unpack Dynamic Columns blobs in Python rather than in MariaDB
 .. class:: DynamicField(spec=None, **kwargs)
 
     A field for storing Dynamic Columns. The Python data type is ``dict``. Keys
-    must be ``str``\s (``unicode`` on Python 2) and values must be one of the
-    supported value types in ``mariadb-dyncol``:
+    must be ``str``\s and values must be one of the supported value types in
+    ``mariadb-dyncol``:
 
-    * ``str`` (``unicode`` on Python 2)
-    * ``int`` (and also ``long`` on Python 2)
+    * ``str``
+    * ``int``
     * ``float``
     * ``datetime.date``
     * ``datetime.datetime``
@@ -134,7 +134,7 @@ We'll use the following example model:
             'size': str,
         })
 
-        def __str__(self):  # __unicode__ on Python 2
+        def __str__(self):
             return self.name
 
 Exact Lookups
@@ -166,11 +166,11 @@ automatically - this includes keys in nested ``dict``\s.
 The list of SQL types is:
 
 * ``BINARY`` - ``dict`` (a nested ``DynamicField``)
-* ``CHAR`` - ``str`` (``unicode`` on Python 2)
+* ``CHAR`` - ``str``
 * ``DATE`` - ``datetime.date``
 * ``DATETIME`` - ``datetime.datetime``
 * ``DOUBLE`` - ``float``
-* ``INTEGER`` - ``int`` (and also ``long`` on Python 2)
+* ``INTEGER`` - ``int``
 * ``TIME`` - ``datetime.time``
 
 These will also use the correct Django ORM field so chained lookups based on

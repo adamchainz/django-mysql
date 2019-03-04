@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import collections
 import json
 
@@ -11,7 +6,6 @@ from django.db.models.lookups import (
     BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan,
     LessThanOrEqual,
 )
-from django.utils import six
 
 from django_mysql.models.functions import JSONValue
 
@@ -100,10 +94,9 @@ class JSONHasKey(Lookup):
     lookup_name = 'has_key'
 
     def get_prep_lookup(self):
-        if not isinstance(self.rhs, six.text_type):
+        if not isinstance(self.rhs, str):
             raise ValueError(
-                "JSONField's 'has_key' lookup only works with {} values"
-                .format(six.text_type.__name__),
+                "JSONField's 'has_key' lookup only works with str values",
             )
         return super(JSONHasKey, self).get_prep_lookup()
 

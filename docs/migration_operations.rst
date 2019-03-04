@@ -39,9 +39,6 @@ Install Plugin
 
     .. code-block:: python
 
-        # -*- coding: utf-8 -*-
-        from __future__ import unicode_literals
-
         from django.db import migrations
         from django_mysql.operations import InstallPlugin
 
@@ -82,9 +79,6 @@ Install SOName
     Example usage:
 
     .. code-block:: python
-
-        # -*- coding: utf-8 -*-
-        from __future__ import unicode_literals
 
         from django.db import migrations
         from django_mysql.operations import InstallSOName
@@ -132,9 +126,6 @@ Alter Storage Engine
     Example usage:
 
     .. code-block:: python
-
-        # -*- coding: utf-8 -*-
-        from __future__ import unicode_literals
 
         from django.db import migrations
         from django_mysql.operations import AlterStorageEngine

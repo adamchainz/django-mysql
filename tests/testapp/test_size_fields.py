@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import pytest
 from django.core.management import call_command
 from django.db import connection
@@ -11,7 +6,6 @@ from django.db.transaction import atomic
 from django.db.utils import DataError
 from django.test import TestCase, TransactionTestCase
 from django.test.utils import override_settings
-from django.utils import six
 
 from django_mysql.models import SizedBinaryField, SizedTextField
 from django_mysql.test.utils import override_mysql_variables
@@ -54,11 +48,11 @@ class SizedBinaryFieldTests(TestCase):
     @atomic
     def test_binary_1_max_length(self):
         # Okay
-        m = SizeFieldModel(binary1=six.binary_type(1) * (2**8 - 1))
+        m = SizeFieldModel(binary1=bytes(1) * (2**8 - 1))
         m.save()
 
         # Bad - Data too long
-        m = SizeFieldModel(binary1=six.binary_type(1) * (2**8))
+        m = SizeFieldModel(binary1=bytes(1) * (2**8))
         with pytest.raises(DataError) as excinfo:
             m.save()
         assert excinfo.value.args[0] == 1406

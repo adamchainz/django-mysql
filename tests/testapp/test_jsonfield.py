@@ -1,11 +1,6 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 from decimal import Decimal
-from unittest import SkipTest
+from unittest import SkipTest, mock
 
 import django
 import pytest
@@ -20,11 +15,6 @@ from django_mysql.models import JSONField
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import JSONModel, TemporaryModel
 from testapp.utils import print_all_queries
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 
 class JSONFieldTestCase(TestCase):
@@ -283,7 +273,10 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
     def test_has_key_invalid_type(self):
         with pytest.raises(ValueError) as excinfo:
             JSONModel.objects.filter(attrs__has_key=1)
-        assert "'has_key' lookup only works with" in str(excinfo.value)
+        assert (
+            str(excinfo.value)
+            == "JSONField's 'has_key' lookup only works with str values"
+        )
 
     def test_has_key(self):
         assert (

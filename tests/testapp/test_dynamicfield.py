@@ -1,11 +1,6 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 from datetime import date, datetime, time
-from unittest import SkipTest
+from unittest import SkipTest, mock
 
 import pytest
 from django.core import serializers
@@ -13,17 +8,10 @@ from django.db import connection, connections
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
 from django.test import TestCase
-from django.utils import six
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
 from testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
-from testapp.utils import requiresPython2
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 try:
     import mariadb_dyncol
@@ -122,16 +110,6 @@ class SpecTests(DynColTestCase):
         with pytest.raises(TypeError) as excinfo:
             m.save()
         assert "Key 'nesty' should be of type dict" in str(excinfo.value)
-
-    @requiresPython2
-    def test_long_equivalent_to_int(self):
-        from __builtin__ import long  # make source lintable on Python 3
-        DynamicField.validate_spec({'a': int}, {'a': long(9001)})  # no errors
-
-    @requiresPython2
-    def test_int_equivalent_to_long(self):
-        from __builtin__ import long  # make source lintable on Python 3
-        DynamicField.validate_spec({'a': long}, {'a': int(9001)})  # no errors
 
 
 class DumbTransform(Transform):
@@ -412,7 +390,7 @@ class TestCheck(DynColTestCase):
     def test_spec_key_not_valid(self):
         class InvalidDynamicModel2(TemporaryModel):
             field = DynamicField(spec={
-                2.0: six.text_type,
+                2.0: str,
             })
 
         errors = InvalidDynamicModel2.check(actually_check=True)
@@ -468,7 +446,7 @@ class TestToPython(TestCase):
         assert result == {'foo': 'bar'}
 
     def test_json(self):
-        value = six.text_type(json.dumps({'foo': 'bar'}))
+        value = str(json.dumps({'foo': 'bar'}))
         result = DynamicField().to_python(value)
         assert result == {'foo': 'bar'}
 

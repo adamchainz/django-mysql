@@ -1,11 +1,6 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import pickle
 import re
-from unittest import skipUnless
+from unittest import mock, skipUnless
 
 import pytest
 from django.contrib.auth.models import User
@@ -13,7 +8,6 @@ from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import six
 
 from django_mysql.models import (
     ApproximateInt, SmartIterator, add_QuerySetMixin,
@@ -24,11 +18,6 @@ from testapp.models import (
     VanillaAuthor,
 )
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 
 class MixinQuerysetTests(TestCase):
@@ -182,7 +171,7 @@ class QueryHintTests(TestCase):
         with pytest.raises(RuntimeError) as excinfo:
             Author.objects.all().straight_join()
 
-        assert 'DJANGO_MYSQL_REWRITE_QUERIES' in six.text_type(excinfo.value)
+        assert 'DJANGO_MYSQL_REWRITE_QUERIES' in str(excinfo.value)
 
     def test_sql_cache(self):
         with CaptureLastQuery() as cap:

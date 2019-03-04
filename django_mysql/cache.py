@@ -1,8 +1,4 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
+import pickle
 import re
 import zlib
 from random import random
@@ -13,17 +9,10 @@ from django.core.cache.backends.base import (
     DEFAULT_TIMEOUT, BaseCache, default_key_func,
 )
 from django.db import connections, router
-from django.utils import six
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
 from django_mysql.utils import collapse_spaces, get_list_sql
-
-try:
-    from django.utils.six.moves import cPickle as pickle
-except ImportError:  # pragma: no cover
-    import pickle
-
 
 BIGINT_SIGNED_MIN = -9223372036854775808
 BIGINT_SIGNED_MAX = 9223372036854775807
@@ -279,7 +268,7 @@ class MySQLCache(BaseDatabaseCache):
         self._maybe_cull()
 
         params = []
-        for key, value in six.iteritems(data):
+        for key, value in data.items():
             made_key = self.make_key(key, version=version)
             self.validate_key(made_key)
             value, value_type = self.encode(value)
@@ -444,9 +433,9 @@ class MySQLCache(BaseDatabaseCache):
 
     def _is_valid_mysql_bigint(self, value):
         return(
-            # Can't support int/long subclasses since they should are expected
-            # to decode back to the same object
-            (type(value) in six.integer_types)
+            # Can't support int subclasses since they should are expected to
+            # decode back to the same object
+            type(value) is int
             # Can't go beyond these ranges
             and BIGINT_SIGNED_MIN <= value <= BIGINT_SIGNED_MAX
         )
@@ -515,7 +504,7 @@ class MySQLCache(BaseDatabaseCache):
 
                 if key_version == version:
                     keys[key] = key_version
-            return set(six.iterkeys(keys))
+            return set(keys.keys())
 
     def get_with_prefix(self, prefix, version=None):
         if self.reverse_key_func is None:
@@ -531,7 +520,7 @@ class MySQLCache(BaseDatabaseCache):
         table = connections[db].ops.quote_name(self._table)
 
         prefix = self.make_key(prefix + '%', version=version)
-        version = six.text_type(version)
+        version = str(version)
 
         with connections[db].cursor() as cursor:
             cursor.execute(

@@ -136,9 +136,6 @@ The following can be imported from ``django_mysql.locks``.
 
             .. code-block:: python
 
-                # -*- coding: utf-8 -*-
-                from __future__ import unicode_literals
-
                 from django.db import migrations
                 from django_mysql.operations import InstallSOName
 

@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 from django_mysql.models.fields.bit import (  # noqa
     Bit1BooleanField, NullBit1BooleanField,
 )

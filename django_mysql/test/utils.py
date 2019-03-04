@@ -1,14 +1,8 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import uuid
 from functools import wraps
 
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
-from django.utils import six
 
 
 class override_mysql_variables(object):
@@ -36,7 +30,7 @@ class override_mysql_variables(object):
 
     def __call__(self, test_func):
         from unittest import TestCase
-        if isinstance(test_func, six.class_types):
+        if isinstance(test_func, type):
             if not issubclass(test_func, TestCase):
                 raise Exception(
                     "{} only works with TestCase classes."
@@ -69,7 +63,7 @@ class override_mysql_variables(object):
     def enable(self):
         with connections[self.db].cursor() as cursor:
 
-            for key, value in six.iteritems(self.options):
+            for key, value in self.options.items():
                 cursor.execute(
                     """SET @overridden_{prefix}_{name} = @@{name},
                            @@{name} = %s
