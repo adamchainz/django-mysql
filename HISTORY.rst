@@ -8,6 +8,12 @@ Pending
 
 .. Insert new release notes below this line
 
+3.0.0.post1 (2019-03-05)
+------------------------
+
+* Remove universal wheel. Version 3.0.0 has been pulled from PyPI after being
+  up for 3 hours to fix mistaken installs on Python 2.
+
 3.0.0 (2019-03-05)
 ------------------
 
