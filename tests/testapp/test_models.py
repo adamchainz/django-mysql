@@ -356,7 +356,8 @@ class FoundRowsTests(TestCase):
 
     def test_it_doesnt_work_with_iterator(self):
         authors = Author.objects.sql_calc_found_rows()[:5]
-        with pytest.raises(ValueError, message="doesn't work with iterator()"):
+        match_re = r"doesn't work with iterator\(\)"
+        with pytest.raises(ValueError, match=match_re):
             authors.iterator()
 
     def test_iterator_without_it_works(self):

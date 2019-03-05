@@ -772,13 +772,15 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.get_or_set('mykey', my_callable) == 'value'
 
     def test_get_or_set_version(self):
-        msg = "get_or_set() missing 1 required positional argument: 'default'"
+        msg_re = (
+            r"get_or_set\(\) missing 1 required positional argument: 'default'"
+        )
         cache.get_or_set('brian', 1979, version=2)
 
-        with pytest.raises(TypeError, message=msg):
+        with pytest.raises(TypeError, match=msg_re):
             cache.get_or_set('brian')
 
-        with pytest.raises(TypeError, message=msg):
+        with pytest.raises(TypeError, match=msg_re):
             cache.get_or_set('brian', version=1)
 
         assert cache.get('brian', version=1) is None
