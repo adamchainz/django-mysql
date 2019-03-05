@@ -83,19 +83,13 @@ class SizedBinaryFieldTests(TestCase):
         field = SizedBinaryField(size_class=1)
         statement, imports = MigrationWriter.serialize(field)
 
-        assert (
-            statement
-            == "django_mysql.models.SizedBinaryField(size_class=1)"
-        )
+        assert statement == "django_mysql.models.SizedBinaryField(size_class=1)"
 
     def test_makemigrations_size_class_implicit(self):
         field = SizedBinaryField()
         statement, imports = MigrationWriter.serialize(field)
 
-        assert (
-            statement
-            == "django_mysql.models.SizedBinaryField(size_class=4)"
-        )
+        assert statement == "django_mysql.models.SizedBinaryField(size_class=4)"
 
 
 @forceDataError
@@ -192,27 +186,19 @@ class SizedTextFieldTests(TestCase):
         field = SizedTextField(size_class=1)
         statement, imports = MigrationWriter.serialize(field)
 
-        assert (
-            statement
-            == "django_mysql.models.SizedTextField(size_class=1)"
-        )
+        assert statement == "django_mysql.models.SizedTextField(size_class=1)"
 
     def test_makemigrations_size_class_implicit(self):
         field = SizedTextField()
         statement, imports = MigrationWriter.serialize(field)
 
-        assert (
-            statement
-            == "django_mysql.models.SizedTextField(size_class=4)"
-        )
+        assert statement == "django_mysql.models.SizedTextField(size_class=4)"
 
 
 @forceDataError
 class SizedTextFieldMigrationTests(TransactionTestCase):
 
-    @override_settings(MIGRATION_MODULES={
-        "testapp": "testapp.sizedtextfield_migrations",
-    })
+    @override_settings(MIGRATION_MODULES={"testapp": "testapp.sizedtextfield_migrations"})
     def test_adding_field_with_default(self):
         table_name = 'testapp_sizedtextaltermodel'
         table_names = connection.introspection.table_names

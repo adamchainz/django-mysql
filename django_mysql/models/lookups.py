@@ -2,10 +2,7 @@ import collections
 import json
 
 from django.db.models import CharField, Lookup, Transform
-from django.db.models.lookups import (
-    BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan,
-    LessThanOrEqual,
-)
+from django.db.models.lookups import BuiltinLookup, Exact, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual
 
 from django_mysql.models.functions import JSONValue
 

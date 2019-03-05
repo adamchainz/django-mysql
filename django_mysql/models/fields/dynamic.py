@@ -3,10 +3,7 @@ from datetime import date, datetime, time
 
 import django
 from django.core import checks
-from django.db.models import (
-    DateField, DateTimeField, Field, FloatField, IntegerField, TextField,
-    TimeField, Transform,
-)
+from django.db.models import DateField, DateTimeField, Field, FloatField, IntegerField, TextField, TimeField, Transform
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.checks import mysql_connections

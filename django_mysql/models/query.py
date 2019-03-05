@@ -17,8 +17,7 @@ from django_mysql.models.handler import Handler
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
-    StopWatch, WeightedAverageRate, format_duration, have_program,
-    noop_context, settings_to_cmd_args,
+    StopWatch, WeightedAverageRate, format_duration, have_program, noop_context, settings_to_cmd_args,
 )
 
 

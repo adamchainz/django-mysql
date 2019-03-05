@@ -2,9 +2,7 @@ import pytest
 from django.test import TestCase
 
 from django_mysql.exceptions import TimeoutError
-from django_mysql.status import (
-    GlobalStatus, SessionStatus, global_status, session_status,
-)
+from django_mysql.status import GlobalStatus, SessionStatus, global_status, session_status
 
 
 class BaseStatusTests(TestCase):
@@ -86,8 +84,7 @@ class GlobalStatusTests(TestCase):
     def test_wait_until_load_low(self):
         # Assume tests are running on a non-busy server
         global_status.wait_until_load_low()
-        global_status.wait_until_load_low({'Threads_running': 50,
-                                           'Threads_connected': 100})
+        global_status.wait_until_load_low({'Threads_running': 50, 'Threads_connected': 100})
 
         with pytest.raises(TimeoutError) as excinfo:
             global_status.wait_until_load_low(

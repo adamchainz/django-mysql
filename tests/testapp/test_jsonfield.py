@@ -273,10 +273,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
     def test_has_key_invalid_type(self):
         with pytest.raises(ValueError) as excinfo:
             JSONModel.objects.filter(attrs__has_key=1)
-        assert (
-            str(excinfo.value)
-            == "JSONField's 'has_key' lookup only works with str values"
-        )
+        assert str(excinfo.value) == "JSONField's 'has_key' lookup only works with str values"
 
     def test_has_key(self):
         assert (

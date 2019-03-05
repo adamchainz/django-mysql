@@ -6,9 +6,7 @@ from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 
-from django_mysql.operations import (
-    AlterStorageEngine, InstallPlugin, InstallSOName,
-)
+from django_mysql.operations import AlterStorageEngine, InstallPlugin, InstallSOName
 from django_mysql.test.utils import override_mysql_variables
 from django_mysql.utils import connection_is_mariadb
 
@@ -53,23 +51,17 @@ class PluginOperationTests(TransactionTestCase):
         assert not plugin_exists("metadata_lock_info")
 
         state = ProjectState()
-        operation = InstallPlugin("metadata_lock_info",
-                                  "metadata_lock_info.so")
-        assert (
-            operation.describe()
-            == "Installs plugin metadata_lock_info from metadata_lock_info.so"
-        )
+        operation = InstallPlugin("metadata_lock_info", "metadata_lock_info.so")
+        assert operation.describe() == "Installs plugin metadata_lock_info from metadata_lock_info.so"
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_forwards("testapp", editor,
-                                        state, new_state)
+            operation.database_forwards("testapp", editor, state, new_state)
 
         assert plugin_exists("metadata_lock_info")
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_backwards("testapp", editor,
-                                         new_state, state)
+            operation.database_backwards("testapp", editor, new_state, state)
 
         assert not plugin_exists("metadata_lock_info")
 
@@ -85,14 +77,12 @@ class PluginOperationTests(TransactionTestCase):
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_forwards("testapp", editor,
-                                        state, new_state)
+            operation.database_forwards("testapp", editor, state, new_state)
         assert plugin_exists("metadata_lock_info")
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_backwards("testapp", editor,
-                                         new_state, state)
+            operation.database_backwards("testapp", editor, new_state, state)
         assert not plugin_exists("metadata_lock_info")
 
 
@@ -108,24 +98,16 @@ class AlterStorageEngineTests(TransactionTestCase):
         assert str(excinfo.value) == "You cannot reverse this operation"
 
     def test_from_means_reversible(self):
-        operation = AlterStorageEngine("mymodel", from_engine="MyISAM",
-                                       to_engine="InnoDB")
+        operation = AlterStorageEngine("mymodel", from_engine="MyISAM", to_engine="InnoDB")
         assert operation.reversible
 
     def test_describe_without_from(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
-        assert (
-            operation.describe()
-            == "Alter storage engine for Pony to InnoDB"
-        )
+        assert operation.describe() == "Alter storage engine for Pony to InnoDB"
 
     def test_describe_with_from(self):
-        operation = AlterStorageEngine("Pony", from_engine="MyISAM",
-                                       to_engine="InnoDB")
-        assert (
-            operation.describe()
-            == "Alter storage engine for Pony from MyISAM to InnoDB"
-        )
+        operation = AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")
+        assert operation.describe() == "Alter storage engine for Pony from MyISAM to InnoDB"
 
     def test_references_model(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
@@ -137,8 +119,7 @@ class AlterStorageEngineTests(TransactionTestCase):
     @override_mysql_variables(default_storage_engine='MyISAM')
     def test_running_with_changes(self):
         project_state = self.set_up_test_model("test_arstd")
-        operation = AlterStorageEngine("Pony", from_engine="MyISAM",
-                                       to_engine="InnoDB")
+        operation = AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")
 
         assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
@@ -146,21 +127,18 @@ class AlterStorageEngineTests(TransactionTestCase):
         new_state = project_state.clone()
         operation.state_forwards("test_arstd", new_state)
         with connection.schema_editor() as editor:
-            operation.database_forwards("test_arstd", editor, project_state,
-                                        new_state)
+            operation.database_forwards("test_arstd", editor, project_state, new_state)
         assert table_storage_engine("test_arstd_pony") == "InnoDB"
 
         # Backwards
         with connection.schema_editor() as editor:
-            operation.database_backwards("test_arstd", editor, new_state,
-                                         project_state)
+            operation.database_backwards("test_arstd", editor, new_state, project_state)
         assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
     @override_mysql_variables(default_storage_engine='InnoDB')
     def test_running_without_changes(self):
         project_state = self.set_up_test_model("test_arstd")
-        operation = AlterStorageEngine("Pony", from_engine="MyISAM",
-                                       to_engine="InnoDB")
+        operation = AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")
 
         assert table_storage_engine("test_arstd_pony") == "InnoDB"
 
@@ -169,19 +147,14 @@ class AlterStorageEngineTests(TransactionTestCase):
         operation.state_forwards("test_arstd", new_state)
         capturer = CaptureQueriesContext(connection)
         with capturer, connection.schema_editor() as editor:
-            operation.database_forwards("test_arstd", editor, project_state,
-                                        new_state)
+            operation.database_forwards("test_arstd", editor, project_state, new_state)
         queries = [q['sql'] for q in capturer.captured_queries]
-        assert not any(q.startswith('ALTER TABLE ') for q in queries), (
-            "One of the executed queries was an unexpected ALTER TABLE:\n{}"
-            .format("\n".join(queries))
-        )
+        assert not any(q.startswith('ALTER TABLE ') for q in queries)
         assert table_storage_engine("test_arstd_pony") == "InnoDB"
 
         # Backwards - will actually ALTER since it is going 'back' to MyISAM
         with connection.schema_editor() as editor:
-            operation.database_backwards("test_arstd", editor, new_state,
-                                         project_state)
+            operation.database_backwards("test_arstd", editor, new_state, project_state)
         assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
     # Copied from django core migration tests
@@ -209,9 +182,7 @@ class AlterStorageEngineTests(TransactionTestCase):
             with transaction.atomic():
                 for table in tables:
                     if table in table_names:
-                        cursor.execute(sql_delete_table % {
-                            "table": connection.ops.quote_name(table),
-                        })
+                        cursor.execute(sql_delete_table % {"table": connection.ops.quote_name(table)})
             connection.enable_constraint_checking()
 
         # Make the "current" state

@@ -7,9 +7,8 @@ from django.db.models import Field, IntegerField, Transform
 from django_mysql import forms
 from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import (
-    JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
-    JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
-    JSONLessThan, JSONLessThanOrEqual,
+    JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan, JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey,
+    JSONHasKeys, JSONLessThan, JSONLessThanOrEqual,
 )
 from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
