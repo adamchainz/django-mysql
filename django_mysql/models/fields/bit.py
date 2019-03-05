@@ -1,11 +1,5 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import django
 from django.db.models import BooleanField, NullBooleanField
-from django.utils import six
 
 
 class Bit1Mixin(object):
@@ -15,18 +9,18 @@ class Bit1Mixin(object):
     if django.VERSION >= (2, 0):
         def from_db_value(self, value, expression, connection):
             # Meant to be binary/bytes but can come back as unicode strings
-            if isinstance(value, six.binary_type):
+            if isinstance(value, bytes):
                 value = (value == b'\x01')
-            elif isinstance(value, six.text_type):
+            elif isinstance(value, str):
                 # Only on older versions of mysqlclient and Py 2.7
                 value = (value == '\x01')  # pragma: no cover
             return value
     else:
         def from_db_value(self, value, expression, connection, context):
             # Meant to be binary/bytes but can come back as unicode strings
-            if isinstance(value, six.binary_type):
+            if isinstance(value, bytes):
                 value = (value == b'\x01')
-            elif isinstance(value, six.text_type):
+            elif isinstance(value, str):
                 # Only on older versions of mysqlclient and Py 2.7
                 value = (value == '\x01')  # pragma: no cover
             return value

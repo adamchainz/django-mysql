@@ -1,14 +1,8 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 
 from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.utils import six
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,7 +33,7 @@ class SimpleListField(forms.CharField):
     def prepare_value(self, value):
         if isinstance(value, list):
             return ",".join(
-                six.text_type(self.base_field.prepare_value(v))
+                str(self.base_field.prepare_value(v))
                 for v in value
             )
         return value
@@ -149,7 +143,7 @@ class SimpleSetField(forms.CharField):
     def prepare_value(self, value):
         if isinstance(value, set):
             return ",".join(
-                six.text_type(self.base_field.prepare_value(v))
+                str(self.base_field.prepare_value(v))
                 for v in value
             )
         return value
@@ -241,11 +235,11 @@ class SimpleSetField(forms.CharField):
             raise ValidationError(errors)
 
 
-class InvalidJSONInput(six.text_type):
+class InvalidJSONInput(str):
     pass
 
 
-class JSONString(six.text_type):
+class JSONString(str):
     pass
 
 
@@ -270,7 +264,7 @@ class JSONField(forms.CharField):
                 code='invalid',
                 params={'value': value},
             )
-        if isinstance(converted, six.text_type):
+        if isinstance(converted, str):
             return JSONString(converted)
         else:
             return converted

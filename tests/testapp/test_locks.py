@@ -1,15 +1,10 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
+import queue
 from threading import Thread
 
 import pytest
 from django.db import OperationalError, connection, connections
 from django.db.transaction import TransactionManagementError, atomic
 from django.test import TestCase, TransactionTestCase
-from django.utils.six.moves import queue
 
 from django_mysql.exceptions import TimeoutError
 from django_mysql.locks import Lock, TableLock
@@ -117,7 +112,7 @@ class LockTests(TestCase):
 
             with pytest.raises(TimeoutError):
                 with threading_test:
-                        pass
+                    pass
 
             to_you.put("Stop")
         finally:

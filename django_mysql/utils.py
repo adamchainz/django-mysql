@@ -1,21 +1,15 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import os
 import subprocess
 import time
 from collections import defaultdict
 from contextlib import contextmanager
+from queue import Empty, Queue
 from threading import Lock, Thread
 from weakref import WeakKeyDictionary
 
 from django.db import DEFAULT_DB_ALIAS
 from django.db import connection as default_connection
 from django.db import connections
-from django.utils import six
-from django.utils.six.moves.queue import Empty, Queue
 
 
 class WeightedAverageRate(object):
@@ -304,7 +298,7 @@ def index_name(model, *field_names, **kwargs):
         for index_name, _, column_name in cursor.fetchall():
             indexes[index_name].append(column_name)
 
-    indexes_by_columns = {tuple(v): k for k, v in six.iteritems(indexes)}
+    indexes_by_columns = {tuple(v): k for k, v in indexes.items()}
     try:
         return indexes_by_columns[column_names]
     except KeyError:

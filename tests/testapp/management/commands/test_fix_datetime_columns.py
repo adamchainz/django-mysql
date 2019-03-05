@@ -1,27 +1,17 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
+from io import StringIO
 from textwrap import dedent
-from unittest import SkipTest
+from unittest import SkipTest, mock
 
 import pytest
 from django.core.management import CommandError, call_command
 from django.db import connection
 from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase, TestCase, TransactionTestCase
-from django.utils.six.moves import StringIO
 
 from django_mysql.management.commands.fix_datetime_columns import (
     parse_create_table,
 )
 from django_mysql.utils import connection_is_mariadb
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module

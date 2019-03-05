@@ -1,15 +1,9 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 from time import sleep
-from unittest import skipUnless
+from unittest import mock, skipUnless
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test import SimpleTestCase, TestCase
-from django.utils import six
 
 from django_mysql.utils import (
     PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache,
@@ -17,11 +11,6 @@ from django_mysql.utils import (
     pt_fingerprint,
 )
 from testapp.models import Author, AuthorMultiIndex
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 
 class ConnectionIsMariaDBTests(TestCase):
@@ -177,7 +166,7 @@ class IndexNameTests(TestCase):
             index_name(Author)
         assert (
             "At least one field name required" in
-            six.text_type(excinfo.value)
+            str(excinfo.value)
         )
 
     def test_requires_real_field_names(self):
@@ -185,7 +174,7 @@ class IndexNameTests(TestCase):
             index_name(Author, 'nonexistent')
         assert (
             "Fields do not exist: nonexistent" in
-            six.text_type(excinfo.value)
+            str(excinfo.value)
         )
 
     def test_invalid_kwarg(self):
@@ -193,7 +182,7 @@ class IndexNameTests(TestCase):
             index_name(Author, 'name', nonexistent_kwarg=True)
         assert (
             "The only supported keyword argument is 'using'" in
-            six.text_type(excinfo.value)
+            str(excinfo.value)
         )
 
     def test_primary_key(self):
@@ -209,7 +198,7 @@ class IndexNameTests(TestCase):
     def test_index_does_not_exist(self):
         with pytest.raises(KeyError) as excinfo:
             index_name(Author, 'bio')
-        assert "There is no index on (bio)" in six.text_type(excinfo.value)
+        assert "There is no index on (bio)" in str(excinfo.value)
 
     def test_secondary_multiple_fields(self):
         name = index_name(AuthorMultiIndex, 'name', 'country')

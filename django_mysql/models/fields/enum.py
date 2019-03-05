@@ -1,10 +1,4 @@
-# -*- encoding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 from django.db.models import CharField
-from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -22,7 +16,7 @@ class EnumField(CharField):
         for choice in kwargs['choices']:
             if isinstance(choice, tuple):
                 choices.append(choice)
-            elif isinstance(choice, six.string_types):
+            elif isinstance(choice, str):
                 choices.append((choice, choice))
             else:
                 raise TypeError(

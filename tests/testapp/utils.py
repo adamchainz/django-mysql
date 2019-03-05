@@ -1,17 +1,9 @@
-# -*- encoding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import sys
 from contextlib import contextmanager
-from unittest import skipUnless
+from io import StringIO
 
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
-from django.utils import six
-
-requiresPython2 = skipUnless(six.PY2, "Python 2 only")
 
 
 # Copied from Django 1.8
@@ -23,7 +15,7 @@ def captured_output(stream_name):
     Note: This function and the following ``captured_std*`` are copied
           from CPython's ``test.support`` module."""
     orig_stdout = getattr(sys, stream_name)
-    setattr(sys, stream_name, six.StringIO())
+    setattr(sys, stream_name, StringIO())
     try:
         yield getattr(sys, stream_name)
     finally:

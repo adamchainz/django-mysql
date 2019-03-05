@@ -1,14 +1,8 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 
 import django
 from django.core import checks
 from django.db.models import Field, IntegerField, Transform
-from django.utils import six
 
 from django_mysql import forms
 from django_mysql.checks import mysql_connections
@@ -133,17 +127,17 @@ class JSONField(Field):
 
     if django.VERSION >= (2, 0):
         def from_db_value(self, value, expression, connection):
-            if isinstance(value, six.string_types):
+            if isinstance(value, str):
                 return self.json_decoder.decode(value)
             return value
     else:
         def from_db_value(self, value, expression, connection, context):
-            if isinstance(value, six.string_types):
+            if isinstance(value, str):
                 return self.json_decoder.decode(value)
             return value
 
     def get_prep_value(self, value):
-        if value is not None and not isinstance(value, six.string_types):
+        if value is not None and not isinstance(value, str):
             # For some reason this value gets string quoted in Django's SQL
             # compiler...
             return self.json_encoder.encode(value)

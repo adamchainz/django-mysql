@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import hashlib
 from unittest import SkipTest
 
@@ -11,7 +6,6 @@ from django.db import connection
 from django.db.models import F, FloatField, Q, Value
 from django.db.models.functions import Length, Lower, Upper
 from django.test import TestCase
-from django.utils import six
 
 from django_mysql.models.functions import (
     CRC32, ELT, MD5, SHA1, SHA2, Abs, AsType, Ceiling, ColumnAdd, ColumnDelete,
@@ -362,14 +356,17 @@ class JSONFunctionTests(JSONFieldTestCase):
     def test_json_extract_kwarg_bad(self):
         with pytest.raises(TypeError) as excinfo:
             JSONExtract('foo', 'bar', foo=1)
-        assert 'Only supported keyword' in six.text_type(excinfo.value)
+        assert (
+            str(excinfo.value)
+            == "__init__() got an unexpected keyword argument 'foo'"
+        )
 
     def test_json_extract_output_field_too_many_paths(self):
         with pytest.raises(TypeError) as excinfo:
             JSONExtract('foo', 'bar', 'baz', output_field=1)
         assert (
             "output_field won't work with more than one path" in
-            six.text_type(excinfo.value)
+            str(excinfo.value)
         )
 
     def test_json_extract_flote(self):
@@ -399,7 +396,7 @@ class JSONFunctionTests(JSONFieldTestCase):
             ).values_list('x', flat=True),
         )
         assert results == [[88, 1.5]]
-        assert isinstance(results[0][0], six.integer_types)
+        assert isinstance(results[0][0], int)
         assert isinstance(results[0][1], float)
 
     def test_json_extract_filter(self):

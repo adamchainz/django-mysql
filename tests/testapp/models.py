@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 from datetime import date, datetime, time
 
@@ -12,7 +7,7 @@ from django.db.models import (
 )
 from django.db.models import Model as VanillaModel
 from django.db.models import OneToOneField, TextField
-from django.utils import six, timezone
+from django.utils import timezone
 
 from django_mysql.models import (
     Bit1BooleanField, DynamicField, EnumField, JSONField, ListCharField,
@@ -128,10 +123,10 @@ class DynamicModel(Model):
             'datey': date,
             'floaty': float,
             'inty': int,
-            'stry': six.text_type,
+            'stry': str,
             'timey': time,
             'nesty': {
-                'level2': six.text_type,
+                'level2': str,
             },
         },
     )
@@ -149,7 +144,7 @@ class DynamicModel(Model):
     def __unicode__(self):
         return ",".join(
             '{}:{}'.format(key, value)
-            for key, value in six.iteritems(self.attrs)
+            for key, value in self.attrs.items()
         )
 
 
@@ -169,7 +164,7 @@ class SpeclessDynamicModel(Model):
     def __unicode__(self):
         return ",".join(
             '{}:{}'.format(key, value)
-            for key, value in six.iteritems(self.attrs)
+            for key, value in self.attrs.items()
         )
 
 
@@ -294,7 +289,7 @@ class JSONModel(Model):
         attrs = JSONField(null=True)
 
     def __unicode__(self):
-        return six.text_type(json.dumps(self.attrs))
+        return str(json.dumps(self.attrs))
 
 
 # For cache tests

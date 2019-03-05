@@ -1,8 +1,3 @@
-# -*- coding:utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals,
-)
-
 import json
 from datetime import date, datetime, time
 
@@ -12,7 +7,6 @@ from django.db.models import (
     DateField, DateTimeField, Field, FloatField, IntegerField, TextField,
     TimeField, Transform,
 )
-from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.checks import mysql_connections
@@ -132,17 +126,15 @@ class DynamicField(Field):
             )
             return errors
 
-        for key, value in six.iteritems(spec):
-            if not isinstance(key, six.string_types):
+        for key, value in spec.items():
+            if not isinstance(key, str):
                 errors.append(
                     checks.Error(
                         "The key '{}' in 'spec{}' is not a string"
                         .format(key, path),
-                        hint="'spec' keys must be of type {}, "
+                        hint="'spec' keys must be of type str, "
                              "'{}' is of type {}"
-                             .format(six.string_types[0].__name__,
-                                     key,
-                                     type(key).__name__),
+                             .format(key, type(key).__name__),
                         obj=self,
                         id='django_mysql.E010',
                     ),
@@ -192,9 +184,9 @@ class DynamicField(Field):
             )
 
     def to_python(self, value):
-        if isinstance(value, six.binary_type):
+        if isinstance(value, bytes):
             return mariadb_dyncol.unpack(value)
-        elif isinstance(value, six.text_type):
+        elif isinstance(value, str):
             return json.loads(value)  # serialization framework
         return value
 
@@ -216,24 +208,18 @@ class DynamicField(Field):
 
     @classmethod
     def validate_spec(cls, spec, value, prefix=''):
-        for key, subspec in six.iteritems(spec):
+        for key, subspec in spec.items():
             if key in value:
 
                 if isinstance(subspec, dict):
                     expected_type = dict
-                elif subspec in six.integer_types:
-                    expected_type = six.integer_types
                 else:
                     expected_type = subspec
 
                 if not isinstance(value[key], expected_type):
-                    if isinstance(expected_type, type):
-                        type_msg = expected_type.__name__
-                    else:
-                        type_msg = ','.join(e.__name__ for e in expected_type)
                     raise TypeError(
                         "Key '{}{}' should be of type {}"
-                        .format(prefix, key, type_msg),
+                        .format(prefix, key, expected_type.__name__),
                     )
 
                 if isinstance(subspec, dict):
@@ -279,16 +265,12 @@ class KeyTransform(Transform):
         datetime: 'DATETIME',
         float: 'DOUBLE',
         int: 'INTEGER',
-        six.text_type: 'CHAR',
+        str: 'CHAR',
         time: 'TIME',
         dict: 'BINARY',
     }
-    if six.PY2:
-        from __builtin__ import long  # make source lintable on Python 3
-        SPEC_MAP[long] = 'INTEGER'
 
-    SPEC_MAP_NAMES = ', '.join(sorted(x.__name__ for x in
-                                      six.iterkeys(SPEC_MAP)))
+    SPEC_MAP_NAMES = ', '.join(sorted(x.__name__ for x in SPEC_MAP.keys()))
 
     TYPE_MAP = {
         'BINARY': DynamicField,
