@@ -7,12 +7,12 @@ from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import captured_stdout, override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator, add_QuerySetMixin
 from django_mysql.utils import have_program, index_name
 from testapp.models import Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra, VanillaAuthor
-from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
+from testapp.utils import CaptureLastQuery, used_indexes
 
 
 class MixinQuerysetTests(TestCase):
