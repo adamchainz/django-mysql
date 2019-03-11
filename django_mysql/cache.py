@@ -5,9 +5,7 @@ from random import random
 from textwrap import dedent
 from time import time
 
-from django.core.cache.backends.base import (
-    DEFAULT_TIMEOUT, BaseCache, default_key_func,
-)
+from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
 from django.db import connections, router
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string

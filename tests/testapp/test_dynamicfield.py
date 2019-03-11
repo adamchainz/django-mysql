@@ -407,15 +407,8 @@ class TestCheck(DynColTestCase):
         errors = InvalidDynamicModel3.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E011'
-        assert (
-            "The value for 'bad' in 'spec' is not an allowed type" in
-            errors[0].msg
-        )
-        assert (
-            "'spec' values must be one of the following types: "
-            "date, datetime" in
-            errors[0].hint
-        )
+        assert "The value for 'bad' in 'spec' is not an allowed type" in errors[0].msg
+        assert "'spec' values must be one of the following types: date, datetime" in errors[0].hint
 
     def test_spec_nested_value_not_valid(self):
         class InvalidDynamicModel4(TemporaryModel):
@@ -428,15 +421,8 @@ class TestCheck(DynColTestCase):
         errors = InvalidDynamicModel4.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E011'
-        assert (
-            "The value for 'bad' in 'spec.l1' is not an allowed type" in
-            errors[0].msg
-        )
-        assert (
-            "'spec' values must be one of the following types: "
-            "date, datetime" in
-            errors[0].hint
-        )
+        assert "The value for 'bad' in 'spec.l1' is not an allowed type" in errors[0].msg
+        assert "'spec' values must be one of the following types: date, datetime" in errors[0].hint
 
 
 class TestToPython(TestCase):

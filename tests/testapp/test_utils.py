@@ -6,9 +6,8 @@ from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test import SimpleTestCase, TestCase
 
 from django_mysql.utils import (
-    PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache,
-    connection_is_mariadb, format_duration, have_program, index_name,
-    pt_fingerprint,
+    PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache, connection_is_mariadb, format_duration, have_program,
+    index_name, pt_fingerprint,
 )
 from testapp.models import Author, AuthorMultiIndex
 
@@ -164,26 +163,17 @@ class IndexNameTests(TestCase):
     def test_requires_field_names(self):
         with pytest.raises(ValueError) as excinfo:
             index_name(Author)
-        assert (
-            "At least one field name required" in
-            str(excinfo.value)
-        )
+        assert "At least one field name required" in str(excinfo.value)
 
     def test_requires_real_field_names(self):
         with pytest.raises(ValueError) as excinfo:
             index_name(Author, 'nonexistent')
-        assert (
-            "Fields do not exist: nonexistent" in
-            str(excinfo.value)
-        )
+        assert "Fields do not exist: nonexistent" in str(excinfo.value)
 
     def test_invalid_kwarg(self):
         with pytest.raises(ValueError) as excinfo:
             index_name(Author, 'name', nonexistent_kwarg=True)
-        assert (
-            "The only supported keyword argument is 'using'" in
-            str(excinfo.value)
-        )
+        assert "The only supported keyword argument is 'using'" in str(excinfo.value)
 
     def test_primary_key(self):
         assert index_name(Author, 'id') == 'PRIMARY'

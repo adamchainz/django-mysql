@@ -75,16 +75,9 @@ class DBParamsTests(SimpleTestCase):
     def test_dsn_full(self):
         out = StringIO()
         err = StringIO()
-        call_command('dbparams', 'default', dsn=True,
-                     stdout=out, stderr=err, skip_checks=True)
+        call_command('dbparams', 'default', dsn=True, stdout=out, stderr=err, skip_checks=True)
         output = out.getvalue()
-        assert (
-            output
-            == (
-                "F=/tmp/defaults.cnf,u=ausername,p=apassword,"
-                + "h=ahost.example.com,P=12345,D=mydatabase"
-            )
-        )
+        assert output == "F=/tmp/defaults.cnf,u=ausername,p=apassword,h=ahost.example.com,P=12345,D=mydatabase"
 
         errors = err.getvalue()
         assert "SSL params can't be" in errors
@@ -93,8 +86,7 @@ class DBParamsTests(SimpleTestCase):
     def test_dsn_socket(self):
         out = StringIO()
         err = StringIO()
-        call_command('dbparams', dsn=True,
-                     stdout=out, stderr=err, skip_checks=True)
+        call_command('dbparams', dsn=True, stdout=out, stderr=err, skip_checks=True)
 
         output = out.getvalue()
         assert output == 'S=/etc/mydb.sock'

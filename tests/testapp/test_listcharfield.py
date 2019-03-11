@@ -8,16 +8,12 @@ from django.core.management import call_command
 from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import (
-    SimpleTestCase, TestCase, TransactionTestCase, override_settings,
-)
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
-from testapp.models import (
-    CharListDefaultModel, CharListModel, IntListModel, TemporaryModel,
-)
+from testapp.models import CharListDefaultModel, CharListModel, IntListModel, TemporaryModel
 
 
 class TestSaveLoad(TestCase):

@@ -116,22 +116,18 @@ class TestDeconstruct(TestCase):
 
 class TestMigrations(TransactionTestCase):
 
-    @override_settings(MIGRATION_MODULES={
-        "testapp": "testapp.enum_default_migrations",
-    })
+    @override_settings(MIGRATION_MODULES={"testapp": "testapp.enum_default_migrations"})
     def test_adding_field_with_default(self):
         table_name = 'testapp_enumdefaultmodel'
         table_names = connection.introspection.table_names
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
-        call_command('migrate', 'testapp',
-                     verbosity=0, skip_checks=True, interactive=False)
+        call_command('migrate', 'testapp', verbosity=0, skip_checks=True, interactive=False)
         with connection.cursor() as cursor:
             assert table_name in table_names(cursor)
 
-        call_command('migrate', 'testapp', 'zero',
-                     verbosity=0, skip_checks=True, interactive=False)
+        call_command('migrate', 'testapp', 'zero', verbosity=0, skip_checks=True, interactive=False)
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 

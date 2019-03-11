@@ -9,14 +9,9 @@ from django.template import Context, Template
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from django_mysql.models import (
-    ApproximateInt, SmartIterator, add_QuerySetMixin,
-)
+from django_mysql.models import ApproximateInt, SmartIterator, add_QuerySetMixin
 from django_mysql.utils import have_program, index_name
-from testapp.models import (
-    Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra,
-    VanillaAuthor,
-)
+from testapp.models import Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra, VanillaAuthor
 from testapp.utils import CaptureLastQuery, captured_stdout, used_indexes
 
 
@@ -105,9 +100,7 @@ class ApproximateCountTests(TestCase):
     def test_approx_count_with_straight_join(self):
         # It should be possible to approx count a query set with a query hint
         # as none of them affect the result
-        assert (
-            Author.objects.straight_join().approx_count(fall_back=False) == 10
-        )
+        assert Author.objects.straight_join().approx_count(fall_back=False) == 10
 
 
 class QueryHintTests(TestCase):
@@ -122,9 +115,7 @@ class QueryHintTests(TestCase):
             list(Author.objects.label("QueryHintTests")
                                .label("test_label_twice")
                                .all())
-        assert cap.query.startswith(
-            "SELECT /*QueryHintTests*/ /*test_label_twice*/ ",
-        )
+        assert cap.query.startswith("SELECT /*QueryHintTests*/ /*test_label_twice*/ ")
 
     def test_label_star(self):
         with CaptureLastQuery() as cap:
@@ -146,9 +137,7 @@ class QueryHintTests(TestCase):
             list(Author.objects.label("QueryHintTests.test_label_and")
                                .straight_join()
                                .all())
-        assert cap.query.startswith(
-            "SELECT /*QueryHintTests.test_label_and*/ STRAIGHT_JOIN ",
-        )
+        assert cap.query.startswith("SELECT /*QueryHintTests.test_label_and*/ STRAIGHT_JOIN ")
 
     def test_straight_join(self):
         with CaptureLastQuery() as cap:
@@ -204,9 +193,7 @@ class QueryHintTests(TestCase):
                                .sql_cache()
                                .sql_big_result()
                                .sql_buffer_result())
-        assert cap.query.startswith(
-            "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT SQL_CACHE ",
-        )
+        assert cap.query.startswith("SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT SQL_CACHE ")
 
     def test_complex_query_1(self):
         with CaptureLastQuery() as cap:
@@ -271,10 +258,7 @@ class QueryHintTests(TestCase):
             list(AuthorMultiIndex.objects
                                  .filter(name__gt='')
                                  .ignore_index(name_idx, name_country_idx))
-        assert (
-            'IGNORE INDEX (`' + name_idx + '`,`' + name_country_idx + '`)'
-            in cap.query
-        )
+        assert ('IGNORE INDEX (`' + name_idx + '`,`' + name_country_idx + '`)') in cap.query
         used = used_indexes(cap.query)
         assert name_idx not in used
         assert name_country_idx not in used
@@ -282,16 +266,13 @@ class QueryHintTests(TestCase):
     def test_ignore_index_primary(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.filter(name__gt='').ignore_index('PRIMARY'))
-        assert ('IGNORE INDEX (`PRIMARY`)') in cap.query
+        assert 'IGNORE INDEX (`PRIMARY`)' in cap.query
         assert 'PRIMARY' not in used_indexes(cap.query)
 
     def test_force_index_at_least_one(self):
         with pytest.raises(ValueError) as excinfo:
             Author.objects.force_index()
-        assert (
-            str(excinfo.value)
-            == "force_index requires at least one index name"
-        )
+        assert str(excinfo.value) == "force_index requires at least one index name"
 
     def test_force_index_invalid_for(self):
         with pytest.raises(ValueError) as excinfo:
@@ -301,11 +282,7 @@ class QueryHintTests(TestCase):
     def test_force_index_invalid_kwarg(self):
         with pytest.raises(ValueError) as excinfo:
             Author.objects.force_index('a', nonexistent=True)
-        assert (
-            "force_index accepts only 'for_' and 'table_name' as keyword "
-            "arguments" in
-            str(excinfo.value)
-        )
+        assert "force_index accepts only 'for_' and 'table_name' as keyword arguments" in str(excinfo.value)
 
     def test_index_hint_force_order_by(self):
         name_idx = index_name(Author, 'name')
@@ -328,7 +305,7 @@ class QueryHintTests(TestCase):
             list(Author.objects
                        .select_related('authorextra')
                        .use_index('PRIMARY', table_name=extra_table))
-        assert '`' + extra_table + '` USE INDEX (`PRIMARY`) ' in cap.query
+        assert ('`' + extra_table + '` USE INDEX (`PRIMARY`) ') in cap.query
 
     def test_force_index_table_name_doesnt_exist_ignored(self):
         with CaptureLastQuery() as cap:
@@ -430,32 +407,27 @@ class SmartIteratorTests(TestCase):
         for authors in Author.objects.iter_smart_chunks():
             seen.extend(author.id for author in authors)
 
-        all_ids = list(Author.objects.order_by('id')
-                                     .values_list('id', flat=True))
+        all_ids = list(Author.objects.order_by('id').values_list('id', flat=True))
         assert seen == all_ids
 
     def test_objects(self):
         seen = [author.id for author in Author.objects.iter_smart()]
-        all_ids = list(Author.objects.order_by('id')
-                                     .values_list('id', flat=True))
+        all_ids = list(Author.objects.order_by('id').values_list('id', flat=True))
         assert seen == all_ids
 
     def test_objects_non_atomic(self):
-        seen = [author.id for author in
-                Author.objects.iter_smart(atomically=False)]
+        seen = [a.id for a in Author.objects.iter_smart(atomically=False)]
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
         assert seen == all_ids
 
     def test_objects_reverse(self):
-        seen = [author.id for author in Author.objects.reverse().iter_smart()]
-        all_ids = list(Author.objects.order_by('-id')
-                                     .values_list('id', flat=True))
+        seen = [a.id for a in Author.objects.reverse().iter_smart()]
+        all_ids = list(Author.objects.order_by('-id').values_list('id', flat=True))
         assert seen == all_ids
 
     def test_objects_pk_range_all(self):
-        seen = [author.id for author in
-                Author.objects.iter_smart(pk_range='all')]
+        seen = [a.id for a in Author.objects.iter_smart(pk_range='all')]
         all_ids = list(Author.objects.order_by('id')
                                      .values_list('id', flat=True))
         assert seen == all_ids
@@ -464,24 +436,21 @@ class SmartIteratorTests(TestCase):
         min_id = Author.objects.earliest('id').id
         max_id = Author.objects.order_by('id')[5].id
 
-        seen = [author.id for author in
-                Author.objects.iter_smart(pk_range=(min_id, max_id))]
+        seen = [a.id for a in Author.objects.iter_smart(pk_range=(min_id, max_id))]
         cut_ids = list(Author.objects.order_by('id')
                                      .filter(id__gte=min_id, id__lte=max_id)
                                      .values_list('id', flat=True))
         assert seen == cut_ids
 
     def test_objects_pk_range_tuple_0_0(self):
-        seen = [author.id for author in
-                Author.objects.iter_smart(pk_range=(0, 0))]
+        seen = [a.id for a in Author.objects.iter_smart(pk_range=(0, 0))]
         assert seen == []
 
     def test_objects_pk_range_reversed(self):
         min_id = Author.objects.earliest('id').id
         max_id = Author.objects.latest('id').id
 
-        seen = [author.id for author in
-                Author.objects.iter_smart(pk_range=(max_id, min_id))]
+        seen = [author.id for author in Author.objects.iter_smart(pk_range=(max_id, min_id))]
         all_ids = list(Author.objects.order_by('-id')
                                      .values_list('id', flat=True))
         assert seen == all_ids
@@ -643,10 +612,7 @@ class SmartIteratorTests(TestCase):
                 report,
             )
 
-        assert re.match(
-            r'Finished! Iterated over \d+ objects? in [\dhms]+.',
-            lines[1],
-        )
+        assert re.match(r'Finished! Iterated over \d+ objects? in [\dhms]+.', lines[1])
 
     def test_reporting_reverse(self):
         Author.objects.create(id=10000)
@@ -669,10 +635,7 @@ class SmartIteratorTests(TestCase):
                 report,
             )
 
-        assert re.match(
-            r'Finished! Iterated over \d+ objects? in [\dhms]+.',
-            lines[1],
-        )
+        assert re.match(r'Finished! Iterated over \d+ objects? in [\dhms]+.', lines[1])
 
     def test_reporting_with_total(self):
         with captured_stdout() as output:
@@ -691,10 +654,7 @@ class SmartIteratorTests(TestCase):
                 report,
             )
 
-        assert re.match(
-            r'Finished! Iterated over \d+ objects? in [\dhms]+.',
-            lines[1],
-        )
+        assert re.match(r'Finished! Iterated over \d+ objects? in [\dhms]+.', lines[1])
 
     def test_reporting_on_uncounted_qs(self):
         Author.objects.create(name="pants")
@@ -716,10 +676,7 @@ class SmartIteratorTests(TestCase):
                 report,
             )
 
-        assert re.match(
-            r'Finished! Iterated over \?\?\? objects? in [\dhms]+.',
-            lines[1],
-        )
+        assert re.match(r'Finished! Iterated over \?\?\? objects? in [\dhms]+.', lines[1])
 
     def test_filter_and_delete(self):
         VanillaAuthor.objects.create(name="Alpha")

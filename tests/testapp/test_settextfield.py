@@ -199,10 +199,7 @@ class TestValidation(SimpleTestCase):
 
         with pytest.raises(exceptions.ValidationError) as excinfo:
             field.clean({'a', 'b', 'c', 'd'}, None)
-        assert (
-            excinfo.value.messages[0]
-            == 'Set contains 4 items, it should contain no more than 3.'
-        )
+        assert excinfo.value.messages[0] == 'Set contains 4 items, it should contain no more than 3.'
 
 
 class TestCheck(SimpleTestCase):
@@ -286,29 +283,13 @@ class TestMigrationWriter(TestCase):
         field = SetTextField(models.CharField(max_length=5))
         statement, imports = MigrationWriter.serialize(field)
 
-        assert (
-            statement
-            == (
-                "django_mysql.models.SetTextField("
-                + "models.CharField(max_length=5), "
-                + "size=None"
-                + ")"
-            )
-        )
+        assert statement == "django_mysql.models.SetTextField(models.CharField(max_length=5), size=None)"
 
     def test_makemigrations_with_size(self):
         field = SetTextField(models.CharField(max_length=5), size=5)
         statement, imports = MigrationWriter.serialize(field)
 
-        assert (
-            statement
-            == (
-                "django_mysql.models.SetTextField("
-                + "models.CharField(max_length=5), "
-                + "size=5"
-                + ")"
-            )
-        )
+        assert statement == "django_mysql.models.SetTextField(models.CharField(max_length=5), size=5)"
 
 
 class TestSerialization(SimpleTestCase):

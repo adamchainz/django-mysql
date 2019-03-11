@@ -2,17 +2,14 @@ import json
 from datetime import date, datetime, time
 
 from django.db import connection
-from django.db.models import (
-    CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField,
-)
+from django.db.models import CASCADE, CharField, DateTimeField, DecimalField, ForeignKey, IntegerField
 from django.db.models import Model as VanillaModel
 from django.db.models import OneToOneField, TextField
 from django.utils import timezone
 
 from django_mysql.models import (
-    Bit1BooleanField, DynamicField, EnumField, JSONField, ListCharField,
-    ListTextField, Model, NullBit1BooleanField, SetCharField, SetTextField,
-    SizedBinaryField, SizedTextField,
+    Bit1BooleanField, DynamicField, EnumField, JSONField, ListCharField, ListTextField, Model, NullBit1BooleanField,
+    SetCharField, SetTextField, SizedBinaryField, SizedTextField,
 )
 from django_mysql.utils import connection_is_mariadb
 

@@ -116,9 +116,8 @@ class GroupConcatTests(TestCase):
 
     def test_application_order(self):
         out = (
-            Author.objects
-                  .exclude(id=self.shakes.id)
-                  .aggregate(tids=GroupConcat('tutor_id', distinct=True))
+            Author.objects.exclude(id=self.shakes.id)
+                          .aggregate(tids=GroupConcat('tutor_id', distinct=True))
         )
         assert out == {'tids': str(self.shakes.id)}
 
@@ -131,19 +130,13 @@ class GroupConcatTests(TestCase):
 
     def test_ordering_invalid(self):
         with pytest.raises(ValueError) as excinfo:
-            self.shakes.tutees.aggregate(
-                tids=GroupConcat('id', ordering='asceding'),
-            )
+            self.shakes.tutees.aggregate(tids=GroupConcat('id', ordering='asceding'))
         assert "'ordering' must be one of" in str(excinfo.value)
 
     def test_ordering_asc(self):
-        out = self.shakes.tutees.aggregate(
-            tids=GroupConcat('id', ordering='asc'),
-        )
+        out = self.shakes.tutees.aggregate(tids=GroupConcat('id', ordering='asc'))
         assert out == {'tids': ",".join(self.str_tutee_ids)}
 
     def test_ordering_desc(self):
-        out = self.shakes.tutees.aggregate(
-            tids=GroupConcat('id', ordering='desc'),
-        )
+        out = self.shakes.tutees.aggregate(tids=GroupConcat('id', ordering='desc'))
         assert out == {'tids': ",".join(reversed(self.str_tutee_ids))}
