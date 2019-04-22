@@ -29,7 +29,7 @@ pytest-django==3.4.8
 pytest-flake8dir==2.1.0
 pytest-randomly==3.0.0
 pytest-super-check==2.0.0
-pytest==4.4.0
+pytest==4.4.1
 pytz==2019.1
 six==1.12.0               # via multilint, pytest
 sqlparse==0.3.0
