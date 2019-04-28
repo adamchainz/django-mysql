@@ -2,6 +2,7 @@ import json
 from datetime import date, datetime, time
 from unittest import SkipTest, mock
 
+import django
 import pytest
 from django.core import serializers
 from django.db import connection, connections
@@ -321,6 +322,11 @@ class SpeclessQueryTests(DynColTestCase):
 
 
 class TestCheck(DynColTestCase):
+
+    if django.VERSION > (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
 
     @mock.patch('django_mysql.models.fields.dynamic.connection_is_mariadb')
     def test_db_not_mariadb(self, is_mariadb):
