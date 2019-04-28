@@ -33,7 +33,6 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    monkey_patches
    exceptions
    contributing
-   authors
    history
 
 Indices and tables
