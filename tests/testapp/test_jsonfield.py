@@ -13,8 +13,8 @@ from django.test import TestCase
 from django_mysql import forms
 from django_mysql.models import JSONField
 from django_mysql.utils import connection_is_mariadb
-from testapp.models import JSONModel, TemporaryModel
-from testapp.utils import print_all_queries
+from tests.testapp.models import JSONModel, TemporaryModel
+from tests.testapp.utils import print_all_queries
 
 
 class JSONFieldTestCase(TestCase):

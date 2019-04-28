@@ -10,7 +10,7 @@ from django.test import SimpleTestCase, TestCase
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
-from testapp.models import BigCharSetModel, BigIntSetModel, TemporaryModel
+from tests.testapp.models import BigCharSetModel, BigIntSetModel, TemporaryModel
 
 
 class TestSaveLoad(TestCase):

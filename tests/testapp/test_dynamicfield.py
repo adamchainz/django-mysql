@@ -11,7 +11,7 @@ from django.test import TestCase
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
-from testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
+from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
 
 try:
     import mariadb_dyncol

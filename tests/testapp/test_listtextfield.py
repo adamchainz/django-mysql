@@ -11,7 +11,7 @@ from django.test import SimpleTestCase, TestCase
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
-from testapp.models import BigCharListModel, BigIntListModel, TemporaryModel
+from tests.testapp.models import BigCharListModel, BigIntListModel, TemporaryModel
 
 
 class TestSaveLoad(TestCase):

@@ -13,7 +13,7 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
-from testapp.models import CharListDefaultModel, CharListModel, IntListModel, TemporaryModel
+from tests.testapp.models import CharListDefaultModel, CharListModel, IntListModel, TemporaryModel
 
 
 class TestSaveLoad(TestCase):
@@ -525,7 +525,7 @@ class TestMigrationWriter(TestCase):
 class TestMigrations(TransactionTestCase):
 
     @override_settings(MIGRATION_MODULES={
-        "testapp": "testapp.list_default_migrations",
+        "testapp": "tests.testapp.list_default_migrations",
     })
     def test_adding_field_with_default(self):
         table_name = 'testapp_intlistdefaultmodel'

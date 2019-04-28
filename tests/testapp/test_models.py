@@ -11,8 +11,8 @@ from django.test.utils import captured_stdout, override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator, add_QuerySetMixin
 from django_mysql.utils import have_program, index_name
-from testapp.models import Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra, VanillaAuthor
-from testapp.utils import CaptureLastQuery, used_indexes
+from tests.testapp.models import Author, AuthorExtra, AuthorMultiIndex, Book, NameAuthor, NameAuthorExtra, VanillaAuthor
+from tests.testapp.utils import CaptureLastQuery, used_indexes
 
 
 class MixinQuerysetTests(TestCase):

@@ -18,7 +18,7 @@ from django.test.utils import override_settings
 from parameterized import parameterized
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
-from testapp.models import Poll, expensive_calculation
+from tests.testapp.models import Poll, expensive_calculation
 
 
 # functions/classes for complex data type tests
@@ -69,10 +69,8 @@ _caches_setting_base = {
     'custom_key': {'KEY_FUNCTION': custom_key_func,
                    'REVERSE_KEY_FUNCTION': reverse_custom_key_func},
     'custom_key2': {
-        'KEY_FUNCTION':
-            'testapp.test_cache.custom_key_func',
-        'REVERSE_KEY_FUNCTION':
-            'testapp.test_cache.reverse_custom_key_func',
+        'KEY_FUNCTION': __name__ + '.custom_key_func',
+        'REVERSE_KEY_FUNCTION': __name__ + '.reverse_custom_key_func',
     },
     'cull': {'OPTIONS': {'CULL_PROBABILITY': 1,
                          'MAX_ENTRIES': 30}},
@@ -1309,14 +1307,12 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         state = ProjectState()
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_forwards("testapp", editor,
-                                        state, new_state)
+            operation.database_forwards("testapp", editor, state, new_state)
         assert self.table_exists(self.table_name)
 
         new_state = state.clone()
         with connection.schema_editor() as editor:
-            operation.database_backwards("testapp", editor,
-                                         new_state, state)
+            operation.database_backwards("testapp", editor, new_state, state)
         assert not self.table_exists(self.table_name)
 
     def table_exists(self, table_name):

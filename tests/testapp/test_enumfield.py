@@ -6,7 +6,7 @@ from django.db.utils import DataError
 from django.test import TestCase, TransactionTestCase, override_settings
 
 from django_mysql.models import EnumField
-from testapp.models import EnumModel, NullableEnumModel
+from tests.testapp.models import EnumModel, NullableEnumModel
 
 
 class TestEnumField(TestCase):
@@ -116,7 +116,7 @@ class TestDeconstruct(TestCase):
 
 class TestMigrations(TransactionTestCase):
 
-    @override_settings(MIGRATION_MODULES={"testapp": "testapp.enum_default_migrations"})
+    @override_settings(MIGRATION_MODULES={"testapp": "tests.testapp.enum_default_migrations"})
     def test_adding_field_with_default(self):
         table_name = 'testapp_enumdefaultmodel'
         table_names = connection.introspection.table_names

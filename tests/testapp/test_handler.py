@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from django_mysql.models.handler import Handler
 from django_mysql.utils import index_name
-from testapp.models import Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
+from tests.testapp.models import Author, AuthorHugeName, AuthorMultiIndex, NameAuthor, VanillaAuthor
 
 
 def get_index_names(model):
