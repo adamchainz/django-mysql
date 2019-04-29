@@ -10,7 +10,7 @@ from django_mysql.exceptions import TimeoutError
 from django_mysql.locks import Lock, TableLock
 from django_mysql.models import Model
 from django_mysql.utils import connection_is_mariadb
-from testapp.models import AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer
+from tests.testapp.models import AgedCustomer, Alphabet, Customer, ProxyAlphabet, TitledAgedCustomer
 
 
 class LockTests(TestCase):

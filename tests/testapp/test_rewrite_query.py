@@ -4,7 +4,7 @@ from django.test.utils import override_settings
 
 from django_mysql.monkey_patches import patch_CursorWrapper_execute
 from django_mysql.rewrite_query import rewrite_query
-from testapp.utils import CaptureLastQuery
+from tests.testapp.utils import CaptureLastQuery
 
 
 class RewriteQueryTests(TestCase):

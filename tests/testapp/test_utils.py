@@ -9,7 +9,7 @@ from django_mysql.utils import (
     PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache, connection_is_mariadb, format_duration, have_program,
     index_name, pt_fingerprint,
 )
-from testapp.models import Author, AuthorMultiIndex
+from tests.testapp.models import Author, AuthorMultiIndex
 
 
 class ConnectionIsMariaDBTests(TestCase):

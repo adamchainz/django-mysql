@@ -13,9 +13,9 @@ from django_mysql.models.functions import (
     Least, RegexpInstr, RegexpReplace, RegexpSubstr, Round, Sign, UpdateXML, XMLExtractValue,
 )
 from django_mysql.utils import connection_is_mariadb
-from testapp.models import Alphabet, Author, DynamicModel, JSONModel
-from testapp.test_dynamicfield import DynColTestCase
-from testapp.test_jsonfield import JSONFieldTestCase
+from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
+from tests.testapp.test_dynamicfield import DynColTestCase
+from tests.testapp.test_jsonfield import JSONFieldTestCase
 
 
 class ComparisonFunctionTests(TestCase):

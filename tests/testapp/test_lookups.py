@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from testapp.models import Author
+from tests.testapp.models import Author
 
 
 class CaseExactTests(TestCase):

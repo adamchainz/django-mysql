@@ -4,7 +4,7 @@ from django.core import serializers
 from django.db.models import F
 from django.test import SimpleTestCase, TestCase
 
-from testapp.models import Bit1Model, NullBit1Model
+from tests.testapp.models import Bit1Model, NullBit1Model
 
 
 class TestSaveLoad(TestCase):

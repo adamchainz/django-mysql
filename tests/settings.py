@@ -52,7 +52,7 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS = [
-    'testapp.routers.NothingOnSQLiteRouter',
+    'tests.testapp.routers.NothingOnSQLiteRouter',
 ]
 
 ALLOWED_HOSTS = []
@@ -65,10 +65,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_mysql',
-    'testapp',
+    'tests.testapp',
 ]
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'tests.urls'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 

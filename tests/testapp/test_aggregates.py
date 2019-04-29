@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
 from django_mysql.test.utils import override_mysql_variables
-from testapp.models import Alphabet, Author
+from tests.testapp.models import Alphabet, Author
 
 
 class BitAndTests(TestCase):
