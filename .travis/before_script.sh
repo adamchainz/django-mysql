@@ -14,7 +14,7 @@ sudo rm -rf /var/lib/mysql
 if [[ $DB == 'mysql' ]]
 then
     # Install new
-    sudo add-apt-repository "deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-$DB_VERSION"
+    sudo add-apt-repository "deb http://repo.mysql.com/apt/ubuntu/ xenial mysql-$DB_VERSION"
     sudo cat .travis/oracle.pgp-key | sudo apt-key add -
     sudo apt-get update
     echo 'Package: *
@@ -26,7 +26,7 @@ then
     # Install
     sudo apt-get install -y software-properties-common
     sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-    sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/$DB_VERSION/ubuntu trusty main"
+    sudo add-apt-repository "deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/$DB_VERSION/ubuntu xenial main"
     echo 'Package: *
 Pin: origin sfo1.mirrors.digitalocean.com
 Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mariadb.pref
