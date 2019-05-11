@@ -3,24 +3,38 @@
 set -e
 set -x
 
-sudo apt-get update -qq
-sudo apt-get install -y percona-toolkit
-
 # DB
+
+# Install dbdeployer
+VERSION=1.30.0
+OS=linux
+origin=https://github.com/datacharmer/dbdeployer/releases/download/v$VERSION
+wget "$origin/dbdeployer-$VERSION.$OS.tar.gz"
+tar -xzf "dbdeployer-$VERSION.$OS.tar.gz"
+chmod +x "dbdeployer-$VERSION.$OS"
+sudo mv "dbdeployer-$VERSION.$OS" /usr/local/bin/dbdeployer
+
 
 # Nuke default
 sudo rm -rf /var/lib/mysql
 
 if [[ $DB == 'mysql' ]]
 then
+    dbdeployer remote download mysql-5.6.44
+    mkdir -p /root/opt/mysql
+    dbdeployer unpack mysql-5.6.44.tar.xz
+    dbdeployer deploy single 5.6
+
     # Install new
+    sudo wget https://dev.mysql.com/get/mysql-apt-config_0.8.13-1_all.deb
+    sudo dpkg -i mysql-apt-config_0.8.13-1_all.deb
     sudo add-apt-repository "deb http://repo.mysql.com/apt/ubuntu/ xenial mysql-$DB_VERSION"
     sudo cat .travis/oracle.pgp-key | sudo apt-key add -
     sudo apt-get update
     echo 'Package: *
 Pin: origin repo.mysql.com
 Pin-Priority: 10000' | sudo tee /etc/apt/preferences.d/pin-mysql.pref
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "mysql-$DB_VERSION"
 elif [[ $DB == 'mariadb' ]]
 then
     # Install
@@ -45,3 +59,9 @@ sudo mysql -u root -e "set global binlog_format=MIXED"
 sudo mysql -u root -e "create user travis@localhost identified by '';" || true
 
 sudo mysql -u root -e 'grant all privileges on *.* to travis@localhost;'
+
+# percona-toolkit - use non-apt version to avoid mysql package conflicts
+# is way out of date
+sudo apt-get install -y libio-socket-ssl-perl
+wget https://www.percona.com/downloads/percona-toolkit/2.2.13/deb/percona-toolkit_2.2.13_all.deb
+sudo dpkg -i percona-toolkit_2.2.13_all.deb
