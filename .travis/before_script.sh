@@ -6,13 +6,13 @@ set -x
 # DB
 
 # Install dbdeployer
-VERSION=1.30.0
-OS=linux
-origin=https://github.com/datacharmer/dbdeployer/releases/download/v$VERSION
-wget "$origin/dbdeployer-$VERSION.$OS.tar.gz"
-tar -xzf "dbdeployer-$VERSION.$OS.tar.gz"
-chmod +x "dbdeployer-$VERSION.$OS"
-sudo mv "dbdeployer-$VERSION.$OS" /usr/local/bin/dbdeployer
+# VERSION=1.30.0
+# OS=linux
+# origin=https://github.com/datacharmer/dbdeployer/releases/download/v$VERSION
+# wget "$origin/dbdeployer-$VERSION.$OS.tar.gz"
+# tar -xzf "dbdeployer-$VERSION.$OS.tar.gz"
+# chmod +x "dbdeployer-$VERSION.$OS"
+# sudo mv "dbdeployer-$VERSION.$OS" /usr/local/bin/dbdeployer
 
 
 # Nuke default
@@ -22,6 +22,8 @@ if [[ $DB == 'mysql' ]]
 then
     docker pull "mysql/mysql-server:$DB_VERSION"
     docker run --name mysql -d "mysql/mysql-server:$DB_VERSION"
+    docker ps
+    docker logs mysql
     PASS="$(docker logs mysql 2>&1 | grep -E -o 'GENERATED ROOT PASSWORD: .*$')"
     PASS="${PASS:25:-1}"
     docker exec -it mysql mysql -uroot -p "$PASS" -e "
