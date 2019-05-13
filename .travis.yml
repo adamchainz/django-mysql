@@ -32,9 +32,8 @@ before_script: .travis/before_script.sh
 install: pip install coveralls tox
 
 script:
-- echo "$DB_HOST"
-# - coverage erase
-# - tox
+- coverage erase
+- DB_HOST=127.0.0.1 tox
 
 after_success:
 - coverage combine
