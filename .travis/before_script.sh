@@ -75,6 +75,4 @@ fi
 
 # percona-toolkit - use non-apt version to avoid mysql package conflicts
 # is way out of date
-# sudo apt-get install -y libio-socket-ssl-perl
-wget https://www.percona.com/downloads/percona-toolkit/2.2.13/deb/percona-toolkit_2.2.13_all.deb
-sudo dpkg -i percona-toolkit_2.2.13_all.deb
+sudo apt-get install -y percona-toolkit
