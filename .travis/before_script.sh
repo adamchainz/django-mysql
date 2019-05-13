@@ -22,6 +22,9 @@ if [[ $DB == 'mysql' ]]
 then
     docker pull "mysql/mysql-server:$DB_VERSION"
     docker run --name mysql --env MYSQL_ALLOW_EMPTY_PASSWORD=true --env 'MYSQL_ROOT_HOST=%' -p 3306:3306 -d "mysql/mysql-server:$DB_VERSION"
+    until [ "$(docker inspect -f '{{.State.Health.Status}}' mysql)" == "healthy" ]; do
+        sleep 0.1;
+    done
     mysql -u root --protocol=TCP -e "
     SET GLOBAL binlog_format=MIXED;
     CREATE USER travis@'%' IDENTIFIED BY '';
