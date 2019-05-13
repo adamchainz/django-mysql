@@ -75,4 +75,5 @@ fi
 
 # percona-toolkit - use non-apt version to avoid mysql package conflicts
 # is way out of date
+sudo apt-get update -qq
 sudo apt-get install -y percona-toolkit
