@@ -29,13 +29,13 @@ env:
 
 before_script: .travis/before_script.sh
 
-install:
-  - pip install coveralls tox
+install: pip install coveralls tox
 
 script:
-  - coverage erase
-  - tox
+- echo "$DB_HOST"
+# - coverage erase
+# - tox
 
 after_success:
-  - coverage combine
-  - coveralls
+- coverage combine
+- coveralls

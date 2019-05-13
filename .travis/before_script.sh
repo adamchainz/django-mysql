@@ -21,13 +21,12 @@ sudo rm -rf /var/lib/mysql
 if [[ $DB == 'mysql' ]]
 then
     docker pull "mysql/mysql-server:$DB_VERSION"
-    docker run --name mysql --env MYSQL_ALLOW_EMPTY_PASSWORD=true --env MYSQL_ROOT_PASSWORD= -d "mysql/mysql-server:$DB_VERSION"
-    docker exec -it mysql mysql -uroot -e "
+    docker run --name mysql --env MYSQL_ALLOW_EMPTY_PASSWORD=true --env 'MYSQL_ROOT_HOST=%' -p 3306:3306 -d "mysql/mysql-server:$DB_VERSION"
+    mysql -u root --protocol=TCP -e "
     SET GLOBAL binlog_format=MIXED;
     CREATE USER travis@'%' IDENTIFIED BY '';
-    GRANT ALL PRIVILEGES ON *.* TO travis@localhost;
-    "
-    export DB_HOST=127.0.0.1 DB_USER=travis
+    GRANT ALL PRIVILEGES ON *.* TO travis@localhost;"
+    export DB_HOST=127.0.0.1
 
 #     dbdeployer remote download mysql-5.6.44
 #     mkdir -p /root/opt/mysql
