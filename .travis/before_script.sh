@@ -34,8 +34,8 @@ fi
 docker pull "$DOCKER_IMAGE"
 docker run --name mysql -e MARIADB_ALLOW_EMPTY_PASSWORD=true --env 'MYSQL_ROOT_HOST=%' -p 3306:3306 -d "$DOCKER_IMAGE"
 set +x
-until nc 127.0.0.1 3306; do
-    sleep 0.1
+until mysql -u root --protocol=TCP -e 'select 1'; do
+    sleep 1
 done
 set -x
 mysql -u root --protocol=TCP -e "
