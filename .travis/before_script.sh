@@ -22,9 +22,11 @@ if [[ $DB == 'mysql' ]]
 then
     docker pull "mysql/mysql-server:$DB_VERSION"
     docker run --name mysql --env MYSQL_ALLOW_EMPTY_PASSWORD=true --env 'MYSQL_ROOT_HOST=%' -p 3306:3306 -d "mysql/mysql-server:$DB_VERSION"
+    set +x
     until [ "$(docker inspect -f '{{.State.Health.Status}}' mysql)" == "healthy" ]; do
-        sleep 0.1;
+        sleep 0.2;
     done
+    set -x
     mysql -u root --protocol=TCP -e "
     SET GLOBAL binlog_format=MIXED;
     CREATE USER travis@'%' IDENTIFIED BY '';
@@ -73,6 +75,6 @@ fi
 
 # percona-toolkit - use non-apt version to avoid mysql package conflicts
 # is way out of date
-sudo apt-get install -y libio-socket-ssl-perl
+# sudo apt-get install -y libio-socket-ssl-perl
 wget https://www.percona.com/downloads/percona-toolkit/2.2.13/deb/percona-toolkit_2.2.13_all.deb
 sudo dpkg -i percona-toolkit_2.2.13_all.deb
