@@ -41,7 +41,7 @@ set -x
 mysql -u root --protocol=TCP -e "
 SET GLOBAL binlog_format=MIXED;
 CREATE USER travis@'%' IDENTIFIED BY '';
-GRANT ALL PRIVILEGES ON *.* TO travis@localhost;"
+GRANT ALL PRIVILEGES ON *.* TO travis@'%';"
 
 #     # Install
 #     sudo apt-get install -y software-properties-common
