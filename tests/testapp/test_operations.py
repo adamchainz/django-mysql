@@ -1,5 +1,6 @@
 from unittest import SkipTest
 
+import django
 import pytest
 from django.db import connection, migrations, models, transaction
 from django.db.migrations.state import ProjectState
@@ -32,6 +33,11 @@ def table_storage_engine(table_name):
 
 
 class PluginOperationTests(TransactionTestCase):
+
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
 
     @classmethod
     def setUpClass(cls):

@@ -16,7 +16,7 @@ from tests.testapp.models import AgedCustomer, Alphabet, Customer, ProxyAlphabet
 
 class LockTests(TestCase):
 
-    if django.VERSION > (2, 2):
+    if django.VERSION >= (2, 2):
         databases = ['default', 'other']
     else:
         multi_db = True
@@ -61,14 +61,14 @@ class LockTests(TestCase):
         assert not mylock.is_held()
         assert not Lock("mylock").is_held()
 
-    import_time_lock = Lock('defined_at_import_time')
-
     def test_error_on_unneeded_exit(self):
         mylock = Lock("mylock")
         assert not mylock.is_held()
         with pytest.raises(ValueError) as excinfo:
             mylock.__exit__(None, None, None)
         assert "unheld lock" in str(excinfo.value)
+
+    import_time_lock = Lock('defined_at_import_time')
 
     def test_defined_at_import_time(self):
         import_time_lock = self.import_time_lock
@@ -213,7 +213,7 @@ class LockTests(TestCase):
 
 class TableLockTests(TransactionTestCase):
 
-    if django.VERSION > (2, 2):
+    if django.VERSION >= (2, 2):
         databases = ['default', 'other']
     else:
         multi_db = True

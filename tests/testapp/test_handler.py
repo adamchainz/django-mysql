@@ -378,7 +378,7 @@ class HandlerStandaloneTests(TestCase):
 
 class HandlerMultiDBTests(TestCase):
 
-    if django.VERSION > (2, 2):
+    if django.VERSION >= (2, 2):
         databases = ['default', 'other']
     else:
         multi_db = True

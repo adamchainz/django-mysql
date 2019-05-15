@@ -24,7 +24,7 @@ class OverrideVarsMethodTest(TestCase):
 @override_mysql_variables(SQL_MODE="ANSI")
 class OverrideVarsClassTest(OverrideVarsMethodTest):
 
-    if django.VERSION > (2, 2):
+    if django.VERSION >= (2, 2):
         databases = ['default', 'other']
     else:
         multi_db = True

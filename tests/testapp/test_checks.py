@@ -8,7 +8,7 @@ from django_mysql.test.utils import override_mysql_variables
 
 class CallCheckTest(TestCase):
 
-    if django.VERSION > (2, 2):
+    if django.VERSION >= (2, 2):
         databases = ['default', 'other']
     else:
         multi_db = True
@@ -19,7 +19,7 @@ class CallCheckTest(TestCase):
 
 class VariablesTests(TransactionTestCase):
 
-    if django.VERSION > (2, 2):
+    if django.VERSION >= (2, 2):
         databases = ['default', 'other']
     else:
         multi_db = True
