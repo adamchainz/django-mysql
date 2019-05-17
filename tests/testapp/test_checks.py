@@ -1,3 +1,4 @@
+import django
 from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
@@ -7,11 +8,21 @@ from django_mysql.test.utils import override_mysql_variables
 
 class CallCheckTest(TestCase):
 
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
+
     def test_check(self):
         call_command('check')
 
 
 class VariablesTests(TransactionTestCase):
+
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
 
     def test_passes(self):
         assert check_variables([]) == []

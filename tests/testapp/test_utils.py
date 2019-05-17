@@ -1,6 +1,7 @@
 from time import sleep
 from unittest import mock, skipUnless
 
+import django
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test import SimpleTestCase, TestCase
@@ -158,7 +159,10 @@ class PTFingerprintTests(SimpleTestCase):
 
 class IndexNameTests(TestCase):
 
-    multi_db = True
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
 
     def test_requires_field_names(self):
         with pytest.raises(ValueError) as excinfo:

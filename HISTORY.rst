@@ -11,6 +11,8 @@ Pending
 * Remove authors file and documentation page. This was showing only 4 out of
   the 17 total contributors.
 
+* Tested on Django 2.2. No changes were needed for compatibility.
+
 3.0.0.post1 (2019-03-05)
 ------------------------
 

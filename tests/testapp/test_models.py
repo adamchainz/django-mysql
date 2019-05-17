@@ -3,7 +3,7 @@ import re
 from unittest import mock, skipUnless
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
@@ -17,8 +17,8 @@ from tests.testapp.utils import CaptureLastQuery, used_indexes
 
 class MixinQuerysetTests(TestCase):
 
-    def test_User(self):
-        qs = User.objects.all()
+    def test_ContentType(self):
+        qs = ContentType.objects.all()
         assert not hasattr(qs, 'approx_count')
         qs2 = add_QuerySetMixin(qs)
 

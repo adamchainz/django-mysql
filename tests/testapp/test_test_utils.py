@@ -1,3 +1,4 @@
+import django
 import pytest
 from django.db import connections
 from django.test import TestCase
@@ -23,7 +24,10 @@ class OverrideVarsMethodTest(TestCase):
 @override_mysql_variables(SQL_MODE="ANSI")
 class OverrideVarsClassTest(OverrideVarsMethodTest):
 
-    multi_db = True
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
 
     def test_class_sets_ansi(self):
         self.check_sql_mode("ANSI")

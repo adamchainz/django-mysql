@@ -455,6 +455,11 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
 
 class TestCheck(JSONFieldTestCase):
 
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
+
     def test_mutable_default_list(self):
         class InvalidJSONModel1(TemporaryModel):
             field = JSONField(default=[])

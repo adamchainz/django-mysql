@@ -58,12 +58,7 @@ DATABASE_ROUTERS = [
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    'django.contrib.admin.apps.AdminConfig',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django_mysql',
     'tests.testapp',
 ]
