@@ -3,6 +3,7 @@ from datetime import date, datetime, time
 from unittest import SkipTest, mock
 
 import django
+import mariadb_dyncol
 import pytest
 from django.core import serializers
 from django.db import connection, connections
@@ -13,11 +14,6 @@ from django.test import TestCase
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
-
-try:
-    import mariadb_dyncol
-except ImportError:  # pragma: no cover
-    mariadb_dyncol = None
 
 
 class DynColTestCase(TestCase):
