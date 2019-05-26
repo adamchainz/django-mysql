@@ -5,9 +5,9 @@ Requirements and Installation
 Requirements
 ------------
 
-Tested with all combinations of:
+These are the supported, tested versions of Django-MySQL's requirements:
 
-* Python: 3.6 (Python 3.4+ supported)
+* Python: 3.5, 3.6, 3.7
 * Django: 1.11, 2.0, 2.1, 2.2
 * MySQL: 5.6, 5.7 / MariaDB: 10.0, 10.1, 10.2, 10.3
 * mysqlclient: 1.3

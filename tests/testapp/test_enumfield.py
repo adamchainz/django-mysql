@@ -1,3 +1,4 @@
+import django
 import pytest
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
@@ -99,7 +100,12 @@ class TestEnumField(TestCase):
 
 class TestCheck(TestCase):
 
-    def test_db_not_mariadb(self):
+    if django.VERSION >= (2, 2):
+        databases = ['default', 'other']
+    else:
+        multi_db = True
+
+    def test_check(self):
         errors = EnumModel.check()
         assert errors == []
 

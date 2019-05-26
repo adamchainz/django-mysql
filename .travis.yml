@@ -6,11 +6,15 @@ notifications:
   webhooks: https://coveralls.io/webhook?repo_token=7l8yKtg4su0M31T0eGIaM0tnjvH0Rd5PM
 
 language: python
-python: '3.6'
 cache: pip
 
 services:
 - docker
+
+python:
+- 3.5
+- 3.6
+- 3.7
 
 env:
   global:
@@ -27,7 +31,7 @@ env:
 
 before_script: .travis/before_script.sh
 
-install: pip install coveralls tox
+install: pip install coveralls tox-travis
 
 script:
 - coverage erase
