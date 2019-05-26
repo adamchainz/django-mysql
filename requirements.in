@@ -18,3 +18,4 @@ pytest-randomly
 pytest-super-check
 pytz
 sqlparse
+twine
