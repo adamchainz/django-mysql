@@ -228,7 +228,7 @@ class IndexLookup(Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
+        params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
         return '(FIND_IN_SET(%s, %s) = %s)' % (rhs, lhs, self.index), params
 

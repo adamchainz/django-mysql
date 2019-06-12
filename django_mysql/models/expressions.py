@@ -64,10 +64,7 @@ class AppendListF(TwoSidedExpression):
         value, value_params = compiler.compile(self.rhs)
 
         sql = self.sql_expression % (field, value)
-
-        params = []
-        params.extend(value_params)
-        params.extend(field_params)
+        params = tuple(value_params) + tuple(field_params)
 
         return sql, params
 
@@ -96,10 +93,7 @@ class AppendLeftListF(TwoSidedExpression):
         value, value_params = compiler.compile(self.rhs)
 
         sql = self.sql_expression % (value, field)
-
-        params = []
-        params.extend(field_params)
-        params.extend(value_params)
+        params = tuple(field_params) + tuple(value_params)
 
         return sql, params
 
@@ -136,7 +130,7 @@ class PopListF(BaseExpression):
         field, field_params = compiler.compile(self.lhs)
 
         sql = self.sql_expression % (field)
-        return sql, field_params
+        return sql, tuple(field_params)
 
 
 class PopLeftListF(BaseExpression):
@@ -163,7 +157,7 @@ class PopLeftListF(BaseExpression):
         field, field_params = compiler.compile(self.lhs)
 
         sql = self.sql_expression % (field)
-        return sql, field_params
+        return sql, tuple(field_params)
 
 
 class SetF(object):
@@ -206,10 +200,7 @@ class AddSetF(TwoSidedExpression):
         value, value_params = compiler.compile(self.rhs)
 
         sql = self.sql_expression % (value, field)
-
-        params = []
-        params.extend(value_params)
-        params.extend(field_params)
+        params = tuple(value_params) + tuple(field_params)
 
         return sql, params
 
@@ -257,9 +248,6 @@ class RemoveSetF(TwoSidedExpression):
         value, value_params = compiler.compile(self.rhs)
 
         sql = self.sql_expression % (value, field)
-
-        params = []
-        params.extend(value_params)
-        params.extend(field_params)
+        params = tuple(value_params) + tuple(field_params)
 
         return sql, params

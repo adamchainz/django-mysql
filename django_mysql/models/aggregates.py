@@ -64,4 +64,4 @@ class GroupConcat(Aggregate):
 
         sql.append(")")
 
-        return "".join(sql), params
+        return "".join(sql), tuple(params)
