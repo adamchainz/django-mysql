@@ -56,9 +56,9 @@ coverage==4.5.3 \
     --hash=sha256:f46087bbd95ebae244a0eda01a618aff11ec7a069b15a3ef8f6b520db523dcf1 \
     --hash=sha256:f8019c5279eb32360ca03e9fac40a12667715546eed5c5eb59eb381f2f501260 \
     --hash=sha256:fc5f4d209733750afd2714e9109816a29500718b32dd9a5db01c0cb3a019b96a
-django==2.1.8 \
-    --hash=sha256:0fd54e4f27bc3e0b7054a11e6b3a18fa53f2373f6b2df8a22e8eadfe018970a5 \
-    --hash=sha256:f3b28084101d516f56104856761bc247f85a2a5bbd9da39d9f6197ff461b3ee4
+django==2.1.9 \
+    --hash=sha256:5052def4ff0a84bdf669827fdbd7b7cc1ac058f10232be6b21f37c6824f578da \
+    --hash=sha256:bb72b5f8b53f8156280eaea520b548ac128a53f80cebc856c5e0fb555d44d529
 docutils==0.14 \
     --hash=sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6 \
     --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
@@ -86,7 +86,7 @@ idna==2.8 \
 importlib-metadata==0.17 \
     --hash=sha256:a9f185022cfa69e9ca5f7eabfd5a58b689894cb78a11e3c8c89398a8ccbb8e7f \
     --hash=sha256:df1403cd3aebeb2b1dcd3515ca062eecb5bd3ea7611f18cba81130c68707e879 \
-    # via pluggy
+    # via pluggy, pytest
 isort==4.3.20 \
     --hash=sha256:c40744b6bc5162bbb39c1257fe298b7a393861d50978b565f3ccd9cb9de0182a \
     --hash=sha256:f57abacd059dc3bd666258d1efb0377510a89777fda3e3274e3c01f7c03ae22d
@@ -108,6 +108,10 @@ mysqlclient==1.4.2.post1 \
     --hash=sha256:425e733b05e359a714d6007c0fc44582be66b63e5a3df0a50949274ae16f4bc6 \
     --hash=sha256:62e4770b6a797b9416bcf70488365b7d6b9c9066878108499c559293bb464380 \
     --hash=sha256:f257d250f2675d0ef99bd318906f3cfc05cef4a2f385ea695ff32a3f04b9f9a7
+packaging==19.0 \
+    --hash=sha256:0c98a5d0be38ed775798ece1b9727178c4469d9c3b4ada66e8e6b7849f8732af \
+    --hash=sha256:9e1cbf8c12b1f1ce0bb5344b8d7ecf66a6f8a6e91bcb0c84593ed6d3ab5c4ab3 \
+    # via pytest
 parameterized==0.7.0 \
     --hash=sha256:020343a281efcfe9b71b9028a91817f981202c14d72104b5a2fbe401dee25a18 \
     --hash=sha256:d8c8837fb677ed2d5a93b9e2308ce0da3aeb58cf513120d501e0b7af14da78d5
@@ -138,12 +142,16 @@ pyflakes==2.1.1 \
 pygments==2.4.2 \
     --hash=sha256:71e430bc85c88a430f000ac1d9b331d2407f681d6f6aec95e8bcfbc3df5b0127 \
     --hash=sha256:881c4c157e45f30af185c1ffe8d549d48ac9127433f2c380c24b84572ad66297
+pyparsing==2.4.0 \
+    --hash=sha256:1873c03321fc118f4e9746baf201ff990ceb915f433f23b395f5580d1840cb2a \
+    --hash=sha256:9b6323ef4ab914af344ba97510e966d64ba91055d6b9afa6b30799340e89cc03 \
+    # via packaging
 pytest-cov==2.7.1 \
     --hash=sha256:2b097cde81a302e1047331b48cadacf23577e431b61e9c6f49a1170bbe3d3da6 \
     --hash=sha256:e00ea4fdde970725482f1f35630d12f074e121a23801aabf2ae154ec6bdd343a
-pytest-django==3.4.8 \
-    --hash=sha256:30d773f1768e8f214a3106f1090e00300ce6edfcac8c55fd13b675fe1cbd1c85 \
-    --hash=sha256:4d3283e774fe1d40630ee58bf34929b83875e4751b525eeb07a7506996eb42ee
+pytest-django==3.5.0 \
+    --hash=sha256:11a9ab9fceb2f819a0e94ba4eab791f998542f4e29eb36500cb9464dd3b4c3b6 \
+    --hash=sha256:581d699fbe955ba40c2da9c9cd3b49442d95e9d1a3f8c4d13ca5a29332467fea
 pytest-flake8dir==2.1.0 \
     --hash=sha256:bbcecc3fc3a548532fa85efca4c7956fdce7ad3d5724f8a300be069b178491de \
     --hash=sha256:d1251889a09fbcb8f19c2f9de34fbd3aa9121eeff8bce8d5a36758e5f317ef63
@@ -153,9 +161,9 @@ pytest-randomly==3.0.0 \
 pytest-super-check==2.0.0 \
     --hash=sha256:20c7eaadbebeb029cfac6a2194be527effe1f4e9282313f589ccea6a6cca9b56 \
     --hash=sha256:f7f285d70cafd1299b70debcaf885caef4d3768aa6c5ee76e10b86ab2a6cf740
-pytest==4.5.0 \
-    --hash=sha256:1a8aa4fa958f8f451ac5441f3ac130d9fc86ea38780dd2715e6d5c5882700b24 \
-    --hash=sha256:b8bf138592384bd4e87338cb0f256bf5f615398a649d4bd83915f0e4047a5ca6
+pytest==4.6.2 \
+    --hash=sha256:6032845e68a17a96e8da3088037f899b56357769a724122056265ca2ea1890ee \
+    --hash=sha256:bea27a646a3d74cbbcf8d3d4a06b2dfc336baf3dc2cc85cf70ad0157e73e8322
 pytz==2019.1 \
     --hash=sha256:303879e36b721603cc54604edcac9d20401bdbe31e1e4fdee5b9f98d5d31dfda \
     --hash=sha256:d747dd3d23d77ef44c6a3526e274af6efeb0a6f1afd5a69ba4d5be4098c8e141
@@ -174,7 +182,7 @@ requests==2.22.0 \
 six==1.12.0 \
     --hash=sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c \
     --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73 \
-    # via bleach, pathlib2, pytest, readme-renderer
+    # via bleach, packaging, pathlib2, pytest, readme-renderer
 sqlparse==0.3.0 \
     --hash=sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177 \
     --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873
@@ -201,3 +209,7 @@ zipp==0.5.1 \
     --hash=sha256:8c1019c6aad13642199fbe458275ad6a84907634cc9f0989877ccc4a2840139d \
     --hash=sha256:ca943a7e809cc12257001ccfb99e3563da9af99d52f261725e96dfe0f9275bc3 \
     # via importlib-metadata
+
+# WARNING: The following packages were not pinned, but pip requires them to be
+# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# setuptools==41.0.1        # via twine
