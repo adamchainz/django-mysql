@@ -207,7 +207,7 @@ class KeyTransform(Transform):
 
         json_path = self.compile_json_path(key_transforms)
 
-        return 'JSON_EXTRACT({}, %s)'.format(lhs), params + [json_path]
+        return 'JSON_EXTRACT({}, %s)'.format(lhs), tuple(params) + (json_path,)
 
     def compile_json_path(self, key_transforms):
         path = ['$']

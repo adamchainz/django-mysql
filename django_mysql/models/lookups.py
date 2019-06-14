@@ -20,7 +20,7 @@ class SoundsLike(Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
+        params = tuple(lhs_params) + tuple(rhs_params)
         return '%s SOUNDS LIKE %s' % (lhs, rhs), params
 
 
@@ -73,7 +73,7 @@ class JSONContainedBy(Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = rhs_params + lhs_params
+        params = tuple(rhs_params) + tuple(lhs_params)
         return 'JSON_CONTAINS({}, {})'.format(rhs, lhs), params
 
 
@@ -83,7 +83,7 @@ class JSONContains(JSONLookupMixin, Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
+        params = tuple(lhs_params) + tuple(rhs_params)
         return 'JSON_CONTAINS({}, {})'.format(lhs, rhs), params
 
 
@@ -101,7 +101,7 @@ class JSONHasKey(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         key_name = self.rhs
         path = '$.{}'.format(json.dumps(key_name))
-        params = lhs_params + [path]
+        params = tuple(lhs_params) + (path,)
         return "JSON_CONTAINS_PATH({}, 'one', %s)".format(lhs), params
 
 
@@ -120,11 +120,11 @@ class JSONHasKeys(JSONSequencesMixin, Lookup):
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
-        paths = [
+        paths = tuple(
             '$.{}'.format(json.dumps(key_name))
             for key_name in self.rhs
-        ]
-        params = lhs_params + paths
+        )
+        params = tuple(lhs_params) + paths
 
         sql = ['JSON_CONTAINS_PATH(', lhs, ", 'all', "]
         sql.append(', '.join('%s' for _ in paths))
@@ -137,11 +137,11 @@ class JSONHasAnyKeys(JSONSequencesMixin, Lookup):
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
-        paths = [
+        paths = tuple(
             '$.{}'.format(json.dumps(key_name))
             for key_name in self.rhs
-        ]
-        params = lhs_params + paths
+        )
+        params = tuple(lhs_params) + paths
 
         sql = ['JSON_CONTAINS_PATH(', lhs, ", 'one', "]
         sql.append(', '.join('%s' for _ in paths))
@@ -169,7 +169,7 @@ class SetContains(Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
+        params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
         return 'FIND_IN_SET(%s, %s)' % (rhs, lhs), params
 
@@ -187,5 +187,5 @@ class DynColHasKey(Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
+        params = tuple(lhs_params) + tuple(rhs_params)
         return 'COLUMN_EXISTS(%s, %s)' % (lhs, rhs), params

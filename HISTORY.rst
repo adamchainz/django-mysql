@@ -10,6 +10,8 @@ Pending
 
 * Update Python support to 3.5-3.7, as 3.4 has reached its end of life.
 
+* Always cast SQL params to tuples in ORM code.
+
 3.1.0 (2019-05-17)
 ------------------
 
