@@ -5,14 +5,12 @@ from django_mysql.models import SizedBinaryField
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('testapp', '0001_initial'),
-    ]
+    dependencies = [("testapp", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='sizedbinaryaltermodel',
-            name='field',
+            model_name="sizedbinaryaltermodel",
+            name="field",
             field=SizedBinaryField(size_class=2),
-        ),
+        )
     ]

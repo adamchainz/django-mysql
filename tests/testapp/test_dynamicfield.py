@@ -17,19 +17,16 @@ from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryMo
 
 
 class DynColTestCase(TestCase):
-
     @classmethod
     def setUpClass(cls):
         if not (
-            connection_is_mariadb(connection)
-            and connection.mysql_version >= (10, 0, 1)
+            connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
         ):
             raise SkipTest("Dynamic Columns require MariaDB 10.0.1+")
         super(DynColTestCase, cls).setUpClass()
 
 
 class TestSaveLoad(DynColTestCase):
-
     def test_save_and_mutations(self):
         s = DynamicModel.objects.create()
         assert s.attrs == {}
@@ -37,73 +34,66 @@ class TestSaveLoad(DynColTestCase):
         s = DynamicModel.objects.get()
         assert s.attrs == {}
 
-        s.attrs['key'] = 'value!'
-        s.attrs['2key'] = 23
+        s.attrs["key"] = "value!"
+        s.attrs["2key"] = 23
         s.save()
         s = DynamicModel.objects.get()
-        assert s.attrs == {'key': 'value!', '2key': 23}
+        assert s.attrs == {"key": "value!", "2key": 23}
 
-        del s.attrs['key']
+        del s.attrs["key"]
         s.save()
         s = DynamicModel.objects.get()
-        assert s.attrs == {'2key': 23}
+        assert s.attrs == {"2key": 23}
 
-        del s.attrs['2key']
+        del s.attrs["2key"]
         s.save()
         s = DynamicModel.objects.get()
         assert s.attrs == {}
 
     def test_create(self):
-        DynamicModel.objects.create(attrs={
-            'a': 'value',
-        })
+        DynamicModel.objects.create(attrs={"a": "value"})
         s = DynamicModel.objects.get()
-        assert s.attrs == {'a': 'value'}
+        assert s.attrs == {"a": "value"}
 
     def test_create_succeeds_specced_field(self):
-        DynamicModel.objects.create(attrs={'inty': 1})
+        DynamicModel.objects.create(attrs={"inty": 1})
         s = DynamicModel.objects.get()
-        assert s.attrs == {'inty': 1}
+        assert s.attrs == {"inty": 1}
 
     def test_create_fails_bad_value(self):
         with pytest.raises(TypeError):
-            DynamicModel.objects.create(attrs={'inty': 1.0})
+            DynamicModel.objects.create(attrs={"inty": 1.0})
 
     def test_bulk_create(self):
-        DynamicModel.objects.bulk_create([
-            DynamicModel(attrs={'a': 'value'}),
-            DynamicModel(attrs={'b': 'value2'}),
-        ])
-        dm1, dm2 = DynamicModel.objects.all().order_by('id')
-        assert dm1.attrs == {'a': 'value'}
-        assert dm2.attrs == {'b': 'value2'}
+        DynamicModel.objects.bulk_create(
+            [DynamicModel(attrs={"a": "value"}), DynamicModel(attrs={"b": "value2"})]
+        )
+        dm1, dm2 = DynamicModel.objects.all().order_by("id")
+        assert dm1.attrs == {"a": "value"}
+        assert dm2.attrs == {"b": "value2"}
 
 
 class SpecTests(DynColTestCase):
-
     def test_spec_empty(self):
         DynamicField.validate_spec({}, {})  # no errors
 
     def test_spec_dict_type(self):
-        DynamicField.validate_spec(
-            {'a': dict},
-            {'a': {'this': 'that'}},
-        )  # no errors
+        DynamicField.validate_spec({"a": dict}, {"a": {"this": "that"}})  # no errors
 
     def test_illegal_int(self):
-        m = DynamicModel(attrs={'inty': 1.0})
+        m = DynamicModel(attrs={"inty": 1.0})
         with pytest.raises(TypeError) as excinfo:
             m.save()
         assert "Key 'inty' should be of type int" in str(excinfo.value)
 
     def test_illegal_nested(self):
-        m = DynamicModel(attrs={'nesty': {'level2': 1}})
+        m = DynamicModel(attrs={"nesty": {"level2": 1}})
         with pytest.raises(TypeError) as excinfo:
             m.save()
         assert "Key 'nesty.level2' should be of type " in str(excinfo.value)
 
     def test_illegal_nested_type(self):
-        m = DynamicModel(attrs={'nesty': []})
+        m = DynamicModel(attrs={"nesty": []})
         with pytest.raises(TypeError) as excinfo:
             m.save()
         assert "Key 'nesty' should be of type dict" in str(excinfo.value)
@@ -114,133 +104,112 @@ class DumbTransform(Transform):
     Used to test existing transform behaviour. Really dumb, returns the string
     'dumb' always.
     """
-    lookup_name = 'dumb'
+
+    lookup_name = "dumb"
     output_field = CharField()
 
     def as_sql(self, compiler, connection):
         lhs, params = compiler.compile(self.lhs)
-        return "%s", ['dumb']
+        return "%s", ["dumb"]
 
 
 DynamicField.register_lookup(DumbTransform)
 
 
 class QueryTests(DynColTestCase):
-
     def setUp(self):
         super(QueryTests, self).setUp()
         self.objs = [
-            DynamicModel(attrs={'a': 'b'}),
-            DynamicModel(attrs={'a': 'b', 'c': 'd'}),
-            DynamicModel(attrs={'c': 'd'}),
+            DynamicModel(attrs={"a": "b"}),
+            DynamicModel(attrs={"a": "b", "c": "d"}),
+            DynamicModel(attrs={"c": "d"}),
             DynamicModel(attrs={}),
-            DynamicModel(attrs={
-                'datetimey': datetime(2001, 1, 4, 14, 15, 16),
-                'datey': date(2001, 1, 4),
-                'floaty': 128.5,
-                'inty': 9001,
-                'stry': "strvalue",
-                'str_underscorey': "strvalue2",
-                'timey': time(14, 15, 16),
-                'nesty': {
-                    'level2': 'chirp',
-                },
-            }),
+            DynamicModel(
+                attrs={
+                    "datetimey": datetime(2001, 1, 4, 14, 15, 16),
+                    "datey": date(2001, 1, 4),
+                    "floaty": 128.5,
+                    "inty": 9001,
+                    "stry": "strvalue",
+                    "str_underscorey": "strvalue2",
+                    "timey": time(14, 15, 16),
+                    "nesty": {"level2": "chirp"},
+                }
+            ),
         ]
         DynamicModel.objects.bulk_create(self.objs)
-        self.objs = list(DynamicModel.objects.all().order_by('id'))
+        self.objs = list(DynamicModel.objects.all().order_by("id"))
 
     def test_equal(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs={'a': 'b'}))
-            == self.objs[:1]
-        )
+        assert list(DynamicModel.objects.filter(attrs={"a": "b"})) == self.objs[:1]
 
     def test_exact(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__exact={'a': 'b'}))
-            == self.objs[:1]
+            list(DynamicModel.objects.filter(attrs__exact={"a": "b"})) == self.objs[:1]
         )
 
     def test_preexisting_transforms_work_fine(self):
-        assert list(DynamicModel.objects.filter(attrs__dumb='notdumb')) == []
+        assert list(DynamicModel.objects.filter(attrs__dumb="notdumb")) == []
 
     def test_has_key(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__has_key='c'))
-            == self.objs[1:3]
-        )
+        assert list(DynamicModel.objects.filter(attrs__has_key="c")) == self.objs[1:3]
 
     def test_key_transform_datey(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__datey=date(2001, 1, 4)))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__datey=date(2001, 1, 4))) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_datey_DATE(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__datey_DATE=date(2001, 1, 4),
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(attrs__datey_DATE=date(2001, 1, 4))
+        ) == [self.objs[4]]
 
     def test_key_transform_datetimey(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16),
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(
+                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16)
+            )
+        ) == [self.objs[4]]
 
     def test_key_transform_datetimey__year(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__datetimey__year=2001))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__datetimey__year=2001)) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_datetimey_DATETIME(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16),
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(
+                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16)
+            )
+        ) == [self.objs[4]]
 
     def test_key_transform_floaty(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__floaty__gte=128.0))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__floaty__gte=128.0)) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_floaty_DOUBLE(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__floaty_DOUBLE=128.5))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__floaty_DOUBLE=128.5)) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_inty(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__inty=9001))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__inty=9001)) == [self.objs[4]]
 
     def test_key_transform_inty_INTEGER(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__inty_INTEGER=9001))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__inty_INTEGER=9001)) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_inty_no_results(self):
         assert list(DynamicModel.objects.filter(attrs__inty=12991)) == []
 
     def test_key_transform_inty_in_subquery(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                id__in=DynamicModel.objects.filter(attrs__inty=9001),
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(
+                id__in=DynamicModel.objects.filter(attrs__inty=9001)
+            )
+        ) == [self.objs[4]]
 
     def test_key_transform_miss_CHAR_isnull(self):
         assert (
@@ -249,82 +218,66 @@ class QueryTests(DynColTestCase):
         )
 
     def test_key_transform_stry(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__stry="strvalue"))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__stry="strvalue")) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_stry_CHAR(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__stry_CHAR="strvalue"))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__stry_CHAR="strvalue")) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_str_underscorey_CHAR(self):
         # Check that underscores in key names are parsed fine
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__str_underscorey_CHAR="strvalue2",
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(attrs__str_underscorey_CHAR="strvalue2")
+        ) == [self.objs[4]]
 
     def test_key_transform_timey(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__timey=time(14, 15, 16)))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__timey=time(14, 15, 16))) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_timey_TIME(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__timey_TIME=time(14, 15, 16),
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(attrs__timey_TIME=time(14, 15, 16))
+        ) == [self.objs[4]]
 
     def test_key_transform_nesty__level2(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__nesty__level2='chirp',
-            ))
-            == [self.objs[4]]
-        )
+        assert list(DynamicModel.objects.filter(attrs__nesty__level2="chirp")) == [
+            self.objs[4]
+        ]
 
     def test_key_transform_nesty__level2__startswith(self):
-        assert (
-            list(DynamicModel.objects.filter(
-                attrs__nesty__level2__startswith='chi',
-            ))
-            == [self.objs[4]]
-        )
+        assert list(
+            DynamicModel.objects.filter(attrs__nesty__level2__startswith="chi")
+        ) == [self.objs[4]]
 
 
 class SpeclessQueryTests(DynColTestCase):
     def setUp(self):
         super(SpeclessQueryTests, self).setUp()
         objs = [
-            SpeclessDynamicModel(attrs={'a': 'b'}),
-            SpeclessDynamicModel(attrs={'a': 'c'}),
+            SpeclessDynamicModel(attrs={"a": "b"}),
+            SpeclessDynamicModel(attrs={"a": "c"}),
         ]
         SpeclessDynamicModel.objects.bulk_create(objs)
-        self.objs = list(SpeclessDynamicModel.objects.all().order_by('id'))
+        self.objs = list(SpeclessDynamicModel.objects.all().order_by("id"))
 
     def test_simple(self):
-        assert (
-            list(SpeclessDynamicModel.objects.filter(attrs__a_CHAR='b'))
-            == [self.objs[0]]
-        )
+        assert list(SpeclessDynamicModel.objects.filter(attrs__a_CHAR="b")) == [
+            self.objs[0]
+        ]
 
 
 class TestCheck(DynColTestCase):
 
     if django.VERSION >= (2, 2):
-        databases = ['default', 'other']
+        databases = ["default", "other"]
     else:
         multi_db = True
 
-    @mock.patch('django_mysql.models.fields.dynamic.connection_is_mariadb')
+    @mock.patch("django_mysql.models.fields.dynamic.connection_is_mariadb")
     def test_db_not_mariadb(self, is_mariadb):
         is_mariadb.return_value = False
 
@@ -333,24 +286,24 @@ class TestCheck(DynColTestCase):
 
         errors = ValidDynamicModel1.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E013'
+        assert errors[0].id == "django_mysql.E013"
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
 
-    wrapper_path = 'django.db.backends.mysql.base.DatabaseWrapper'
+    wrapper_path = "django.db.backends.mysql.base.DatabaseWrapper"
 
-    @mock.patch.object(connections['default'], 'mysql_version', new=(5, 5, 3))
-    @mock.patch.object(connections['other'], 'mysql_version', new=(5, 5, 3))
+    @mock.patch.object(connections["default"], "mysql_version", new=(5, 5, 3))
+    @mock.patch.object(connections["other"], "mysql_version", new=(5, 5, 3))
     def test_mariadb_old_version(self):
         class ValidDynamicModel2(TemporaryModel):
             field = DynamicField()
 
         errors = ValidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E013'
+        assert errors[0].id == "django_mysql.E013"
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
 
-    @mock.patch.object(connections['default'], 'mysql_version', new=(5, 5, 3))
-    @mock.patch.object(connections['other'], 'mysql_version', new=(10, 0, 1))
+    @mock.patch.object(connections["default"], "mysql_version", new=(5, 5, 3))
+    @mock.patch.object(connections["other"], "mysql_version", new=(10, 0, 1))
     def test_mariadb_one_conn_old_version(self):
         class ValidDynamicModel3(TemporaryModel):
             field = DynamicField()
@@ -358,11 +311,11 @@ class TestCheck(DynColTestCase):
         errors = ValidDynamicModel3.check(actually_check=True)
         assert len(errors) == 0
 
-    @mock.patch(DynamicField.__module__ + '.mariadb_dyncol', new=None)
+    @mock.patch(DynamicField.__module__ + ".mariadb_dyncol", new=None)
     def test_mariadb_dyncol_missing(self):
         errors = DynamicModel.check()
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E012'
+        assert errors[0].id == "django_mysql.E012"
         assert "'mariadb_dyncol' is required" in errors[0].msg
 
     def test_character_set_not_utf8_compatible(self):
@@ -376,72 +329,74 @@ class TestCheck(DynColTestCase):
                 cursor.execute("SET NAMES '{}'".format(orig_charset))
 
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E014'
+        assert errors[0].id == "django_mysql.E014"
         assert "The MySQL charset must be 'utf8'" in errors[0].msg
 
     def test_spec_not_dict(self):
         class InvalidDynamicModel1(TemporaryModel):
-            field = DynamicField(spec=['woops', 'a', 'list'])
+            field = DynamicField(spec=["woops", "a", "list"])
 
         errors = InvalidDynamicModel1.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E009'
+        assert errors[0].id == "django_mysql.E009"
         assert "'spec' must be a dict" in errors[0].msg
         assert "The value passed is of type list" in errors[0].hint
 
     def test_spec_key_not_valid(self):
         class InvalidDynamicModel2(TemporaryModel):
-            field = DynamicField(spec={
-                2.0: str,
-            })
+            field = DynamicField(spec={2.0: str})
 
         errors = InvalidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E010'
+        assert errors[0].id == "django_mysql.E010"
         assert "The key '2.0' in 'spec' is not a string" in errors[0].msg
         assert "'spec' keys must be of type " in errors[0].hint
         assert "'2.0' is of type float" in errors[0].hint
 
     def test_spec_value_not_valid(self):
         class InvalidDynamicModel3(TemporaryModel):
-            field = DynamicField(spec={'bad': list})
+            field = DynamicField(spec={"bad": list})
 
         errors = InvalidDynamicModel3.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E011'
+        assert errors[0].id == "django_mysql.E011"
         assert "The value for 'bad' in 'spec' is not an allowed type" in errors[0].msg
-        assert "'spec' values must be one of the following types: date, datetime" in errors[0].hint
+        assert (
+            "'spec' values must be one of the following types: date, datetime"
+            in errors[0].hint
+        )
 
     def test_spec_nested_value_not_valid(self):
         class InvalidDynamicModel4(TemporaryModel):
-            field = DynamicField(spec={
-                'l1': {
-                    'bad': tuple,
-                },
-            })
+            field = DynamicField(spec={"l1": {"bad": tuple}})
 
         errors = InvalidDynamicModel4.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E011'
-        assert "The value for 'bad' in 'spec.l1' is not an allowed type" in errors[0].msg
-        assert "'spec' values must be one of the following types: date, datetime" in errors[0].hint
+        assert errors[0].id == "django_mysql.E011"
+        assert (
+            "The value for 'bad' in 'spec.l1' is not an allowed type" in errors[0].msg
+        )
+        assert (
+            "'spec' values must be one of the following types: date, datetime"
+            in errors[0].hint
+        )
 
 
 class TestToPython(TestCase):
     def test_mariadb_dyncol_value(self):
-        value = mariadb_dyncol.pack({'foo': 'bar'})
+        value = mariadb_dyncol.pack({"foo": "bar"})
         result = DynamicField().to_python(value)
-        assert result == {'foo': 'bar'}
+        assert result == {"foo": "bar"}
 
     def test_json(self):
-        value = str(json.dumps({'foo': 'bar'}))
+        value = str(json.dumps({"foo": "bar"}))
         result = DynamicField().to_python(value)
-        assert result == {'foo': 'bar'}
+        assert result == {"foo": "bar"}
 
     def test_pass_through(self):
-        value = {'foo': 'bar'}
+        value = {"foo": "bar"}
         result = DynamicField().to_python(value)
-        assert result == {'foo': 'bar'}
+        assert result == {"foo": "bar"}
 
 
 class SubDynamicField(DynamicField):
@@ -451,60 +406,60 @@ class SubDynamicField(DynamicField):
 
 
 class TestDeconstruct(TestCase):
-
     def test_deconstruct(self):
         field = DynamicField()
         name, path, args, kwargs = field.deconstruct()
         DynamicField(*args, **kwargs)
 
     def test_deconstruct_spec(self):
-        field = DynamicField(spec={'this': int, 'that': float})
+        field = DynamicField(spec={"this": int, "that": float})
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'django_mysql.models.DynamicField'
+        assert path == "django_mysql.models.DynamicField"
         DynamicField(*args, **kwargs)
 
     def test_bad_import_deconstruct(self):
         from django_mysql.models.fields import DynamicField as DField
+
         field = DField()
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'django_mysql.models.DynamicField'
+        assert path == "django_mysql.models.DynamicField"
 
     def test_bad_import2_deconstruct(self):
         from django_mysql.models.fields.dynamic import DynamicField as DField
+
         field = DField()
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'django_mysql.models.DynamicField'
+        assert path == "django_mysql.models.DynamicField"
 
     def test_subclass_deconstruct(self):
         field = SubDynamicField()
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'tests.testapp.test_dynamicfield.SubDynamicField'
+        assert path == "tests.testapp.test_dynamicfield.SubDynamicField"
 
 
 class TestMigrations(DynColTestCase):
-
     def test_makemigrations(self):
-        field = DynamicField(spec={'a': 'beta'})
+        field = DynamicField(spec={"a": "beta"})
         statement, imports = MigrationWriter.serialize(field)
         # 'spec' should not appear since that would trigger needless ALTERs
         assert statement == "django_mysql.models.DynamicField()"
 
 
 class TestSerialization(DynColTestCase):
-    test_data = '''
+    test_data = """
         [{"fields": {"attrs": "{\\"a\\": \\"b\\"}"},
           "model": "testapp.dynamicmodel", "pk": null}]
-    '''
+    """
 
     def test_dumping(self):
-        instance = DynamicModel(attrs={'a': 'b'})
-        data = serializers.serialize('json', [instance])
+        instance = DynamicModel(attrs={"a": "b"})
+        data = serializers.serialize("json", [instance])
         assert json.loads(data) == json.loads(self.test_data)
 
     def test_loading(self):
-        deserialized = list(serializers.deserialize('json', self.test_data))
+        deserialized = list(serializers.deserialize("json", self.test_data))
         instance = deserialized[0].object
-        assert instance.attrs == {'a': 'b'}
+        assert instance.attrs == {"a": "b"}
 
 
 class TestFormfield(DynColTestCase):

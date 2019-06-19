@@ -17,8 +17,7 @@ class InstallPlugin(Operation):
     def database_forwards(self, app_label, schema_editor, from_st, to_st):
         if not self.plugin_installed(schema_editor):
             schema_editor.execute(
-                "INSTALL PLUGIN {} SONAME %s".format(self.name),
-                (self.soname,),
+                "INSTALL PLUGIN {} SONAME %s".format(self.name), (self.soname,)
             )
 
     def database_backwards(self, app_label, schema_editor, from_st, to_st):
@@ -34,7 +33,7 @@ class InstallPlugin(Operation):
                 (self.name,),
             )
             count = cursor.fetchone()[0]
-            return (count > 0)
+            return count > 0
 
     def describe(self):
         return "Installs plugin %s from %s" % (self.name, self.soname)
@@ -62,7 +61,6 @@ class InstallSOName(Operation):
 
 
 class AlterStorageEngine(Operation):
-
     def __init__(self, name, to_engine, from_engine=None):
         self.name = name
         self.engine = to_engine
@@ -70,13 +68,14 @@ class AlterStorageEngine(Operation):
 
     @property
     def reversible(self):
-        return (self.from_engine is not None)
+        return self.from_engine is not None
 
     def state_forwards(self, app_label, state):
         pass
 
-    def database_forwards(self, app_label, schema_editor, from_state, to_state,
-                          engine=None):
+    def database_forwards(
+        self, app_label, schema_editor, from_state, to_state, engine=None
+    ):
         if engine is None:
             engine = self.engine
 
@@ -93,25 +92,24 @@ class AlterStorageEngine(Operation):
                              ENGINE = %s""",
                     (new_model._meta.db_table, engine),
                 )
-                uses_engine_already = (cursor.fetchone()[0] > 0)
+                uses_engine_already = cursor.fetchone()[0] > 0
 
             if uses_engine_already:
                 return
 
             schema_editor.execute(
                 "ALTER TABLE {table} ENGINE={engine}".format(
-                    table=qn(new_model._meta.db_table),
-                    engine=engine,
-                ),
+                    table=qn(new_model._meta.db_table), engine=engine
+                )
             )
 
-    def database_backwards(self, app_label, schema_editor, from_state,
-                           to_state):
+    def database_backwards(self, app_label, schema_editor, from_state, to_state):
         if self.from_engine is None:
             raise NotImplementedError("You cannot reverse this operation")
 
-        return self.database_forwards(app_label, schema_editor, from_state,
-                                      to_state, engine=self.from_engine)
+        return self.database_forwards(
+            app_label, schema_editor, from_state, to_state, engine=self.from_engine
+        )
 
     @cached_property
     def name_lower(self):
@@ -125,9 +123,6 @@ class AlterStorageEngine(Operation):
             from_clause = " from {}".format(self.from_engine)
         else:
             from_clause = ""
-        return "Alter storage engine for {model}{from_clause} to {engine}" \
-               .format(
-                   model=self.name,
-                   from_clause=from_clause,
-                   engine=self.engine,
-               )
+        return "Alter storage engine for {model}{from_clause} to {engine}".format(
+            model=self.name, from_clause=from_clause, engine=self.engine
+        )

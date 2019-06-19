@@ -5,7 +5,6 @@ from django_mysql.utils import collapse_spaces
 
 
 class TwoSidedExpression(BaseExpression):
-
     def __init__(self, lhs, rhs):
         super(TwoSidedExpression, self).__init__()
         self.lhs = lhs
@@ -24,12 +23,12 @@ class ListF(object):
         self.field = F(field_name)
 
     def append(self, value):
-        if not hasattr(value, 'as_sql'):
+        if not hasattr(value, "as_sql"):
             value = Value(value)
         return AppendListF(self.field, value)
 
     def appendleft(self, value):
-        if not hasattr(value, 'as_sql'):
+        if not hasattr(value, "as_sql"):
             value = Value(value)
         return AppendLeftListF(self.field, value)
 
@@ -47,7 +46,8 @@ class AppendListF(TwoSidedExpression):
     # comma and 'value'
     # N.B. using MySQL side variables to avoid repeat calculation of
     # expression[s]
-    sql_expression = collapse_spaces("""
+    sql_expression = collapse_spaces(
+        """
         CONCAT_WS(
             ',',
             IF(
@@ -57,7 +57,8 @@ class AppendListF(TwoSidedExpression):
             ),
             %s
         )
-    """)
+    """
+    )
 
     def as_sql(self, compiler, connection):
         field, field_params = compiler.compile(self.lhs)
@@ -76,7 +77,8 @@ class AppendLeftListF(TwoSidedExpression):
     # comma and 'value'
     # N.B. using MySQL side variables to avoid repeat calculation of
     # expression[s]
-    sql_expression = collapse_spaces("""
+    sql_expression = collapse_spaces(
+        """
         CONCAT_WS(
             ',',
             %s,
@@ -86,7 +88,8 @@ class AppendLeftListF(TwoSidedExpression):
                 NULL
             )
         )
-    """)
+    """
+    )
 
     def as_sql(self, compiler, connection):
         field, field_params = compiler.compile(self.lhs)
@@ -100,7 +103,8 @@ class AppendLeftListF(TwoSidedExpression):
 
 class PopListF(BaseExpression):
 
-    sql_expression = collapse_spaces("""
+    sql_expression = collapse_spaces(
+        """
         SUBSTRING(
             @tmp_f:=%s,
             1,
@@ -114,7 +118,8 @@ class PopListF(BaseExpression):
                 0
             )
         )
-    """)
+    """
+    )
 
     def __init__(self, lhs):
         super(PopListF, self).__init__()
@@ -135,13 +140,15 @@ class PopListF(BaseExpression):
 
 class PopLeftListF(BaseExpression):
 
-    sql_expression = collapse_spaces("""
+    sql_expression = collapse_spaces(
+        """
         IF(
             (@tmp_c:=LOCATE(',', @tmp_f:=%s)) > 0,
             SUBSTRING(@tmp_f, @tmp_c + 1),
             ''
         )
-    """)
+    """
+    )
 
     def __init__(self, lhs):
         super(PopLeftListF, self).__init__()
@@ -161,17 +168,16 @@ class PopLeftListF(BaseExpression):
 
 
 class SetF(object):
-
     def __init__(self, field_name):
         self.field = F(field_name)
 
     def add(self, value):
-        if not hasattr(value, 'as_sql'):
+        if not hasattr(value, "as_sql"):
             value = Value(value)
         return AddSetF(self.field, value)
 
     def remove(self, value):
-        if not hasattr(value, 'as_sql'):
+        if not hasattr(value, "as_sql"):
             value = Value(value)
         return RemoveSetF(self.field, value)
 
@@ -183,7 +189,8 @@ class AddSetF(TwoSidedExpression):
     # comma and 'value'
     # N.B. using MySQL side variables to avoid repeat calculation of
     # expression[s]
-    sql_expression = collapse_spaces("""
+    sql_expression = collapse_spaces(
+        """
         IF(
             FIND_IN_SET(@tmp_val:=%s, @tmp_f:=%s),
             @tmp_f,
@@ -193,7 +200,8 @@ class AddSetF(TwoSidedExpression):
                 @tmp_val
             )
         )
-    """)
+    """
+    )
 
     def as_sql(self, compiler, connection):
         field, field_params = compiler.compile(self.lhs)
@@ -212,7 +220,8 @@ class RemoveSetF(TwoSidedExpression):
     # that element.
     # There are some tricks going on - e.g. LEAST to evaluate a sub expression
     # but not use it in the output of CONCAT_WS
-    sql_expression = collapse_spaces("""
+    sql_expression = collapse_spaces(
+        """
         IF(
             @tmp_pos:=FIND_IN_SET(%s, @tmp_f:=%s),
             CONCAT_WS(
@@ -241,7 +250,8 @@ class RemoveSetF(TwoSidedExpression):
             ),
             @tmp_f
         )
-    """)
+    """
+    )
 
     def as_sql(self, compiler, connection):
         field, field_params = compiler.compile(self.lhs)

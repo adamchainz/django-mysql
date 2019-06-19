@@ -9,18 +9,22 @@ from django_mysql.utils import collapse_spaces
 class Command(BaseCommand):
     args = "<app_name>"
 
-    help = collapse_spaces("""
+    help = collapse_spaces(
+        """
         Outputs a migration that will create a table.
-    """)
+    """
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'aliases', metavar='aliases', nargs='*',
-            help='Specify the cache alias(es) to create migrations for.',
+            "aliases",
+            metavar="aliases",
+            nargs="*",
+            help="Specify the cache alias(es) to create migrations for.",
         )
 
     def handle(self, *args, **options):
-        aliases = set(options['aliases'])
+        aliases = set(options["aliases"])
 
         if not aliases:
             aliases = settings.CACHES
@@ -50,14 +54,12 @@ class Command(BaseCommand):
         # defined in TEMPLATES
         out = [header]
         for table in tables:
-            out.append(
-                table_operation.replace('{{ table }}', table),
-            )
+            out.append(table_operation.replace("{{ table }}", table))
         out.append(footer)
-        return ''.join(out)
+        return "".join(out)
 
 
-header = '''
+header = """
 from django.db import migrations
 
 
@@ -70,24 +72,27 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-'''.strip()
+""".strip()
 
-create_table_sql = '\n'.join(
-    '    ' * 3 + line
-    for line in MySQLCache.create_table_sql.splitlines()
-).format(table_name='{{ table }}')
+create_table_sql = "\n".join(
+    "    " * 3 + line for line in MySQLCache.create_table_sql.splitlines()
+).format(table_name="{{ table }}")
 
 
-table_operation = '''
+table_operation = (
+    '''
         migrations.RunSQL(
             """
-''' + create_table_sql + '''
+'''
+    + create_table_sql
+    + '''
             """,
             "DROP TABLE `{{ table }}`",
         ),
 '''.rstrip()
+)
 
 
-footer = '''
+footer = """
     ]
-'''
+"""

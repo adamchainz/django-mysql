@@ -44,23 +44,25 @@ def rewrite_query(sql):
     for match in query_rewrite_re.findall(sql):
         if match in SELECT_HINT_TOKENS:
             hints.append(match)
-        elif match.startswith('label='):
+        elif match.startswith("label="):
             comments.append(match[6:])
-        elif match.startswith('index='):
+        elif match.startswith("index="):
             # Extra parsing
             index_match = index_rule_re.match(match)
             if index_match:
-                index_hints.append((
-                    index_match.group('table_name'),
-                    index_match.group('rule'),
-                    index_match.group('index_names'),
-                    index_match.group('for_what'),
-                ))
+                index_hints.append(
+                    (
+                        index_match.group("table_name"),
+                        index_match.group("rule"),
+                        index_match.group("index_names"),
+                        index_match.group("for_what"),
+                    )
+                )
 
         # Silently fail on unrecognized rewrite requests
 
     # Delete all rewrite comments
-    sql = query_rewrite_re.sub('', sql)
+    sql = query_rewrite_re.sub("", sql)
 
     if comments or hints or index_hints:  # If nothing to do, don't bother
         sql = modify_sql(sql, comments, hints, index_hints)
@@ -70,26 +72,25 @@ def rewrite_query(sql):
 
 # A translation of the grammar for SELECT - all the possible hints that can
 # appear afterwards
-SELECT_HINTS = OrderedDict([
-    ('distinctness', ('ALL', 'DISTINCT', 'DISTINCTROW')),
-    ('priority', ('HIGH_PRIORITY',)),
-    ('join_order', ('STRAIGHT_JOIN',)),
-    ('result_size', ('SQL_SMALL_RESULT', 'SQL_BIG_RESULT')),
-    ('buffer_result', ('SQL_BUFFER_RESULT',)),
-    ('query_cache', ('SQL_CACHE', 'SQL_NO_CACHE')),
-    ('found_rows', ('SQL_CALC_FOUND_ROWS',)),
-])
-
-# Any pre-expression tokens that are query hints
-SELECT_HINT_TOKENS = frozenset(
-    reduce(operator.add, SELECT_HINTS.values()),
+SELECT_HINTS = OrderedDict(
+    [
+        ("distinctness", ("ALL", "DISTINCT", "DISTINCTROW")),
+        ("priority", ("HIGH_PRIORITY",)),
+        ("join_order", ("STRAIGHT_JOIN",)),
+        ("result_size", ("SQL_SMALL_RESULT", "SQL_BIG_RESULT")),
+        ("buffer_result", ("SQL_BUFFER_RESULT",)),
+        ("query_cache", ("SQL_CACHE", "SQL_NO_CACHE")),
+        ("found_rows", ("SQL_CALC_FOUND_ROWS",)),
+    ]
 )
 
+# Any pre-expression tokens that are query hints
+SELECT_HINT_TOKENS = frozenset(reduce(operator.add, SELECT_HINTS.values()))
+
 # Don't go crazy reading this - it's just templating a piece of the below regex
-hints_re_piece = '\n'.join(
-    r'(?P<{group_name}>({tokens})\s+)?'.format(
-        group_name=group_name,
-        tokens='|'.join(token_set),
+hints_re_piece = "\n".join(
+    r"(?P<{group_name}>({tokens})\s+)?".format(
+        group_name=group_name, tokens="|".join(token_set)
     )
     for group_name, token_set in SELECT_HINTS.items()
 )
@@ -107,7 +108,8 @@ query_start_re = re.compile(
         (?P<keyword>SELECT|UPDATE|DELETE)
         # comments - N times /*a*/whitespace
         (?P<comments>(\s*/\*.*?\*/\s*)+|\s+)
-    """ + hints_re_piece,
+    """
+    + hints_re_piece,
     re.VERBOSE | re.IGNORECASE,
 )
 
@@ -124,14 +126,14 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
         # We don't understand what kind of query this is, don't rewrite it
         return sql
 
-    tokens = [match.group('keyword')]
-    comments = match.group('comments').strip()
+    tokens = [match.group("keyword")]
+    comments = match.group("comments").strip()
     if comments:
         tokens.append(comments)
 
     # Inject comments after all existing comments
     for comment in add_comments:
-        tokens.append('/*{}*/'.format(comment))
+        tokens.append("/*{}*/".format(comment))
 
     # Don't bother with SELECT rewrite rules on non-SELECT queries
     if tokens[0] == "SELECT":
@@ -150,7 +152,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
                     tokens.append(existing.rstrip())
 
     # Maybe rewrite the remainder of the statement for index hints
-    remainder = sql[match.end():]
+    remainder = sql[match.end() :]
 
     if tokens[0] == "SELECT" and add_index_hints:
         for index_hint in add_index_hints:
@@ -158,32 +160,31 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 
     # Join everything
     tokens.append(remainder)
-    return ' '.join(tokens)
+    return " ".join(tokens)
 
 
-table_spec_re_template = r'''
+table_spec_re_template = r"""
     \b(?P<operator>FROM|JOIN)
     \s+
     {table_name}
     \s+
-'''
+"""
 
 replacement_template = (
-    r'\g<operator> {table_name} '
-    r'{rule} INDEX {for_section}({index_names}) '
+    r"\g<operator> {table_name} " r"{rule} INDEX {for_section}({index_names}) "
 )
 
 
 def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
     table_spec_re = table_spec_re_template.format(table_name=table_name)
     if for_what:
-        for_section = 'FOR {} '.format(for_what)
+        for_section = "FOR {} ".format(for_what)
     else:
-        for_section = ''
+        for_section = ""
     replacement = replacement_template.format(
         table_name=table_name,
         rule=rule,
         for_section=for_section,
-        index_names=('' if index_names == 'NONE' else index_names),
+        index_names=("" if index_names == "NONE" else index_names),
     )
     return re.sub(table_spec_re, replacement, sql, count=1, flags=re.VERBOSE)

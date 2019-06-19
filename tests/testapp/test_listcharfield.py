@@ -13,11 +13,15 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
-from tests.testapp.models import CharListDefaultModel, CharListModel, IntListModel, TemporaryModel
+from tests.testapp.models import (
+    CharListDefaultModel,
+    CharListModel,
+    IntListModel,
+    TemporaryModel,
+)
 
 
 class TestSaveLoad(TestCase):
-
     def test_char_easy(self):
         s = CharListModel.objects.create(field=["comfy", "big"])
         assert s.field == ["comfy", "big"]
@@ -33,7 +37,7 @@ class TestSaveLoad(TestCase):
     def test_char_string_direct(self):
         s = CharListModel.objects.create(field="big,bad")
         s = CharListModel.objects.get(id=s.id)
-        assert s.field == ['big', 'bad']
+        assert s.field == ["big", "bad"]
 
     def test_is_a_list_immediately(self):
         s = CharListModel()
@@ -71,13 +75,13 @@ class TestSaveLoad(TestCase):
         assert empty.count() == 0
 
     def test_char_lookup_contains(self):
-        self.check_char_lookup('contains')
+        self.check_char_lookup("contains")
 
     def test_char_lookup_icontains(self):
-        self.check_char_lookup('icontains')
+        self.check_char_lookup("icontains")
 
     def check_char_lookup(self, lookup):
-        lname = 'field__' + lookup
+        lname = "field__" + lookup
         mymodel = CharListModel.objects.create(field=["mouldy", "rotten"])
 
         mouldy = CharListModel.objects.filter(**{lname: "mouldy"})
@@ -95,13 +99,13 @@ class TestSaveLoad(TestCase):
             list(CharListModel.objects.filter(**{lname: ["a", "b"]}))
 
         both = CharListModel.objects.filter(
-            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"}),
+            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
         )
         assert both.count() == 1
         assert both[0] == mymodel
 
         either = CharListModel.objects.filter(
-            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"}),
+            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
         )
         assert either.count() == 1
 
@@ -157,16 +161,14 @@ class TestSaveLoad(TestCase):
         red0 = CharListModel.objects.filter(field__0="red")
         assert list(red0) == [mymodel]
 
-        red0_red1 = CharListModel.objects.filter(field__0="red",
-                                                 field__1="red")
+        red0_red1 = CharListModel.objects.filter(field__0="red", field__1="red")
         assert red0_red1.count() == 0
 
-        red0_blue1 = CharListModel.objects.filter(field__0="red",
-                                                  field__1="blue")
+        red0_blue1 = CharListModel.objects.filter(field__0="red", field__1="blue")
         assert list(red0_blue1) == [mymodel]
 
         red0_or_blue0 = CharListModel.objects.filter(
-            Q(field__0="red") | Q(field__0="blue"),
+            Q(field__0="red") | Q(field__0="blue")
         )
         assert list(red0_or_blue0) == [mymodel]
 
@@ -209,18 +211,18 @@ class TestSaveLoad(TestCase):
             list(IntListModel.objects.filter(field__contains=[1, 2]))
 
         ones_and_twos = IntListModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=2),
+            Q(field__contains=1) & Q(field__contains=2)
         )
         assert ones_and_twos.count() == 1
         assert ones_and_twos[0] == onetwo
 
         ones_and_threes = IntListModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=3),
+            Q(field__contains=1) & Q(field__contains=3)
         )
         assert ones_and_threes.count() == 0
 
         ones_or_threes = IntListModel.objects.filter(
-            Q(field__contains=1) | Q(field__contains=3),
+            Q(field__contains=1) | Q(field__contains=3)
         )
         assert ones_or_threes.count() == 1
 
@@ -244,222 +246,208 @@ class TestSaveLoad(TestCase):
 
 
 class TestListF(TestCase):
-
     def test_append_to_none(self):
         CharListModel.objects.create(field=[])
-        CharListModel.objects.update(field=ListF('field').append('first'))
+        CharListModel.objects.update(field=ListF("field").append("first"))
         model = CharListModel.objects.get()
         assert model.field == ["first"]
 
     def test_append_to_one(self):
         CharListModel.objects.create(field=["big"])
-        CharListModel.objects.update(field=ListF('field').append('bad'))
+        CharListModel.objects.update(field=ListF("field").append("bad"))
         model = CharListModel.objects.get()
         assert model.field == ["big", "bad"]
 
     def test_append_to_some(self):
         CharListModel.objects.create(field=["big", "blue"])
-        CharListModel.objects.update(field=ListF('field').append('round'))
+        CharListModel.objects.update(field=ListF("field").append("round"))
         model = CharListModel.objects.get()
         assert model.field == ["big", "blue", "round"]
 
     def test_append_to_multiple_objects(self):
         CharListModel.objects.create(field=["mouse"])
         CharListModel.objects.create(field=["keyboard"])
-        CharListModel.objects.update(field=ListF('field').append("screen"))
+        CharListModel.objects.update(field=ListF("field").append("screen"))
         first, second = tuple(CharListModel.objects.all())
         assert first.field == ["mouse", "screen"]
         assert second.field == ["keyboard", "screen"]
 
     def test_append_exists(self):
         CharListModel.objects.create(field=["nice"])
-        CharListModel.objects.update(field=ListF('field').append("nice"))
+        CharListModel.objects.update(field=ListF("field").append("nice"))
         model = CharListModel.objects.get()
         assert model.field == ["nice", "nice"]
 
     @override_mysql_variables(SQL_MODE="ANSI")
     def test_append_works_in_ansi_mode(self):
         CharListModel.objects.create()
-        CharListModel.objects.update(field=ListF('field').append('big'))
-        CharListModel.objects.update(field=ListF('field').append('bad'))
+        CharListModel.objects.update(field=ListF("field").append("big"))
+        CharListModel.objects.update(field=ListF("field").append("bad"))
         model = CharListModel.objects.get()
         assert model.field == ["big", "bad"]
 
     def test_append_assignment(self):
         model = CharListModel.objects.create(field=["red"])
-        model.field = ListF('field').append('blue')
+        model.field = ListF("field").append("blue")
         model.save()
         model = CharListModel.objects.get()
-        assert model.field == ['red', 'blue']
+        assert model.field == ["red", "blue"]
 
     def test_appendleft_to_none(self):
         CharListModel.objects.create(field=[])
-        CharListModel.objects.update(field=ListF('field').appendleft('first'))
+        CharListModel.objects.update(field=ListF("field").appendleft("first"))
         model = CharListModel.objects.get()
         assert model.field == ["first"]
 
     def test_appendleft_to_one(self):
         CharListModel.objects.create(field=["big"])
-        CharListModel.objects.update(field=ListF('field').appendleft('bad'))
+        CharListModel.objects.update(field=ListF("field").appendleft("bad"))
         model = CharListModel.objects.get()
         assert model.field == ["bad", "big"]
 
     def test_appendleft_to_some(self):
         CharListModel.objects.create(field=["big", "blue"])
-        CharListModel.objects.update(field=ListF('field').appendleft('round'))
+        CharListModel.objects.update(field=ListF("field").appendleft("round"))
         model = CharListModel.objects.get()
         assert model.field == ["round", "big", "blue"]
 
     def test_appendleft_to_multiple_objects(self):
         CharListModel.objects.create(field=["mouse"])
         CharListModel.objects.create(field=["keyboard"])
-        CharListModel.objects.update(field=ListF('field').appendleft("screen"))
+        CharListModel.objects.update(field=ListF("field").appendleft("screen"))
         first, second = tuple(CharListModel.objects.all())
         assert first.field == ["screen", "mouse"]
         assert second.field == ["screen", "keyboard"]
 
     def test_appendleft_exists(self):
         CharListModel.objects.create(field=["nice"])
-        CharListModel.objects.update(field=ListF('field').appendleft("nice"))
+        CharListModel.objects.update(field=ListF("field").appendleft("nice"))
         model = CharListModel.objects.get()
         assert model.field == ["nice", "nice"]
 
     @override_mysql_variables(SQL_MODE="ANSI")
     def test_appendleft_works_in_ansi_mode(self):
         CharListModel.objects.create()
-        CharListModel.objects.update(field=ListF('field').appendleft('big'))
-        CharListModel.objects.update(field=ListF('field').appendleft('bad'))
+        CharListModel.objects.update(field=ListF("field").appendleft("big"))
+        CharListModel.objects.update(field=ListF("field").appendleft("bad"))
         model = CharListModel.objects.get()
         assert model.field == ["bad", "big"]
 
     def test_appendleft_assignment(self):
         model = CharListModel.objects.create(field=["red"])
-        model.field = ListF('field').appendleft('blue')
+        model.field = ListF("field").appendleft("blue")
         model.save()
         model = CharListModel.objects.get()
-        assert model.field == ['blue', 'red']
+        assert model.field == ["blue", "red"]
 
     def test_pop_none(self):
         CharListModel.objects.create(field=[])
-        CharListModel.objects.update(field=ListF('field').pop())
+        CharListModel.objects.update(field=ListF("field").pop())
         model = CharListModel.objects.get()
         assert model.field == []
 
     def test_pop_one(self):
         CharListModel.objects.create(field=["red"])
-        CharListModel.objects.update(field=ListF('field').pop())
+        CharListModel.objects.update(field=ListF("field").pop())
         model = CharListModel.objects.get()
         assert model.field == []
 
     def test_pop_two(self):
         CharListModel.objects.create(field=["red", "blue"])
-        CharListModel.objects.update(field=ListF('field').pop())
+        CharListModel.objects.update(field=ListF("field").pop())
         model = CharListModel.objects.get()
         assert model.field == ["red"]
 
     def test_pop_three(self):
         CharListModel.objects.create(field=["green", "yellow", "p"])
-        CharListModel.objects.update(field=ListF('field').pop())
+        CharListModel.objects.update(field=ListF("field").pop())
         model = CharListModel.objects.get()
         assert model.field == ["green", "yellow"]
 
     def test_popleft_none(self):
         CharListModel.objects.create(field=[])
-        CharListModel.objects.update(field=ListF('field').popleft())
+        CharListModel.objects.update(field=ListF("field").popleft())
         model = CharListModel.objects.get()
         assert model.field == []
 
     def test_popleft_one(self):
         CharListModel.objects.create(field=["red"])
-        CharListModel.objects.update(field=ListF('field').popleft())
+        CharListModel.objects.update(field=ListF("field").popleft())
         model = CharListModel.objects.get()
         assert model.field == []
 
     def test_popleft_two(self):
         CharListModel.objects.create(field=["red", "blue"])
-        CharListModel.objects.update(field=ListF('field').popleft())
+        CharListModel.objects.update(field=ListF("field").popleft())
         model = CharListModel.objects.get()
         assert model.field == ["blue"]
 
     def test_popleft_three(self):
         CharListModel.objects.create(field=["green", "yellow", "p"])
-        CharListModel.objects.update(field=ListF('field').popleft())
+        CharListModel.objects.update(field=ListF("field").popleft())
         model = CharListModel.objects.get()
         assert model.field == ["yellow", "p"]
 
 
 class TestValidation(SimpleTestCase):
-
     def test_max_length(self):
-        field = ListCharField(
-            models.CharField(max_length=32),
-            size=3,
-            max_length=32,
-        )
+        field = ListCharField(models.CharField(max_length=32), size=3, max_length=32)
 
-        field.clean({'a', 'b', 'c'}, None)
+        field.clean({"a", "b", "c"}, None)
 
         with pytest.raises(exceptions.ValidationError) as excinfo:
-            field.clean({'a', 'b', 'c', 'd'}, None)
+            field.clean({"a", "b", "c", "d"}, None)
         assert (
             excinfo.value.messages[0]
-            == 'List contains 4 items, it should contain no more than 3.'
+            == "List contains 4 items, it should contain no more than 3."
         )
 
 
 class TestCheck(SimpleTestCase):
-
     def test_field_checks(self):
         class InvalidListCharModel1(TemporaryModel):
             field = ListCharField(models.CharField(), max_length=32)
 
         errors = InvalidListCharModel1.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E004'
-        assert 'Base field for list has errors' in errors[0].msg
-        assert 'max_length' in errors[0].msg
+        assert errors[0].id == "django_mysql.E004"
+        assert "Base field for list has errors" in errors[0].msg
+        assert "max_length" in errors[0].msg
 
     def test_invalid_base_fields(self):
         class InvalidListCharModel2(TemporaryModel):
             field = ListCharField(
-                models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
+                models.ForeignKey("testapp.Author", on_delete=models.CASCADE),
                 max_length=32,
             )
 
         errors = InvalidListCharModel2.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E005'
-        assert 'Base field for list must be' in errors[0].msg
+        assert errors[0].id == "django_mysql.E005"
+        assert "Base field for list must be" in errors[0].msg
 
     def test_max_length_including_base(self):
         class InvalidListCharModel3(TemporaryModel):
             field = ListCharField(
-                models.CharField(max_length=32),
-                size=2, max_length=32)
+                models.CharField(max_length=32), size=2, max_length=32
+            )
 
         errors = InvalidListCharModel3.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E006'
-        assert 'Field can overrun' in errors[0].msg
+        assert errors[0].id == "django_mysql.E006"
+        assert "Field can overrun" in errors[0].msg
 
     def test_max_length_missing_doesnt_crash(self):
         class InvalidListCharModel4(TemporaryModel):
-            field = ListCharField(
-                models.CharField(max_length=2),
-                size=2,
-            )
+            field = ListCharField(models.CharField(max_length=2), size=2)
 
         errors = InvalidListCharModel4.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'fields.E120'
-        assert (
-            errors[0].msg
-            == "CharFields must define a 'max_length' attribute."
-        )
+        assert errors[0].id == "fields.E120"
+        assert errors[0].msg == "CharFields must define a 'max_length' attribute."
 
 
 class TestDeconstruct(TestCase):
-
     def test_deconstruct(self):
         field = ListCharField(models.IntegerField(), max_length=32)
         name, path, args, kwargs = field.deconstruct()
@@ -480,7 +468,6 @@ class TestDeconstruct(TestCase):
 
 
 class TestMigrationWriter(TestCase):
-
     def test_makemigrations(self):
         field = ListCharField(models.CharField(max_length=5), max_length=32)
         statement, imports = MigrationWriter.serialize(field)
@@ -500,11 +487,7 @@ class TestMigrationWriter(TestCase):
         ).match(statement)
 
     def test_makemigrations_with_size(self):
-        field = ListCharField(
-            models.CharField(max_length=5),
-            max_length=32,
-            size=5,
-        )
+        field = ListCharField(models.CharField(max_length=5), max_length=32, size=5)
         statement, imports = MigrationWriter.serialize(field)
 
         # The order of the output max_length/size statements varies by
@@ -523,47 +506,51 @@ class TestMigrationWriter(TestCase):
 
 
 class TestMigrations(TransactionTestCase):
-
-    @override_settings(MIGRATION_MODULES={
-        "testapp": "tests.testapp.list_default_migrations",
-    })
+    @override_settings(
+        MIGRATION_MODULES={"testapp": "tests.testapp.list_default_migrations"}
+    )
     def test_adding_field_with_default(self):
-        table_name = 'testapp_intlistdefaultmodel'
+        table_name = "testapp_intlistdefaultmodel"
         table_names = connection.introspection.table_names
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
-        call_command('migrate', 'testapp',
-                     verbosity=0, skip_checks=True, interactive=False)
+        call_command(
+            "migrate", "testapp", verbosity=0, skip_checks=True, interactive=False
+        )
         with connection.cursor() as cursor:
             assert table_name in table_names(cursor)
 
-        call_command('migrate', 'testapp', 'zero',
-                     verbosity=0, skip_checks=True, interactive=False)
+        call_command(
+            "migrate",
+            "testapp",
+            "zero",
+            verbosity=0,
+            skip_checks=True,
+            interactive=False,
+        )
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
 
 
 class TestSerialization(SimpleTestCase):
-
     def test_dumping(self):
         instance = CharListModel(field=["big", "comfy"])
-        data = json.loads(serializers.serialize('json', [instance]))[0]
-        field = data['fields']['field']
-        assert sorted(field.split(',')) == ["big", "comfy"]
+        data = json.loads(serializers.serialize("json", [instance]))[0]
+        field = data["fields"]["field"]
+        assert sorted(field.split(",")) == ["big", "comfy"]
 
     def test_loading(self):
-        test_data = '''
+        test_data = """
             [{"fields": {"field": "big,leather,comfy"},
              "model": "testapp.CharListModel", "pk": null}]
-        '''
-        objs = list(serializers.deserialize('json', test_data))
+        """
+        objs = list(serializers.deserialize("json", test_data))
         instance = objs[0].object
         assert instance.field == ["big", "leather", "comfy"]
 
 
 class TestDescription(SimpleTestCase):
-
     def test_char(self):
         field = ListCharField(models.CharField(max_length=5), max_length=32)
         assert field.description == "List of String (up to %(max_length)s)"
@@ -574,7 +561,6 @@ class TestDescription(SimpleTestCase):
 
 
 class TestFormField(SimpleTestCase):
-
     def test_model_field_formfield(self):
         model_field = ListCharField(models.CharField(max_length=27))
         form_field = model_field.formfield()

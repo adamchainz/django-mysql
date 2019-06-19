@@ -17,6 +17,7 @@ class WeightedAverageRate(object):
     Adapted from percona-toolkit - provides a weighted average counter to keep
     at a certain rate of activity (row iterations etc.).
     """
+
     def __init__(self, target_t, weight=0.75):
         """
         target_t - Target time for t in update()
@@ -63,6 +64,7 @@ class StopWatch(object):
     """
     Context manager for timing a block
     """
+
     def __enter__(self):
         self.start_time = time.time()
         return self
@@ -84,18 +86,18 @@ def format_duration(total_seconds):
 
     out = []
     if hours > 0:
-        out.extend([str(hours), 'h'])
+        out.extend([str(hours), "h"])
     if hours or minutes:
-        out.extend([str(minutes), 'm'])
-    out.extend([str(seconds), 's'])
-    return ''.join(out)
+        out.extend([str(minutes), "m"])
+    out.extend([str(seconds), "s"])
+    return "".join(out)
 
 
 _is_mariadb_cache = WeakKeyDictionary()
 
 
 def connection_is_mariadb(connection):
-    if connection.vendor != 'mysql':
+    if connection.vendor != "mysql":
         return False
 
     if connection is default_connection:
@@ -106,7 +108,7 @@ def connection_is_mariadb(connection):
     except KeyError:
         with connection.temporary_connection():
             server_info = connection.connection.get_server_info()
-        is_mariadb = 'MariaDB' in server_info
+        is_mariadb = "MariaDB" in server_info
         _is_mariadb_cache[connection] = is_mariadb
         return is_mariadb
 
@@ -116,14 +118,14 @@ def settings_to_cmd_args(settings_dict):
     Copied from django 1.8 MySQL backend DatabaseClient - where the runshell
     commandline creation has been extracted and made callable like so.
     """
-    args = ['mysql']
-    db = settings_dict['OPTIONS'].get('db', settings_dict['NAME'])
-    user = settings_dict['OPTIONS'].get('user', settings_dict['USER'])
-    passwd = settings_dict['OPTIONS'].get('passwd', settings_dict['PASSWORD'])
-    host = settings_dict['OPTIONS'].get('host', settings_dict['HOST'])
-    port = settings_dict['OPTIONS'].get('port', settings_dict['PORT'])
-    cert = settings_dict['OPTIONS'].get('ssl', {}).get('ca')
-    defaults_file = settings_dict['OPTIONS'].get('read_default_file')
+    args = ["mysql"]
+    db = settings_dict["OPTIONS"].get("db", settings_dict["NAME"])
+    user = settings_dict["OPTIONS"].get("user", settings_dict["USER"])
+    passwd = settings_dict["OPTIONS"].get("passwd", settings_dict["PASSWORD"])
+    host = settings_dict["OPTIONS"].get("host", settings_dict["HOST"])
+    port = settings_dict["OPTIONS"].get("port", settings_dict["PORT"])
+    cert = settings_dict["OPTIONS"].get("ssl", {}).get("ca")
+    defaults_file = settings_dict["OPTIONS"].get("read_default_file")
     # Seems to be no good way to set sql_mode with CLI.
 
     if defaults_file:
@@ -133,7 +135,7 @@ def settings_to_cmd_args(settings_dict):
     if passwd:
         args += ["--password=%s" % passwd]
     if host:
-        if '/' in host:
+        if "/" in host:
             args += ["--socket=%s" % host]
         else:
             args += ["--host=%s" % host]
@@ -152,9 +154,8 @@ programs_memo = {}
 def have_program(program_name):
     global programs_memo
     if program_name not in programs_memo:
-        status = subprocess.call(['which', program_name],
-                                 stdout=subprocess.PIPE)
-        programs_memo[program_name] = (status == 0)
+        status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
+        programs_memo[program_name] = status == 0
 
     return programs_memo[program_name]
 
@@ -163,7 +164,7 @@ def pt_fingerprint(query):
     """
     Takes a query (in a string) and returns its 'fingerprint'
     """
-    if not have_program('pt-fingerprint'):  # pragma: no cover
+    if not have_program("pt-fingerprint"):  # pragma: no cover
         raise OSError("pt-fingerprint doesn't appear to be installed")
 
     thread = PTFingerprintThread.get_thread()
@@ -220,10 +221,7 @@ class PTFingerprintThread(Thread):
         global fingerprint_thread
         master, slave = pty.openpty()
         proc = subprocess.Popen(
-            ['pt-fingerprint'],
-            stdin=subprocess.PIPE,
-            stdout=slave,
-            close_fds=True,
+            ["pt-fingerprint"], stdin=subprocess.PIPE, stdout=slave, close_fds=True
         )
         stdin = proc.stdin
         stdout = os.fdopen(master)
@@ -236,18 +234,17 @@ class PTFingerprintThread(Thread):
                 # We timed out, but there was something put into the queue
                 # since
                 if (
-                    self.__class__.the_thread is self
-                    and self.in_queue.qsize()
+                    self.__class__.the_thread is self and self.in_queue.qsize()
                 ):  # pragma: no cover
                     self.life_lock.release()
                     break
                 # Die
                 break
 
-            stdin.write(query.encode('utf-8'))
-            if not query.endswith(';'):
-                stdin.write(';'.encode('ascii'))
-            stdin.write('\n'.encode('ascii'))
+            stdin.write(query.encode("utf-8"))
+            if not query.endswith(";"):
+                stdin.write(";".encode("ascii"))
+            stdin.write("\n".encode("ascii"))
             stdin.flush()
             fingerprint = stdout.readline()
             self.out_queue.put(fingerprint.strip())
@@ -258,7 +255,7 @@ class PTFingerprintThread(Thread):
 
 
 def collapse_spaces(string):
-    bits = string.replace('\n', ' ').split(' ')
+    bits = string.replace("\n", " ").split(" ")
     return " ".join(filter(None, bits))
 
 
@@ -269,13 +266,12 @@ def index_name(model, *field_names, **kwargs):
     """
     if not len(field_names):
         raise ValueError("At least one field name required")
-    using = kwargs.pop('using', DEFAULT_DB_ALIAS)
+    using = kwargs.pop("using", DEFAULT_DB_ALIAS)
     if len(kwargs):
         raise ValueError("The only supported keyword argument is 'using'")
 
     existing_fields = {field.name: field for field in model._meta.fields}
-    fields = [existing_fields[name] for name in field_names
-              if name in existing_fields]
+    fields = [existing_fields[name] for name in field_names if name in existing_fields]
 
     if len(fields) != len(field_names):
         unfound_names = set(field_names) - {field.name for field in fields}
@@ -291,7 +287,9 @@ def index_name(model, *field_names, **kwargs):
                      TABLE_NAME = %s AND
                      COLUMN_NAME IN {list_sql}
                ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC
-            """.format(list_sql=list_sql),
+            """.format(
+                list_sql=list_sql
+            ),
             (model._meta.db_table,) + column_names,
         )
         indexes = defaultdict(list)
@@ -306,6 +304,4 @@ def index_name(model, *field_names, **kwargs):
 
 
 def get_list_sql(sequence):
-    return '({})'.format(
-        ','.join('%s' for x in sequence),
-    )
+    return "({})".format(",".join("%s" for x in sequence))

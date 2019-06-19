@@ -9,14 +9,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='SizedBinaryAlterModel',
+            name="SizedBinaryAlterModel",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False,
-                 auto_created=True, primary_key=True)),
-                ('field', SizedBinaryField(size_class=4)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("field", SizedBinaryField(size_class=4)),
             ],
-            options={
-            },
+            options={},
             bases=(models.Model,),
-        ),
+        )
     ]

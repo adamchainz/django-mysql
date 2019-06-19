@@ -8,14 +8,14 @@ from django_mysql.rewrite_query import REWRITE_MARKER, rewrite_query
 
 def patch():
     # Depends on setting
-    if getattr(settings, 'DJANGO_MYSQL_REWRITE_QUERIES', False):
+    if getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False):
         patch_CursorWrapper_execute()
 
 
 def patch_CursorWrapper_execute():
 
     # Be idemptotent
-    if getattr(CursorWrapper, '_has_django_mysql_execute', False):
+    if getattr(CursorWrapper, "_has_django_mysql_execute", False):
         return
 
     orig_execute = CursorWrapper.execute
@@ -23,7 +23,7 @@ def patch_CursorWrapper_execute():
     @functools.wraps(orig_execute)
     def execute(self, sql, args=None):
         if (
-            getattr(settings, 'DJANGO_MYSQL_REWRITE_QUERIES', False)
+            getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False)
             and REWRITE_MARKER in sql
         ):
             sql = rewrite_query(sql)

@@ -5,7 +5,6 @@ from django.db import connections
 
 
 class Handler(object):
-
     def __init__(self, queryset):
         self.open = False
 
@@ -18,10 +17,7 @@ class Handler(object):
 
     def _construct_name(self, table_name):
         # Undocumented max of 64 chars (get error on HANDLER CLOSE only!)
-        return '{}_{}'.format(
-            table_name[-31:],
-            randint(1, 2e10),
-        )
+        return "{}_{}".format(table_name[-31:], randint(1, 2e10))
 
     # Context manager
 
@@ -30,8 +26,9 @@ class Handler(object):
             raise ValueError("You cannot open the same handler twice!")
         self.cursor = connections[self.db].cursor()
         self.cursor.__enter__()
-        self.cursor.execute("HANDLER `{}` OPEN AS {}"
-                            .format(self._table_name, self._handler_name))
+        self.cursor.execute(
+            "HANDLER `{}` OPEN AS {}".format(self._table_name, self._handler_name)
+        )
         self.open = True
         return self
 
@@ -44,19 +41,20 @@ class Handler(object):
 
     # Public methods
 
-    def read(self, index='PRIMARY', mode=None, where=None, limit=None,
-             **kwargs):
+    def read(self, index="PRIMARY", mode=None, where=None, limit=None, **kwargs):
         if not self.open:
             raise RuntimeError("This handler isn't open yet")
 
         index_op, index_value = self._parse_index_value(kwargs)
 
         if index_op is not None and mode is not None:
-            raise ValueError("You cannot use an index operator and mode "
-                             "together in a handler read")
+            raise ValueError(
+                "You cannot use an index operator and mode "
+                "together in a handler read"
+            )
         elif index_op is None and mode is None:
             # Default
-            mode = 'first'
+            mode = "first"
 
         sql = ["HANDLER {} READ".format(self._handler_name)]
         params = ()
@@ -80,8 +78,9 @@ class Handler(object):
                 sql.append(self._read_modes[mode])
             except KeyError:
                 raise ValueError(
-                    "'mode' must be one of: {}"
-                    .format(",".join(self._read_modes.keys())),
+                    "'mode' must be one of: {}".format(
+                        ",".join(self._read_modes.keys())
+                    )
                 )
 
         if where is None:
@@ -106,12 +105,7 @@ class Handler(object):
 
         return self._model.objects.using(self.db).raw(" ".join(sql), params)
 
-    _read_modes = {
-        'first': 'FIRST',
-        'last': 'LAST',
-        'next': 'NEXT',
-        'prev': 'PREV',
-    }
+    _read_modes = {"first": "FIRST", "last": "LAST", "next": "NEXT", "prev": "PREV"}
 
     def _parse_index_value(self, kwargs):
         """
@@ -120,48 +114,44 @@ class Handler(object):
         if len(kwargs) == 0:
             return None, None
         elif len(kwargs) > 1:
-            raise ValueError("You can't pass more than one value expression, "
-                             "you passed {}".format(",".join(kwargs.keys())))
+            raise ValueError(
+                "You can't pass more than one value expression, "
+                "you passed {}".format(",".join(kwargs.keys()))
+            )
 
         name, value = list(kwargs.items())[0]
 
-        if not name.startswith('value'):
-            raise ValueError("The keyword arg {} is not valid for this "
-                             "function".format(name))
+        if not name.startswith("value"):
+            raise ValueError(
+                "The keyword arg {} is not valid for this " "function".format(name)
+            )
 
-        if name == 'value':
-            return ('=', value)
+        if name == "value":
+            return ("=", value)
 
-        if not name.startswith('value__'):
-            raise ValueError("The keyword arg {} is not valid for this "
-                             "function".format(name))
+        if not name.startswith("value__"):
+            raise ValueError(
+                "The keyword arg {} is not valid for this " "function".format(name)
+            )
 
-        operator = name[name.find('__') + 2:]
+        operator = name[name.find("__") + 2 :]
         try:
             return (self._operator_values[operator], value)
         except KeyError:
             raise ValueError(
                 "The operator {op} is not valid for index value matching. "
-                "Valid operators are {valid}"
-                .format(
-                    op=operator,
-                    valid=",".join(self._operator_values.keys()),
-                ),
+                "Valid operators are {valid}".format(
+                    op=operator, valid=",".join(self._operator_values.keys())
+                )
             )
 
-    _operator_values = {
-        'lt': '<',
-        'lte': '<=',
-        'exact': '=',
-        'gte': '>=',
-        'gt': '>',
-    }
+    _operator_values = {"lt": "<", "lte": "<=", "exact": "=", "gte": ">=", "gt": ">"}
 
-    def iter(self, index='PRIMARY', where=None, chunk_size=100, reverse=False):
+    def iter(self, index="PRIMARY", where=None, chunk_size=100, reverse=False):
         if reverse:
-            mode = 'last'
+            mode = "last"
         else:
-            mode = 'first'
+            mode = "first"
 
         if where is not None:
             # Pre-convert so each iteration doesn't have to repeatedly parse
@@ -170,8 +160,7 @@ class Handler(object):
 
         while True:
             count = 0
-            for obj in self.read(index=index, where=where,
-                                 mode=mode, limit=chunk_size):
+            for obj in self.read(index=index, where=where, mode=mode, limit=chunk_size):
                 count += 1
                 yield obj
 
@@ -179,9 +168,9 @@ class Handler(object):
                 return
 
             if reverse:
-                mode = 'prev'
+                mode = "prev"
             else:
-                mode = 'next'
+                mode = "next"
 
     # Internal methods
 
@@ -193,11 +182,12 @@ class Handler(object):
         handler queries.
         """
         if not cls._is_simple_query(queryset.query):
-            raise ValueError("This QuerySet's WHERE clause is too complex to "
-                             "be used in a HANDLER")
+            raise ValueError(
+                "This QuerySet's WHERE clause is too complex to " "be used in a HANDLER"
+            )
 
         sql, params = queryset.query.sql_with_params()
-        where_pos = sql.find('WHERE ')
+        where_pos = sql.find("WHERE ")
         if where_pos != -1:
             # Cut the query to extract just its WHERE clause
             where_clause = sql[where_pos:]

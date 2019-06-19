@@ -30,7 +30,7 @@ class CaptureLastQuery(object):
 
     @property
     def query(self):
-        return self.capturer.captured_queries[-1]['sql']
+        return self.capturer.captured_queries[-1]["sql"]
 
 
 class print_all_queries(object):
@@ -48,7 +48,7 @@ class print_all_queries(object):
     def __exit__(self, a, b, c):
         self.capturer.__exit__(a, b, c)
         for q in self.capturer.captured_queries:
-            print(q['sql'])
+            print(q["sql"])
 
 
 def used_indexes(query, using=DEFAULT_DB_ALIAS):
@@ -59,15 +59,12 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
     with connection.cursor() as cursor:
         cursor.execute("EXPLAIN " + query)
 
-        return {row['key'] for row in fetchall_dicts(cursor)
-                if row['key'] is not None}
+        return {row["key"] for row in fetchall_dicts(cursor) if row["key"] is not None}
 
 
 def fetchall_dicts(cursor):
     columns = [x[0] for x in cursor.description]
     rows = []
     for row in cursor.fetchall():
-        rows.append(
-            dict(zip(columns, row)),
-        )
+        rows.append(dict(zip(columns, row)))
     return rows

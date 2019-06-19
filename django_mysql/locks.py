@@ -22,16 +22,13 @@ class Lock(object):
 
     @classmethod
     def make_name(cls, db, name):
-        return '.'.join((
-            connections[db].settings_dict['NAME'],
-            name,
-        ))
+        return ".".join((connections[db].settings_dict["NAME"], name))
 
     @classmethod
     def unmake_name(cls, db, name):
         # Cut off the 'dbname.' prefix
-        db_name = connections[db].settings_dict['NAME']
-        return name[len(db_name) + 1:]
+        db_name = connections[db].settings_dict["NAME"]
+        return name[len(db_name) + 1 :]
 
     def get_cursor(self):
         return connections[self.db].cursor()
@@ -44,17 +41,13 @@ class Lock(object):
 
     def acquire(self):
         with self.get_cursor() as cursor:
-            cursor.execute(
-                "SELECT GET_LOCK(%s, %s)",
-                (self.name, self.acquire_timeout),
-            )
+            cursor.execute("SELECT GET_LOCK(%s, %s)", (self.name, self.acquire_timeout))
             result = cursor.fetchone()[0]
             if result == 1:
                 return self
             else:
                 raise TimeoutError(
-                    "Waited >{} seconds to gain lock".format(
-                        self.acquire_timeout),
+                    "Waited >{} seconds to gain lock".format(self.acquire_timeout)
                 )
 
     def release(self):
@@ -66,7 +59,7 @@ class Lock(object):
                 raise ValueError("Tried to release an unheld lock.")
 
     def is_held(self):
-        return (self.holding_connection_id() is not None)
+        return self.holding_connection_id() is not None
 
     def holding_connection_id(self):
         with self.get_cursor() as cursor:
@@ -85,12 +78,9 @@ class Lock(object):
                    FROM INFORMATION_SCHEMA.METADATA_LOCK_INFO
                    WHERE TABLE_SCHEMA LIKE %s AND
                          LOCK_TYPE = 'User Lock'""",
-                (prefix + '%',),
+                (prefix + "%",),
             )
-            return {
-                cls.unmake_name(using, row[0]): row[1]
-                for row in cursor.fetchall()
-            }
+            return {cls.unmake_name(using, row[0]): row[1] for row in cursor.fetchall()}
 
 
 class TableLock(object):
@@ -110,10 +100,11 @@ class TableLock(object):
         table_names = OrderedDict()  # Preserve order and ignore duplicates
         while len(names):
             name = names.pop(0)
-            if hasattr(name, '_meta'):
+            if hasattr(name, "_meta"):
                 if name._meta.abstract:
-                    raise ValueError("Can't lock abstract model {}"
-                                     .format(name.__name__))
+                    raise ValueError(
+                        "Can't lock abstract model {}".format(name.__name__)
+                    )
 
                 table_names[name._meta.db_table] = True
                 # Include all parent models - the keys are the model classes
@@ -136,7 +127,8 @@ class TableLock(object):
             if not connection.get_autocommit():
                 raise TransactionManagementError(
                     "InnoDB requires that we not be in a transaction when "
-                    "gaining a table lock.")
+                    "gaining a table lock."
+                )
 
             # Begin transaction - does 'SET autocommit = 0'
             self._atomic = atomic(using=self.db)

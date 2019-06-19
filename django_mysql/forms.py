@@ -7,19 +7,21 @@ from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.validators import (
-    ListMaxLengthValidator, ListMinLengthValidator, SetMaxLengthValidator, SetMinLengthValidator,
+    ListMaxLengthValidator,
+    ListMinLengthValidator,
+    SetMaxLengthValidator,
+    SetMinLengthValidator,
 )
 
 
 class SimpleListField(forms.CharField):
 
     default_error_messages = {
-        'item_n_invalid': _('Item %(nth)s in the list did not validate: '),
-        'no_double_commas': _('No leading, trailing, or double commas.'),
+        "item_n_invalid": _("Item %(nth)s in the list did not validate: "),
+        "no_double_commas": _("No leading, trailing, or double commas."),
     }
 
-    def __init__(self, base_field, max_length=None, min_length=None,
-                 *args, **kwargs):
+    def __init__(self, base_field, max_length=None, min_length=None, *args, **kwargs):
         self.base_field = base_field
         super(SimpleListField, self).__init__(*args, **kwargs)
         if max_length is not None:
@@ -31,10 +33,7 @@ class SimpleListField(forms.CharField):
 
     def prepare_value(self, value):
         if isinstance(value, list):
-            return ",".join(
-                str(self.base_field.prepare_value(v))
-                for v in value
-            )
+            return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
     def to_python(self, value):
@@ -47,25 +46,28 @@ class SimpleListField(forms.CharField):
         values = []
         for i, item in enumerate(items, start=1):
             if not len(item):
-                errors.append(ValidationError(
-                    self.error_messages['no_double_commas'],
-                    code='no_double_commas',
-                ))
+                errors.append(
+                    ValidationError(
+                        self.error_messages["no_double_commas"], code="no_double_commas"
+                    )
+                )
                 continue
 
             try:
                 value = self.base_field.to_python(item)
             except ValidationError as e:
                 for error in e.error_list:
-                    errors.append(ValidationError(
-                        format_lazy(
-                            '{}{}',
-                            self.error_messages['item_n_invalid'],
-                            error.message,
-                        ),
-                        code='item_n_invalid',
-                        params={'nth': i},
-                    ))
+                    errors.append(
+                        ValidationError(
+                            format_lazy(
+                                "{}{}",
+                                self.error_messages["item_n_invalid"],
+                                error.message,
+                            ),
+                            code="item_n_invalid",
+                            params={"nth": i},
+                        )
+                    )
 
             values.append(value)
 
@@ -83,15 +85,17 @@ class SimpleListField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     for message in error.messages:
-                        errors.append(ValidationError(
-                            format_lazy(
-                                '{}{}',
-                                self.error_messages['item_n_invalid'],
-                                message,
-                            ),
-                            code='item_invalid',
-                            params={'nth': i},
-                        ))
+                        errors.append(
+                            ValidationError(
+                                format_lazy(
+                                    "{}{}",
+                                    self.error_messages["item_n_invalid"],
+                                    message,
+                                ),
+                                code="item_invalid",
+                                params={"nth": i},
+                            )
+                        )
         if errors:
             raise ValidationError(errors)
 
@@ -104,15 +108,17 @@ class SimpleListField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     for message in error.messages:
-                        errors.append(ValidationError(
-                            format_lazy(
-                                '{}{}',
-                                self.error_messages['item_n_invalid'],
-                                message,
-                            ),
-                            code='item_n_invalid',
-                            params={'nth': i},
-                        ))
+                        errors.append(
+                            ValidationError(
+                                format_lazy(
+                                    "{}{}",
+                                    self.error_messages["item_n_invalid"],
+                                    message,
+                                ),
+                                code="item_n_invalid",
+                                params={"nth": i},
+                            )
+                        )
         if errors:
             raise ValidationError(errors)
 
@@ -121,15 +127,15 @@ class SimpleSetField(forms.CharField):
     empty_values = list(validators.EMPTY_VALUES) + [set()]
 
     default_error_messages = {
-        'item_invalid': _('Item "%(item)s" in the set did not validate: '),
-        'item_n_invalid': _('Item %(nth)s in the set did not validate: '),
-        'no_double_commas': _('No leading, trailing, or double commas.'),
-        'no_duplicates': _("Duplicates are not supported. "
-                           "'%(item)s' appears twice or more."),
+        "item_invalid": _('Item "%(item)s" in the set did not validate: '),
+        "item_n_invalid": _("Item %(nth)s in the set did not validate: "),
+        "no_double_commas": _("No leading, trailing, or double commas."),
+        "no_duplicates": _(
+            "Duplicates are not supported. " "'%(item)s' appears twice or more."
+        ),
     }
 
-    def __init__(self, base_field, max_length=None, min_length=None,
-                 *args, **kwargs):
+    def __init__(self, base_field, max_length=None, min_length=None, *args, **kwargs):
         self.base_field = base_field
         super(SimpleSetField, self).__init__(*args, **kwargs)
         if max_length is not None:
@@ -141,10 +147,7 @@ class SimpleSetField(forms.CharField):
 
     def prepare_value(self, value):
         if isinstance(value, set):
-            return ",".join(
-                str(self.base_field.prepare_value(v))
-                for v in value
-            )
+            return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
     def to_python(self, value):
@@ -157,32 +160,37 @@ class SimpleSetField(forms.CharField):
         values = set()
         for i, item in enumerate(items, start=1):
             if not len(item):
-                errors.append(ValidationError(
-                    self.error_messages['no_double_commas'],
-                    code='no_double_commas',
-                ))
+                errors.append(
+                    ValidationError(
+                        self.error_messages["no_double_commas"], code="no_double_commas"
+                    )
+                )
                 continue
 
             try:
                 value = self.base_field.to_python(item)
             except ValidationError as e:
                 for error in e.error_list:
-                    errors.append(ValidationError(
-                        format_lazy(
-                            '{}{}',
-                            self.error_messages['item_n_invalid'],
-                            error.message,
-                        ),
-                        code='item_n_invalid',
-                        params={'nth': i},
-                    ))
+                    errors.append(
+                        ValidationError(
+                            format_lazy(
+                                "{}{}",
+                                self.error_messages["item_n_invalid"],
+                                error.message,
+                            ),
+                            code="item_n_invalid",
+                            params={"nth": i},
+                        )
+                    )
 
             if value in values:
-                errors.append(ValidationError(
-                    self.error_messages['no_duplicates'],
-                    code='no_duplicates',
-                    params={'item': item},
-                ))
+                errors.append(
+                    ValidationError(
+                        self.error_messages["no_duplicates"],
+                        code="no_duplicates",
+                        params={"item": item},
+                    )
+                )
             else:
                 values.add(value)
 
@@ -200,15 +208,15 @@ class SimpleSetField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     for message in error.messages:
-                        errors.append(ValidationError(
-                            format_lazy(
-                                '{}{}',
-                                self.error_messages['item_invalid'],
-                                message,
-                            ),
-                            code='item_invalid',
-                            params={'item': item},
-                        ))
+                        errors.append(
+                            ValidationError(
+                                format_lazy(
+                                    "{}{}", self.error_messages["item_invalid"], message
+                                ),
+                                code="item_invalid",
+                                params={"item": item},
+                            )
+                        )
         if errors:
             raise ValidationError(errors)
 
@@ -221,15 +229,15 @@ class SimpleSetField(forms.CharField):
             except ValidationError as e:
                 for error in e.error_list:
                     for message in error.messages:
-                        errors.append(ValidationError(
-                            format_lazy(
-                                '{}{}',
-                                self.error_messages['item_invalid'],
-                                message,
-                            ),
-                            code='item_invalid',
-                            params={'item': item},
-                        ))
+                        errors.append(
+                            ValidationError(
+                                format_lazy(
+                                    "{}{}", self.error_messages["item_invalid"], message
+                                ),
+                                code="item_invalid",
+                                params={"item": item},
+                            )
+                        )
         if errors:
             raise ValidationError(errors)
 
@@ -243,9 +251,7 @@ class JSONString(str):
 
 
 class JSONField(forms.CharField):
-    default_error_messages = {
-        'invalid': _("'%(value)s' value must be valid JSON."),
-    }
+    default_error_messages = {"invalid": _("'%(value)s' value must be valid JSON.")}
     widget = forms.Textarea
 
     def to_python(self, value):
@@ -259,9 +265,7 @@ class JSONField(forms.CharField):
             converted = json.loads(value)
         except ValueError:
             raise forms.ValidationError(
-                self.error_messages['invalid'],
-                code='invalid',
-                params={'value': value},
+                self.error_messages["invalid"], code="invalid", params={"value": value}
             )
         if isinstance(converted, str):
             return JSONString(converted)

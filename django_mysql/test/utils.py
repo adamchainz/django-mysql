@@ -17,10 +17,11 @@ class override_mysql_variables(object):
     it's used with the ``with`` statement. In either event entering/exiting
     are called before and after, respectively, the function/block is executed.
     """
+
     def __init__(self, using=DEFAULT_DB_ALIAS, **kwargs):
         self.db = using
         self.options = kwargs
-        self.prefix = uuid.uuid1().hex.replace('-', '')[:16]
+        self.prefix = uuid.uuid1().hex.replace("-", "")[:16]
 
     def __enter__(self):
         self.enable()
@@ -30,29 +31,33 @@ class override_mysql_variables(object):
 
     def __call__(self, test_func):
         from unittest import TestCase
+
         if isinstance(test_func, type):
             if not issubclass(test_func, TestCase):
                 raise Exception(
-                    "{} only works with TestCase classes."
-                    .format(self.__class__.__name__),
+                    "{} only works with TestCase classes.".format(
+                        self.__class__.__name__
+                    )
                 )
 
             self.wrap_class(test_func)
 
             return test_func
         else:
+
             @wraps(test_func)
             def inner(*args, **kwargs):
                 with self:
                     return test_func(*args, **kwargs)
+
             return inner
 
     def wrap_class(self, klass):
-        kwargs = {'using': self.db}
+        kwargs = {"using": self.db}
         kwargs.update(**self.options)
 
         for name in dir(klass):
-            if not name.startswith('test_'):
+            if not name.startswith("test_"):
                 continue
 
             method = getattr(klass, name)
@@ -67,7 +72,9 @@ class override_mysql_variables(object):
                 cursor.execute(
                     """SET @overridden_{prefix}_{name} = @@{name},
                            @@{name} = %s
-                    """.format(prefix=self.prefix, name=key),
+                    """.format(
+                        prefix=self.prefix, name=key
+                    ),
                     (value,),
                 )
 
@@ -78,5 +85,7 @@ class override_mysql_variables(object):
                 cursor.execute(
                     """SET @@{name} = @overridden_{prefix}_{name},
                            @overridden_{prefix}_{name} = NULL
-                    """.format(name=key, prefix=self.prefix),
+                    """.format(
+                        name=key, prefix=self.prefix
+                    )
                 )

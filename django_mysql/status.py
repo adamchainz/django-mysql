@@ -11,6 +11,7 @@ class BaseStatus(object):
     """
     Base class for the status classes
     """
+
     query = ""
 
     def __init__(self, using=None):
@@ -23,9 +24,10 @@ class BaseStatus(object):
         return connections[self.db].cursor()
 
     def get(self, name):
-        if '%' in name:
-            raise ValueError("get() is for fetching single variables, "
-                             "no % wildcards")
+        if "%" in name:
+            raise ValueError(
+                "get() is for fetching single variables, " "no % wildcards"
+            )
         with self.get_cursor() as cursor:
             num_rows = cursor.execute(self.query + " LIKE %s", (name,))
             if num_rows == 0:
@@ -37,8 +39,9 @@ class BaseStatus(object):
             return {}
 
         if any(("%" in name) for name in names):
-            raise ValueError("get_many() is for fetching named "
-                             "variables, no % wildcards")
+            raise ValueError(
+                "get_many() is for fetching named " "variables, no % wildcards"
+            )
 
         with self.get_cursor() as cursor:
             query = [self.query, "WHERE Variable_name IN ("]
@@ -46,17 +49,14 @@ class BaseStatus(object):
             query.append(")")
             cursor.execute(" ".join(query), names)
 
-            return {
-                name: self._cast(value)
-                for name, value in cursor.fetchall()
-            }
+            return {name: self._cast(value) for name, value in cursor.fetchall()}
 
     def as_dict(self, prefix=None):
         with self.get_cursor() as cursor:
             if prefix is None:
                 cursor.execute(self.query)
             else:
-                cursor.execute(self.query + " LIKE %s", (prefix + '%',))
+                cursor.execute(self.query + " LIKE %s", (prefix + "%",))
             rows = cursor.fetchall()
             return {name: self._cast(value) for name, value in rows}
 
@@ -71,9 +71,9 @@ class BaseStatus(object):
             except ValueError:
                 pass
 
-        if value == 'ON':
+        if value == "ON":
             return True
-        elif value == 'OFF':
+        elif value == "OFF":
             return False
 
         return value
@@ -84,7 +84,7 @@ class GlobalStatus(BaseStatus):
 
     def wait_until_load_low(self, thresholds=None, timeout=60.0, sleep=0.1):
         if thresholds is None:
-            thresholds = {'Threads_running': 10}
+            thresholds = {"Threads_running": 10}
 
         start = time.time()
         names = thresholds.keys()
@@ -104,9 +104,8 @@ class GlobalStatus(BaseStatus):
                 raise TimeoutError(
                     "Span too long waiting for load to drop: "
                     + ",".join(
-                        "{} > {}".format(name, thresholds[name])
-                        for name in higher
-                    ),
+                        "{} > {}".format(name, thresholds[name]) for name in higher
+                    )
                 )
             time.sleep(sleep)
 
