@@ -4,25 +4,28 @@ from django.db.models import BooleanField, NullBooleanField
 
 class Bit1Mixin(object):
     def db_type(self, connection):
-        return 'bit(1)'
+        return "bit(1)"
 
     if django.VERSION >= (2, 0):
+
         def from_db_value(self, value, expression, connection):
             # Meant to be binary/bytes but can come back as unicode strings
             if isinstance(value, bytes):
-                value = (value == b'\x01')
+                value = value == b"\x01"
             elif isinstance(value, str):
                 # Only on older versions of mysqlclient and Py 2.7
-                value = (value == '\x01')  # pragma: no cover
+                value = value == "\x01"  # pragma: no cover
             return value
+
     else:
+
         def from_db_value(self, value, expression, connection, context):
             # Meant to be binary/bytes but can come back as unicode strings
             if isinstance(value, bytes):
-                value = (value == b'\x01')
+                value = value == b"\x01"
             elif isinstance(value, str):
                 # Only on older versions of mysqlclient and Py 2.7
-                value = (value == '\x01')  # pragma: no cover
+                value = value == "\x01"  # pragma: no cover
             return value
 
     def get_prep_value(self, value):

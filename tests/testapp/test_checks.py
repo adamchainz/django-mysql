@@ -9,18 +9,18 @@ from django_mysql.test.utils import override_mysql_variables
 class CallCheckTest(TestCase):
 
     if django.VERSION >= (2, 2):
-        databases = ['default', 'other']
+        databases = ["default", "other"]
     else:
         multi_db = True
 
     def test_check(self):
-        call_command('check')
+        call_command("check")
 
 
 class VariablesTests(TransactionTestCase):
 
     if django.VERSION >= (2, 2):
-        databases = ['default', 'other']
+        databases = ["default", "other"]
     else:
         multi_db = True
 
@@ -31,19 +31,19 @@ class VariablesTests(TransactionTestCase):
     def test_fails_if_no_strict(self):
         errors = check_variables([])
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.W001'
+        assert errors[0].id == "django_mysql.W001"
         assert "MySQL Strict Mode" in errors[0].msg
 
     @override_mysql_variables(innodb_strict_mode=0)
     def test_fails_if_no_innodb_strict(self):
         errors = check_variables([])
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.W002'
+        assert errors[0].id == "django_mysql.W002"
         assert "InnoDB Strict Mode" in errors[0].msg
 
-    @override_mysql_variables(character_set_connection='utf8')
+    @override_mysql_variables(character_set_connection="utf8")
     def test_fails_if_not_utf8mb4(self):
         errors = check_variables([])
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.W003'
+        assert errors[0].id == "django_mysql.W003"
         assert "utf8mb4" in errors[0].msg

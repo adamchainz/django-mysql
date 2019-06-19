@@ -9,14 +9,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='SizedTextAlterModel',
+            name="SizedTextAlterModel",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False,
-                 auto_created=True, primary_key=True)),
-                ('field', SizedTextField(size_class=3)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("field", SizedTextField(size_class=3)),
             ],
-            options={
-            },
+            options={},
             bases=(models.Model,),
-        ),
+        )
     ]

@@ -2,38 +2,38 @@ from django.db.models import Aggregate, CharField
 
 
 class BitAnd(Aggregate):
-    function = 'BIT_AND'
-    name = 'bitand'
+    function = "BIT_AND"
+    name = "bitand"
 
 
 class BitOr(Aggregate):
-    function = 'BIT_OR'
-    name = 'bitor'
+    function = "BIT_OR"
+    name = "bitor"
 
 
 class BitXor(Aggregate):
-    function = 'BIT_XOR'
-    name = 'bitxor'
+    function = "BIT_XOR"
+    name = "bitxor"
 
 
 class GroupConcat(Aggregate):
-    function = 'GROUP_CONCAT'
+    function = "GROUP_CONCAT"
 
-    def __init__(self, expression, distinct=False, separator=None,
-                 ordering=None, **extra):
+    def __init__(
+        self, expression, distinct=False, separator=None, ordering=None, **extra
+    ):
 
-        if 'output_field' not in extra:
+        if "output_field" not in extra:
             # This can/will be improved to SetTextField or ListTextField
-            extra['output_field'] = CharField()
+            extra["output_field"] = CharField()
 
         super(GroupConcat, self).__init__(expression, **extra)
 
         self.distinct = distinct
         self.separator = separator
 
-        if ordering not in ('asc', 'desc', None):
-            raise ValueError(
-                "'ordering' must be one of 'asc', 'desc', or None")
+        if ordering not in ("asc", "desc", None):
+            raise ValueError("'ordering' must be one of 'asc', 'desc', or None")
         self.ordering = ordering
 
     def as_sql(self, compiler, connection, function=None, template=None):

@@ -7,12 +7,20 @@ from django.db.models import Field, IntegerField, Transform
 from django_mysql import forms
 from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import (
-    JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan, JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey,
-    JSONHasKeys, JSONLessThan, JSONLessThanOrEqual,
+    JSONContainedBy,
+    JSONContains,
+    JSONExact,
+    JSONGreaterThan,
+    JSONGreaterThanOrEqual,
+    JSONHasAnyKeys,
+    JSONHasKey,
+    JSONHasKeys,
+    JSONLessThan,
+    JSONLessThanOrEqual,
 )
 from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
-__all__ = ('JSONField',)
+__all__ = ("JSONField",)
 
 
 class JSONField(Field):
@@ -21,10 +29,10 @@ class JSONField(Field):
     _default_json_decoder = json.JSONDecoder(strict=False)
 
     def __init__(self, *args, **kwargs):
-        if 'default' not in kwargs:
-            kwargs['default'] = dict
-        self.json_encoder = kwargs.pop('encoder', self._default_json_encoder)
-        self.json_decoder = kwargs.pop('decoder', self._default_json_decoder)
+        if "default" not in kwargs:
+            kwargs["default"] = dict
+        self.json_encoder = kwargs.pop("encoder", self._default_json_encoder)
+        self.json_decoder = kwargs.pop("decoder", self._default_json_decoder)
         super(JSONField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
@@ -39,18 +47,22 @@ class JSONField(Field):
         if isinstance(self.default, (list, dict)):
             errors.append(
                 checks.Error(
-                    'Do not use mutable defaults for JSONField',
-                    hint=collapse_spaces('''
+                    "Do not use mutable defaults for JSONField",
+                    hint=collapse_spaces(
+                        """
                         Mutable defaults get shared between all instances of
                         the field, which probably isn't what you want. You
                         should replace your default with a callable, e.g.
                         replace default={{}} with default=dict.
 
                         The default you passed was '{}'.
-                    '''.format(self.default)),
+                    """.format(
+                            self.default
+                        )
+                    ),
                     obj=self,
-                    id='django_mysql.E017',
-                ),
+                    id="django_mysql.E017",
+                )
             )
         return errors
 
@@ -58,9 +70,9 @@ class JSONField(Field):
         errors = []
 
         any_conn_works = False
-        for alias, conn in mysql_connections():
+        for _alias, conn in mysql_connections():
             if (
-                hasattr(conn, 'mysql_version')
+                hasattr(conn, "mysql_version")
                 and not connection_is_mariadb(conn)
                 and conn.mysql_version >= (5, 7)
             ):
@@ -69,12 +81,12 @@ class JSONField(Field):
         if not any_conn_works:
             errors.append(
                 checks.Error(
-                    'MySQL 5.7+ is required to use JSONField',
-                    hint='At least one of your DB connections should be to '
-                         'MySQL 5.7+',
+                    "MySQL 5.7+ is required to use JSONField",
+                    hint="At least one of your DB connections should be to "
+                    "MySQL 5.7+",
                     obj=self,
-                    id='django_mysql.E016',
-                ),
+                    id="django_mysql.E016",
+                )
             )
         return errors
 
@@ -84,21 +96,21 @@ class JSONField(Field):
         if self.json_encoder.allow_nan:
             errors.append(
                 checks.Error(
-                    'Custom JSON encoder should have allow_nan=False as MySQL '
-                    'does not support NaN/Infinity in JSON.',
+                    "Custom JSON encoder should have allow_nan=False as MySQL "
+                    "does not support NaN/Infinity in JSON.",
                     obj=self,
-                    id='django_mysql.E018',
-                ),
+                    id="django_mysql.E018",
+                )
             )
 
         if self.json_decoder.strict:
             errors.append(
                 checks.Error(
-                    'Custom JSON decoder should have strict=False to support '
-                    'all the characters that MySQL does.',
+                    "Custom JSON decoder should have strict=False to support "
+                    "all the characters that MySQL does.",
                     obj=self,
-                    id='django_mysql.E019',
-                ),
+                    id="django_mysql.E019",
+                )
             )
 
         return errors
@@ -107,16 +119,16 @@ class JSONField(Field):
         name, path, args, kwargs = super(JSONField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.json.JSONField',
-            'django_mysql.models.fields.JSONField',
+            "django_mysql.models.fields.json.JSONField",
+            "django_mysql.models.fields.JSONField",
         )
         if path in bad_paths:
-            path = 'django_mysql.models.JSONField'
+            path = "django_mysql.models.JSONField"
 
         return name, path, args, kwargs
 
     def db_type(self, connection):
-        return 'json'
+        return "json"
 
     def get_transform(self, name):
         transform = super(JSONField, self).get_transform(name)
@@ -125,11 +137,14 @@ class JSONField(Field):
         return KeyTransformFactory(name)
 
     if django.VERSION >= (2, 0):
+
         def from_db_value(self, value, expression, connection):
             if isinstance(value, str):
                 return self.json_decoder.decode(value)
             return value
+
     else:
+
         def from_db_value(self, value, expression, connection, context):
             if isinstance(value, str):
                 return self.json_decoder.decode(value)
@@ -151,12 +166,20 @@ class JSONField(Field):
     def get_lookup(self, lookup_name):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
-            'range', 'in', 'iexact', 'icontains', 'startswith',
-            'istartswith', 'endswith', 'iendswith', 'search', 'regex',
-            'iregex',
+            "range",
+            "in",
+            "iexact",
+            "icontains",
+            "startswith",
+            "istartswith",
+            "endswith",
+            "iendswith",
+            "search",
+            "regex",
+            "iregex",
         }:
             raise NotImplementedError(
-                "Lookup '{}' doesn't work with JSONField".format(lookup_name),
+                "Lookup '{}' doesn't work with JSONField".format(lookup_name)
             )
         return super(JSONField, self).get_lookup(lookup_name)
 
@@ -164,17 +187,17 @@ class JSONField(Field):
         return self.value_from_object(obj)
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': forms.JSONField}
+        defaults = {"form_class": forms.JSONField}
         defaults.update(kwargs)
         return super(JSONField, self).formfield(**defaults)
 
 
 class JSONLength(Transform):
-    lookup_name = 'length'
+    lookup_name = "length"
 
     output_field = IntegerField()
 
-    function = 'JSON_LENGTH'
+    function = "JSON_LENGTH"
 
 
 JSONField.register_lookup(JSONContainedBy)
@@ -191,7 +214,6 @@ JSONField.register_lookup(JSONLessThanOrEqual)
 
 
 class KeyTransform(Transform):
-
     def __init__(self, key_name, *args, **kwargs):
         super(KeyTransform, self).__init__(*args, **kwargs)
         self.key_name = key_name
@@ -207,22 +229,21 @@ class KeyTransform(Transform):
 
         json_path = self.compile_json_path(key_transforms)
 
-        return 'JSON_EXTRACT({}, %s)'.format(lhs), tuple(params) + (json_path,)
+        return "JSON_EXTRACT({}, %s)".format(lhs), tuple(params) + (json_path,)
 
     def compile_json_path(self, key_transforms):
-        path = ['$']
+        path = ["$"]
         for key_transform in key_transforms:
             try:
                 num = int(key_transform)
-                path.append('[{}]'.format(num))
+                path.append("[{}]".format(num))
             except ValueError:  # non-integer
-                path.append('.')
+                path.append(".")
                 path.append(key_transform)
-        return ''.join(path)
+        return "".join(path)
 
 
 class KeyTransformFactory(object):
-
     def __init__(self, key_name):
         self.key_name = key_name
 

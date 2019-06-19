@@ -15,7 +15,6 @@ from tests.testapp.models import BigCharListModel, BigIntListModel, TemporaryMod
 
 
 class TestSaveLoad(TestCase):
-
     def test_char_easy(self):
         s = BigCharListModel.objects.create(field=["comfy", "big"])
         assert s.field == ["comfy", "big"]
@@ -31,7 +30,7 @@ class TestSaveLoad(TestCase):
     def test_char_string_direct(self):
         s = BigCharListModel.objects.create(field="big,bad")
         s = BigCharListModel.objects.get(id=s.id)
-        assert s.field == ['big', 'bad']
+        assert s.field == ["big", "bad"]
 
     def test_is_a_list_immediately(self):
         s = BigCharListModel()
@@ -69,13 +68,13 @@ class TestSaveLoad(TestCase):
         assert empty.count() == 0
 
     def test_char_lookup_contains(self):
-        self.check_char_lookup('contains')
+        self.check_char_lookup("contains")
 
     def test_char_lookup_icontains(self):
-        self.check_char_lookup('icontains')
+        self.check_char_lookup("icontains")
 
     def check_char_lookup(self, lookup):
-        lname = 'field__' + lookup
+        lname = "field__" + lookup
         mymodel = BigCharListModel.objects.create(field=["mouldy", "rotten"])
 
         mouldy = BigCharListModel.objects.filter(**{lname: "mouldy"})
@@ -93,13 +92,13 @@ class TestSaveLoad(TestCase):
             list(BigCharListModel.objects.filter(**{lname: ["a", "b"]}))
 
         both = BigCharListModel.objects.filter(
-            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"}),
+            Q(**{lname: "mouldy"}) & Q(**{lname: "rotten"})
         )
         assert both.count() == 1
         assert both[0] == mymodel
 
         either = BigCharListModel.objects.filter(
-            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"}),
+            Q(**{lname: "mouldy"}) | Q(**{lname: "clean"})
         )
         assert either.count() == 1
 
@@ -148,16 +147,14 @@ class TestSaveLoad(TestCase):
         red0 = BigCharListModel.objects.filter(field__0="red")
         assert list(red0) == [mymodel]
 
-        red0_red1 = BigCharListModel.objects.filter(field__0="red",
-                                                    field__1="red")
+        red0_red1 = BigCharListModel.objects.filter(field__0="red", field__1="red")
         assert red0_red1.count() == 0
 
-        red0_blue1 = BigCharListModel.objects.filter(field__0="red",
-                                                     field__1="blue")
+        red0_blue1 = BigCharListModel.objects.filter(field__0="red", field__1="blue")
         assert list(red0_blue1) == [mymodel]
 
         red0_or_blue0 = BigCharListModel.objects.filter(
-            Q(field__0="red") | Q(field__0="blue"),
+            Q(field__0="red") | Q(field__0="blue")
         )
         assert list(red0_or_blue0) == [mymodel]
 
@@ -185,18 +182,18 @@ class TestSaveLoad(TestCase):
             list(BigIntListModel.objects.filter(field__contains=[1, 2]))
 
         ones_and_twos = BigIntListModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=2),
+            Q(field__contains=1) & Q(field__contains=2)
         )
         assert ones_and_twos.count() == 1
         assert ones_and_twos[0] == onetwo
 
         ones_and_threes = BigIntListModel.objects.filter(
-            Q(field__contains=1) & Q(field__contains=3),
+            Q(field__contains=1) & Q(field__contains=3)
         )
         assert ones_and_threes.count() == 0
 
         ones_or_threes = BigIntListModel.objects.filter(
-            Q(field__contains=1) | Q(field__contains=3),
+            Q(field__contains=1) | Q(field__contains=3)
         )
         assert ones_or_threes.count() == 1
 
@@ -220,47 +217,41 @@ class TestSaveLoad(TestCase):
 
 
 class TestValidation(SimpleTestCase):
-
     def test_max_length(self):
-        field = ListTextField(
-            models.CharField(max_length=32),
-            size=3,
-            max_length=32,
-        )
+        field = ListTextField(models.CharField(max_length=32), size=3, max_length=32)
 
-        field.clean({'a', 'b', 'c'}, None)
+        field.clean({"a", "b", "c"}, None)
 
         with pytest.raises(exceptions.ValidationError) as excinfo:
-            field.clean({'a', 'b', 'c', 'd'}, None)
+            field.clean({"a", "b", "c", "d"}, None)
         assert (
             excinfo.value.messages[0]
-            == 'List contains 4 items, it should contain no more than 3.'
+            == "List contains 4 items, it should contain no more than 3."
         )
 
 
 class TestCheck(SimpleTestCase):
-
     def test_field_checks(self):
         class InvalidListTextModel1(TemporaryModel):
             field = ListTextField(models.CharField(), max_length=32)
 
         errors = InvalidListTextModel1.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E004'
-        assert 'Base field for list has errors' in errors[0].msg
-        assert 'max_length' in errors[0].msg
+        assert errors[0].id == "django_mysql.E004"
+        assert "Base field for list has errors" in errors[0].msg
+        assert "max_length" in errors[0].msg
 
     def test_invalid_base_fields(self):
         class InvalidListTextModel2(TemporaryModel):
             field = ListTextField(
-                models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
+                models.ForeignKey("testapp.Author", on_delete=models.CASCADE),
                 max_length=32,
             )
 
         errors = InvalidListTextModel2.check(actually_check=True)
         assert len(errors) == 1
-        assert errors[0].id == 'django_mysql.E005'
-        assert 'Base field for list must be' in errors[0].msg
+        assert errors[0].id == "django_mysql.E005"
+        assert "Base field for list must be" in errors[0].msg
 
 
 class ListTextFieldSubclass(ListTextField):
@@ -270,7 +261,6 @@ class ListTextFieldSubclass(ListTextField):
 
 
 class TestDeconstruct(TestCase):
-
     def test_deconstruct(self):
         field = ListTextField(models.IntegerField(), max_length=32)
         name, path, args, kwargs = field.deconstruct()
@@ -291,24 +281,25 @@ class TestDeconstruct(TestCase):
 
     def test_bad_import_deconstruct(self):
         from django_mysql.models.fields import ListTextField as LTField
+
         field = LTField(models.IntegerField())
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'django_mysql.models.ListTextField'
+        assert path == "django_mysql.models.ListTextField"
 
     def test_bad_import2_deconstruct(self):
         from django_mysql.models.fields.lists import ListTextField as LTField
+
         field = LTField(models.IntegerField())
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'django_mysql.models.ListTextField'
+        assert path == "django_mysql.models.ListTextField"
 
     def test_subclass_deconstruct(self):
         field = ListTextFieldSubclass(models.IntegerField())
         name, path, args, kwargs = field.deconstruct()
-        assert path == 'tests.testapp.test_listtextfield.ListTextFieldSubclass'
+        assert path == "tests.testapp.test_listtextfield.ListTextFieldSubclass"
 
 
 class TestMigrationWriter(TestCase):
-
     def test_makemigrations(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
         statement, imports = MigrationWriter.serialize(field)
@@ -328,11 +319,7 @@ class TestMigrationWriter(TestCase):
         ).match(statement)
 
     def test_makemigrations_with_size(self):
-        field = ListTextField(
-            models.CharField(max_length=5),
-            max_length=32,
-            size=5,
-        )
+        field = ListTextField(models.CharField(max_length=5), max_length=32, size=5)
         statement, imports = MigrationWriter.serialize(field)
 
         # The order of the output max_length/size statements varies by
@@ -351,32 +338,30 @@ class TestMigrationWriter(TestCase):
 
 
 class TestSerialization(SimpleTestCase):
-
     def test_dumping(self):
         instance = BigCharListModel(field=["big", "comfy"])
-        data = json.loads(serializers.serialize('json', [instance]))[0]
-        field = data['fields']['field']
-        assert sorted(field.split(',')) == ["big", "comfy"]
+        data = json.loads(serializers.serialize("json", [instance]))[0]
+        field = data["fields"]["field"]
+        assert sorted(field.split(",")) == ["big", "comfy"]
 
     def test_loading(self):
-        test_data = '''
+        test_data = """
             [{"fields": {"field": "big,leather,comfy"},
              "model": "testapp.BigCharListModel", "pk": null}]
-        '''
-        objs = list(serializers.deserialize('json', test_data))
+        """
+        objs = list(serializers.deserialize("json", test_data))
         instance = objs[0].object
         assert instance.field == ["big", "leather", "comfy"]
 
     def test_dumping_loading_empty(self):
         instance = BigCharListModel(field=[])
-        data = serializers.serialize('json', [instance])
-        objs = list(serializers.deserialize('json', data))
+        data = serializers.serialize("json", [instance])
+        objs = list(serializers.deserialize("json", data))
         instance = objs[0].object
         assert instance.field == []
 
 
 class TestDescription(SimpleTestCase):
-
     def test_char(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
         assert field.description == "List of String (up to %(max_length)s)"
@@ -387,7 +372,6 @@ class TestDescription(SimpleTestCase):
 
 
 class TestFormField(SimpleTestCase):
-
     def test_model_field_formfield(self):
         model_field = ListTextField(models.CharField(max_length=27))
         form_field = model_field.formfield()

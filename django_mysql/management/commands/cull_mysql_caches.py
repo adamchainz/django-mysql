@@ -9,21 +9,25 @@ from django_mysql.utils import collapse_spaces
 class Command(BaseCommand):
     args = "<optional cache aliases>"
 
-    help = collapse_spaces("""
+    help = collapse_spaces(
+        """
         Runs cache.cull() on all your MySQLCache caches, or only those
         specified aliases.
-    """)
+    """
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'aliases', metavar='aliases', nargs='*',
-            help='Specify the cache alias(es) to cull.',
+            "aliases",
+            metavar="aliases",
+            nargs="*",
+            help="Specify the cache alias(es) to cull.",
         )
 
     def handle(self, *args, **options):
-        verbosity = options.get('verbosity')
+        verbosity = options.get("verbosity")
 
-        aliases = set(options['aliases'])
+        aliases = set(options["aliases"])
 
         if not aliases:
             aliases = settings.CACHES
@@ -39,8 +43,7 @@ class Command(BaseCommand):
 
             if verbosity >= 1:
                 self.stdout.write(
-                    "Deleting from cache '{}'... ".format(alias),
-                    ending='',
+                    "Deleting from cache '{}'... ".format(alias), ending=""
                 )
             num_deleted = cache.cull()
             if verbosity >= 1:

@@ -9,15 +9,23 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='IntSetDefaultModel',
+            name="IntSetDefaultModel",
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False,
-                 auto_created=True, primary_key=True)),
-                ('field', SetCharField(
-                    models.IntegerField(), size=None, max_length=32)),
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                (
+                    "field",
+                    SetCharField(models.IntegerField(), size=None, max_length=32),
+                ),
             ],
-            options={
-            },
+            options={},
             bases=(models.Model,),
-        ),
+        )
     ]
