@@ -166,9 +166,9 @@ pytest-randomly==3.0.0 \
 pytest-super-check==2.0.0 \
     --hash=sha256:20c7eaadbebeb029cfac6a2194be527effe1f4e9282313f589ccea6a6cca9b56 \
     --hash=sha256:f7f285d70cafd1299b70debcaf885caef4d3768aa6c5ee76e10b86ab2a6cf740
-pytest==5.0.0 \
-    --hash=sha256:2878de8ae1c79a62c012da6186b88ff0562ea96ce29c4208d2a9b11d9f607df1 \
-    --hash=sha256:95b700cf21ed5b7e91bce7a6b5a573b2e3ef7b3643d00f681d8f9c4672f9fbdf
+pytest==5.0.1 \
+    --hash=sha256:6ef6d06de77ce2961156013e9dff62f1b2688aa04d0dc244299fe7d67e09370d \
+    --hash=sha256:a736fed91c12681a7b34617c8fcefe39ea04599ca72c608751c31d89579a3f77
 pytz==2019.1 \
     --hash=sha256:303879e36b721603cc54604edcac9d20401bdbe31e1e4fdee5b9f98d5d31dfda \
     --hash=sha256:d747dd3d23d77ef44c6a3526e274af6efeb0a6f1afd5a69ba4d5be4098c8e141
