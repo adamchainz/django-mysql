@@ -27,6 +27,11 @@ setup(
     author="Adam Johnson",
     author_email="me@adamj.eu",
     url="https://github.com/adamchainz/django-mysql",
+    project_urls={
+        "Changelog": (
+            "https://github.com/adamchainz/django-mysql/blob/master/HISTORY.rst"
+        )
+    },
     packages=find_packages(exclude=["tests", "tests.*"]),
     include_package_data=True,
     install_requires=["Django>=1.11"],
