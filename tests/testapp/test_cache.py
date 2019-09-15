@@ -1,7 +1,7 @@
-import imp
 import os
 import pickle
 import time
+import types
 from decimal import Decimal
 from io import StringIO
 
@@ -1293,7 +1293,7 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         assert result.out_lines == []
 
         # Dynamic import and check
-        migration_mod = imp.new_module("0001_add_cache_tables")
+        migration_mod = types.ModuleType("0001_add_cache_tables")
         exec(output, migration_mod.__dict__)
         assert hasattr(migration_mod, "Migration")
         migration = migration_mod.Migration

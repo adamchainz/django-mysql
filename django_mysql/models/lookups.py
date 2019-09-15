@@ -1,6 +1,7 @@
 import collections
 import json
 
+import django
 from django.db.models import CharField, Lookup, Transform
 from django.db.models.lookups import (
     BuiltinLookup,
@@ -47,11 +48,21 @@ class Soundex(Transform):
 
 
 class JSONLookupMixin(object):
-    def get_prep_lookup(self):
-        value = self.rhs
-        if not hasattr(value, "_prepare") and value is not None:
-            return JSONValue(value)
-        return super(JSONLookupMixin, self).get_prep_lookup()
+    if django.VERSION >= (3, 0):
+
+        def get_prep_lookup(self):
+            value = self.rhs
+            if not hasattr(value, "resolve_expression") and value is not None:
+                return JSONValue(value)
+            return super(JSONLookupMixin, self).get_prep_lookup()
+
+    else:
+
+        def get_prep_lookup(self):
+            value = self.rhs
+            if not hasattr(value, "_prepare") and value is not None:
+                return JSONValue(value)
+            return super(JSONLookupMixin, self).get_prep_lookup()
 
 
 class JSONExact(JSONLookupMixin, Exact):
@@ -156,7 +167,7 @@ class SetContains(Lookup):
     lookup_name = "contains"
 
     def get_prep_lookup(self):
-        if isinstance(self.rhs, (list, set)):
+        if isinstance(self.rhs, (list, set, tuple)):
             # Can't do multiple contains without massive ORM hackery
             # (ANDing all the FIND_IN_SET calls), so just reject them
             raise ValueError(
