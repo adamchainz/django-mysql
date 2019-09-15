@@ -1,7 +1,7 @@
 import django
 from django.core import checks
 from django.db.models import CharField, IntegerField, Lookup, TextField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models.lookups import SetContains, SetIContains

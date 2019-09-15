@@ -1,5 +1,5 @@
 from django.db.models import CharField
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -52,6 +52,6 @@ class EnumField(CharField):
     def db_type(self, connection):
         connection.ensure_connection()
         values = [connection.connection.escape_string(c) for c, _ in self.flatchoices]
-        # Use force_text because MySQLdb escape_string() returns bytes, but
+        # Use force_str because MySQLdb escape_string() returns bytes, but
         # pymysql returns str
-        return "enum(%s)" % ",".join("'%s'" % force_text(v) for v in values)
+        return "enum(%s)" % ",".join("'%s'" % force_str(v) for v in values)

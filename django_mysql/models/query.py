@@ -11,7 +11,7 @@ from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
 from django.test.utils import CaptureQueriesContext
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from django_mysql.models.handler import Handler
 from django_mysql.rewrite_query import REWRITE_MARKER
