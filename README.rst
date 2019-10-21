@@ -25,8 +25,8 @@ Django-MySQL
     | The dolphin-pony - proof that cute + cute = double cute.
 
 
-Django-MySQL is a non-inventively named package that helps you use some
-MySQL/MariaDB-specific features in the world of Django.
+Django-MySQL extends Django's built-in MySQL and MariaDB support their specific
+features not available on other databases.
 
 
 What kind of features?
