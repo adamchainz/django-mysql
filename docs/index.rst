@@ -30,7 +30,6 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    management_commands/index
    utilities
    test_utilities
-   monkey_patches
    exceptions
    contributing
    history

@@ -108,7 +108,7 @@ Multiple Databases
 If you use this with multiple databases, you'll also need to set up routing
 instructions for the cache table. This can be done with the same method
 that is described for ``DatabaseCache`` in the `Django manual
-<https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching>`_, apart
+<https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching>`__, apart
 from the application name is ``django_mysql``.
 
 .. note::
@@ -204,7 +204,7 @@ ways:
    ``cull()`` on all of your ``MySQLCache`` instances, or you can give it names
    to just cull those. For example, this:
 
-   .. code-block:: python
+   .. code-block:: console
 
        $ python manage.py cull_mysql_caches default other_cache
 
