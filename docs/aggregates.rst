@@ -21,8 +21,8 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-and>`_ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`_.
+    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-and>`__ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`__.
 
     Example usage:
 
@@ -41,8 +41,8 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-or>`_ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`_.
+    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-or>`__ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`__.
 
     Example usage:
 
@@ -61,8 +61,8 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL
-    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-xor>`_ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`_.
+    <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-xor>`__ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`__.
 
     Example usage:
 
@@ -80,8 +80,8 @@ The following can be imported from ``django_mysql.models``.
     Useful mostly for bringing back lists of ids in a single query.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_group-concat>`_ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/group_concat/>`_.
+    `MySQL <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_group-concat>`__ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/group_concat/>`__.
 
     Example usage:
 
@@ -101,8 +101,8 @@ The following can be imported from ``django_mysql.models``.
         increase it if you're using this for any sizeable groups.
 
         ``group_concat_max_len`` docs:
-        `MySQL <https://dev.mysql.com/doc/refman/en/server-system-variables.html#sysvar_group_concat_max_len>`_ /
-        `MariaDB <https://mariadb.com/kb/en/server-system-variables/#group_concat_max_len>`_.
+        `MySQL <https://dev.mysql.com/doc/refman/en/server-system-variables.html#sysvar_group_concat_max_len>`__ /
+        `MariaDB <https://mariadb.com/kb/en/server-system-variables/#group_concat_max_len>`__.
 
     Optional arguments:
 

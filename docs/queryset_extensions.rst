@@ -179,8 +179,8 @@ Once you’ve done this, the following methods will work.
         Author.objects.distinct().straight_join().filter(books__age=12)[:10]
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/select/#straight_join>`_.
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
+    `MariaDB <https://mariadb.com/kb/en/mariadb/select/#straight_join>`__.
 
     The MariaDB docs also have a good page `Index Hints: How to Force Query
     Plans”
@@ -201,9 +201,9 @@ Once you’ve done this, the following methods will work.
         Author.objects.values('birthday').distinct().sql_small_result()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`_.
+    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`__.
 
 .. method:: sql_big_result()
 
@@ -219,9 +219,9 @@ Once you’ve done this, the following methods will work.
         Author.objects.distinct().sql_big_result()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`_.
+    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`__.
 
 .. method:: sql_buffer_result()
 
@@ -238,9 +238,9 @@ Once you’ve done this, the following methods will work.
         HighThroughputModel.objects.filter(x=y).sql_buffer_result()
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_buffer_result>`_.
+    <https://mariadb.com/kb/en/mariadb/select/#sql_buffer_result>`__.
 
 .. method:: sql_cache()
 
@@ -258,9 +258,9 @@ Once you’ve done this, the following methods will work.
         recent_posts = BlogPost.objects.sql_cache().order_by('-created')[:5]
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
+    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`__.
 
 .. method:: sql_no_cache()
 
@@ -283,9 +283,9 @@ Once you’ve done this, the following methods will work.
         )
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`_.
+    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`__.
 
 .. method:: sql_calc_found_rows()
 
@@ -308,9 +308,9 @@ Once you’ve done this, the following methods will work.
         1942
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_calc_found_rows>`_.
+    <https://mariadb.com/kb/en/mariadb/select/#sql_calc_found_rows>`__.
 
 .. method:: use_index(*index_names, for_=None, table_name=None)
 
@@ -357,9 +357,9 @@ Once you’ve done this, the following methods will work.
         >>> Book.objects.select_related('author').use_index('authbook', table_name='author')
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/index-hints.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/en/index-hints.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/index-hints-how-to-force-query-plans/>`_.
+    <https://mariadb.com/kb/en/mariadb/index-hints-how-to-force-query-plans/>`__.
 
 
 .. method:: force_index(*index_names, for_=None)
@@ -631,8 +631,8 @@ Integration with pt-visual-explain
 ----------------------------------
 
 How does MySQL *really* execute a query? The ``EXPLAIN`` statement
-(docs: `MySQL <https://dev.mysql.com/doc/refman/5.6/en/explain.html>`_ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/explain/>`_),
+(docs: `MySQL <https://dev.mysql.com/doc/refman/5.6/en/explain.html>`__ /
+`MariaDB <https://mariadb.com/kb/en/mariadb/explain/>`__),
 gives a description of the execution plan, and the ``pt-visual-explain``
 `tool <https://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
 can format this in an understandable tree.
@@ -683,8 +683,8 @@ Handler
 MySQL's ``HANDLER`` commands give you simple NoSQL-style read access, faster
 than full SQL queries, with the ability to perform index lookups or paginated
 scans (docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.6/en/handler.html>`_ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/handler-commands/>`_).
+`MySQL <https://dev.mysql.com/doc/refman/5.6/en/handler.html>`__ /
+`MariaDB <https://mariadb.com/kb/en/mariadb/handler-commands/>`__).
 
 This extension adds an ORM-based API for handlers. You can instantiate them
 from a ``QuerySet`` (and thus from `.objects`), and open/close them as context

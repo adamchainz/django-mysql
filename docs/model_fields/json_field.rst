@@ -11,7 +11,7 @@ queryable and updatable in place. This is ideal for data that varies widely, or
 very sparse columns, or just for storing API responses that you don't have time
 to turn into the relational format.
 
-Docs: `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json.html>`_.
+Docs: `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json.html>`__.
 
 Django-MySQL supports the JSON data type and related functions through
 ``JSONField`` plus some
@@ -129,7 +129,7 @@ Ordering Lookups
 ~~~~~~~~~~~~~~~~
 
 MySQL defines an ordering on JSON objects - see
-`the docs <https://dev.mysql.com/doc/refman/5.7/en/json.html#json-comparison>`_
+`the docs <https://dev.mysql.com/doc/refman/5.7/en/json.html#json-comparison>`__
 for more details. The ordering rules can make sense for some types (e.g.
 strings, arrays), however they can also be confusing if your data is of mixed
 types, so be careful. You can use the ordering by querying with Django's
@@ -234,7 +234,7 @@ follows:
 * The length does not count the length of nested arrays or objects.
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-attribute-functions.html#function_json-length>`_.
+`MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-attribute-functions.html#function_json-length>`__.
 
 For example:
 
@@ -275,7 +275,7 @@ The definition of containment is, as per the MySQL docs:
   with the target key.
 
 Docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-contains>`_.
+`MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-contains>`__.
 
 For example:
 
