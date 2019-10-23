@@ -13,7 +13,6 @@ mysqlclient
 parameterized
 pygments
 pytest
-pytest-cov
 pytest-django
 pytest-flake8dir
 pytest-randomly
