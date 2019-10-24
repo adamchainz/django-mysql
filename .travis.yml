@@ -21,12 +21,12 @@ env:
     - COVERALLS_PARALLEL=true
   matrix:
     # - DB=mysql DB_VERSION=5.5
-    # - DB=mysql DB_VERSION=5.6
-    # - DB=mysql DB_VERSION=5.7
+    - DB=mysql DB_VERSION=5.6
+    - DB=mysql DB_VERSION=5.7
     # - DB=mariadb DB_VERSION=5.5
-    # - DB=mariadb DB_VERSION=10.0
-    # - DB=mariadb DB_VERSION=10.1
-    # - DB=mariadb DB_VERSION=10.2
+    - DB=mariadb DB_VERSION=10.0
+    - DB=mariadb DB_VERSION=10.1
+    - DB=mariadb DB_VERSION=10.2
     - DB=mariadb DB_VERSION=10.3
 
 before_script: .travis/before_script.sh
