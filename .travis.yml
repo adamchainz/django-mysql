@@ -39,4 +39,4 @@ script:
 
 after_success:
 - coverage combine
-- coveralls
+- coveralls --rcfile=setup.cfg
