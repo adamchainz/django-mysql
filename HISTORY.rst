@@ -11,8 +11,9 @@ Pending
 * Converted setuptools metadata to configuration file. This meant removing the
   ``__version__`` attribute from the package. If you want to inspect the
   installed version, use
-  ``pkg_resources.get_distribution("django-mysql").version``
-  (`docs <https://setuptools.readthedocs.io/en/latest/pkg_resources.html#getting-or-creating-distributions>`__).
+  ``importlib.metadata.version("django-mysql")``
+  (`docs <https://docs.python.org/3.8/library/importlib.metadata.html#distribution-versions>`__ /
+  `backport <https://pypi.org/project/importlib-metadata/>`__).
 
 3.2.0 (2019-06-14)
 ------------------
