@@ -217,7 +217,7 @@ class TestSimpleSetField(SimpleTestCase):
     def test_prepare_value(self):
         field = SimpleSetField(forms.CharField())
         value = field.prepare_value({"a", "b", "c"})
-        assert list(sorted(value.split(","))) == ["a", "b", "c"]
+        assert sorted(value.split(",")) == ["a", "b", "c"]
         assert field.prepare_value("1,a") == "1,a"
 
     def test_max_length(self):
