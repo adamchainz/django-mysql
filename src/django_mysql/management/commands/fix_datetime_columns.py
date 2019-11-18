@@ -51,7 +51,7 @@ class Command(BaseCommand):
         for app_config in apps.get_app_configs():
             for model in app_config.get_models():
                 table_names.add(model._meta.db_table)
-        return list(sorted(table_names))
+        return sorted(table_names)
 
     def datetime_fix_sql(self, connection, cursor, table_name):
         cursor.execute(
