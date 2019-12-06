@@ -52,15 +52,15 @@ class GroupConcat(Aggregate):
 
         sql.append(expr_sql)
 
-        if self.separator is not None:
-            sql.append(" SEPARATOR '{}'".format(self.separator))
-
         if self.ordering is not None:
             sql.append(" ORDER BY ")
             sql.append(expr_sql)
             params.extend(params[:])
             sql.append(" ")
             sql.append(self.ordering.upper())
+
+        if self.separator is not None:
+            sql.append(" SEPARATOR '{}'".format(self.separator))
 
         sql.append(")")
 
