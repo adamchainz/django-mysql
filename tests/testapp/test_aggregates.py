@@ -132,3 +132,11 @@ class GroupConcatTests(TestCase):
     def test_ordering_desc(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id", ordering="desc"))
         assert out == {"tids": ",".join(reversed(self.str_tutee_ids))}
+
+    def test_separator_big_ordering_asc(self):
+        out = self.shakes.tutees.aggregate(tids=GroupConcat("id", separator="BIG", ordering="asc"))
+        assert out == {"tids": "BIG".join(self.str_tutee_ids)}
+
+    def test_separator_big_ordering_desc(self):
+        out = self.shakes.tutees.aggregate(tids=GroupConcat("id", separator="BIG", ordering="desc"))
+        assert out == {"tids": "BIG".join(reversed(self.str_tutee_ids))}
