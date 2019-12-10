@@ -15,6 +15,8 @@ Pending
   ``importlib.metadata.version("django-mysql")``
   (`docs <https://docs.python.org/3.8/library/importlib.metadata.html#distribution-versions>`__ /
   `backport <https://pypi.org/project/importlib-metadata/>`__).
+* Fix ``GroupConcat`` to work with both ``separator`` and ``ordering`` set.
+  (`PR #596 <https://github.com/adamchainz/django-mysql/pull/596>`__).
 
 3.2.0 (2019-06-14)
 ------------------
