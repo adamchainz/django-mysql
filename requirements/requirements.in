@@ -18,5 +18,6 @@ pytest-flake8dir
 pytest-randomly
 pytest-super-check
 pytz
+secretstorage # required for twine on linux
 sqlparse
 twine
