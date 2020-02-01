@@ -3,6 +3,11 @@
 History
 =======
 
+Pending
+-------
+
+* Prevent ``collections.abc.Sequence`` warning.
+
 3.3.0 (2019-12-10)
 ------------------
 

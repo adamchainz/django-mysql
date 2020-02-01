@@ -1,5 +1,5 @@
-import collections
 import json
+from collections.abc import Sequence
 
 import django
 from django.db.models import CharField, Lookup, Transform
@@ -123,7 +123,7 @@ class JSONHasKey(Lookup):
 
 class JSONSequencesMixin(object):
     def get_prep_lookup(self):
-        if not isinstance(self.rhs, collections.Sequence):
+        if not isinstance(self.rhs, Sequence):
             raise ValueError(
                 "JSONField's '{}' lookup only works with Sequences".format(
                     self.lookup_name
