@@ -30,6 +30,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    management_commands/index
    utilities
    test_utilities
+   test_cases
    exceptions
    contributing
    history
