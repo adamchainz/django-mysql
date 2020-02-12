@@ -196,6 +196,14 @@ class RewriteQueryTests(TestCase):
             == "SELECT col_a FROM `sometable` USE INDEX (`col_a_idx`) WHERE (1)"
         )
 
+    def test_index_hint_on_update(self):
+        assert (
+            rewrite_query(
+                "UPDATE `sometable` SET col_a=1234 WHERE "
+                + "(/*QueryRewrite':index=`sometable` USE `col_a_idx`*/1)"
+            ) == "UPDATE `sometable` USE INDEX (`col_a_idx`) SET col_a=1234 WHERE (1)"
+        )
+
     def test_index_ignore(self):
         assert rewrite_query(
             "SELECT col_a FROM `sometable` WHERE "

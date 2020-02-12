@@ -154,7 +154,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
     # Maybe rewrite the remainder of the statement for index hints
     remainder = sql[match.end() :]
 
-    if tokens[0] == "SELECT" and add_index_hints:
+    if tokens[0] in ("SELECT", "UPDATE") and add_index_hints:
         for index_hint in add_index_hints:
             remainder = modify_sql_index_hints(remainder, *index_hint)
 
@@ -163,15 +163,10 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
     return " ".join(tokens)
 
 
-table_spec_re_template = r"""
-    \b(?P<operator>FROM|JOIN)
-    \s+
-    {table_name}
-    \s+
-"""
+table_spec_re_template = r"(?P<operator>(FROM|JOIN)\s)?\s*{table_name}\s+"
 
 replacement_template = (
-    r"\g<operator> {table_name} " r"{rule} INDEX {for_section}({index_names}) "
+    r"\g<operator>{table_name} " r"{rule} INDEX {for_section}({index_names}) "
 )
 
 
@@ -187,4 +182,4 @@ def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
         for_section=for_section,
         index_names=("" if index_names == "NONE" else index_names),
     )
-    return re.sub(table_spec_re, replacement, sql, count=1, flags=re.VERBOSE)
+    return re.sub(table_spec_re, replacement, sql, count=1)
