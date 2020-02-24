@@ -105,7 +105,7 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
 
    .. code-block:: sh
 
-       $ pip install tox
+       $ python -m pip install tox
        $ tox -e py36-django21
 
    The ``tox.ini`` file defines a large number of test environments, for
