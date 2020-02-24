@@ -19,7 +19,7 @@ Install it with **pip**:
 
 .. code-block:: console
 
-    $ pip install django-mysql
+    $ python -m pip install django-mysql
 
 Or add it to your project's ``requirements.txt``.
 

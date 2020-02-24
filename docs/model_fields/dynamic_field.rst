@@ -44,7 +44,7 @@ to pack and unpack Dynamic Columns blobs in Python rather than in MariaDB
     To use this field, you'll need to:
 
     1. Use MariaDB 10.0.2+
-    2. Install ``mariadb-dyncol`` (``pip install mariadb-dyncol``)
+    2. Install ``mariadb-dyncol`` (``python -m pip install mariadb-dyncol``)
     3. Use either the ``utf8mb4`` or ``utf8`` character set for your
        database connection.
 

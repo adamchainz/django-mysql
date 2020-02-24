@@ -33,7 +33,7 @@ env:
 
 before_script: .travis/before_script.sh
 
-install: pip install coveralls tox-travis
+install: python -m pip install coveralls tox-travis
 
 script:
 - coverage erase
