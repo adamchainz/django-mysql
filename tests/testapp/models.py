@@ -280,6 +280,8 @@ class JSONModel(Model):
     ) and connection._nodb_connection.mysql_version >= (5, 7):
         attrs = JSONField(null=True)
 
+    name = CharField(max_length=3)
+
     def __unicode__(self):
         return str(json.dumps(self.attrs))
 
