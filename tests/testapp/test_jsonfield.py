@@ -200,6 +200,35 @@ class QueryTests(JSONFieldTestCase):
 
         assert "Lookup 'range' doesn't work with JSONField" in str(excinfo.value)
 
+    def test_in_lookup(self):
+        objs = list(
+            JSONModel.objects.filter(attrs__in=[{"a": "c"}, {"a": "b"}, {"c": "b"}])
+        )
+        assert objs == [self.objs[0]]
+
+        objs = list(JSONModel.objects.filter(attrs__in=[111, 1337, 333]))
+        assert objs == [self.objs[1]]
+
+        objs = list(
+            JSONModel.objects.filter(
+                attrs__in=[["array"], ["an", "array"], ["another", "array"]]
+            )
+        )
+        assert objs == [self.objs[2]]
+
+        objs = list(JSONModel.objects.filter(attrs__in=["bar", "foo", "baz"]))
+        assert objs == [self.objs[4]]
+
+        objs = list(
+            JSONModel.objects.filter(
+                attrs__in=[{"a": "b"}, 1337, "foo", ["an", "array"]]
+            )
+        )
+        assert objs == [self.objs[0], self.objs[1], self.objs[2], self.objs[4]]
+
+        objs = list(JSONModel.objects.filter(attrs__in=["bar"]))
+        assert objs == []
+
 
 class ArrayQueryTests(JSONFieldTestCase):
     def setUp(self):
@@ -252,15 +281,17 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         self.objs = [
             JSONModel.objects.create(attrs={}),
             JSONModel.objects.create(
+                name='"b"',
                 attrs={
                     "a": "b",
                     "c": 1,
                     9001: 9002,
                     '"': "awkward",
                     "\n": "super awkward",
-                }
+                },
             ),
             JSONModel.objects.create(
+                name="b",
                 attrs={
                     "a": "b",
                     "c": 1,
@@ -269,10 +300,11 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
                     "i": False,
                     "j": None,
                     "k": {"l": "m"},
-                }
+                },
             ),
             JSONModel.objects.create(attrs=[1, [2]]),
             JSONModel.objects.create(attrs={"k": True, "l": False, "\\": "awkward"}),
+            JSONModel.objects.create(attrs={"a": "n"}, name="x"),
         ]
 
     def test_has_key_invalid_type(self):
@@ -287,6 +319,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         assert list(JSONModel.objects.filter(attrs__has_key="a")) == [
             self.objs[1],
             self.objs[2],
+            self.objs[5],
         ]
 
     def test_has_key_2(self):
@@ -331,6 +364,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
             self.objs[1],
             self.objs[2],
             self.objs[4],
+            self.objs[5],
         ]
 
     def test_has_any_keys_awkward(self):
@@ -417,6 +451,41 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         assert list(
             JSONModel.objects.filter(id__in=JSONModel.objects.filter(attrs__c=1))
         ) == [self.objs[1], self.objs[2]]
+
+    def test_in_lookup(self):
+        objs = list(JSONModel.objects.filter(attrs__a__in=["x", "b", "y"]))
+        assert objs == [self.objs[1], self.objs[2]]
+
+        objs = list(
+            JSONModel.objects.filter(
+                attrs__d__1__in=[{"x": "g"}, {"f": "g"}, {"f": "x"}]
+            )
+        )
+        assert objs == [self.objs[2]]
+
+        objs = list(JSONModel.objects.filter(attrs__k__in=[True, {"l": "m"}, "x"]))
+        assert objs == [self.objs[2], self.objs[4]]
+
+        objs = list(JSONModel.objects.filter(attrs__k__in=[{"l": "m"}, "x"]))
+        assert objs == [self.objs[2]]
+
+        objs = list(JSONModel.objects.filter(attrs__k__in=[True, "x"]))
+        assert objs == [self.objs[4]]
+
+        with pytest.raises(ValueError) as excinfo:
+            JSONModel.objects.filter(attrs__a__in=[F("name"), "n"])
+        assert (
+            str(excinfo.value)
+            == "JSONField's 'in' lookup only works with literal values"
+        )
+
+        with pytest.raises(ValueError) as excinfo:
+            subquery = JSONModel.objects.filter(name="b").values_list("attrs")
+            JSONModel.objects.filter(attrs__in=subquery)
+        assert (
+            str(excinfo.value)
+            == "JSONField's 'in' lookup only works with literal values"
+        )
 
 
 class TestCheck(JSONFieldTestCase):

@@ -5,6 +5,8 @@ History
 
 * Changed query rewriting to use Django's database instrumentation.
   (`Issue #644 <https://github.com/adamchainz/django-mysql/issues/644>`__)
+* Added ``JSONIn`` lookup which only works with literal values (not with
+  expressions nor subqueries).
 
 3.5.0 (2020-05-04)
 ------------------
