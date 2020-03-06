@@ -250,7 +250,7 @@ For example:
 Containment Lookups
 ~~~~~~~~~~~~~~~~~~~
 
-The ``contains`` lookup is overriden on ``JSONField`` to support the MySQL
+The ``contains`` lookup is overridden on ``JSONField`` to support the MySQL
 ``JSON_CONTAINS`` function. This allows you to search, for example, JSON
 objects that contain at least a given set of key-value pairs. Additionally you
 can do the inverse with ``contained_by``, i.e. find values where the objects
