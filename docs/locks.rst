@@ -18,8 +18,12 @@ The following can be imported from ``django_mysql.locks``.
     This class implements a user lock and acts as either a context manager
     (recommended), or a plain object with ``acquire`` and ``release`` methods
     similar to ``threading.Lock``. These call the MySQL functions ``GET_LOCK``,
-    ``RELEASE_LOCK``, and ``IS_USED_LOCK`` to manage it. It is *not* re-entrant
-    so don't write code that gains/releases the same lock more than once.
+    ``RELEASE_LOCK``, and ``IS_USED_LOCK`` to manage it.
+
+    The lock is only re-entrant (acquirable multiple times) on MariaDB 10.0+.
+
+    MySQL before 5.7, and MariaDB before 10.0, only allowed one lock per
+    connection. On those versions and later, you can hold multiple locks.
 
     Basic usage:
 
@@ -46,18 +50,6 @@ The following can be imported from ``django_mysql.locks``.
         set to ``STATEMENT``. Most environments have ``binlog_format`` set to
         ``MIXED`` because it can be more performant, but do check.
 
-    .. warning::
-
-        It's not very well documented, but you can only hold one lock per
-        database connection at a time. Acquiring a lock releases any other lock
-        you were holding.
-
-        Since there is no MySQL function to tell you if you are currently
-        holding a lock, this class does not check that you only acquire one
-        lock. It has been a `more than 10 year feature request
-        <http://bugs.mysql.com/bug.php?id=1118>`_ to hold more than one lock
-        per connection, and has been finally announced in MySQL 5.7.5.
-
     .. attribute:: name
 
         This is a required argument.
@@ -68,8 +60,10 @@ The following can be imported from ``django_mysql.locks``.
         a full stop, in case multiple apps are using different databases on the
         same server.
 
-        Whilst not documented, the length limit is somewhere between 1 and 10
-        million characters, so most sane uses should be fine.
+        MySQL 5.7+ enforces a maximum length on the total name (including the
+        DB prefix that Django-MySQL adds) of 64 characters. MariaDB doesn't
+        enforce any limit. The practical limit on MySQL <5.6 or MariaDB is
+        maybe 1 million characters or more, so most sane uses should be fine.
 
     .. attribute:: acquire_timeout=10.0
 
