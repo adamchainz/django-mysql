@@ -13,6 +13,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
+from django_mysql.compat import nullcontext
 from django_mysql.models.handler import Handler
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
@@ -21,7 +22,6 @@ from django_mysql.utils import (
     WeightedAverageRate,
     format_duration,
     have_program,
-    noop_context,
     settings_to_cmd_args,
 )
 
@@ -305,11 +305,11 @@ class SmartChunkedIterator(object):
         self.queryset = self.sanitize_queryset(queryset)
 
         if atomically:
-            self.maybe_atomic = atomic
+            self.maybe_atomic = atomic(using=self.queryset.db)
         else:
             # Work around for `with` statement not supporting variable number
             # of contexts
-            self.maybe_atomic = noop_context
+            self.maybe_atomic = nullcontext()
 
         self.status_thresholds = status_thresholds
         self.pk_range = pk_range
@@ -334,8 +334,7 @@ class SmartChunkedIterator(object):
             comp = operator.ge  # >=
             direction = -1
         current_pk = first_pk
-        db_alias = self.queryset.db
-        status = GlobalStatus(db_alias)
+        status = GlobalStatus(self.queryset.db)
 
         self.init_progress(direction)
 
@@ -350,7 +349,7 @@ class SmartChunkedIterator(object):
             else:
                 end_pk = max(current_pk, last_pk - 1)
 
-            with StopWatch() as timer, self.maybe_atomic(using=db_alias):
+            with StopWatch() as timer, self.maybe_atomic:
                 if direction == 1:
                     chunk = self.queryset.filter(pk__gte=start_pk, pk__lt=end_pk)
                 else:
