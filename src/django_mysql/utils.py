@@ -2,7 +2,6 @@ import os
 import subprocess
 import time
 from collections import defaultdict
-from contextlib import contextmanager
 from queue import Empty, Queue
 from threading import Lock, Thread
 from weakref import WeakKeyDictionary
@@ -72,11 +71,6 @@ class StopWatch(object):
     def __exit__(self, *args, **kwargs):
         self.end_time = time.time()
         self.total_time = self.end_time - self.start_time
-
-
-@contextmanager
-def noop_context(*args, **kwargs):
-    yield
 
 
 def format_duration(total_seconds):
