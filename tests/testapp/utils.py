@@ -13,7 +13,7 @@ def column_type(table_name, column_name):
         return cursor.fetchone()[0]
 
 
-class CaptureLastQuery(object):
+class CaptureLastQuery:
     def __init__(self, conn=None):
         if conn is None:
             self.conn = connection
@@ -33,7 +33,7 @@ class CaptureLastQuery(object):
         return self.capturer.captured_queries[-1]["sql"]
 
 
-class print_all_queries(object):
+class print_all_queries:
     def __init__(self, conn=None):
         if conn is None:
             self.conn = connection

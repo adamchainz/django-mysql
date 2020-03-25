@@ -7,7 +7,7 @@ from django.utils.functional import SimpleLazyObject
 from django_mysql.exceptions import TimeoutError
 
 
-class BaseStatus(object):
+class BaseStatus:
     """
     Base class for the status classes
     """
@@ -31,7 +31,7 @@ class BaseStatus(object):
         with self.get_cursor() as cursor:
             num_rows = cursor.execute(self.query + " LIKE %s", (name,))
             if num_rows == 0:
-                raise KeyError("No such status variable '%s'" % (name,))
+                raise KeyError("No such status variable '{}'".format(name))
             return self._cast(cursor.fetchone()[1])
 
     def get_many(self, names):

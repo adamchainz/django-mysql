@@ -33,10 +33,10 @@ class JSONField(Field):
             kwargs["default"] = dict
         self.json_encoder = kwargs.pop("encoder", self._default_json_encoder)
         self.json_decoder = kwargs.pop("decoder", self._default_json_decoder)
-        super(JSONField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
-        errors = super(JSONField, self).check(**kwargs)
+        errors = super().check(**kwargs)
         errors.extend(self._check_default())
         errors.extend(self._check_mysql_version())
         errors.extend(self._check_json_encoder_decoder())
@@ -116,7 +116,7 @@ class JSONField(Field):
         return errors
 
     def deconstruct(self):
-        name, path, args, kwargs = super(JSONField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.json.JSONField",
@@ -131,7 +131,7 @@ class JSONField(Field):
         return "json"
 
     def get_transform(self, name):
-        transform = super(JSONField, self).get_transform(name)
+        transform = super().get_transform(name)
         if transform:
             return transform  # pragma: no cover
         return KeyTransformFactory(name)
@@ -181,7 +181,7 @@ class JSONField(Field):
             raise NotImplementedError(
                 "Lookup '{}' doesn't work with JSONField".format(lookup_name)
             )
-        return super(JSONField, self).get_lookup(lookup_name)
+        return super().get_lookup(lookup_name)
 
     def value_to_string(self, obj):
         return self.value_from_object(obj)
@@ -189,7 +189,7 @@ class JSONField(Field):
     def formfield(self, **kwargs):
         defaults = {"form_class": forms.JSONField}
         defaults.update(kwargs)
-        return super(JSONField, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
 
 class JSONLength(Transform):
@@ -215,7 +215,7 @@ JSONField.register_lookup(JSONLessThanOrEqual)
 
 class KeyTransform(Transform):
     def __init__(self, key_name, *args, **kwargs):
-        super(KeyTransform, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.key_name = key_name
 
     def as_sql(self, compiler, connection):
@@ -243,7 +243,7 @@ class KeyTransform(Transform):
         return "".join(path)
 
 
-class KeyTransformFactory(object):
+class KeyTransformFactory:
     def __init__(self, key_name):
         self.key_name = key_name
 

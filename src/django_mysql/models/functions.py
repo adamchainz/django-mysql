@@ -11,14 +11,14 @@ class SingleArgFunc(Func):
     output_field_class = None
 
     def __init__(self, expression):
-        super(SingleArgFunc, self).__init__(expression)
+        super().__init__(expression)
         if self.output_field_class is not None:
             self.output_field = self.output_field_class()
 
 
 class MultiArgFunc(Func):
     def __init__(self, *expressions):
-        super(MultiArgFunc, self).__init__(*expressions)
+        super().__init__(*expressions)
 
 
 # Comparison Functions
@@ -43,7 +43,7 @@ class If(Func):
             # Workaround for some ORM weirdness
             output_field = DjangoField()
 
-        super(If, self).__init__(condition, true, false, output_field=output_field)
+        super().__init__(condition, true, false, output_field=output_field)
 
 
 # Numeric Functions
@@ -74,7 +74,7 @@ class Round(Func):
     output_field_class = IntegerField
 
     def __init__(self, expression, places=0):
-        super(Round, self).__init__(expression, places)
+        super().__init__(expression, places)
 
 
 class Sign(SingleArgFunc):
@@ -109,9 +109,7 @@ class ConcatWS(Func):
 
         # N.B. if separator is "," we could potentially use list field
         output_field = TextField()
-        super(ConcatWS, self).__init__(
-            separator, *expressions, output_field=output_field
-        )
+        super().__init__(separator, *expressions, output_field=output_field)
 
 
 class ELT(Func):
@@ -124,7 +122,7 @@ class ELT(Func):
                 v = Value(v)
             value_exprs.append(v)
 
-        super(ELT, self).__init__(num, *value_exprs, output_field=CharField())
+        super().__init__(num, *value_exprs, output_field=CharField())
 
 
 class Field(Func):
@@ -137,7 +135,7 @@ class Field(Func):
                 v = Value(v)
             values_exprs.append(v)
 
-        super(Field, self).__init__(field, *values_exprs)
+        super().__init__(field, *values_exprs)
 
 
 # XML Functions
@@ -152,7 +150,7 @@ class UpdateXML(Func):
         if not hasattr(new_xml, "resolve_expression"):
             new_xml = Value(new_xml)
 
-        return super(UpdateXML, self).__init__(
+        return super().__init__(
             xml_target, xpath_expr, new_xml, output_field=TextField()
         )
 
@@ -164,9 +162,7 @@ class XMLExtractValue(Func):
         if not hasattr(xpath_expr, "resolve_expression"):
             xpath_expr = Value(xpath_expr)
 
-        return super(XMLExtractValue, self).__init__(
-            xml_frag, xpath_expr, output_field=TextField()
-        )
+        return super().__init__(xml_frag, xpath_expr, output_field=TextField())
 
 
 # Encryption Functions
@@ -193,7 +189,7 @@ class SHA2(Func):
                     ",".join(str(x) for x in self.hash_lens)
                 )
             )
-        super(SHA2, self).__init__(expression, Value(hash_len))
+        super().__init__(expression, Value(hash_len))
 
 
 # Information Functions
@@ -204,9 +200,9 @@ class LastInsertId(Func):
 
     def __init__(self, expression=None):
         if expression is not None:
-            super(LastInsertId, self).__init__(expression)
+            super().__init__(expression)
         else:
-            super(LastInsertId, self).__init__()
+            super().__init__()
 
         self.output_field = IntegerField()
 
@@ -244,7 +240,7 @@ class JSONExtract(Func):
         else:
             output_field = JSONField()
 
-        super(JSONExtract, self).__init__(*exprs, output_field=output_field)
+        super().__init__(*exprs, output_field=output_field)
 
 
 class JSONKeys(Func):
@@ -259,7 +255,7 @@ class JSONKeys(Func):
                 path = Value(path)
             exprs.append(path)
 
-        super(JSONKeys, self).__init__(*exprs, output_field=JSONField())
+        super().__init__(*exprs, output_field=JSONField())
 
 
 class JSONLength(Func):
@@ -274,7 +270,7 @@ class JSONLength(Func):
                 path = Value(path)
             exprs.append(path)
 
-        super(JSONLength, self).__init__(*exprs, output_field=output_field)
+        super().__init__(*exprs, output_field=output_field)
 
 
 class JSONValue(Func):
@@ -283,7 +279,7 @@ class JSONValue(Func):
 
     def __init__(self, expression):
         json_string = json.dumps(expression, allow_nan=False)
-        super(JSONValue, self).__init__(Value(json_string))
+        super().__init__(Value(json_string))
 
 
 class BaseJSONModifyFunc(Func):
@@ -306,7 +302,7 @@ class BaseJSONModifyFunc(Func):
 
             exprs.append(value)
 
-        super(BaseJSONModifyFunc, self).__init__(*exprs, output_field=JSONField())
+        super().__init__(*exprs, output_field=JSONField())
 
 
 class JSONInsert(BaseJSONModifyFunc):
@@ -335,9 +331,7 @@ class RegexpInstr(Func):
         if not hasattr(regex, "resolve_expression"):
             regex = Value(regex)
 
-        super(RegexpInstr, self).__init__(
-            expression, regex, output_field=IntegerField()
-        )
+        super().__init__(expression, regex, output_field=IntegerField())
 
 
 class RegexpReplace(Func):
@@ -350,9 +344,7 @@ class RegexpReplace(Func):
         if not hasattr(replace, "resolve_expression"):
             replace = Value(replace)
 
-        super(RegexpReplace, self).__init__(
-            expression, regex, replace, output_field=CharField()
-        )
+        super().__init__(expression, regex, replace, output_field=CharField())
 
 
 class RegexpSubstr(Func):
@@ -362,7 +354,7 @@ class RegexpSubstr(Func):
         if not hasattr(regex, "resolve_expression"):
             regex = Value(regex)
 
-        super(RegexpSubstr, self).__init__(expression, regex, output_field=CharField())
+        super().__init__(expression, regex, output_field=CharField())
 
 
 # MariaDB Dynamic Columns Functions
@@ -383,7 +375,7 @@ class AsType(Func):
         if data_type not in self.TYPE_MAP:
             raise ValueError("Invalid data_type '{}'".format(data_type))
 
-        super(AsType, self).__init__(expression, data_type=data_type)
+        super().__init__(expression, data_type=data_type)
 
     @property
     def TYPE_MAP(self):
@@ -410,7 +402,7 @@ class ColumnAdd(Func):
 
             expressions.extend((name, value))
 
-        super(ColumnAdd, self).__init__(*expressions, output_field=DynamicField())
+        super().__init__(*expressions, output_field=DynamicField())
 
 
 class ColumnDelete(Func):
@@ -425,7 +417,7 @@ class ColumnDelete(Func):
                 name = Value(name)
             expressions.append(name)
 
-        super(ColumnDelete, self).__init__(*expressions, output_field=DynamicField())
+        super().__init__(*expressions, output_field=DynamicField())
 
 
 class ColumnGet(Func):
@@ -444,7 +436,7 @@ class ColumnGet(Func):
         if data_type == "BINARY":
             output_field = output_field()
 
-        super(ColumnGet, self).__init__(
+        super().__init__(
             expression, column_name, output_field=output_field, data_type=data_type
         )
 

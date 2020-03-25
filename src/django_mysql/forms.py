@@ -23,7 +23,7 @@ class SimpleListField(forms.CharField):
 
     def __init__(self, base_field, max_length=None, min_length=None, *args, **kwargs):
         self.base_field = base_field
-        super(SimpleListField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if max_length is not None:
             self.max_length = max_length
             self.validators.append(ListMaxLengthValidator(int(max_length)))
@@ -77,7 +77,7 @@ class SimpleListField(forms.CharField):
         return values
 
     def validate(self, value):
-        super(SimpleListField, self).validate(value)
+        super().validate(value)
         errors = []
         for i, item in enumerate(value, start=1):
             try:
@@ -100,7 +100,7 @@ class SimpleListField(forms.CharField):
             raise ValidationError(errors)
 
     def run_validators(self, value):
-        super(SimpleListField, self).run_validators(value)
+        super().run_validators(value)
         errors = []
         for i, item in enumerate(value, start=1):
             try:
@@ -137,7 +137,7 @@ class SimpleSetField(forms.CharField):
 
     def __init__(self, base_field, max_length=None, min_length=None, *args, **kwargs):
         self.base_field = base_field
-        super(SimpleSetField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if max_length is not None:
             self.max_length = max_length
             self.validators.append(SetMaxLengthValidator(int(max_length)))
@@ -200,7 +200,7 @@ class SimpleSetField(forms.CharField):
         return values
 
     def validate(self, value):
-        super(SimpleSetField, self).validate(value)
+        super().validate(value)
         errors = []
         for item in value:
             try:
@@ -221,7 +221,7 @@ class SimpleSetField(forms.CharField):
             raise ValidationError(errors)
 
     def run_validators(self, value):
-        super(SimpleSetField, self).run_validators(value)
+        super().run_validators(value)
         errors = []
         for item in value:
             try:

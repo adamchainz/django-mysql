@@ -2,7 +2,7 @@ import django
 from django.db.models import BooleanField, NullBooleanField
 
 
-class Bit1Mixin(object):
+class Bit1Mixin:
     def db_type(self, connection):
         return "bit(1)"
 

@@ -23,7 +23,7 @@ class DynColTestCase(TestCase):
             connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
         ):
             raise SkipTest("Dynamic Columns require MariaDB 10.0.1+")
-        super(DynColTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class TestSaveLoad(DynColTestCase):
@@ -118,7 +118,7 @@ DynamicField.register_lookup(DumbTransform)
 
 class QueryTests(DynColTestCase):
     def setUp(self):
-        super(QueryTests, self).setUp()
+        super().setUp()
         self.objs = [
             DynamicModel(attrs={"a": "b"}),
             DynamicModel(attrs={"a": "b", "c": "d"}),
@@ -256,7 +256,7 @@ class QueryTests(DynColTestCase):
 
 class SpeclessQueryTests(DynColTestCase):
     def setUp(self):
-        super(SpeclessQueryTests, self).setUp()
+        super().setUp()
         objs = [
             SpeclessDynamicModel(attrs={"a": "b"}),
             SpeclessDynamicModel(attrs={"a": "c"}),

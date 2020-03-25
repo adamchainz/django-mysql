@@ -40,5 +40,5 @@ class OverrideVarsClassTest(OverrideVarsMethodTest):
         with pytest.raises(Exception):
 
             @override_mysql_variables(SQL_MODE="ANSI")
-            class MyClass(object):
+            class MyClass:
                 pass

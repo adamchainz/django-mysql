@@ -32,10 +32,10 @@ class EnumField(CharField):
         # maximum string length
         kwargs["max_length"] = int(2 ** 32)
 
-        super(EnumField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(EnumField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.enum.EnumField",

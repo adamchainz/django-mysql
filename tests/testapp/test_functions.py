@@ -370,7 +370,7 @@ class InformationFunctionTests(TestCase):
 
 class JSONFunctionTests(JSONFieldTestCase):
     def setUp(self):
-        super(JSONFunctionTests, self).setUp()
+        super().setUp()
         self.obj = JSONModel.objects.create(
             attrs={
                 "int": 88,
@@ -589,7 +589,7 @@ class JSONFunctionTests(JSONFieldTestCase):
 
 class RegexpFunctionTests(TestCase):
     def setUp(self):
-        super(RegexpFunctionTests, self).setUp()
+        super().setUp()
         have_regex_functions = connection_is_mariadb(
             connection
         ) and connection.mysql_version >= (10, 0, 5)
@@ -673,7 +673,7 @@ class RegexpFunctionTests(TestCase):
 
 class DynamicColumnsFunctionTests(DynColTestCase):
     def setUp(self):
-        super(DynamicColumnsFunctionTests, self).setUp()
+        super().setUp()
         DynamicModel.objects.create(attrs={"flote": 1.0, "sub": {"document": "store"}})
 
     def test_get_float(self):

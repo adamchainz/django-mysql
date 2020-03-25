@@ -29,7 +29,7 @@ class SoundsLike(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
-        return "%s SOUNDS LIKE %s" % (lhs, rhs), params
+        return "{} SOUNDS LIKE {}".format(lhs, rhs), params
 
 
 class Soundex(Transform):
@@ -47,14 +47,14 @@ class Soundex(Transform):
 # JSONField
 
 
-class JSONLookupMixin(object):
+class JSONLookupMixin:
     if django.VERSION >= (3, 0):
 
         def get_prep_lookup(self):
             value = self.rhs
             if not hasattr(value, "resolve_expression") and value is not None:
                 return JSONValue(value)
-            return super(JSONLookupMixin, self).get_prep_lookup()
+            return super().get_prep_lookup()
 
     else:
 
@@ -62,7 +62,7 @@ class JSONLookupMixin(object):
             value = self.rhs
             if not hasattr(value, "_prepare") and value is not None:
                 return JSONValue(value)
-            return super(JSONLookupMixin, self).get_prep_lookup()
+            return super().get_prep_lookup()
 
 
 class JSONExact(JSONLookupMixin, Exact):
@@ -111,7 +111,7 @@ class JSONHasKey(Lookup):
     def get_prep_lookup(self):
         if not isinstance(self.rhs, str):
             raise ValueError("JSONField's 'has_key' lookup only works with str values")
-        return super(JSONHasKey, self).get_prep_lookup()
+        return super().get_prep_lookup()
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
@@ -121,7 +121,7 @@ class JSONHasKey(Lookup):
         return "JSON_CONTAINS_PATH({}, 'one', %s)".format(lhs), params
 
 
-class JSONSequencesMixin(object):
+class JSONSequencesMixin:
     def get_prep_lookup(self):
         if not isinstance(self.rhs, Sequence):
             raise ValueError(
@@ -176,14 +176,14 @@ class SetContains(Lookup):
                     klass=self.lhs.__class__.__name__
                 )
             )
-        return super(SetContains, self).get_prep_lookup()
+        return super().get_prep_lookup()
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
-        return "FIND_IN_SET(%s, %s)" % (rhs, lhs), params
+        return "FIND_IN_SET({}, {})".format(rhs, lhs), params
 
 
 class SetIContains(SetContains):
@@ -200,4 +200,4 @@ class DynColHasKey(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
-        return "COLUMN_EXISTS(%s, %s)" % (lhs, rhs), params
+        return "COLUMN_EXISTS({}, {})".format(lhs, rhs), params

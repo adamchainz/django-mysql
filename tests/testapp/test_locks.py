@@ -29,7 +29,7 @@ class LockTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(LockTests, cls).setUpClass()
+        super().setUpClass()
 
         cls.supports_lock_info = connection_is_mariadb(
             connection
@@ -49,7 +49,7 @@ class LockTests(TestCase):
         if cls.supports_lock_info and not cls.lock_info_preinstalled:
             with connection.cursor() as cursor:
                 cursor.execute("UNINSTALL SONAME 'metadata_lock_info'")
-        super(LockTests, cls).tearDownClass()
+        super().tearDownClass()
 
     def test_simple(self):
         mylock = Lock("mylock")
@@ -232,7 +232,7 @@ class TableLockTests(TransactionTestCase):
         Alphabet.objects.using("other").all().delete()
         Customer.objects.all().delete()
         Customer.objects.using("other").all().delete()
-        super(TableLockTests, self).tearDown()
+        super().tearDown()
 
     def is_locked(self, connection_name, table_name):
         conn = connections[connection_name]

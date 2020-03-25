@@ -24,7 +24,7 @@ class JSONFieldTestCase(TestCase):
             not connection_is_mariadb(connection) and connection.mysql_version >= (5, 7)
         ):
             raise SkipTest("JSONField requires MySQL 5.7+")
-        super(JSONFieldTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class TestSaveLoad(JSONFieldTestCase):
@@ -132,7 +132,7 @@ class TestSaveLoad(JSONFieldTestCase):
 
 class QueryTests(JSONFieldTestCase):
     def setUp(self):
-        super(QueryTests, self).setUp()
+        super().setUp()
         JSONModel.objects.bulk_create(
             [
                 JSONModel(attrs={"a": "b"}),
@@ -187,7 +187,7 @@ class QueryTests(JSONFieldTestCase):
 
 class ArrayQueryTests(JSONFieldTestCase):
     def setUp(self):
-        super(ArrayQueryTests, self).setUp()
+        super().setUp()
         JSONModel.objects.bulk_create(
             [
                 JSONModel(attrs=[1, 3]),
@@ -231,7 +231,7 @@ class ArrayQueryTests(JSONFieldTestCase):
 
 class ExtraLookupsQueryTests(JSONFieldTestCase):
     def setUp(self):
-        super(ExtraLookupsQueryTests, self).setUp()
+        super().setUp()
 
         self.objs = [
             JSONModel.objects.create(attrs={}),

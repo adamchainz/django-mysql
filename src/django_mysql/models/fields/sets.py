@@ -9,25 +9,25 @@ from django_mysql.models.transforms import SetLength
 from django_mysql.validators import SetMaxLengthValidator
 
 
-class SetFieldMixin(object):
+class SetFieldMixin:
     def __init__(self, base_field, size=None, **kwargs):
         self.base_field = base_field
         self.size = size
 
-        super(SetFieldMixin, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if self.size:
             self.validators.append(SetMaxLengthValidator(int(self.size)))
 
     def get_default(self):
-        default = super(SetFieldMixin, self).get_default()
+        default = super().get_default()
         if default == "":
             return set()
         else:
             return default
 
     def check(self, **kwargs):
-        errors = super(SetFieldMixin, self).check(**kwargs)
+        errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
                 checks.Error(
@@ -43,7 +43,7 @@ class SetFieldMixin(object):
         base_errors = self.base_field.check()
         if base_errors:
             messages = "\n    ".join(
-                "%s (%s)" % (error.msg, error.id) for error in base_errors
+                "{} ({})".format(error.msg, error.id) for error in base_errors
             )
             errors.append(
                 checks.Error(
@@ -62,11 +62,11 @@ class SetFieldMixin(object):
         }
 
     def set_attributes_from_name(self, name):
-        super(SetFieldMixin, self).set_attributes_from_name(name)
+        super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(SetFieldMixin, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.sets." + self.__class__.__name__,
@@ -139,10 +139,10 @@ class SetFieldMixin(object):
             "max_length": self.size,
         }
         defaults.update(kwargs)
-        return super(SetFieldMixin, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        super(SetFieldMixin, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
         self.base_field.model = cls
 
 
@@ -152,7 +152,7 @@ class SetCharField(SetFieldMixin, CharField):
     """
 
     def check(self, **kwargs):
-        errors = super(SetCharField, self).check(**kwargs)
+        errors = super().check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
         # they have boundless length

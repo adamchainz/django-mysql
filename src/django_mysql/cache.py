@@ -23,7 +23,7 @@ BIGINT_UNSIGNED_MAX = 18446744073709551615
 # command
 
 
-class Options(object):
+class Options:
     """A class that will quack like a Django model _meta class.
 
     This allows cache operations to be controlled by the router
@@ -44,10 +44,10 @@ class Options(object):
 
 class BaseDatabaseCache(BaseCache):
     def __init__(self, table, params):
-        super(BaseDatabaseCache, self).__init__(params)
+        super().__init__(params)
         self._table = table
 
-        class CacheEntry(object):
+        class CacheEntry:
             _meta = Options(table)
 
         self.cache_model_class = CacheEntry
@@ -109,7 +109,7 @@ class MySQLCache(BaseDatabaseCache):
         return int(time() * 1000)
 
     def __init__(self, table, params):
-        super(MySQLCache, self).__init__(table, params)
+        super().__init__(table, params)
         options = params.get("OPTIONS", {})
         self._compress_min_length = options.get("COMPRESS_MIN_LENGTH", 5000)
         self._compress_level = options.get("COMPRESS_LEVEL", 6)
@@ -416,7 +416,7 @@ class MySQLCache(BaseDatabaseCache):
             raise ValueError(
                 "Cache key is longer than the maxmimum 250 characters: {}".format(key)
             )
-        return super(MySQLCache, self).validate_key(key)
+        return super().validate_key(key)
 
     def encode(self, obj):
         """
@@ -469,7 +469,7 @@ class MySQLCache(BaseDatabaseCache):
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         if timeout is None:
             return self.FOREVER_TIMEOUT
-        timeout = super(MySQLCache, self).get_backend_timeout(timeout)
+        timeout = super().get_backend_timeout(timeout)
         return int(timeout * 1000)
 
     # Our API extensions

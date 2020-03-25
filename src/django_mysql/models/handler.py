@@ -4,7 +4,7 @@ from random import randint
 from django.db import connections
 
 
-class Handler(object):
+class Handler:
     def __init__(self, queryset):
         self.open = False
 
