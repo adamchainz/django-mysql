@@ -36,7 +36,7 @@ class MixinQuerysetTests(TestCase):
 
 class ApproximateCountTests(TestCase):
     def setUp(self):
-        super(ApproximateCountTests, self).setUp()
+        super().setUp()
         Author.objects.bulk_create([Author() for i in range(10)])
 
     def test_activation_deactivation(self):
@@ -335,7 +335,7 @@ class QueryHintTests(TestCase):
 
 class FoundRowsTests(TestCase):
     def setUp(self):
-        super(FoundRowsTests, self).setUp()
+        super().setUp()
         Author.objects.bulk_create([Author() for i in range(10)])
 
     def test_found_rows_requires_sql_calc_found_rows(self):
@@ -397,7 +397,7 @@ class FoundRowsTests(TestCase):
 
 class SmartIteratorTests(TestCase):
     def setUp(self):
-        super(SmartIteratorTests, self).setUp()
+        super().setUp()
         Author.objects.bulk_create([Author(id=i + 1) for i in range(10)])
 
     def test_bad_querysets(self):

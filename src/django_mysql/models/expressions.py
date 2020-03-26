@@ -6,7 +6,7 @@ from django_mysql.utils import collapse_spaces
 
 class TwoSidedExpression(BaseExpression):
     def __init__(self, lhs, rhs):
-        super(TwoSidedExpression, self).__init__()
+        super().__init__()
         self.lhs = lhs
         self.rhs = rhs
 
@@ -17,7 +17,7 @@ class TwoSidedExpression(BaseExpression):
         self.lhs, self.rhs = exprs
 
 
-class ListF(object):
+class ListF:
     def __init__(self, field_name):
         self.field_name = field_name
         self.field = F(field_name)
@@ -122,7 +122,7 @@ class PopListF(BaseExpression):
     )
 
     def __init__(self, lhs):
-        super(PopListF, self).__init__()
+        super().__init__()
         self.lhs = lhs
 
     def get_source_expressions(self):
@@ -151,7 +151,7 @@ class PopLeftListF(BaseExpression):
     )
 
     def __init__(self, lhs):
-        super(PopLeftListF, self).__init__()
+        super().__init__()
         self.lhs = lhs
 
     def get_source_expressions(self):
@@ -167,7 +167,7 @@ class PopLeftListF(BaseExpression):
         return sql, tuple(field_params)
 
 
-class SetF(object):
+class SetF:
     def __init__(self, field_name):
         self.field = F(field_name)
 

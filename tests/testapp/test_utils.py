@@ -21,7 +21,7 @@ from tests.testapp.models import Author, AuthorMultiIndex
 
 class ConnectionIsMariaDBTests(TestCase):
     def setUp(self):
-        super(ConnectionIsMariaDBTests, self).setUp()
+        super().setUp()
         _is_mariadb_cache.clear()
 
     def test_connection_proxy(self):

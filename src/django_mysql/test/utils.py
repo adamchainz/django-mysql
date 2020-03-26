@@ -5,7 +5,7 @@ from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
 
 
-class override_mysql_variables(object):
+class override_mysql_variables:
     """
     Based on Django's override_settings, but for connection settings. Give a
     connection alias in using and variable=value pairs to save on that

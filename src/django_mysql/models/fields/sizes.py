@@ -5,10 +5,10 @@ from django.db.models import BinaryField, TextField
 class SizedBinaryField(BinaryField):
     def __init__(self, *args, **kwargs):
         self.size_class = kwargs.pop("size_class", 4)
-        super(SizedBinaryField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
-        errors = super(SizedBinaryField, self).check(**kwargs)
+        errors = super().check(**kwargs)
         if self.size_class not in (1, 2, 3, 4):
             errors.append(
                 checks.Error(
@@ -21,7 +21,7 @@ class SizedBinaryField(BinaryField):
         return errors
 
     def deconstruct(self):
-        name, path, args, kwargs = super(SizedBinaryField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.sizes.SizedBinaryField",
@@ -47,10 +47,10 @@ class SizedBinaryField(BinaryField):
 class SizedTextField(TextField):
     def __init__(self, *args, **kwargs):
         self.size_class = kwargs.pop("size_class", 4)
-        super(SizedTextField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
-        errors = super(SizedTextField, self).check(**kwargs)
+        errors = super().check(**kwargs)
         if self.size_class not in (1, 2, 3, 4):
             errors.append(
                 checks.Error(
@@ -63,7 +63,7 @@ class SizedTextField(TextField):
         return errors
 
     def deconstruct(self):
-        name, path, args, kwargs = super(SizedTextField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.sizes.SizedTextField",

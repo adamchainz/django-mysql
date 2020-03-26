@@ -7,7 +7,7 @@ from django.db.utils import DEFAULT_DB_ALIAS
 from django_mysql.exceptions import TimeoutError
 
 
-class Lock(object):
+class Lock:
     def __init__(self, name, acquire_timeout=10.0, using=None):
         self.acquire_timeout = acquire_timeout
 
@@ -83,7 +83,7 @@ class Lock(object):
             return {cls.unmake_name(using, row[0]): row[1] for row in cursor.fetchall()}
 
 
-class TableLock(object):
+class TableLock:
     def __init__(self, read=None, write=None, using=None):
         self.read = self._process_names(read)
         self.write = self._process_names(write)

@@ -4,7 +4,7 @@ from django_mysql.models.query import QuerySet
 
 
 class Model(models.Model):
-    class Meta(object):
+    class Meta:
         abstract = True
 
     objects = QuerySet.as_manager()

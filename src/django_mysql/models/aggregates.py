@@ -27,7 +27,7 @@ class GroupConcat(Aggregate):
             # This can/will be improved to SetTextField or ListTextField
             extra["output_field"] = CharField()
 
-        super(GroupConcat, self).__init__(expression, **extra)
+        super().__init__(expression, **extra)
 
         self.distinct = distinct
         self.separator = separator

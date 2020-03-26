@@ -41,7 +41,7 @@ class PluginOperationTests(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(PluginOperationTests, cls).setUpClass()
+        super().setUpClass()
         has_metadata_lock_plugin = connection_is_mariadb(
             connection
         ) and connection.mysql_version >= (10, 0, 7)

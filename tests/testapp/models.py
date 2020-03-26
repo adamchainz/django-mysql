@@ -46,7 +46,7 @@ class TemporaryModel(Model):
     def check(cls, **kwargs):
         actually_check = kwargs.pop("actually_check", False)
         if actually_check:
-            return super(TemporaryModel, cls).check(**kwargs)
+            return super().check(**kwargs)
         else:
             return []
 
@@ -141,7 +141,7 @@ class DynamicModel(Model):
             connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
         ):
             return []
-        return super(DynamicModel, cls).check(**kwargs)
+        return super().check(**kwargs)
 
     def __unicode__(self):
         return ",".join("{}:{}".format(key, value) for key, value in self.attrs.items())
@@ -157,7 +157,7 @@ class SpeclessDynamicModel(Model):
             connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
         ):
             return []
-        return super(SpeclessDynamicModel, cls).check(**kwargs)
+        return super().check(**kwargs)
 
     def __unicode__(self):
         return ",".join("{}:{}".format(key, value) for key, value in self.attrs.items())
@@ -203,7 +203,7 @@ class NameAuthorExtra(Model):
 
 
 class AuthorMultiIndex(Model):
-    class Meta(object):
+    class Meta:
         index_together = ("name", "country")
 
     name = CharField(max_length=32, db_index=True)
@@ -214,7 +214,7 @@ class AuthorMultiIndex(Model):
 
 
 class AuthorHugeName(Model):
-    class Meta(object):
+    class Meta:
         db_table = "this_is_an_author_with_an_incredibly_long_table_name_" "you_know_it"
 
     name = CharField(max_length=32)

@@ -31,7 +31,7 @@ class C:
         return 24
 
 
-class Unpickable(object):
+class Unpickable:
     def __getstate__(self):
         raise pickle.PickleError()
 
@@ -129,11 +129,11 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         cls.create_table()
-        super(MySQLCacheTests, cls).setUpClass()
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        super(MySQLCacheTests, cls).tearDownClass()
+        super().tearDownClass()
         cls.drop_table()
 
     def table_count(self):

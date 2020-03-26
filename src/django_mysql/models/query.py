@@ -39,13 +39,13 @@ def requires_query_rewrite(func):
     return wrapper
 
 
-class QuerySetMixin(object):
+class QuerySetMixin:
     def __init__(self, *args, **kwargs):
-        super(QuerySetMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._count_tries_approx = False
 
     def _clone(self, *args, **kwargs):
-        clone = super(QuerySetMixin, self)._clone(*args, **kwargs)
+        clone = super()._clone(*args, **kwargs)
 
         clone._count_tries_approx = copy(getattr(self, "_count_tries_approx", False))
 
@@ -60,7 +60,7 @@ class QuerySetMixin(object):
     def count(self):
         if self._count_tries_approx:
             return self.approx_count(**self._count_tries_approx)
-        return super(QuerySetMixin, self).count()
+        return super().count()
 
     def count_tries_approx(
         self, activate=True, fall_back=True, return_approx_int=True, min_size=1000
@@ -85,11 +85,11 @@ class QuerySetMixin(object):
             if not fall_back:
                 raise ValueError("Cannot use approx_count on this queryset.")
             # Always fall through to super class
-            return super(QuerySetMixin, self).count()
+            return super().count()
 
         if min_size and num < min_size:
             # Always fall through to super class
-            return super(QuerySetMixin, self).count()
+            return super().count()
 
         if return_approx_int:
             return ApproximateInt(num)
@@ -157,7 +157,7 @@ class QuerySetMixin(object):
     def iterator(self):
         if getattr(self, "_found_rows", 0) is None:
             raise ValueError("sql_calc_found_rows() doesn't work with iterator()")
-        return super(QuerySetMixin, self).iterator()
+        return super().iterator()
 
     @property
     def _result_cache(self):
@@ -283,12 +283,10 @@ class ApproximateInt(int):
     """
 
     def __str__(self):
-        return _("Approximately %(number)s") % {
-            "number": super(ApproximateInt, self).__str__()
-        }
+        return _("Approximately %(number)s") % {"number": super().__str__()}
 
 
-class SmartChunkedIterator(object):
+class SmartChunkedIterator:
     def __init__(
         self,
         queryset,
@@ -554,14 +552,13 @@ class SmartIterator(SmartChunkedIterator):
     """
 
     def __iter__(self):
-        for chunk in super(SmartIterator, self).__iter__():
-            for obj in chunk:
-                yield obj
+        for chunk in super().__iter__():
+            yield from chunk
 
 
 class SmartPKRangeIterator(SmartChunkedIterator):
     def __iter__(self):
-        for chunk in super(SmartPKRangeIterator, self).__iter__():
+        for chunk in super().__iter__():
             start_pk, end_pk = chunk._smart_iterator_pks
             yield start_pk, end_pk
 

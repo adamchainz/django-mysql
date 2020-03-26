@@ -35,10 +35,10 @@ class DynamicField(Field):
         if "blank" not in kwargs:
             kwargs["blank"] = True
         self.spec = kwargs.pop("spec", {})
-        super(DynamicField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
-        errors = super(DynamicField, self).check(**kwargs)
+        errors = super().check(**kwargs)
         errors.extend(self._check_mariadb_dyncol())
         errors.extend(self._check_mariadb_version())
         errors.extend(self._check_character_set())
@@ -165,7 +165,7 @@ class DynamicField(Field):
         return "mediumblob"
 
     def get_transform(self, name):
-        transform = super(DynamicField, self).get_transform(name)
+        transform = super().get_transform(name)
         if transform:
             return transform
         if name in self.spec:
@@ -204,7 +204,7 @@ class DynamicField(Field):
             return self.to_python(value)
 
     def get_prep_value(self, value):
-        value = super(DynamicField, self).get_prep_value(value)
+        value = super().get_prep_value(value)
         if isinstance(value, dict):
             self.validate_spec(self.spec, value)
             return mariadb_dyncol.pack(value)
@@ -237,7 +237,7 @@ class DynamicField(Field):
         return json.dumps(self.value_from_object(obj))
 
     def deconstruct(self):
-        name, path, args, kwargs = super(DynamicField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.dynamic.DynamicField",
@@ -289,7 +289,7 @@ class KeyTransform(Transform):
 
     def __init__(self, key_name, data_type, *args, **kwargs):
         subspec = kwargs.pop("subspec", None)
-        super(KeyTransform, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.key_name = key_name
         self.data_type = data_type
 
@@ -311,7 +311,7 @@ class KeyTransform(Transform):
         )
 
 
-class KeyTransformFactory(object):
+class KeyTransformFactory:
     def __init__(self, key_name, data_type, subspec=None):
         self.key_name = key_name
         self.data_type = data_type

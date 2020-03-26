@@ -9,25 +9,25 @@ from django_mysql.models.transforms import SetLength
 from django_mysql.validators import ListMaxLengthValidator
 
 
-class ListFieldMixin(object):
+class ListFieldMixin:
     def __init__(self, base_field, size=None, **kwargs):
         self.base_field = base_field
         self.size = size
 
-        super(ListFieldMixin, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if self.size:
             self.validators.append(ListMaxLengthValidator(int(self.size)))
 
     def get_default(self):
-        default = super(ListFieldMixin, self).get_default()
+        default = super().get_default()
         if default == "":
             return []
         else:
             return default
 
     def check(self, **kwargs):
-        errors = super(ListFieldMixin, self).check(**kwargs)
+        errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
                 checks.Error(
@@ -43,7 +43,7 @@ class ListFieldMixin(object):
         base_errors = self.base_field.check()
         if base_errors:
             messages = "\n    ".join(
-                "%s (%s)" % (error.msg, error.id) for error in base_errors
+                "{} ({})".format(error.msg, error.id) for error in base_errors
             )
             errors.append(
                 checks.Error(
@@ -62,11 +62,11 @@ class ListFieldMixin(object):
         }
 
     def set_attributes_from_name(self, name):
-        super(ListFieldMixin, self).set_attributes_from_name(name)
+        super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(ListFieldMixin, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.lists." + self.__class__.__name__,
@@ -129,7 +129,7 @@ class ListFieldMixin(object):
         return value
 
     def get_lookup(self, lookup_name):
-        lookup = super(ListFieldMixin, self).get_lookup(lookup_name)
+        lookup = super().get_lookup(lookup_name)
         if lookup:
             return lookup
 
@@ -154,10 +154,10 @@ class ListFieldMixin(object):
             "max_length": self.size,
         }
         defaults.update(kwargs)
-        return super(ListFieldMixin, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        super(ListFieldMixin, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
         self.base_field.model = cls
 
 
@@ -167,7 +167,7 @@ class ListCharField(ListFieldMixin, CharField):
     """
 
     def check(self, **kwargs):
-        errors = super(ListCharField, self).check(**kwargs)
+        errors = super().check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
         # they have boundless length
@@ -217,7 +217,7 @@ ListTextField.register_lookup(SetLength)
 
 class IndexLookup(Lookup):
     def __init__(self, index, *args, **kwargs):
-        super(IndexLookup, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.index = index
 
     def as_sql(self, qn, connection):
@@ -225,10 +225,10 @@ class IndexLookup(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
-        return "(FIND_IN_SET(%s, %s) = %s)" % (rhs, lhs, self.index), params
+        return "(FIND_IN_SET({}, {}) = {})".format(rhs, lhs, self.index), params
 
 
-class IndexLookupFactory(object):
+class IndexLookupFactory:
     def __init__(self, index):
         self.index = index
 

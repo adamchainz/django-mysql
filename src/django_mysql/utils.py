@@ -11,7 +11,7 @@ from django.db import connection as default_connection
 from django.db import connections
 
 
-class WeightedAverageRate(object):
+class WeightedAverageRate:
     """
     Adapted from percona-toolkit - provides a weighted average counter to keep
     at a certain rate of activity (row iterations etc.).
@@ -59,7 +59,7 @@ class WeightedAverageRate(object):
             return self.avg_n / 0.001
 
 
-class StopWatch(object):
+class StopWatch:
     """
     Context manager for timing a block
     """
@@ -206,7 +206,7 @@ class PTFingerprintThread(Thread):
     def __init__(self, in_queue, out_queue, **kwargs):
         self.in_queue = in_queue
         self.out_queue = out_queue
-        super(PTFingerprintThread, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def run(self):
         # pty is unix/linux only
@@ -237,8 +237,8 @@ class PTFingerprintThread(Thread):
 
             stdin.write(query.encode("utf-8"))
             if not query.endswith(";"):
-                stdin.write(";".encode("ascii"))
-            stdin.write("\n".encode("ascii"))
+                stdin.write(b";")
+            stdin.write(b"\n")
             stdin.flush()
             fingerprint = stdout.readline()
             self.out_queue.put(fingerprint.strip())

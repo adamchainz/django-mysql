@@ -36,7 +36,7 @@ class InstallPlugin(Operation):
             return count > 0
 
     def describe(self):
-        return "Installs plugin %s from %s" % (self.name, self.soname)
+        return "Installs plugin {} from {}".format(self.name, self.soname)
 
 
 class InstallSOName(Operation):
