@@ -10,7 +10,7 @@ on:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python-version }}
+    name: ${{ matrix.database }} Python ${{ matrix.python-version }}
     runs-on: ubuntu-18.04
 
     strategy:
@@ -59,7 +59,7 @@ jobs:
     - name: Upgrade packaging tools
       run: python -m pip install --upgrade pip setuptools virtualenv
     - name: Install percona-toolkit
-      run: apt install -y percona-toolkit
+      run: sudo apt-get install -y percona-toolkit
     - name: Install dependencies
       run: python -m pip install --upgrade coveralls tox tox-gh-actions
     - name: Run tox targets for ${{ matrix.python-version }}
