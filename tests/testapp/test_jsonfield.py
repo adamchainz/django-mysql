@@ -123,10 +123,7 @@ class TestSaveLoad(JSONFieldTestCase):
                 return "lol"
 
         field = JSONField(decoder=CustomDecoder(strict=False))
-        if django.VERSION >= (2, 0):
-            value = field.from_db_value('"anything"', None, None)
-        else:
-            value = field.from_db_value('"anything"', None, None, None)
+        value = field.from_db_value('"anything"', None, None)
         assert value == "lol"
 
 
