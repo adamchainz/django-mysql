@@ -42,6 +42,7 @@ jobs:
       DB_HOST: 127.0.0.1
       DB_USER: root
       DB_PASSWORD: hunter2
+      COVERALLS_REPO_TOKEN: 7l8yKtg4su0M31T0eGIaM0tnjvH0Rd5PM
 
     steps:
     - uses: actions/checkout@v2
@@ -62,9 +63,7 @@ jobs:
       run: python -m pip install --upgrade coveralls tox tox-gh-actions
     - name: Run tox targets for ${{ matrix.python-version }}
       run: python -m tox -- -x
-    - name: Combine coverage
-      run: coverage combine
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload coverage
+      run: |
+        coverage combine
+        coveralls --rcfile=setup.cfg
