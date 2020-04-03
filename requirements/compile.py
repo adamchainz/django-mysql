@@ -16,19 +16,6 @@ if __name__ == "__main__":
             "python3.5",
             *common_args,
             "-P",
-            "Django>=1.11,<2.0",
-            "-P",
-            "mysqlclient>=1.3.3,<=1.3.13",
-            "-o",
-            "py35-django111.txt",
-        ],
-        check=True,
-    )
-    subprocess.run(
-        [
-            "python3.5",
-            *common_args,
-            "-P",
             "Django>=2.0,<2.1",
             "-P",
             "mysqlclient>=1.3.7,<=1.3.13",
@@ -60,19 +47,6 @@ if __name__ == "__main__":
             "mysqlclient>=1.3.13",
             "-o",
             "py35-django22.txt",
-        ],
-        check=True,
-    )
-    subprocess.run(
-        [
-            "python3.6",
-            *common_args,
-            "-P",
-            "Django>=1.11,<2.0",
-            "-P",
-            "mysqlclient>=1.3.3,<=1.3.13",
-            "-o",
-            "py36-django111.txt",
         ],
         check=True,
     )
@@ -125,19 +99,6 @@ if __name__ == "__main__":
             "mysqlclient>=1.3.13",
             "-o",
             "py36-django30.txt",
-        ],
-        check=True,
-    )
-    subprocess.run(
-        [
-            "python3.7",
-            *common_args,
-            "-P",
-            "Django>=1.11,<2.0",
-            "-P",
-            "mysqlclient>=1.3.3,<=1.3.13",
-            "-o",
-            "py37-django111.txt",
         ],
         check=True,
     )

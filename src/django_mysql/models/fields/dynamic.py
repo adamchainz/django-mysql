@@ -1,7 +1,6 @@
 import json
 from datetime import date, datetime, time
 
-import django
 from django.core import checks
 from django.db.models import (
     DateField,
@@ -191,17 +190,9 @@ class DynamicField(Field):
             return json.loads(value)  # serialization framework
         return value
 
-    if django.VERSION >= (2, 0):
-
-        def from_db_value(self, value, expression, connection):
-            # Used to always convert a value from the database
-            return self.to_python(value)
-
-    else:
-
-        def from_db_value(self, value, expression, connection, context):
-            # Used to always convert a value from the database
-            return self.to_python(value)
+    def from_db_value(self, value, expression, connection):
+        # Used to always convert a value from the database
+        return self.to_python(value)
 
     def get_prep_value(self, value):
         value = super().get_prep_value(value)

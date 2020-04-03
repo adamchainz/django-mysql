@@ -5,7 +5,6 @@ import types
 from decimal import Decimal
 from io import StringIO
 
-import django
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
@@ -991,22 +990,18 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     def test_incr_range(self):
         cache.set("overwhelm", BIGINT_SIGNED_MAX - 1)
         cache.incr("overwhelm")
-        if django.VERSION >= (2, 0):
-            expected = IntegrityError
-        else:
-            expected = OperationalError
-        with pytest.raises(expected):
+        with pytest.raises(IntegrityError):
             cache.incr("overwhelm")
 
     def test_decr_range(self):
         cache.set("underwhelm", BIGINT_SIGNED_MIN + 1)
         cache.decr("underwhelm")
-        if django.VERSION >= (2, 0):
-            # IntegrityError on MySQL 5.7+ and MariaDB,
-            # OperationalError on MySQL 5.6...
-            expected = (IntegrityError, OperationalError)
-        else:
-            expected = OperationalError
+        expected = (
+            # MySQL 5.7+ and MariaDB:
+            IntegrityError,
+            # MySQL 5.6:
+            OperationalError,
+        )
         with pytest.raises(expected):
             cache.decr("underwhelm")
 
