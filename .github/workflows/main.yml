@@ -42,6 +42,7 @@ jobs:
       DB_HOST: 127.0.0.1
       DB_USER: root
       DB_PASSWORD: hunter2
+      COVERALLS_REPO_TOKEN: 7l8yKtg4su0M31T0eGIaM0tnjvH0Rd5PM
 
     steps:
     - uses: actions/checkout@v2
