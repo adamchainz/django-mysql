@@ -3,13 +3,13 @@
 History
 =======
 
-Pending
--------
+3.4.0 (2020-04-16)
+------------------
 
 * Prevent ``collections.abc.Sequence`` warning.
 * Drop Django 1.11 support. Only Django 2.0+ is supported now.
-* Prevent ``JSONField`` from adding ``CAST(... AS JSON)`` to queries against
-  ``str``, ``int``, and ``float`` types.
+* Prevent ``JSONField`` from adding ``CAST(... AS JSON)`` for ``str``, ``int``,
+  and ``float`` objects.
 
 3.3.0 (2019-12-10)
 ------------------
