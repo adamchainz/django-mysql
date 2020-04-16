@@ -132,11 +132,14 @@ class QueryTests(JSONFieldTestCase):
         super().setUp()
         JSONModel.objects.bulk_create(
             [
-                JSONModel(attrs={"a": "b"}),
-                JSONModel(attrs=1337),
+                JSONModel(attrs={"a": "b"}, name="b"),
+                JSONModel(attrs=1337, name="x"),
                 JSONModel(attrs=["an", "array"]),
                 JSONModel(attrs=None),
-                JSONModel(attrs="foo"),
+                JSONModel(attrs="foo", name="foo"),
+                JSONModel(attrs=True),
+                JSONModel(attrs=False),
+                JSONModel(attrs=0.5),
             ]
         )
         self.objs = list(JSONModel.objects.all().order_by("id"))
@@ -144,14 +147,22 @@ class QueryTests(JSONFieldTestCase):
     def test_equal(self):
         assert list(JSONModel.objects.filter(attrs={"a": "b"})) == [self.objs[0]]
 
-    def test_equal_value(self):
+    def test_equal_int(self):
         assert list(JSONModel.objects.filter(attrs=1337)) == [self.objs[1]]
+
+    def test_equal_float(self):
+        assert list(JSONModel.objects.filter(attrs=0.5)) == [self.objs[7]]
+        assert list(JSONModel.objects.filter(attrs=0.501)) == []
 
     def test_equal_string(self):
         assert list(JSONModel.objects.filter(attrs="foo")) == [self.objs[4]]
 
     def test_equal_array(self):
         assert list(JSONModel.objects.filter(attrs=["an", "array"])) == [self.objs[2]]
+
+    def test_equal_bool(self):
+        assert list(JSONModel.objects.filter(attrs=True)) == [self.objs[5]]
+        assert list(JSONModel.objects.filter(attrs=False)) == [self.objs[6]]
 
     def test_equal_no_match(self):
         assert list(JSONModel.objects.filter(attrs={"c": "z"})) == []
@@ -162,7 +173,12 @@ class QueryTests(JSONFieldTestCase):
             self.objs[1],
             self.objs[2],
             self.objs[4],
+            self.objs[5],
+            self.objs[6],
+            self.objs[7],
         ]
+        assert list(JSONModel.objects.filter(attrs=F("name"))) == [self.objs[4]]
+        assert list(JSONModel.objects.filter(attrs__a=F("name"))) == [self.objs[0]]
 
     def test_isnull_True(self):
         assert list(JSONModel.objects.filter(attrs__isnull=True)) == [self.objs[3]]
@@ -173,6 +189,9 @@ class QueryTests(JSONFieldTestCase):
             self.objs[1],
             self.objs[2],
             self.objs[4],
+            self.objs[5],
+            self.objs[6],
+            self.objs[7],
         ]
 
     def test_range_broken(self):
@@ -507,7 +526,8 @@ class TestSerialization(JSONFieldTestCase):
     test_data = """[
         {
             "fields": {
-                "attrs": {"a": "b", "c": null}
+                "attrs": {"a": "b", "c": null},
+                "name": ""
             },
             "model": "testapp.jsonmodel",
             "pk": null

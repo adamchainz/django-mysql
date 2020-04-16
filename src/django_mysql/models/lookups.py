@@ -2,7 +2,7 @@ import json
 from collections.abc import Sequence
 
 import django
-from django.db.models import CharField, Lookup, Transform
+from django.db.models import CharField, Lookup, Transform, Value
 from django.db.models.lookups import (
     BuiltinLookup,
     Exact,
@@ -53,7 +53,10 @@ class JSONLookupMixin:
         def get_prep_lookup(self):
             value = self.rhs
             if not hasattr(value, "resolve_expression") and value is not None:
-                return JSONValue(value)
+                if isinstance(value, (str, int, float)) and not isinstance(value, bool):
+                    return Value(value)
+                else:
+                    return JSONValue(value)
             return super().get_prep_lookup()
 
     else:
@@ -61,7 +64,10 @@ class JSONLookupMixin:
         def get_prep_lookup(self):
             value = self.rhs
             if not hasattr(value, "_prepare") and value is not None:
-                return JSONValue(value)
+                if isinstance(value, (str, int, float)) and not isinstance(value, bool):
+                    return Value(value)
+                else:
+                    return JSONValue(value)
             return super().get_prep_lookup()
 
 
