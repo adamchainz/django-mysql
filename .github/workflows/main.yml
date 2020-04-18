@@ -38,8 +38,9 @@ jobs:
         ports:
         - 3306:3306
         volumes:
-        - '${{ github.workspace }}/.github/workflows/mysql_conf.d:/etc/mysql/conf.d'
         - type=tmpfs,destination=/var/lib/mysql
+        options:
+        - '--entrypoint docker-entrypoint.sh --sync-frm=0'
 
     env:
       DB_HOST: 127.0.0.1
