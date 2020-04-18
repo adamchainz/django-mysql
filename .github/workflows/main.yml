@@ -38,7 +38,7 @@ jobs:
         ports:
         - 3306:3306
         volumes:
-        - '${{ env.GITHUB_WORKSPACE }}/.github/workflows/mysql_conf.d:/etc/mysql/conf.d'
+        - '${{ github.workspace }}/.github/workflows/mysql_conf.d:/etc/mysql/conf.d'
         - type=tmpfs,destination=/var/lib/mysql
 
     env:
