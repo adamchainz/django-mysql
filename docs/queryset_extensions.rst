@@ -250,6 +250,11 @@ Once you’ve done this, the following methods will work.
     an effect when the MySQL system variable ``query_cache_type`` is set to
     ``2`` or ``DEMAND``.
 
+    .. warning::
+
+        The query cache is disabled by default in MySQL 5.7.20+ and MariaDB
+        10.1.7+, and removed in MySQL 8.0+.
+
     Example usage:
 
     .. code-block:: python
@@ -269,6 +274,11 @@ Once you’ve done this, the following methods will work.
     <https://dev.mysql.com/doc/refman/en/query-cache.html>`_. This only has
     an effect when the MySQL system variable ``query_cache_type`` is set to
     ``1`` or ``ON``.
+
+    .. warning::
+
+        The query cache is disabled by default in MySQL 5.7.20+ and MariaDB
+        10.1.7+, and removed in MySQL 8.0+.
 
     Example usage:
 
@@ -296,6 +306,10 @@ Once you’ve done this, the following methods will work.
 
     This can be faster than taking the slice and then again calling
     ``.count()`` to get the total count.
+
+    .. warning::
+
+        This is deprecated in MySQL 8.0.17+.
 
     Example usage:
 
