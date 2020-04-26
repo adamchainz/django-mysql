@@ -106,7 +106,7 @@ class SetFieldMixin(object):
                 if not len(value):
                     value = set()
                 else:
-                    value = {self.base_field.to_python(v) for
+                    value = {self.base_field.to_python(self.base_field, v) for
                              v in value.split(',')}
             return value
 
