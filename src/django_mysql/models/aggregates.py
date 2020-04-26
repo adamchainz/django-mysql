@@ -1,6 +1,6 @@
 from django.db.models import Aggregate, CharField
 
-from django_mysql.models.fields import SetCharField, ListCharField
+from django_mysql.models.fields import ListCharField, SetCharField
 
 
 class BitAnd(Aggregate):
