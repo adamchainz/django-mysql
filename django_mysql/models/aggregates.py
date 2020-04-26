@@ -25,7 +25,7 @@ class GroupConcat(Aggregate):
 
         if 'output_field' not in extra:
             if distinct:
-                extra['output_field'] = ListCharField(CharField())
+                extra['output_field'] = SetCharField(CharField())
             else:
                 extra['output_field'] = ListCharField(CharField())
 
