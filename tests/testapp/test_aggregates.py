@@ -74,8 +74,7 @@ class GroupConcatTests(TestCase):
 
     def test_basic_aggregate_ids(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id"))
-        concatted_ids = ",".join(self.str_tutee_ids)
-        assert out == {"tids": concatted_ids}
+        assert out == {"tids": self.str_tutee_ids}
 
     def test_basic_annotate_ids(self):
         concat = GroupConcat("tutees__id")
@@ -104,7 +103,7 @@ class GroupConcatTests(TestCase):
     def test_expression(self):
         concat = GroupConcat(F("id") + 1)
         out = self.shakes.tutees.aggregate(tids=concat)
-        concatted_ids = ",".join([str(self.jk.id + 1), str(self.grisham.id + 1)])
+        concatted_ids = [str(self.jk.id + 1), str(self.grisham.id + 1)]
         assert out == {"tids": concatted_ids}
 
     def test_application_order(self):
@@ -127,11 +126,11 @@ class GroupConcatTests(TestCase):
 
     def test_ordering_asc(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id", ordering="asc"))
-        assert out == {"tids": ",".join(self.str_tutee_ids)}
+        assert out == {"tids": self.str_tutee_ids}
 
     def test_ordering_desc(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id", ordering="desc"))
-        assert out == {"tids": ",".join(reversed(self.str_tutee_ids))}
+        assert out == {"tids": reversed(self.str_tutee_ids)}
 
     def test_separator_ordering(self):
         concat = GroupConcat("id", separator=":", ordering="asc")
