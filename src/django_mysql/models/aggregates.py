@@ -25,7 +25,7 @@ class GroupConcat(Aggregate):
     ):
 
         if "output_field" not in extra:
-            if separator:
+            if separator is not None:
                 extra["output_field"] = CharField()
             elif distinct:
                 extra['output_field'] = SetCharField(CharField())
