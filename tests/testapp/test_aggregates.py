@@ -130,7 +130,7 @@ class GroupConcatTests(TestCase):
 
     def test_ordering_desc(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id", ordering="desc"))
-        assert out == {"tids": reversed(self.str_tutee_ids)}
+        assert out == {"tids": list(reversed(self.str_tutee_ids))}
 
     def test_separator_ordering(self):
         concat = GroupConcat("id", separator=":", ordering="asc")
