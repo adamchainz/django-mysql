@@ -111,7 +111,7 @@ class GroupConcatTests(TestCase):
         out = Author.objects.exclude(id=self.shakes.id).aggregate(
             tids=GroupConcat("tutor_id", distinct=True)
         )
-        assert out == {"tids": str(self.shakes.id)}
+        assert out == {"tids": set(str(self.shakes.id))}
 
     @override_mysql_variables(SQL_MODE="ANSI")
     def test_separator_ansi_mode(self):
