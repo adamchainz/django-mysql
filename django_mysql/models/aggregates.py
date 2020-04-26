@@ -1,4 +1,5 @@
 from django.db.models import Aggregate, CharField
+from django_mysql.models.fields import SetCharField, ListCharField
 
 
 class BitAnd(Aggregate):
@@ -23,8 +24,10 @@ class GroupConcat(Aggregate):
                  ordering=None, **extra):
 
         if 'output_field' not in extra:
-            # This can/will be improved to SetTextField or ListTextField
-            extra['output_field'] = CharField()
+            if distinct:
+                extra['output_field'] = ListCharField(CharField())
+            else:
+                extra['output_field'] = ListCharField(CharField())
 
         super(GroupConcat, self).__init__(expression, **extra)
 
