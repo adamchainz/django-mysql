@@ -28,9 +28,9 @@ class GroupConcat(Aggregate):
             if separator is not None:
                 extra["output_field"] = CharField()
             elif distinct:
-                extra['output_field'] = SetCharField(CharField())
+                extra["output_field"] = SetCharField(CharField())
             else:
-                extra['output_field'] = ListCharField(CharField())
+                extra["output_field"] = ListCharField(CharField())
 
         super().__init__(expression, **extra)
 
