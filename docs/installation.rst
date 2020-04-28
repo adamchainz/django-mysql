@@ -80,6 +80,20 @@ imported from ``django_mysql.models``.
             objects = QuerySet.as_manager()
             # TODO: what fields should this model have??
 
+    If you are using a custom manager, you can combine this like so:
+
+    .. code-block:: python
+
+        from django.db import models
+        from django_mysql.models import QuerySet
+
+        class MySuperDuperManager(models.Manager):
+            pass
+
+
+        class MySuperDuperModel(models.Model):
+            objects = MySuperDuperManager.from_queryset(QuerySet)()
+            # TODO: fields
 
 .. class:: QuerySetMixin
 
