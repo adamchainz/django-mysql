@@ -21,15 +21,15 @@ jobs:
         - 3.7
         - 3.8
         database:
-        # - mysql:5.6
-        # - mysql:5.7
+        - mysql:5.6
+        - mysql:5.7
         - mysql:8.0
         # - mariadb:5.5
-        # - mariadb:10.0
-        # - mariadb:10.1
-        # - mariadb:10.2
-        # - mariadb:10.3
-        # - mariadb:10.4
+        - mariadb:10.0
+        - mariadb:10.1
+        - mariadb:10.2
+        - mariadb:10.3
+        - mariadb:10.4
 
     services:
       database:
