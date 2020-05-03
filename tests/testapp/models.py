@@ -291,6 +291,7 @@ class JSONModel(Model):
             return []
         return super().check(**kwargs)
 
+
 # For cache tests
 
 
