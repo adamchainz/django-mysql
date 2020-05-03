@@ -9,9 +9,7 @@ from django_mysql.utils import connection_is_mariadb
 
 @contextmanager
 def skip_if_mysql_8_plus():
-    if (
-        not connection_is_mariadb(connection) and connection.mysql_version >= (8,)
-    ):
+    if not connection_is_mariadb(connection) and connection.mysql_version >= (8,):
         pytest.skip("Requires MySQL<8 or MariaDB")
     yield
 

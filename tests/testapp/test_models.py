@@ -196,11 +196,7 @@ class QueryHintTests(TestCase):
 
     def test_adding_many(self):
         with CaptureLastQuery() as cap:
-            list(
-                Author.objects.straight_join()
-                .sql_big_result()
-                .sql_buffer_result()
-            )
+            list(Author.objects.straight_join().sql_big_result().sql_buffer_result())
         assert cap.query.startswith(
             "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT "
         )
