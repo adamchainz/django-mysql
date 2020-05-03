@@ -26,8 +26,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute(
                 """
                 SET sql_mode=%s, innodb_strict_mode=1;
-                SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';
                 """,
                 (sql_mode,),
             )
+            cursor.execute("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';")
         super().init_connection_state()
