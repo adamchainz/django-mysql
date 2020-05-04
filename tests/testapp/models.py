@@ -275,21 +275,16 @@ class NullBit1Model(Model):
 
 
 class JSONModel(Model):
-    attrs = JSONField(null=True)
+    if not connection_is_mariadb(
+        connection._nodb_connection
+    ) and connection._nodb_connection.mysql_version >= (5, 7):
+        attrs = JSONField(null=True)
+
     name = CharField(max_length=3)
 
     def __unicode__(self):
         return str(json.dumps(self.attrs))
 
-    @classmethod
-    def check(cls, **kwargs):
-        # Disable the checks on servers that don't support JSONField so that
-        # checks tests don't fail
-        if not (
-            not connection_is_mariadb(connection) and connection.mysql_version >= (5, 7)
-        ):
-            return []
-        return super().check(**kwargs)
 
 
 # For cache tests
