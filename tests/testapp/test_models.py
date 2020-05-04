@@ -20,7 +20,7 @@ from tests.testapp.models import (
     NameAuthorExtra,
     VanillaAuthor,
 )
-from tests.testapp.utils import CaptureLastQuery, used_indexes
+from tests.testapp.utils import CaptureLastQuery, skip_if_mysql_8_plus, used_indexes
 
 
 class MixinQuerysetTests(TestCase):
@@ -167,11 +167,13 @@ class QueryHintTests(TestCase):
 
         assert "DJANGO_MYSQL_REWRITE_QUERIES" in str(excinfo.value)
 
+    @skip_if_mysql_8_plus()
     def test_sql_cache(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.sql_cache().all())
         assert cap.query.startswith("SELECT SQL_CACHE ")
 
+    @skip_if_mysql_8_plus()
     def test_sql_no_cache(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.sql_no_cache().all())
@@ -194,14 +196,9 @@ class QueryHintTests(TestCase):
 
     def test_adding_many(self):
         with CaptureLastQuery() as cap:
-            list(
-                Author.objects.straight_join()
-                .sql_cache()
-                .sql_big_result()
-                .sql_buffer_result()
-            )
+            list(Author.objects.straight_join().sql_big_result().sql_buffer_result())
         assert cap.query.startswith(
-            "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT SQL_CACHE "
+            "SELECT STRAIGHT_JOIN SQL_BIG_RESULT SQL_BUFFER_RESULT "
         )
 
     def test_complex_query_1(self):

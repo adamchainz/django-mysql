@@ -8,35 +8,23 @@ SECRET_KEY = "THISuISdNOT9A$SECRET9x&ji!vceayg+wwt472!bgs$0!i3k4"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "tests.db_backend",
         "NAME": "django_mysql",
         "USER": os.environ.get("DB_USER", ""),
         "PASSWORD": os.environ.get("DB_PASSWORD", ""),
         "HOST": os.environ.get("DB_HOST", ""),
         "PORT": os.environ.get("DB_PORT", ""),
-        "OPTIONS": {
-            "charset": "utf8mb4",
-            # The most forward compatible sql_mode, for 5.7
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,"
-            "NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,"
-            "NO_AUTO_CREATE_USER', innodb_strict_mode=1",
-        },
+        "OPTIONS": {"charset": "utf8mb4"},
         "TEST": {"COLLATION": "utf8mb4_general_ci", "CHARSET": "utf8mb4"},
     },
     "other": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "tests.db_backend",
         "NAME": "django_mysql2",
         "USER": os.environ.get("DB_USER", ""),
         "PASSWORD": os.environ.get("DB_PASSWORD", ""),
         "HOST": os.environ.get("DB_HOST", ""),
         "PORT": os.environ.get("DB_PORT", ""),
-        "OPTIONS": {
-            "charset": "utf8mb4",
-            # The most forward compatible sql_mode, for 5.7
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,"
-            "NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,"
-            "NO_AUTO_CREATE_USER', innodb_strict_mode=1",
-        },
+        "OPTIONS": {"charset": "utf8mb4"},
         "TEST": {"COLLATION": "utf8mb4_general_ci", "CHARSET": "utf8mb4"},
     },
     "other2": {

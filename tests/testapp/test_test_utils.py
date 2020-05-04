@@ -7,20 +7,19 @@ from django_mysql.test.utils import override_mysql_variables
 
 
 class OverrideVarsMethodTest(TestCase):
-    @override_mysql_variables(SQL_MODE="MSSQL")
-    def test_method_sets_mssql(self):
-        self.check_sql_mode("MSSQL")
+    @override_mysql_variables(TIMESTAMP=123)
+    def test_method_decorator(self):
+        self.check_timestamp(123)
 
-    def check_sql_mode(self, expected, using="default"):
+    def check_timestamp(self, expected, using="default"):
         with connections[using].cursor() as cursor:
-            cursor.execute("SELECT @@SQL_MODE")
+            cursor.execute("SELECT @@TIMESTAMP")
             mode = cursor.fetchone()[0]
 
-        mode = mode.split(",")
-        assert expected in mode
+        assert mode == expected
 
 
-@override_mysql_variables(SQL_MODE="ANSI")
+@override_mysql_variables(TIMESTAMP=123)
 class OverrideVarsClassTest(OverrideVarsMethodTest):
 
     if django.VERSION >= (2, 2):
@@ -28,17 +27,17 @@ class OverrideVarsClassTest(OverrideVarsMethodTest):
     else:
         multi_db = True
 
-    def test_class_sets_ansi(self):
-        self.check_sql_mode("ANSI")
+    def test_class_decorator(self):
+        self.check_timestamp(123)
 
-    @override_mysql_variables(using="other", SQL_MODE="MSSQL")
+    @override_mysql_variables(using="other", TIMESTAMP=456)
     def test_other_connection(self):
-        self.check_sql_mode("ANSI")
-        self.check_sql_mode("MSSQL", using="other")
+        self.check_timestamp(123)
+        self.check_timestamp(456, using="other")
 
     def test_it_fails_on_non_test_classes(self):
         with pytest.raises(Exception):
 
-            @override_mysql_variables(SQL_MODE="ANSI")
+            @override_mysql_variables(TIMESTAMP=123)
             class MyClass:
                 pass

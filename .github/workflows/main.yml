@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     strategy:
+      fail-fast: false
       matrix:
         python-version:
         - 3.5
@@ -23,6 +24,7 @@ jobs:
         database:
         - mysql:5.6
         - mysql:5.7
+        - mysql:8.0
         # - mariadb:5.5
         - mariadb:10.0
         - mariadb:10.1
@@ -64,7 +66,7 @@ jobs:
     - name: Install dependencies
       run: python -m pip install --upgrade coveralls tox tox-gh-actions
     - name: Run tox targets for ${{ matrix.python-version }}
-      run: python -m tox -- -x
+      run: python -m tox
     - name: Upload coverage
       run: |
         coverage combine

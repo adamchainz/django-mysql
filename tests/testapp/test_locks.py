@@ -242,8 +242,13 @@ class TableLockTests(TransactionTestCase):
                 [table_name],
             )
             rows = cursor.fetchall()
-            assert len(rows) == 1
-            return rows[0][2] > 0
+            if rows:
+                assert len(rows) == 1
+                return rows[0][2] > 0
+            else:
+                # MySQL 8+ closes the table really quickly. If it's closed,
+                # it's not locked.
+                return False
 
     def test_write(self):
         Alphabet.objects.create(a=12345)
