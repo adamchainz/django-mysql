@@ -286,7 +286,6 @@ class JSONModel(Model):
         return str(json.dumps(self.attrs))
 
 
-
 # For cache tests
 
 
