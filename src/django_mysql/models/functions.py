@@ -285,13 +285,16 @@ class JSONValue(Func):
 class JSONRemove(Func):
     function = 'JSON_REMOVE'
 
-    def __init__(self, expression, path):
+    def __init__(self, expression, paths):
         from django_mysql.models.fields import JSONField
 
-        if not hasattr(path, 'resolve_expression'):
-            path = Value(path)
+        exprs = [expression]
+        for path in paths:
+            if not hasattr(path, 'resolve_expression'):
+                path = Value(path)
 
-        exprs = [expression, path]
+            exprs.append(path)
+
         super().__init__(*exprs, output_field=JSONField())
 
 
