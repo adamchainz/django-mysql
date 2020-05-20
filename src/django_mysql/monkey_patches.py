@@ -7,12 +7,14 @@ from django_mysql.rewrite_query import REWRITE_MARKER, rewrite_query
 
 
 def patch():
-    # Depends on setting
-    if getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False):
-        patch_CursorWrapper_execute()
+    settings_value = getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False)
+    if callable(settings_value):
+        settings_value = settings_value()
+
+    patch_CursorWrapper_execute(settings_value)
 
 
-def patch_CursorWrapper_execute():
+def patch_CursorWrapper_execute(should_apply):
 
     # Be idemptotent
     if getattr(CursorWrapper, "_has_django_mysql_execute", False):
@@ -22,10 +24,7 @@ def patch_CursorWrapper_execute():
 
     @functools.wraps(orig_execute)
     def execute(self, sql, args=None):
-        if (
-            getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False)
-            and REWRITE_MARKER in sql
-        ):
+        if should_apply and REWRITE_MARKER in sql:
             sql = rewrite_query(sql)
         return orig_execute(self, sql, args)
 

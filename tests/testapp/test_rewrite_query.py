@@ -288,8 +288,22 @@ class RewriteQueryTests(TestCase):
             cursor.execute(query)
         cap.query == query
 
+    @override_settings(DJANGO_MYSQL_REWRITE_QUERIES=lambda x: True)
+    def test_monkey_patch_accepts_function_enabled(self):
+        query = "SELECT 1 FROM DUAL WHERE (/*QueryRewrite':STRAIGHT_JOIN*/1)"
+        with CaptureLastQuery() as cap, connection.cursor() as cursor:
+            cursor.execute(query)
+        assert cap.query == "SELECT STRAIGHT_JOIN 1 FROM DUAL WHERE (1)"
+
+    @override_settings(DJANGO_MYSQL_REWRITE_QUERIES=lambda x: False)
+    def test_monkey_patch_accepts_function_disabled(self):
+        query = "SELECT 1 FROM DUAL WHERE (/*QueryRewrite':STRAIGHT_JOIN*/1)"
+        with CaptureLastQuery() as cap, connection.cursor() as cursor:
+            cursor.execute(query)
+        cap.query == query
+
     def test_can_monkey_patch_is_idempotent(self):
-        patch_CursorWrapper_execute()
+        patch_CursorWrapper_execute(True)
 
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute("SELECT 1 FROM DUAL WHERE (/*QueryRewrite':label=hi*/1)")
