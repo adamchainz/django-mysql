@@ -10,7 +10,7 @@ if __name__ == "__main__":
     os.environ["CUSTOM_COMPILE_COMMAND"] = "requirements/compile.py"
     common_args = ["-m", "piptools", "compile", "--generate-hashes"] + sys.argv[1:]
     # mysqlclient requirements found on each version's "Databases" documentation page:
-    # https://docs.djangoproject.com/en/2.2/ref/databases/#id6
+    # https://docs.djangoproject.com/en/3.1/ref/databases/#mysql-db-api-drivers
     subprocess.run(
         [
             "python3.5",
@@ -104,6 +104,19 @@ if __name__ == "__main__":
     )
     subprocess.run(
         [
+            "python3.6",
+            *common_args,
+            "-P",
+            "Django>=3.1a1,<3.2",
+            "-P",
+            "mysqlclient>=1.4.0",
+            "-o",
+            "py36-django31.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
             "python3.7",
             *common_args,
             "-P",
@@ -156,6 +169,19 @@ if __name__ == "__main__":
     )
     subprocess.run(
         [
+            "python3.7",
+            *common_args,
+            "-P",
+            "Django>=3.1a1,<3.2",
+            "-P",
+            "mysqlclient>=1.4.0",
+            "-o",
+            "py37-django31.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
             "python3.8",
             *common_args,
             "-P",
@@ -182,6 +208,19 @@ if __name__ == "__main__":
     )
     subprocess.run(
         [
+            "python3.8",
+            *common_args,
+            "-P",
+            "Django>=3.1a1,<3.2",
+            "-P",
+            "mysqlclient>=1.4.0",
+            "-o",
+            "py38-django31.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
             "python3.9",
             *common_args,
             "-P",
@@ -203,6 +242,19 @@ if __name__ == "__main__":
             "mysqlclient>=1.3.13",
             "-o",
             "py39-django30.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.9",
+            *common_args,
+            "-P",
+            "Django>=3.1a1,<3.2",
+            "-P",
+            "mysqlclient>=1.4.0",
+            "-o",
+            "py39-django31.txt",
         ],
         check=True,
     )
