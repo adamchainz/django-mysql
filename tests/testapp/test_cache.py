@@ -35,6 +35,10 @@ class Unpickable:
         raise pickle.PickleError()
 
 
+def empty_response(request):
+    return HttpResponse()
+
+
 class MyInt(int):
     def times2(self):
         return self * 2
@@ -125,6 +129,8 @@ class MySQLCacheTableMixin(TransactionTestCase):
 
 @override_cache_settings()
 class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
+    factory = RequestFactory()
+
     @classmethod
     def setUpClass(cls):
         cls.create_table()
@@ -701,35 +707,37 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert caches["custom_key"].get("answer2") == 42
         assert caches["custom_key2"].get("answer2") == 42
 
-    def test_cache_write_unpickable_object(self):
-        update_middleware = UpdateCacheMiddleware()
-        update_middleware.cache = cache
-
-        fetch_middleware = FetchFromCacheMiddleware()
+    def test_cache_write_unpicklable_object(self):
+        fetch_middleware = FetchFromCacheMiddleware(empty_response)
         fetch_middleware.cache = cache
 
-        factory = RequestFactory()
-        request = factory.get("/cache/test")
+        request = self.factory.get("/cache/test")
         request._cache_update_cache = True
-        get_cache_data = FetchFromCacheMiddleware().process_request(request)
+        get_cache_data = FetchFromCacheMiddleware(empty_response).process_request(
+            request
+        )
         assert get_cache_data is None
 
-        response = HttpResponse()
         content = "Testing cookie serialization."
-        response.content = content
-        response.set_cookie("foo", "bar")
 
-        update_middleware.process_response(request, response)
+        def get_response(req):
+            response = HttpResponse(content)
+            response.set_cookie("foo", "bar")
+            return response
+
+        update_middleware = UpdateCacheMiddleware(get_response)
+        update_middleware.cache = cache
+        response = update_middleware(request)
 
         get_cache_data = fetch_middleware.process_request(request)
         assert get_cache_data is not None
-        assert get_cache_data.content == content.encode("utf-8")
+        assert get_cache_data.content == content.encode()
         assert get_cache_data.cookies == response.cookies
 
-        update_middleware.process_response(request, get_cache_data)
+        UpdateCacheMiddleware(lambda req: get_cache_data)(request)
         get_cache_data = fetch_middleware.process_request(request)
         assert get_cache_data is not None
-        assert get_cache_data.content == content.encode("utf-8")
+        assert get_cache_data.content == content.encode()
         assert get_cache_data.cookies == response.cookies
 
     def test_add_fail_on_pickleerror(self):
