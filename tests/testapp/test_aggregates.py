@@ -76,6 +76,10 @@ class GroupConcatTests(TestCase):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id"))
         assert out == {"tids": self.str_tutee_ids}
 
+    def test_distinct_aggregate_ids(self):
+        out = self.shakes.tutees.aggregate(tids=GroupConcat("id", distinct=True))
+        assert out == {"tids": set(self.str_tutee_ids)}
+
     def test_basic_annotate_ids(self):
         concat = GroupConcat("tutees__id")
         shakey = Author.objects.annotate(tids=concat).get(id=self.shakes.id)
