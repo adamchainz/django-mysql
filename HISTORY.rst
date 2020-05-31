@@ -3,6 +3,9 @@
 History
 =======
 
+* Changed query rewriting to use Django's database instrumentation.
+  (`Issue #644 <https://github.com/adamchainz/django-mysql/issues/644>`__)
+
 3.5.0 (2020-05-04)
 ------------------
 

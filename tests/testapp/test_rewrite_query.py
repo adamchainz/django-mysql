@@ -2,7 +2,6 @@ from django.db import connection
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from django_mysql.monkey_patches import patch_CursorWrapper_execute
 from django_mysql.rewrite_query import rewrite_query
 from tests.testapp.utils import CaptureLastQuery
 
@@ -274,7 +273,7 @@ class RewriteQueryTests(TestCase):
             + "WHERE (1) ORDER BY col_a"
         )
 
-    def test_it_is_monkey_patched(self):
+    def test_it_is_instrumented(self):
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute(
                 "SELECT 1 FROM DUAL WHERE (/*QueryRewrite':STRAIGHT_JOIN*/1)"
@@ -282,15 +281,8 @@ class RewriteQueryTests(TestCase):
         assert cap.query == "SELECT STRAIGHT_JOIN 1 FROM DUAL WHERE (1)"
 
     @override_settings(DJANGO_MYSQL_REWRITE_QUERIES=False)
-    def test_monkey_patch_can_be_disabled(self):
+    def test_instrumentation_can_be_disabled(self):
         query = "SELECT 1 FROM DUAL WHERE (/*QueryRewrite':STRAIGHT_JOIN*/1)"
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute(query)
         cap.query == query
-
-    def test_can_monkey_patch_is_idempotent(self):
-        patch_CursorWrapper_execute()
-
-        with CaptureLastQuery() as cap, connection.cursor() as cursor:
-            cursor.execute("SELECT 1 FROM DUAL WHERE (/*QueryRewrite':label=hi*/1)")
-        assert cap.query == "SELECT /*hi*/ 1 FROM DUAL WHERE (1)"
