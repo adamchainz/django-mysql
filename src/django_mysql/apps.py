@@ -19,7 +19,7 @@ class MySQLConfig(AppConfig):
     def add_database_instrumentation(self):
         if not getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False):
             return
-        for alias, connection in mysql_connections():
+        for _alias, connection in mysql_connections():
             # Rather than use the documented API of the `execute_wrapper()`
             # context manager, directly insert the hook. This is done because:
             # 1. Deleting the context manager closes it, so it's not possible
