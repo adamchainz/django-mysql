@@ -17,7 +17,9 @@ class MySQLConfig(AppConfig):
         register_checks()
 
     def add_database_instrumentation(self):
-        if not getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False):
+        if not getattr(
+            settings, "DJANGO_MYSQL_REWRITE_QUERIES", False
+        ):  # pragma: no cover
             return
         for _alias, connection in mysql_connections():
             # Rather than use the documented API of the `execute_wrapper()`
@@ -26,7 +28,7 @@ class MySQLConfig(AppConfig):
             # to enter it here and not exit it, unless we store it forever in
             # some variable.
             # 2. We want to be idempotent and only install the hook once.
-            if rewrite_hook not in connection.execute_wrappers:
+            if rewrite_hook not in connection.execute_wrappers:  # pragma: no branch
                 connection.execute_wrappers.append(rewrite_hook)
 
     def add_lookups(self):
