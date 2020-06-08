@@ -5,6 +5,8 @@ History
 
 * Changed query rewriting to use Django's database instrumentation.
   (`Issue #644 <https://github.com/adamchainz/django-mysql/issues/644>`__)
+* Fix ``JSONContains`` to make it work with scalar values again.
+  (`PR #668 <https://github.com/adamchainz/django-mysql/pull/668>`__).
 
 3.5.0 (2020-05-04)
 ------------------
