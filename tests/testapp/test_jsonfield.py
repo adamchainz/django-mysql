@@ -298,7 +298,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
                 attrs={
                     "a": "b",
                     "c": 1,
-                    "d": ["e", {"f": "g"}],
+                    "d": ["e", {"f": "g"}, 1],
                     "h": True,
                     "i": False,
                     "j": None,
@@ -375,19 +375,79 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
             self.objs[4]
         ]
 
-    def test_contains(self):
+    def test_contains_scalar_in_scalar(self):
+        assert list(JSONModel.objects.filter(attrs__a__contains="b")) == [
+            self.objs[1],
+            self.objs[2],
+        ]
+        assert list(JSONModel.objects.filter(attrs__c__contains=1)) == [
+            self.objs[1],
+            self.objs[2],
+        ]
+        assert list(JSONModel.objects.filter(attrs__l__contains=False)) == [
+            self.objs[4],
+        ]
+        assert list(JSONModel.objects.filter(attrs__h__contains=True)) == [
+            self.objs[2],
+        ]
+        assert list(JSONModel.objects.filter(attrs__j__contains=None)) == [
+            self.objs[2],
+        ]
+
+        assert list(JSONModel.objects.filter(attrs__a__contains=1)) == []
+        assert list(JSONModel.objects.filter(attrs__c__contains="b")) == []
+        assert list(JSONModel.objects.filter(attrs__l__contains=True)) == []
+        assert list(JSONModel.objects.filter(attrs__h__contains=False)) == []
+
+    def test_contains_object_in_object(self):
         assert list(JSONModel.objects.filter(attrs__contains={"a": "b"})) == [
             self.objs[1],
             self.objs[2],
         ]
-
-    def test_contains_2(self):
-        assert list(JSONModel.objects.filter(attrs__contains={"l": False})) == [
-            self.objs[4]
+        assert list(JSONModel.objects.filter(attrs__contains={"c": 1})) == [
+            self.objs[1],
+            self.objs[2],
         ]
+        assert list(JSONModel.objects.filter(attrs__contains={"l": False})) == [
+            self.objs[4],
+        ]
+        assert list(JSONModel.objects.filter(attrs__contains={"h": True})) == [
+            self.objs[2],
+        ]
+        assert list(JSONModel.objects.filter(attrs__contains={"j": None})) == [
+            self.objs[2],
+        ]
+
+        assert list(JSONModel.objects.filter(attrs__contains={"a": 1})) == []
+        assert list(JSONModel.objects.filter(attrs__contains={"c": "b"})) == []
+        assert list(JSONModel.objects.filter(attrs__contains={"l": True})) == []
+        assert list(JSONModel.objects.filter(attrs__contains={"h": False})) == []
 
     def test_contains_array(self):
         assert list(JSONModel.objects.filter(attrs__contains=[[2]])) == [self.objs[3]]
+        assert list(JSONModel.objects.filter(attrs__contains=1)) == [self.objs[3]]
+        assert list(JSONModel.objects.filter(attrs__d__contains="e")) == [self.objs[2]]
+        assert list(JSONModel.objects.filter(attrs__d__contains=1)) == [self.objs[2]]
+        assert list(JSONModel.objects.filter(attrs__d__contains={"f": "g"})) == [
+            self.objs[2]
+        ]
+        assert list(JSONModel.objects.filter(attrs__d__contains=2)) == []
+
+    def test_contains_expression_and_subqueries(self):
+        with pytest.raises(ValueError) as excinfo:
+            list(JSONModel.objects.filter(attrs__a__contains=F("name")))
+        assert (
+            str(excinfo.value)
+            == "JSONField's 'contains' lookup only works with literal values"
+        )
+
+        subquery = JSONModel.objects.filter(name="b").values_list("attrs")
+        with pytest.raises(ValueError) as excinfo:
+            JSONModel.objects.filter(attrs__contains=subquery)
+        assert (
+            str(excinfo.value)
+            == "JSONField's 'contains' lookup only works with literal values"
+        )
 
     def test_contained_by(self):
         assert list(

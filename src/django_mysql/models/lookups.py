@@ -142,8 +142,28 @@ class JSONContainedBy(Lookup):
         return "JSON_CONTAINS({}, {})".format(rhs, lhs), params
 
 
-class JSONContains(JSONLookupMixin, Lookup):
+class JSONContains(Lookup):
     lookup_name = "contains"
+
+    if django.VERSION >= (3, 0):
+
+        def get_prep_lookup(self):
+            value = self.rhs
+            if hasattr(value, "resolve_expression"):
+                raise ValueError(
+                    "JSONField's 'contains' lookup only works with literal values"
+                )
+            return JSONValue(value)
+
+    else:
+
+        def get_prep_lookup(self):
+            value = self.rhs
+            if hasattr(value, "_prepare"):
+                raise ValueError(
+                    "JSONField's 'contains' lookup only works with literal values"
+                )
+            return JSONValue(value)
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
