@@ -206,6 +206,9 @@ class QueryTests(JSONFieldTestCase):
         )
         assert objs == [self.objs[0]]
 
+        objs = list(JSONModel.objects.filter(attrs__a__in=["b"]))
+        assert objs == [self.objs[0]]
+
         objs = list(JSONModel.objects.filter(attrs__in=[111, 1337, 333]))
         assert objs == [self.objs[1]]
 
