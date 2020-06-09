@@ -8,6 +8,7 @@ from django.db.models.lookups import (
     Exact,
     GreaterThan,
     GreaterThanOrEqual,
+    In,
     LessThan,
     LessThanOrEqual,
 )
@@ -73,6 +74,46 @@ class JSONLookupMixin:
 
 class JSONExact(JSONLookupMixin, Exact):
     pass
+
+
+class JSONIn(In):
+    lookup_name = "in"
+
+    if django.VERSION >= (3, 0):
+
+        def get_prep_lookup(self):
+            if hasattr(self.rhs, "resolve_expression"):
+                raise ValueError(
+                    "JSONField's 'in' lookup only works with literal values"
+                )
+            prepared_values = []
+            for rhs_value in self.rhs:
+                if hasattr(rhs_value, "resolve_expression"):
+                    raise ValueError(
+                        "JSONField's 'in' lookup only works with literal values"
+                    )
+                else:
+                    rhs_value = JSONValue(rhs_value)
+                prepared_values.append(rhs_value)
+            return prepared_values
+
+    else:
+
+        def get_prep_lookup(self):
+            if hasattr(self.rhs, "_prepare"):
+                raise ValueError(
+                    "JSONField's 'in' lookup only works with literal values"
+                )
+            prepared_values = []
+            for rhs_value in self.rhs:
+                if hasattr(rhs_value, "resolve_expression"):
+                    raise ValueError(
+                        "JSONField's 'in' lookup only works with literal values"
+                    )
+                else:
+                    rhs_value = JSONValue(rhs_value)
+                prepared_values.append(rhs_value)
+            return prepared_values
 
 
 class JSONGreaterThan(JSONLookupMixin, GreaterThan):

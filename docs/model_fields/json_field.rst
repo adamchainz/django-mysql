@@ -295,3 +295,17 @@ For example:
         'smelliness': 5,
     })
     [<ShopItem: Feta>]
+
+"In" Lookup
+~~~~~~~~~~~
+
+The ``in`` lookup is supported, for iterables of JSON-serializable literal
+values.
+
+For example:
+
+.. code-block:: python
+
+    # Find all ShopItems with a crumbliness of either 0 or 10
+    >>> ShopItems.objects.filter(attrs__crumbliness__in=[0, 10])
+    [<ShopItem: Feta>, <ShopItem: Cheddar>]

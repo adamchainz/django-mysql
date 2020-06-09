@@ -14,6 +14,7 @@ from django_mysql.models.lookups import (
     JSONHasAnyKeys,
     JSONHasKey,
     JSONHasKeys,
+    JSONIn,
     JSONLessThan,
     JSONLessThanOrEqual,
 )
@@ -157,7 +158,6 @@ class JSONField(Field):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
             "range",
-            "in",
             "iexact",
             "icontains",
             "startswith",
@@ -198,6 +198,7 @@ JSONField.register_lookup(JSONGreaterThanOrEqual)
 JSONField.register_lookup(JSONHasAnyKeys)
 JSONField.register_lookup(JSONHasKey)
 JSONField.register_lookup(JSONHasKeys)
+JSONField.register_lookup(JSONIn)
 JSONField.register_lookup(JSONLength)
 JSONField.register_lookup(JSONLessThan)
 JSONField.register_lookup(JSONLessThanOrEqual)
