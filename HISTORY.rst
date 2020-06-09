@@ -3,6 +3,9 @@
 History
 =======
 
+3.6.0 (2020-06-09)
+------------------
+
 * Changed query rewriting to use Django's database instrumentation.
   (`Issue #644 <https://github.com/adamchainz/django-mysql/issues/644>`__)
 * Added ``JSONIn`` lookup which only works with literal values (not with
