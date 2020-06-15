@@ -17,14 +17,14 @@ from django_mysql.utils import (
 )
 from tests.testapp.models import Author, AuthorMultiIndex
 
-if django.VERSION < (3, 1):
+if django.VERSION < (3, 0):
     from django_mysql.utils import _is_mariadb_cache
 
 
 class ConnectionIsMariaDBTests(TestCase):
     def setUp(self):
-        if django.VERSION > (3, 1):
-            raise SkipTest("Not needed on Django 3.1+")
+        if django.VERSION >= (3, 0):
+            raise SkipTest("Not needed on Django 3.0+")
         super().setUp()
         _is_mariadb_cache.clear()
 
