@@ -1,5 +1,5 @@
 from time import sleep
-from unittest import mock, skipUnless
+from unittest import SkipTest, mock, skipUnless
 
 import django
 import pytest
@@ -9,7 +9,6 @@ from django.test import SimpleTestCase, TestCase
 from django_mysql.utils import (
     PTFingerprintThread,
     WeightedAverageRate,
-    _is_mariadb_cache,
     connection_is_mariadb,
     format_duration,
     have_program,
@@ -18,9 +17,14 @@ from django_mysql.utils import (
 )
 from tests.testapp.models import Author, AuthorMultiIndex
 
+if django.VERSION < (3, 0):
+    from django_mysql.utils import _is_mariadb_cache
+
 
 class ConnectionIsMariaDBTests(TestCase):
     def setUp(self):
+        if django.VERSION >= (3, 0):
+            raise SkipTest("Not needed on Django 3.0+")
         super().setUp()
         _is_mariadb_cache.clear()
 

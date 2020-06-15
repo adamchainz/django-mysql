@@ -6,6 +6,7 @@ from queue import Empty, Queue
 from threading import Lock, Thread
 from weakref import WeakKeyDictionary
 
+import django
 from django.db import DEFAULT_DB_ALIAS
 from django.db import connection as default_connection
 from django.db import connections
@@ -87,24 +88,31 @@ def format_duration(total_seconds):
     return "".join(out)
 
 
-_is_mariadb_cache = WeakKeyDictionary()
+if django.VERSION >= (3, 0):
+
+    def connection_is_mariadb(connection):
+        return connection.vendor == "mysql" and connection.mysql_is_mariadb
 
 
-def connection_is_mariadb(connection):
-    if connection.vendor != "mysql":
-        return False
+else:
 
-    if connection is default_connection:
-        connection = connections[DEFAULT_DB_ALIAS]
+    _is_mariadb_cache = WeakKeyDictionary()
 
-    try:
-        return _is_mariadb_cache[connection]
-    except KeyError:
-        with connection.temporary_connection():
-            server_info = connection.connection.get_server_info()
-        is_mariadb = "MariaDB" in server_info
-        _is_mariadb_cache[connection] = is_mariadb
-        return is_mariadb
+    def connection_is_mariadb(connection):
+        if connection.vendor != "mysql":
+            return False
+
+        if connection is default_connection:
+            connection = connections[DEFAULT_DB_ALIAS]
+
+        try:
+            return _is_mariadb_cache[connection]
+        except KeyError:
+            with connection.temporary_connection():
+                server_info = connection.connection.get_server_info()
+            is_mariadb = "MariaDB" in server_info
+            _is_mariadb_cache[connection] = is_mariadb
+            return is_mariadb
 
 
 def settings_to_cmd_args(settings_dict):
