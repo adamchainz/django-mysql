@@ -159,10 +159,7 @@ class PTFingerprintTests(SimpleTestCase):
 
 class IndexNameTests(TestCase):
 
-    if django.VERSION >= (2, 2):
-        databases = ["default", "other"]
-    else:
-        multi_db = True
+    databases = ["default", "other"]
 
     def test_requires_field_names(self):
         with pytest.raises(ValueError) as excinfo:

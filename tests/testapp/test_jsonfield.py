@@ -2,7 +2,6 @@ import json
 from decimal import Decimal
 from unittest import SkipTest, mock
 
-import django
 import pytest
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
@@ -553,10 +552,7 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
 
 class TestCheck(JSONFieldTestCase):
 
-    if django.VERSION >= (2, 2):
-        databases = ["default", "other"]
-    else:
-        multi_db = True
+    databases = ["default", "other"]
 
     def test_mutable_default_list(self):
         class InvalidJSONModel1(TemporaryModel):
