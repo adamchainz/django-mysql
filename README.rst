@@ -3,7 +3,7 @@ Django-MySQL
 ============
 
 .. image:: https://img.shields.io/pypi/v/django-mysql.svg
-   :target: https://pypi.python.org/pypi/django-mysql
+   :target: https://pypi.org/project/django-mysql/
 
 .. image:: https://github.com/adamchainz/django-mysql/workflows/CI/badge.svg?branch=master
    :target: https://github.com/adamchainz/django-mysql/actions?workflow=CI

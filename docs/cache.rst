@@ -96,7 +96,7 @@ You might want to customize the SQL at this time, for example switching the
 table to use the ``MEMORY`` storage engine.
 
 Django requires you to install
-`sqlparse <https://pypi.python.org/pypi/sqlparse>`_
+`sqlparse <https://pypi.org/project/sqlparse/>`_
 to run the ``RunSQL`` operation in the migration, so make sure it is installed.
 
 Once the migration has run, the cache is ready to work!
