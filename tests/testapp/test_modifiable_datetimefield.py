@@ -26,10 +26,10 @@ class TestModifiableDatetimeField(TestCase):
 
     def test_allow_datetime_field_argument(self):
         field1 = DatetimeField(auto_now_add=False, on_update_current_timestamp=True)
-        field2 = DatetimeField(auto_add=True, on_update_current_timestamp=True)
+        field2 = DatetimeField(auto_now=True, on_update_current_timestamp=True)
         field3 = DatetimeField(default=timezone.now, on_update_current_timestamp=True)
         assert hasattr(field1, "auto_now_add")
-        assert hasattr(field2, "auto_add")
+        assert hasattr(field2, "auto_now")
         assert hasattr(field3, "default")
 
     @mock.patch(

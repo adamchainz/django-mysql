@@ -24,7 +24,7 @@ Django-MySQL supports Updating for TIMESTAMP ``DateTimeField``
     .. code-block:: python
 
         from django_mysql.models import DateTimeField
-        datetime_field = models.DatetimeField(on_update_current_timestamp=True,auto_add=True)
+        datetime_field = models.DatetimeField(on_update_current_timestamp=True, auto_now=True)
 
     define DateTimeField as above the field will be updated
     When ```.save() .update() & INSERT UPDATE``` is executed
