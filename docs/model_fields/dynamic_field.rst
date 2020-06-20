@@ -13,7 +13,7 @@ in a blob and having a small set of functions to manipulate this blob.
 
 Django-MySQL supports the *named* Dynamic Columns of MariaDB 10.0+, as opposed
 to the *numbered* format of 5.5+. It uses the
-`mariadb-dyncol <https://pypi.python.org/pypi/mariadb-dyncol>`_ python package
+`mariadb-dyncol <https://pypi.org/project/mariadb-dyncol/>`_ python package
 to pack and unpack Dynamic Columns blobs in Python rather than in MariaDB
 (mostly due to limitations in the Django ORM).
 
