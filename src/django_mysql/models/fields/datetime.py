@@ -1,5 +1,6 @@
 from django.core import checks
 from django.db.models import DateTimeField as DjangoDateTimeField
+from django.utils import timezone
 
 
 class DatetimeField(DjangoDateTimeField):
@@ -7,11 +8,21 @@ class DatetimeField(DjangoDateTimeField):
         self.on_update_current_timestamp = on_update_current_timestamp
         super(DatetimeField, self).__init__(**kwargs)
 
-    def db_parameters(self, connection):
-        db_parameters = super(DatetimeField, self).db_parameters(connection)
-        if self.on_update_current_timestamp:
-            db_parameters["type"] += " ON UPDATE CURRENT_TIMESTAMP(6)"
-        return db_parameters
+    def db_type_suffix(self, connection):
+        db_type_suffix = super().db_type_suffix(connection)
+        if db_type_suffix is None:
+            db_type_suffix = "ON UPDATE CURRENT_TIMESTAMP(6)"
+        else:
+            db_type_suffix += "ON UPDATE CURRENT_TIMESTAMP(6)"
+        return db_type_suffix
+
+    def pre_save(self, model_instance, add):
+        if self.auto_now:
+            value = timezone.now()
+            setattr(model_instance, self.attname, value)
+            return value
+        else:
+            return getattr(model_instance, self.attname)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()

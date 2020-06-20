@@ -83,7 +83,7 @@ class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = DatetimeField()
         name, path, args, kwargs = field.deconstruct()
-        assert path == "django_mysql.models.ModifiableDatetimeField"
+        assert path == "django_mysql.models.DatetimeField"
         assert "on_update_current_timestamp" in kwargs
 
 
