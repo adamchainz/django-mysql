@@ -1,4 +1,5 @@
 from django_mysql.models.fields.bit import Bit1BooleanField, NullBit1BooleanField
+from django_mysql.models.fields.datetime import DatetimeField
 from django_mysql.models.fields.dynamic import DynamicField
 from django_mysql.models.fields.enum import EnumField
 from django_mysql.models.fields.json import JSONField
@@ -13,6 +14,7 @@ __all__ = [
     "JSONField",
     "ListCharField",
     "ListTextField",
+    "DatetimeField",
     "NullBit1BooleanField",
     "SetCharField",
     "SetTextField",
