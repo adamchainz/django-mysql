@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime
 from unittest import mock
 
@@ -8,27 +9,31 @@ from django.test import TestCase, TransactionTestCase, override_settings
 from django.utils import timezone
 from tests.testapp.models import ModifiableDatetimeModel
 
-from django_mysql.models import DatetimeField
+from django_mysql.models import DateTimeField
 
 
 class TestModifiableDatetimeField(TestCase):
     def test_default_on_update_current_timestamp_option(self):
-        field = DatetimeField()
-        assert field.on_update_current_timestamp is True
+        field = DateTimeField()
+        assert field.on_update_current_timestamp is False
 
-    def test_auto_now_add_and_on_update_current_timestamp_option_are_mutually_exclusive(
+    def test_auto_now_and_on_update_current_timestamp_option_are_mutually_exclusive(
         self,
     ):
+        field = DateTimeField(auto_now=True, on_update_current_timestamp=True)
+        errors = field.check()
+        assert errors[0].id == "Error"
 
-        field = DatetimeField(auto_now_add=True, on_update_current_timestamp=True)
+    def test_datetime_field_does_not_support_auto_now_add_option(self,):
+        field = DateTimeField(auto_now_add=True)
         errors = field.check()
         assert errors[0].id == "Error"
 
     def test_allow_datetime_field_argument(self):
-        field1 = DatetimeField(auto_now_add=False, on_update_current_timestamp=True)
-        field2 = DatetimeField(auto_now=True, on_update_current_timestamp=True)
-        field3 = DatetimeField(default=timezone.now, on_update_current_timestamp=True)
-        assert hasattr(field1, "auto_now_add")
+        field1 = DateTimeField(on_update_current_timestamp=True)
+        field2 = DateTimeField(auto_now=True, on_update_current_timestamp=False)
+        field3 = DateTimeField(default=timezone.now, on_update_current_timestamp=False)
+        assert hasattr(field1, "on_update_current_timestamp")
         assert hasattr(field2, "auto_now")
         assert hasattr(field3, "default")
 
@@ -38,15 +43,17 @@ class TestModifiableDatetimeField(TestCase):
     def test_save_modifiable_datetime_field_should_be_updated_to_current_timestamp(
         self,
     ):
-        s1 = ModifiableDatetimeModel.objects.create(
-            model_char="test_char", on_update_datetime=datetime(2020, 6, 13),
-        )
-        s1.save(model_char="updated_char")
-        s1 = ModifiableDatetimeModel.objects.get(id=s1.id)
+        s1 = ModifiableDatetimeModel.objects.create(model_char="test_char",)
+        with mock.patch(
+            "django.db.models.fields.timezone.now", return_value=datetime(2020, 6, 14)
+        ):
+            s2 = copy(s1)
+            s2.model_char = "updated_char"
+            s2.save()
 
-        assert s1.on_update_datetime != datetime(2020, 6, 13)
-        assert s1.on_update_datetime_false != datetime(2020, 6, 13)
-        assert s1.on_update_datetime_auto_now == datetime(2020, 6, 13)
+        assert s1.datetime1 == s2.datetime1
+        assert s1.datetime2 == s2.datetime2
+        assert s1.datetime3 == s2.datetime3
 
     @mock.patch(
         "django.db.models.fields.timezone.now", return_value=datetime(2020, 6, 13)
@@ -57,14 +64,17 @@ class TestModifiableDatetimeField(TestCase):
         s1 = ModifiableDatetimeModel.objects.create(
             model_char="test_char", on_update_datetime=datetime(2020, 6, 13),
         )
-        ModifiableDatetimeModel.objects.filter(id=s1.id).update(
-            model_char="updated_char"
-        )
+        with mock.patch(
+            "django.db.models.fields.timezone.now", return_value=datetime(2020, 6, 14)
+        ):
+            ModifiableDatetimeModel.objects.filter(id=s1.id).update(
+                model_char="updated_char"
+            )
 
-        s1 = ModifiableDatetimeModel.objects.get(id=s1.id)
-        assert s1.on_update_datetime != datetime(2020, 6, 13)
-        assert s1.on_update_datetime_false == datetime(2020, 6, 13)
-        assert s1.on_update_datetime_auto_now != datetime(2020, 6, 13)
+        s2 = ModifiableDatetimeModel.objects.get(id=s1.id)
+        assert s1.datetime1 != s2.datetime1
+        assert s1.datetime2 == s2.datetime2
+        assert s1.datetime3 == s2.datetime3
 
 
 class TestCheck(TestCase):
@@ -81,7 +91,7 @@ class TestCheck(TestCase):
 
 class TestDeconstruct(TestCase):
     def test_deconstruct(self):
-        field = DatetimeField()
+        field = DateTimeField()
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.DatetimeField"
         assert "on_update_current_timestamp" in kwargs
