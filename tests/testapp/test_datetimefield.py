@@ -40,8 +40,8 @@ class TestModifiableDatetimeField(TestCase):
     @mock.patch(
         "django.db.models.fields.timezone.now", return_value=datetime(2020, 6, 13)
     )
-    def test_save_modifiable_datetime_field_should_be_updated_to_current_timestamp(
-        self,
+    def test_save_modifiable_datetime_field_should_be_save_with_django_timezone_now(
+        self, _,
     ):
         s1 = ModifiableDatetimeModel.objects.create(model_char="test_char",)
         with mock.patch(
@@ -59,7 +59,7 @@ class TestModifiableDatetimeField(TestCase):
         "django.db.models.fields.timezone.now", return_value=datetime(2020, 6, 13)
     )
     def test_update_modifiable_datetime_field_should_be_updated_to_current_timestamp(
-        self,
+        self, _,
     ):
         s1 = ModifiableDatetimeModel.objects.create(
             model_char="test_char", on_update_datetime=datetime(2020, 6, 13),
