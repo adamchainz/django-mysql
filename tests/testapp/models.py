@@ -22,7 +22,7 @@ from django_mysql.models import (
     ListCharField,
     ListTextField,
     Model,
-    DatetimeField,
+    DateTimeField,
     NullBit1BooleanField,
     SetCharField,
     SetTextField,
@@ -289,9 +289,9 @@ class JSONModel(Model):
 
 class ModifiableDatetimeModel(Model):
     model_char = CharField(max_length=16, default="")
-    on_update_datetime = DatetimeField()
-    on_update_datetime_false = DatetimeField(on_update_current_timestamp=False)
-    on_update_datetime_auto_now = DatetimeField(auto_now=True)
+    datetime1 = DateTimeField(on_update_current_timestamp=True)
+    datetime2 = DateTimeField(auto_now=True)
+    datetime3 = DateTimeField(default=timezone.now)
 
 
 # For cache tests

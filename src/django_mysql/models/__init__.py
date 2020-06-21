@@ -20,7 +20,7 @@ from django_mysql.models.fields import (  # noqa
     JSONField,
     ListCharField,
     ListTextField,
-    DatetimeField,
+    DateTimeField,
     NullBit1BooleanField,
     SetCharField,
     SetTextField,
