@@ -36,7 +36,7 @@ class DateTimeCheckMixin(DjangoDateTimeCheckMixin):
                     "fix 'auto_now_add=True' to 'auto_now_add=False' "
                     "or Use 'auto_now_add=True' with django.db.models.DateTimeField. ",
                     obj=self,
-                    id="fields.E161",
+                    id="django_mysql.E015",
                 )
             ]
         else:
@@ -50,14 +50,15 @@ class DateTimeField(DateTimeCheckMixin, DjangoDateTimeField):
 
     def db_type_suffix(self, connection):
         db_type_suffix = super().db_type_suffix(connection)
-        if db_type_suffix is None:
-            db_type_suffix = "ON UPDATE CURRENT_TIMESTAMP(6)"
-        else:
-            db_type_suffix += "ON UPDATE CURRENT_TIMESTAMP(6)"
+        if self.on_update_current_timestamp:
+            if db_type_suffix is None:
+                db_type_suffix = "ON UPDATE CURRENT_TIMESTAMP(6)"
+            else:
+                db_type_suffix += "ON UPDATE CURRENT_TIMESTAMP(6)"
         return db_type_suffix
 
     def pre_save(self, model_instance, add):
-        if self.auto_now or self.on_update_current_timestamp:
+        if self.auto_now or (self.default and add) or self.on_update_current_timestamp:
             value = timezone.now()
             setattr(model_instance, self.attname, value)
             return value

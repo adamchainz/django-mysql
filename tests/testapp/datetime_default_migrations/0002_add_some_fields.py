@@ -6,10 +6,11 @@ from django_mysql.models import DateTimeField
 
 class Migration(migrations.Migration):
 
-    dependencies = []
+    dependencies = [("testapp", "0001_initial")]
+
     operations = [
         migrations.AddField(
-            model_name='modifiabledatetimemodel',
+            model_name='DatetimeModel',
             name='datetime4',
             field=DateTimeField(on_update_current_timestamp=True),
         ),

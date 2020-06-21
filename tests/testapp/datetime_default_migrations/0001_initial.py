@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = []
     operations = [
         migrations.CreateModel(
-            name="ModifiableDatetimeModel",
+            name="DatetimeModel",
             fields=[
                 (
                     "id",
