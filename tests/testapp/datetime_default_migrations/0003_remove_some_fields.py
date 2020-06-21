@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='modifiabledatetimemodel',
-            name='field_4',
+            name='datetime4',
             field=models.DateTimeField(),
         ),
     ]
