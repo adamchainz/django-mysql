@@ -4,6 +4,8 @@ History
 =======
 
 * Drop Django 2.0 and 2.1 support.
+* Fix query rewriting to install for recreated database connections.
+  (`Issue #677 <https://github.com/adamchainz/django-mysql/issues/677>`__)
 
 3.7.0 (2020-06-15)
 ------------------
