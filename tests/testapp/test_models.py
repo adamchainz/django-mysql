@@ -4,6 +4,7 @@ from unittest import mock, skipUnless
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
@@ -328,6 +329,20 @@ class QueryHintTests(TestCase):
                 )
             )
         assert " FORCE INDEX " not in cap.query
+
+
+class QueryHintNewConnectionTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Force a new connection to be created, in order to check that the
+        # rewrite hook is installed on it.
+        del connections[DEFAULT_DB_ALIAS]
+        super().setUpClass()
+
+    def test_label_forced_new_connection(self):
+        with CaptureLastQuery() as cap:
+            list(Author.objects.label("QueryHintTests.test_label").all())
+        assert cap.query.startswith("SELECT /*QueryHintTests.test_label*/ ")
 
 
 class FoundRowsTests(TestCase):

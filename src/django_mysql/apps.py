@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 from django.conf import settings
+from django.db.backends.signals import connection_created
 from django.utils.translation import ugettext_lazy as _
 
 from django_mysql.checks import register_checks
@@ -22,14 +23,8 @@ class MySQLConfig(AppConfig):
         ):  # pragma: no cover
             return
         for _alias, connection in mysql_connections():
-            # Rather than use the documented API of the `execute_wrapper()`
-            # context manager, directly insert the hook. This is done because:
-            # 1. Deleting the context manager closes it, so it's not possible
-            # to enter it here and not exit it, unless we store it forever in
-            # some variable.
-            # 2. We want to be idempotent and only install the hook once.
-            if rewrite_hook not in connection.execute_wrappers:  # pragma: no branch
-                connection.execute_wrappers.append(rewrite_hook)
+            install_rewrite_hook(connection)
+        connection_created.connect(install_rewrite_hook)
 
     def add_lookups(self):
         from django.db.models import CharField, TextField
@@ -41,6 +36,20 @@ class MySQLConfig(AppConfig):
         TextField.register_lookup(CaseSensitiveExact)
         TextField.register_lookup(SoundsLike)
         TextField.register_lookup(Soundex)
+
+
+def install_rewrite_hook(connection, **kwargs):
+    """
+    Rather than use the documented API of the `execute_wrapper()` context
+    manager, directly insert the hook. This is done because:
+    1. Deleting the context manager closes it, so it's not possible to enter it
+       here and not exit it, unless we store it forever in some variable.
+    2. We want to be idempotent and only install the hook once.
+    """
+    if connection.vendor != "mysql":
+        return
+    if rewrite_hook not in connection.execute_wrappers:  # pragma: no branch
+        connection.execute_wrappers.insert(0, rewrite_hook)
 
 
 def rewrite_hook(execute, sql, params, many, context):
