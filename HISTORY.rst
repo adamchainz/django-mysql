@@ -3,6 +3,9 @@
 History
 =======
 
+3.7.1 (2020-06-24)
+------------------
+
 * Fix query rewriting to install for recreated database connections.
   (`Issue #677 <https://github.com/adamchainz/django-mysql/issues/677>`__)
 
