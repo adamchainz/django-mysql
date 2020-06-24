@@ -101,12 +101,12 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
    If you want to use a different user or add a password, you can patch the
    settings file in your local install.
 
-5. Install ``tox`` and run the tests for Python 3.8 + Django 3.0:
+5. Install ``tox`` and run the tests for Python 3.6 + Django 2.1:
 
    .. code-block:: sh
 
        $ python -m pip install tox
-       $ tox -e py38-django30
+       $ tox -e py36-django21
 
    The ``tox.ini`` file defines a large number of test environments, for
    different Python and Django versions, plus for checking codestyle. During
@@ -115,7 +115,7 @@ Ready to contribute? Here's how to set up Django-MySQL for local development.
 
    .. code-block:: sh
 
-       $ tox -e py38-codestyle,py38-django30
+       $ tox -e py36-codestyle,py36-django21
 
    You can run all the environments to check your code is okay for them with:
 

@@ -1,6 +1,7 @@
 import hashlib
 from unittest import SkipTest
 
+import django
 import pytest
 from django.db import connection
 from django.db.models import F, FloatField, Q, Value
@@ -338,7 +339,10 @@ class EncryptionFunctionTests(TestCase):
 
 class InformationFunctionTests(TestCase):
 
-    databases = ["default", "other"]
+    if django.VERSION >= (2, 2):
+        databases = ["default", "other"]
+    else:
+        multi_db = True
 
     def test_last_insert_id(self):
         Alphabet.objects.create(a=7891)

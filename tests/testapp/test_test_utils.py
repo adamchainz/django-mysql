@@ -1,3 +1,4 @@
+import django
 import pytest
 from django.db import connections
 from django.test import TestCase
@@ -21,7 +22,10 @@ class OverrideVarsMethodTest(TestCase):
 @override_mysql_variables(TIMESTAMP=123)
 class OverrideVarsClassTest(OverrideVarsMethodTest):
 
-    databases = ["default", "other"]
+    if django.VERSION >= (2, 2):
+        databases = ["default", "other"]
+    else:
+        multi_db = True
 
     def test_class_decorator(self):
         self.check_timestamp(123)

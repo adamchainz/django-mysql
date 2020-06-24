@@ -16,11 +16,63 @@ if __name__ == "__main__":
             "python3.5",
             *common_args,
             "-P",
+            "Django>=2.0,<2.1",
+            "-P",
+            "mysqlclient>=1.3.7,<=1.3.13",
+            "-o",
+            "py35-django20.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.5",
+            *common_args,
+            "-P",
+            "Django>=2.1,<2.2",
+            "-P",
+            "mysqlclient>=1.3.7",
+            "-o",
+            "py35-django21.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.5",
+            *common_args,
+            "-P",
             "Django>=2.2,<2.3",
             "-P",
             "mysqlclient>=1.3.13",
             "-o",
             "py35-django22.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.6",
+            *common_args,
+            "-P",
+            "Django>=2.0,<2.1",
+            "-P",
+            "mysqlclient>=1.3.7,<=1.3.13",
+            "-o",
+            "py36-django20.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.6",
+            *common_args,
+            "-P",
+            "Django>=2.1,<2.2",
+            "-P",
+            "mysqlclient>=1.3.7",
+            "-o",
+            "py36-django21.txt",
         ],
         check=True,
     )
@@ -60,6 +112,32 @@ if __name__ == "__main__":
             "mysqlclient>=1.4.0",
             "-o",
             "py36-django31.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.7",
+            *common_args,
+            "-P",
+            "Django>=2.0,<2.1",
+            "-P",
+            "mysqlclient>=1.3.7,<=1.3.13",
+            "-o",
+            "py37-django20.txt",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "python3.7",
+            *common_args,
+            "-P",
+            "Django>=2.1,<2.2",
+            "-P",
+            "mysqlclient>=1.3.7",
+            "-o",
+            "py37-django21.txt",
         ],
         check=True,
     )

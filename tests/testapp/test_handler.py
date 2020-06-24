@@ -1,3 +1,4 @@
+import django
 import pytest
 from django.db import connection
 from django.db.models import F
@@ -380,7 +381,10 @@ class HandlerStandaloneTests(TestCase):
 
 class HandlerMultiDBTests(TestCase):
 
-    databases = ["default", "other"]
+    if django.VERSION >= (2, 2):
+        databases = ["default", "other"]
+    else:
+        multi_db = True
 
     def setUp(self):
         super().setUp()

@@ -2,6 +2,7 @@ from io import StringIO
 from textwrap import dedent
 from unittest import SkipTest, mock
 
+import django
 import pytest
 from django.core.management import CommandError, call_command
 from django.db import connection
@@ -44,7 +45,10 @@ class Datetime6TestMixin:
 
 class FixDatetimeColumnsTests(Datetime6TestMixin, TestCase):
 
-    databases = ["default", "other"]
+    if django.VERSION >= (2, 2):
+        databases = ["default", "other"]
+    else:
+        multi_db = True
 
     def test_nothing_by_default(self):
         assert run_it() == ""

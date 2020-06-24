@@ -1,6 +1,7 @@
 import queue
 from threading import Thread
 
+import django
 import pytest
 from django.db import OperationalError, connection, connections
 from django.db.transaction import TransactionManagementError, atomic
@@ -21,7 +22,10 @@ from tests.testapp.models import (
 
 class LockTests(TestCase):
 
-    databases = ["default", "other"]
+    if django.VERSION >= (2, 2):
+        databases = ["default", "other"]
+    else:
+        multi_db = True
 
     @classmethod
     def setUpClass(cls):
@@ -218,7 +222,10 @@ class LockTests(TestCase):
 
 class TableLockTests(TransactionTestCase):
 
-    databases = ["default", "other"]
+    if django.VERSION >= (2, 2):
+        databases = ["default", "other"]
+    else:
+        multi_db = True
 
     def tearDown(self):
         Alphabet.objects.all().delete()

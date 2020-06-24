@@ -601,6 +601,9 @@ def can_approx_count(queryset):
         elif not all((REWRITE_MARKER in sql) for sql in child.sqls):
             return False
 
+    if hasattr(query, "having") and query.having:  # Django < 1.9
+        return False  # pragma: no cover
+
     return True
 
 
