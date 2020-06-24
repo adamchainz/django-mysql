@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from unittest import mock
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
@@ -80,3 +81,13 @@ def fetchall_dicts(cursor):
     for row in cursor.fetchall():
         rows.append(dict(zip(columns, row)))
     return rows
+
+
+@contextmanager
+def mock_mysql_version(*, default, other):
+    mock_default = mock.patch.object(
+        connections["default"], "mysql_version", new=default
+    )
+    mock_other = mock.patch.object(connections["other"], "mysql_version", new=other)
+    with mock_default, mock_other:
+        yield

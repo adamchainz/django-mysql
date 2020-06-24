@@ -5,7 +5,7 @@ from unittest import SkipTest, mock
 import pytest
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import connection, connections
+from django.db import connection
 from django.db.models import F
 from django.test import TestCase
 
@@ -13,7 +13,7 @@ from django_mysql import forms
 from django_mysql.models import JSONField
 from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import JSONModel, TemporaryModel
-from tests.testapp.utils import print_all_queries
+from tests.testapp.utils import mock_mysql_version
 
 
 class JSONFieldTestCase(TestCase):
@@ -342,11 +342,10 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         assert "only works with Sequences" in str(excinfo.value)
 
     def test_has_keys(self):
-        with print_all_queries():
-            assert list(JSONModel.objects.filter(attrs__has_keys=["a", "c"])) == [
-                self.objs[1],
-                self.objs[2],
-            ]
+        assert list(JSONModel.objects.filter(attrs__has_keys=["a", "c"])) == [
+            self.objs[1],
+            self.objs[2],
+        ]
 
     def test_has_keys_2(self):
         assert list(JSONModel.objects.filter(attrs__has_keys=["l"])) == [self.objs[4]]
@@ -584,8 +583,7 @@ class TestCheck(JSONFieldTestCase):
         assert errors[0].id == "django_mysql.E016"
         assert "MySQL 5.7+ is required" in errors[0].msg
 
-    @mock.patch.object(connections["default"], "mysql_version", new=(5, 5, 3))
-    @mock.patch.object(connections["other"], "mysql_version", new=(5, 5, 1))
+    @mock_mysql_version(default=(5, 5, 3), other=(5, 5, 3))
     def test_mysql_old_version(self):
         class InvalidJSONModel4(TemporaryModel):
             field = JSONField()
@@ -595,8 +593,7 @@ class TestCheck(JSONFieldTestCase):
         assert errors[0].id == "django_mysql.E016"
         assert "MySQL 5.7+ is required" in errors[0].msg
 
-    @mock.patch.object(connections["default"], "mysql_version", new=(5, 5, 3))
-    @mock.patch.object(connections["other"], "mysql_version", new=(5, 7, 1))
+    @mock_mysql_version(default=(5, 5, 3), other=(5, 7, 1))
     def test_mysql_one_conn_old_version(self):
         class InvalidJSONModel5(TemporaryModel):
             field = JSONField()

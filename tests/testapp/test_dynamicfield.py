@@ -5,7 +5,7 @@ from unittest import SkipTest, mock
 import mariadb_dyncol
 import pytest
 from django.core import serializers
-from django.db import connection, connections
+from django.db import connection
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
 from django.test import TestCase
@@ -13,6 +13,7 @@ from django.test import TestCase
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
+from tests.testapp.utils import mock_mysql_version
 
 
 class DynColTestCase(TestCase):
@@ -287,8 +288,7 @@ class TestCheck(DynColTestCase):
 
     wrapper_path = "django.db.backends.mysql.base.DatabaseWrapper"
 
-    @mock.patch.object(connections["default"], "mysql_version", new=(5, 5, 3))
-    @mock.patch.object(connections["other"], "mysql_version", new=(5, 5, 3))
+    @mock_mysql_version(default=(5, 5, 3), other=(5, 5, 3))
     def test_mariadb_old_version(self):
         class ValidDynamicModel2(TemporaryModel):
             field = DynamicField()
@@ -298,8 +298,7 @@ class TestCheck(DynColTestCase):
         assert errors[0].id == "django_mysql.E013"
         assert "MariaDB 10.0.1+ is required" in errors[0].msg
 
-    @mock.patch.object(connections["default"], "mysql_version", new=(5, 5, 3))
-    @mock.patch.object(connections["other"], "mysql_version", new=(10, 0, 1))
+    @mock_mysql_version(default=(5, 5, 3), other=(10, 0, 1))
     def test_mariadb_one_conn_old_version(self):
         class ValidDynamicModel3(TemporaryModel):
             field = DynamicField()
