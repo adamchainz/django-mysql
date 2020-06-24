@@ -1,4 +1,3 @@
-import django
 import pytest
 from django.test import TestCase
 
@@ -35,10 +34,7 @@ class BaseStatusTests(TestCase):
 
 class GlobalStatusTests(TestCase):
 
-    if django.VERSION >= (2, 2):
-        databases = ["default", "other"]
-    else:
-        multi_db = True
+    databases = ["default", "other"]
 
     def test_get(self):
         running = global_status.get("Threads_running")
@@ -128,10 +124,7 @@ class GlobalStatusTests(TestCase):
 
 class SessionStatusTests(TestCase):
 
-    if django.VERSION >= (2, 2):
-        databases = ["default", "other"]
-    else:
-        multi_db = True
+    databases = ["default", "other"]
 
     def test_get_bytes_received(self):
         bytes_received = session_status.get("Bytes_received")
