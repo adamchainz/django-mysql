@@ -4,6 +4,7 @@ History
 =======
 
 * Drop Django 2.0 and 2.1 support.
+* Test with MariaDB 10.5.
 
 3.7.1 (2020-06-24)
 ------------------
