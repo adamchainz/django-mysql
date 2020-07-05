@@ -18,7 +18,5 @@ pytest-django
 pytest-flake8dir
 pytest-randomly
 pytest-super-check
-pytz
 secretstorage ; python_version == '3.8.*' # required for twine on linux
-sqlparse
 twine ; python_version == '3.8.*'
