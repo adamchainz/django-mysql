@@ -956,6 +956,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def test_our_options_quacks_like_djangos(self):
         from django.core.cache.backends.db import Options
+
         from django_mysql.cache import Options as OurOptions
 
         theirs = Options("something")
