@@ -48,7 +48,7 @@ class ConnectionIsMariaDBTests(TestCase):
 
     def test_mariadb(self):
         conn = mock.MagicMock(vendor="mysql")
-        conn.connection.get_server_info.return_value = "10.0.3-MariaDB-1~precise-log"
+        conn.connection.get_server_info.return_value = "10.4.3-MariaDB-1~precise-log"
         assert connection_is_mariadb(conn)
         conn.connection.get_server_info.side_effect = ValueError("re-called")
         assert connection_is_mariadb(conn)
