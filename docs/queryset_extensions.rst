@@ -481,11 +481,19 @@ can be thought of in one of these two methods.
         checked against after each chunk with
         :func:`~django_mysql.status.GlobalStatus.wait_until_load_low`.
 
-        When set to ``None``, it lets
-        :class:`~django_mysql.status.GlobalStatus` use its default of
-        ``'Threads_running': 5}``. Set to an empty dict to disable status
-        checking (not really recommended, it doesn't add much overhead and can
-        will probably save your butt one day).
+        When set to ``None``, the default,
+        :class:`~django_mysql.status.GlobalStatus` will use its default of
+        ``{"Threads_running": 10}``. Set to an empty dict to disable status
+        checking - but this is not really recommended, as it can save you from
+        locking up your site with an overly aggressive migration.
+
+        Using ``Threads_running`` is the most recommended variable to check
+        against, and is copeid from the default behaviour of
+        ``pt-online-schema-change``. The default value of 10 threads is
+        deliberately conservative to avoid locking small database servers.
+        You should tweak it up based upon the live activity of your server -
+        check the running thread count during normal traffic and add some
+        overhead.
 
     .. attribute:: pk_range=None
 
