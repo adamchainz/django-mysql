@@ -10,7 +10,7 @@ if __name__ == "__main__":
     os.environ["CUSTOM_COMPILE_COMMAND"] = "requirements/compile.py"
     common_args = ["-m", "piptools", "compile", "--generate-hashes"] + sys.argv[1:]
     # mysqlclient requirements found on each version's "Databases" documentation page:
-    # https://docs.djangoproject.com/en/3.1/ref/databases/#mysql-db-api-drivers
+    # https://docs.djangoproject.com/en/3.0/ref/databases/#mysql-db-api-drivers
     subprocess.run(
         [
             "python3.5",
