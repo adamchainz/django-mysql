@@ -7,7 +7,7 @@ Database Functions
 .. currentmodule:: django_mysql.models.functions
 
 MySQL-specific `database functions
-<https://docs.djangoproject.com/en/1.8/ref/models/database-functions/>`_
+<https://docs.djangoproject.com/en/3.0/ref/models/database-functions/>`_
 for the ORM.
 
 The following can be imported from ``django_mysql.models.functions``.

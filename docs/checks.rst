@@ -9,7 +9,7 @@ it.
 .. note::
 
     A reminder: as per
-    `the Django docs <https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-SILENCED_SYSTEM_CHECKS>`_,
+    `the Django docs <https://docs.djangoproject.com/en/3.0/ref/settings/#std:setting-SILENCED_SYSTEM_CHECKS>`_,
     you can silence individual checks in your settings. For example, if you
     determine ``django_mysql.W002`` doesn't require your attention, add the
     following to ``settings.py``:

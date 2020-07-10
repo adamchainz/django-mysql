@@ -108,7 +108,7 @@ Multiple Databases
 If you use this with multiple databases, you'll also need to set up routing
 instructions for the cache table. This can be done with the same method
 that is described for ``DatabaseCache`` in the `Django manual
-<https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching>`__, apart
+<https://docs.djangoproject.com/en/3.0/topics/cache/#database-caching>`__, apart
 from the application name is ``django_mysql``.
 
 .. note::
@@ -160,7 +160,7 @@ performing a cull operation when appropriate. This deletes expired keys first,
 then if more than ``MAX_ENTRIES`` keys remain, it deletes 1 /
 ``CULL_FREQUENCY`` of them. The options and strategy are described in in more
 detail in the `Django manual
-<https://docs.djangoproject.com/en/1.8/topics/cache/#cache-arguments>`_.
+<https://docs.djangoproject.com/en/3.0/topics/cache/#cache-arguments>`_.
 
 Django's ``DatabaseCache`` performs a cull check on *every* write operation.
 This runs a ``SELECT COUNT(*)`` on the table, which means a full-table scan.

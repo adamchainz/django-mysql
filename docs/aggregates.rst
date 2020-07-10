@@ -7,7 +7,7 @@ Aggregates
 .. currentmodule:: django_mysql.models
 
 MySQL-specific `database aggregates
-<https://docs.djangoproject.com/en/dev/topics/db/aggregation/>`_
+<https://docs.djangoproject.com/en/3.0/topics/db/aggregation/>`_
 for the ORM.
 
 The following can be imported from ``django_mysql.models``.

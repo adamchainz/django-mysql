@@ -17,7 +17,7 @@ Case-sensitive String Comparison
 
 MySQL string comparison has a case-sensitivity dependent on the collation of
 your tables/columns, as the `Django manual describes
-<https://docs.djangoproject.com/en/1.8/ref/databases/#collation-settings>`_.
+<https://docs.djangoproject.com/en/3.0/ref/databases/#collation-settings>`_.
 However, it is possible to query in a case-sensitive manner even when your data
 is not stored with a case-sensitive collation, using the ``BINARY`` keyword.
 The following lookup adds that capability to the ORM for

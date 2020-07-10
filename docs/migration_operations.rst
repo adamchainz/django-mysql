@@ -7,7 +7,7 @@ Migration Operations
 .. currentmodule:: django_mysql.operations
 
 MySQL-specific `migration operations
-<https://docs.djangoproject.com/en/dev/ref/migration-operations/>`_
+<https://docs.djangoproject.com/en/3.0/ref/migration-operations/>`_
 that can all be imported from ``django_mysql.operations``.
 
 
