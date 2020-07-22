@@ -9,9 +9,9 @@ flake8-comprehensions ; python_version == '3.8.*'
 flake8-tidy-imports ; python_version == '3.8.*'
 isort ; python_version == '3.8.*'
 mariadb-dyncol
-multilint ; python_version == '3.8.*'
 mysqlclient
 parameterized
+pre-commit ; python_version == '3.8.*'
 pygments ; python_version == '3.8.*'
 pytest
 pytest-django

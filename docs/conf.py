@@ -11,8 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
+import sys
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -27,9 +27,10 @@ project_root = os.path.dirname(cwd)
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
 # version is used.
-sys.path.insert(0, os.path.join(project_root, 'src'))
+sys.path.insert(0, os.path.join(project_root, "src"))
 
 from django.conf import settings  # noqa
+
 settings.configure()
 
 import django_mysql  # noqa
@@ -42,26 +43,26 @@ import django_mysql  # noqa
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.intersphinx',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = 'Django-MySQL'
-copyright = '2017-2020 Adam Johnson'
+project = "Django-MySQL"
+copyright = "2017-2020 Adam Johnson"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -71,11 +72,13 @@ copyright = '2017-2020 Adam Johnson'
 
 
 def _get_version():
-    with open(os.path.join(project_root, 'setup.cfg'), 'r') as setup_fp:
-        version_lines = [line.strip() for line in setup_fp if line.startswith("version = ")]
+    with open(os.path.join(project_root, "setup.cfg"), "r") as setup_fp:
+        version_lines = [
+            line.strip() for line in setup_fp if line.startswith("version = ")
+        ]
 
     assert len(version_lines) == 1
-    return version_lines[0].split(' = ')[1]
+    return version_lines[0].split(" = ")[1]
 
 
 version = _get_version()
@@ -94,7 +97,7 @@ release = version
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -112,7 +115,7 @@ add_module_names = False
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ["django_mysql."]
@@ -126,11 +129,12 @@ modindex_common_prefix = ["django_mysql."]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
+
+    html_theme = "sphinx_rtd_theme"
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a
@@ -156,13 +160,13 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # The name of an image file (within the static path) to use as favicon
 # of the docs.  This file should be a Windows icon file (.ico) being
 # 16x16 or 32x32 pixels large.
-html_favicon = 'favicon.ico'
+html_favicon = "favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets)
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -208,7 +212,7 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'django-mysqldoc'
+htmlhelp_basename = "django-mysqldoc"
 
 
 # -- Options for LaTeX output ------------------------------------------
@@ -216,10 +220,8 @@ htmlhelp_basename = 'django-mysqldoc'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     # 'preamble': '',
 }
@@ -228,9 +230,13 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-    ('index', 'django-mysql.tex',
-     'Django-MySQL Documentation',
-     'Adam Johnson', 'manual'),
+    (
+        "index",
+        "django-mysql.tex",
+        "Django-MySQL Documentation",
+        "Adam Johnson",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -259,9 +265,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-mysql',
-     'Django-MySQL Documentation',
-     ['Adam Johnson'], 1),
+    ("index", "django-mysql", "Django-MySQL Documentation", ["Adam Johnson"], 1),
 ]
 
 # If true, show URL addresses after external links.
@@ -274,12 +278,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'django-mysql',
-     'Django-MySQL Documentation',
-     'Adam Johnson',
-     'django-mysql',
-     'One line description of project.',
-     'Miscellaneous'),
+    (
+        "index",
+        "django-mysql",
+        "Django-MySQL Documentation",
+        "Adam Johnson",
+        "django-mysql",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -296,6 +303,8 @@ texinfo_documents = [
 
 
 intersphinx_mapping = {
-    'django': ('https://docs.djangoproject.com/en/3.0/',
-               'https://docs.djangoproject.com/en/3.0/_objects/'),
+    "django": (
+        "https://docs.djangoproject.com/en/3.0/",
+        "https://docs.djangoproject.com/en/3.0/_objects/",
+    ),
 }
