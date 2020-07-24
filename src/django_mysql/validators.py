@@ -1,9 +1,9 @@
 from django.core.validators import MaxLengthValidator, MinLengthValidator
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import ngettext_lazy
 
 
 class ListMaxLengthValidator(MaxLengthValidator):
-    message = ungettext_lazy(
+    message = ngettext_lazy(
         "List contains %(show_value)d item, "
         "it should contain no more than %(limit_value)d.",
         "List contains %(show_value)d items, "
@@ -13,7 +13,7 @@ class ListMaxLengthValidator(MaxLengthValidator):
 
 
 class ListMinLengthValidator(MinLengthValidator):
-    message = ungettext_lazy(
+    message = ngettext_lazy(
         "List contains %(show_value)d item, "
         "it should contain no fewer than %(limit_value)d.",
         "List contains %(show_value)d items, "
@@ -23,7 +23,7 @@ class ListMinLengthValidator(MinLengthValidator):
 
 
 class SetMaxLengthValidator(MaxLengthValidator):
-    message = ungettext_lazy(
+    message = ngettext_lazy(
         "Set contains %(show_value)d item, "
         "it should contain no more than %(limit_value)d.",
         "Set contains %(show_value)d items, "
@@ -33,7 +33,7 @@ class SetMaxLengthValidator(MaxLengthValidator):
 
 
 class SetMinLengthValidator(MinLengthValidator):
-    message = ungettext_lazy(
+    message = ngettext_lazy(
         "Set contains %(show_value)d item, "
         "it should contain no fewer than %(limit_value)d.",
         "Set contains %(show_value)d items, "
