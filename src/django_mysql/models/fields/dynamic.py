@@ -12,7 +12,7 @@ from django.db.models import (
     TimeField,
     Transform,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
