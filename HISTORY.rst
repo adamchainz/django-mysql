@@ -2,6 +2,11 @@
 History
 =======
 
+3.8.1 (2020-07-27)
+------------------
+
+* Fix one more RemovedInDjango40Warning message for django.utils.translation.
+
 3.8.0 (2020-07-27)
 ------------------
 
