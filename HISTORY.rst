@@ -2,10 +2,14 @@
 History
 =======
 
+3.8.0 (2020-07-27)
+------------------
+
 * Drop Django 2.0 and 2.1 support.
 * Test with MariaDB 10.5.
 * Drop testing with MariaDB 10.0 (Django only officially supports MariaDB
   10.1+ anyway).
+* Fix RemovedInDjango40Warning messages for django.utils.translation.
 
 3.7.1 (2020-06-24)
 ------------------
