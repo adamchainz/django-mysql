@@ -448,16 +448,19 @@ class ExtraLookupsQueryTests(JSONFieldTestCase):
         )
 
     def test_contained_by(self):
-        assert list(
-            JSONModel.objects.filter(
-                attrs__contained_by={
-                    "k": True,
-                    "l": False,
-                    "\\": "awkward",
-                    "spare_key": ["unused", "array"],
-                }
+        assert (
+            list(
+                JSONModel.objects.filter(
+                    attrs__contained_by={
+                        "k": True,
+                        "l": False,
+                        "\\": "awkward",
+                        "spare_key": ["unused", "array"],
+                    }
+                )
             )
-        ) == [self.objs[0], self.objs[4]]
+            == [self.objs[0], self.objs[4]]
+        )
 
     def test_contained_by_array(self):
         assert list(JSONModel.objects.filter(attrs__contained_by=[1, [2], 3])) == [
