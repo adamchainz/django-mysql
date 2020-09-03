@@ -302,4 +302,3 @@ Or with attribute assignment to a model:
         queries, all of which start with ``@tmp_``. This shouldn't affect you
         much, but if you use user variables in your queries, beware for any
         conflicts.
-
