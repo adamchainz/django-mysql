@@ -60,7 +60,9 @@ jobs:
     - name: Upgrade packaging tools
       run: python -m pip install --upgrade pip setuptools virtualenv
     - name: Install percona-toolkit
-      run: sudo apt-get install -y percona-toolkit
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y percona-toolkit
     - name: Install dependencies
       run: python -m pip install --upgrade coveralls tox
     - name: Run tox targets for ${{ matrix.python-version }}
