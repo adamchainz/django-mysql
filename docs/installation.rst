@@ -8,7 +8,7 @@ Requirements
 These are the supported, tested versions of Django-MySQL's requirements:
 
 * Python: 3.5, 3.6, 3.7, 3.8
-* Django: 2.2, 3.0
+* Django: 2.2, 3.0, 3.1
 * MySQL: 5.6, 5.7, 8.0 / MariaDB: 10.1, 10.2, 10.3, 10.4, 10.5
 * mysqlclient: 1.3, 1.4
 
