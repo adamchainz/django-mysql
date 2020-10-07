@@ -269,11 +269,14 @@ class TestJSONField(SimpleTestCase):
         field = JSONField()
         assert field.prepare_value({"a": "b"}) == '{"a": "b"}'
         assert field.prepare_value(["a", "b"]) == '["a", "b"]'
+        assert field.prepare_value(["你好，世界", "😀🐱"]) == '["你好，世界", "😀🐱"]'
         assert field.prepare_value(True) == "true"
         assert field.prepare_value(False) == "false"
         assert field.prepare_value(3.14) == "3.14"
         assert field.prepare_value(None) == "null"
         assert field.prepare_value("foo") == '"foo"'
+        assert field.prepare_value("你好，世界") == '"你好，世界"'
+        assert field.prepare_value("😀🐱") == '"😀🐱"'
 
     def test_redisplay_wrong_input(self):
         """
