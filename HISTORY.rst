@@ -2,7 +2,12 @@
 History
 =======
 
+3.9.0 (2020-10-11)
+------------------
+
 * Move license from BSD to MIT License.
+* Fix form JSONField for to not use the ``ensure_ascii`` flag, making it
+  support all unicode characters.
 
 3.8.1 (2020-07-27)
 ------------------
