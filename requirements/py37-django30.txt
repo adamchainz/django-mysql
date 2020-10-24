@@ -60,9 +60,9 @@ importlib-metadata==2.0.0 \
     --hash=sha256:77a540690e24b0305878c37ffd421785a6f7e53c8b5720d211b211de8d0e95da \
     --hash=sha256:cefa1a2f919b866c5beb7c9f7b0ebb4061f30a8a9bf16d609b000e2dfaceb9c3 \
     # via flake8, pluggy, pytest, pytest-randomly
-iniconfig==1.0.1 \
-    --hash=sha256:80cf40c597eb564e86346103f609d74efce0f6b4d4f30ec8ce9e2c26411ba437 \
-    --hash=sha256:e5f92f89355a67de0595932a6c6c02ab4afddc6fcdc0bfc5becd0d60884d3f69 \
+iniconfig==1.1.1 \
+    --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
+    --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32 \
     # via pytest
 mariadb-dyncol==3.1.0 \
     --hash=sha256:374770b11bdbf6693e5f58a5ec584d533cddee17515c4c9084bab62d28bcb74f \
@@ -106,9 +106,9 @@ pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
     --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b \
     # via packaging
-pytest-django==3.10.0 \
-    --hash=sha256:4de6dbd077ed8606616958f77655fed0d5e3ee45159475671c7fa67596c6dba6 \
-    --hash=sha256:c33e3d3da14d8409b125d825d4e74da17bb252191bf6fc3da6856e27a8b73ea4 \
+pytest-django==4.1.0 \
+    --hash=sha256:10e384e6b8912ded92db64c58be8139d9ae23fb8361e5fc139d8e4f8fc601bc2 \
+    --hash=sha256:26f02c16d36fd4c8672390deebe3413678d89f30720c16efb8b2a6bf63b9041f \
     # via -r requirements.in
 pytest-flake8dir==2.2.0 \
     --hash=sha256:783e02b1b0685800c35dc19ddf09f4d078efbeb99d507950b35685c591aeb443 \
@@ -142,7 +142,7 @@ toml==0.10.1 \
     --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
     --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88 \
     # via pytest
-zipp==3.3.0 \
-    --hash=sha256:64ad89efee774d1897a58607895d80789c59778ea02185dd846ac38394a8642b \
-    --hash=sha256:eed8ec0b8d1416b2ca33516a37a08892442f3954dee131e92cfd92d8fe3e7066 \
+zipp==3.3.2 \
+    --hash=sha256:50a4ef266c31c9409627b46012e206382eb8d23f46fbd358065a8335cfbf7d8f \
+    --hash=sha256:adf8f2ed8f614ced567d849cae9d183cef6cfd27c77a5cae7a28029be0c2b7a7 \
     # via importlib-metadata

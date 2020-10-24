@@ -56,9 +56,9 @@ flake8==3.8.4 \
     --hash=sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839 \
     --hash=sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b \
     # via pytest-flake8dir
-iniconfig==1.0.1 \
-    --hash=sha256:80cf40c597eb564e86346103f609d74efce0f6b4d4f30ec8ce9e2c26411ba437 \
-    --hash=sha256:e5f92f89355a67de0595932a6c6c02ab4afddc6fcdc0bfc5becd0d60884d3f69 \
+iniconfig==1.1.1 \
+    --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
+    --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32 \
     # via pytest
 mariadb-dyncol==3.1.0 \
     --hash=sha256:374770b11bdbf6693e5f58a5ec584d533cddee17515c4c9084bab62d28bcb74f \
@@ -102,9 +102,9 @@ pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
     --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b \
     # via packaging
-pytest-django==3.10.0 \
-    --hash=sha256:4de6dbd077ed8606616958f77655fed0d5e3ee45159475671c7fa67596c6dba6 \
-    --hash=sha256:c33e3d3da14d8409b125d825d4e74da17bb252191bf6fc3da6856e27a8b73ea4 \
+pytest-django==4.1.0 \
+    --hash=sha256:10e384e6b8912ded92db64c58be8139d9ae23fb8361e5fc139d8e4f8fc601bc2 \
+    --hash=sha256:26f02c16d36fd4c8672390deebe3413678d89f30720c16efb8b2a6bf63b9041f \
     # via -r requirements.in
 pytest-flake8dir==2.2.0 \
     --hash=sha256:783e02b1b0685800c35dc19ddf09f4d078efbeb99d507950b35685c591aeb443 \
