@@ -22,9 +22,7 @@ sqlite = ConnectionHandler({"default": {"ENGINE": "django.db.backends.sqlite3"}}
 
 
 def run_it(*args, **kwargs):
-    run_args = ["fix_datetime_columns"]
-    run_args.extend(args)
-
+    run_args = ["fix_datetime_columns", *args]
     out = StringIO()
     run_kwargs = {"stdout": out, "skip_checks": True}
     run_kwargs.update(kwargs)

@@ -15,10 +15,7 @@ class BaseStatus:
     query = ""
 
     def __init__(self, using=None):
-        if using is None:
-            self.db = DEFAULT_DB_ALIAS
-        else:
-            self.db = using
+        self.db = DEFAULT_DB_ALIAS if using is None else using
 
     def get_cursor(self):
         return connections[self.db].cursor()
@@ -44,9 +41,13 @@ class BaseStatus:
             )
 
         with self.get_cursor() as cursor:
-            query = [self.query, "WHERE Variable_name IN ("]
-            query.extend(", ".join("%s" for n in names))
-            query.append(")")
+            query = [
+                self.query,
+                "WHERE Variable_name IN (",
+                *", ".join("%s" for n in names),
+                ")",
+            ]
+
             cursor.execute(" ".join(query), names)
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
@@ -92,11 +93,7 @@ class GlobalStatus(BaseStatus):
         while True:
             current = self.get_many(names)
 
-            higher = []
-            for name in names:
-                if current[name] > thresholds[name]:
-                    higher.append(name)
-
+            higher = [name for name in names if current[name] > thresholds[name]]
             if not higher:
                 return
 

@@ -48,8 +48,7 @@ class WeightedAverageRate:
             self.avg_n = n
             self.avg_t = t
 
-        new_n = int(self.avg_rate * self.target_t)
-        return new_n
+        return int(self.avg_rate * self.target_t)
 
     @property
     def avg_rate(self):

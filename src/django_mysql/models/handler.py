@@ -148,11 +148,7 @@ class Handler:
     _operator_values = {"lt": "<", "lte": "<=", "exact": "=", "gte": ">=", "gt": ">"}
 
     def iter(self, index="PRIMARY", where=None, chunk_size=100, reverse=False):
-        if reverse:
-            mode = "last"
-        else:
-            mode = "first"
-
+        mode = "last" if reverse else "first"
         if where is not None:
             # Pre-convert so each iteration doesn't have to repeatedly parse
             # the SQL
@@ -167,10 +163,7 @@ class Handler:
             if count < chunk_size:
                 return
 
-            if reverse:
-                mode = "prev"
-            else:
-                mode = "next"
+            mode = "prev" if reverse else "next"
 
     # Internal methods
 

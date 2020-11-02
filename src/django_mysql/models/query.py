@@ -443,11 +443,7 @@ class SmartChunkedIterator:
         # If the queryset is not being fetched as-is, e.g. its .delete() is
         # called, we can't know how many objects were affected, so we just
         # assume they all exist/existed
-        if chunk._result_cache is None:
-            num_processed = self.chunk_size
-        else:
-            num_processed = len(chunk)
-
+        num_processed = self.chunk_size if chunk._result_cache is None else len(chunk)
         if num_processed > 0:
             new_chunk_size = self.rate.update(num_processed, chunk_time)
         else:
@@ -598,7 +594,7 @@ def can_approx_count(queryset):
     for child in query.where.children:
         if not isinstance(child, ExtraWhere):
             return False
-        elif not all((REWRITE_MARKER in sql) for sql in child.sqls):
+        elif any(REWRITE_MARKER not in sql for sql in child.sqls):
             return False
 
     return True

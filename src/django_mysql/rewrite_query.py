@@ -177,10 +177,7 @@ replacement_template = (
 
 def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
     table_spec_re = table_spec_re_template.format(table_name=table_name)
-    if for_what:
-        for_section = "FOR {} ".format(for_what)
-    else:
-        for_section = ""
+    for_section = "FOR {} ".format(for_what) if for_what else ""
     replacement = replacement_template.format(
         table_name=table_name,
         rule=rule,

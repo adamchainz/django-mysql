@@ -119,10 +119,7 @@ class AlterStorageEngine(Operation):
         return name.lower() == self.name_lower
 
     def describe(self):
-        if self.from_engine:
-            from_clause = " from {}".format(self.from_engine)
-        else:
-            from_clause = ""
+        from_clause = " from {}".format(self.from_engine) if self.from_engine else ""
         return "Alter storage engine for {model}{from_clause} to {engine}".format(
             model=self.name, from_clause=from_clause, engine=self.engine
         )

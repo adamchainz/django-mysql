@@ -60,14 +60,11 @@ class DynamicField(Field):
     def _check_mariadb_version(self):
         errors = []
 
-        any_conn_works = False
-        for _alias, conn in mysql_connections():
-            if (
+        any_conn_works = any((
                 hasattr(conn, "mysql_version")
                 and connection_is_mariadb(conn)
                 and conn.mysql_version >= (10, 0, 1)
-            ):
-                any_conn_works = True
+            ) for _alias, conn in mysql_connections())
 
         if not any_conn_works:
             errors.append(
@@ -206,11 +203,7 @@ class DynamicField(Field):
         for key, subspec in spec.items():
             if key in value:
 
-                if isinstance(subspec, dict):
-                    expected_type = dict
-                else:
-                    expected_type = subspec
-
+                expected_type = dict if isinstance(subspec, dict) else subspec
                 if not isinstance(value[key], expected_type):
                     raise TypeError(
                         "Key '{}{}' should be of type {}".format(

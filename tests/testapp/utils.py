@@ -28,10 +28,7 @@ def column_type(table_name, column_name):
 
 class CaptureLastQuery:
     def __init__(self, conn=None):
-        if conn is None:
-            self.conn = connection
-        else:
-            self.conn = conn
+        self.conn = connection if conn is None else conn
 
     def __enter__(self):
         self.capturer = CaptureQueriesContext(self.conn)
@@ -48,10 +45,7 @@ class CaptureLastQuery:
 
 class print_all_queries:
     def __init__(self, conn=None):
-        if conn is None:
-            self.conn = connection
-        else:
-            self.conn = conn
+        self.conn = connection if conn is None else conn
 
     def __enter__(self):
         self.capturer = CaptureQueriesContext(self.conn)
@@ -77,10 +71,7 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
 
 def fetchall_dicts(cursor):
     columns = [x[0] for x in cursor.description]
-    rows = []
-    for row in cursor.fetchall():
-        rows.append(dict(zip(columns, row)))
-    return rows
+    return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
 @contextmanager
