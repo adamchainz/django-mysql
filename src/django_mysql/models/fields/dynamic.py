@@ -60,11 +60,14 @@ class DynamicField(Field):
     def _check_mariadb_version(self):
         errors = []
 
-        any_conn_works = any((
+        any_conn_works = any(
+            (
                 hasattr(conn, "mysql_version")
                 and connection_is_mariadb(conn)
                 and conn.mysql_version >= (10, 0, 1)
-            ) for _alias, conn in mysql_connections())
+            )
+            for _alias, conn in mysql_connections()
+        )
 
         if not any_conn_works:
             errors.append(
