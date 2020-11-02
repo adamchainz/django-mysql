@@ -28,7 +28,10 @@ def column_type(table_name, column_name):
 
 class CaptureLastQuery:
     def __init__(self, conn=None):
-        self.conn = connection if conn is None else conn
+        if conn is None:
+            self.conn = connection
+        else:
+            self.conn = conn
 
     def __enter__(self):
         self.capturer = CaptureQueriesContext(self.conn)
@@ -45,7 +48,10 @@ class CaptureLastQuery:
 
 class print_all_queries:
     def __init__(self, conn=None):
-        self.conn = connection if conn is None else conn
+        if conn is None:
+            self.conn = connection
+        else:
+            self.conn = conn
 
     def __enter__(self):
         self.capturer = CaptureQueriesContext(self.conn)

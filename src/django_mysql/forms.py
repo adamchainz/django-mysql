@@ -37,7 +37,11 @@ class SimpleListField(forms.CharField):
         return value
 
     def to_python(self, value):
-        items = value.split(",") if value and len(value) else []
+        if value and len(value):
+            items = value.split(",")
+        else:
+            items = []
+
         errors = []
         values = []
         for i, item in enumerate(items, start=1):
@@ -147,7 +151,11 @@ class SimpleSetField(forms.CharField):
         return value
 
     def to_python(self, value):
-        items = value.split(",") if value and len(value) else []
+        if value and len(value):
+            items = value.split(",")
+        else:
+            items = []
+
         errors = []
         values = set()
         for i, item in enumerate(items, start=1):

@@ -11,7 +11,11 @@ class Lock:
     def __init__(self, name, acquire_timeout=10.0, using=None):
         self.acquire_timeout = acquire_timeout
 
-        self.db = DEFAULT_DB_ALIAS if using is None else using
+        if using is None:
+            self.db = DEFAULT_DB_ALIAS
+        else:
+            self.db = using
+
         # For multi-database servers, we prefix the name of the lock wth
         # the database, to protect against concurrent apps with the same locks
         self.name = self.make_name(self.db, name)

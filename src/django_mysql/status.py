@@ -15,7 +15,10 @@ class BaseStatus:
     query = ""
 
     def __init__(self, using=None):
-        self.db = DEFAULT_DB_ALIAS if using is None else using
+        if using is None:
+            self.db = DEFAULT_DB_ALIAS
+        else:
+            self.db = using
 
     def get_cursor(self):
         return connections[self.db].cursor()
@@ -41,14 +44,16 @@ class BaseStatus:
             )
 
         with self.get_cursor() as cursor:
-            query = [
-                self.query,
-                "WHERE Variable_name IN (",
-                *", ".join("%s" for n in names),
-                ")",
-            ]
+            query = " ".join(
+                [
+                    self.query,
+                    "WHERE Variable_name IN (",
+                    ", ".join("%s" for n in names),
+                    ")",
+                ]
+            )
 
-            cursor.execute(" ".join(query), names)
+            cursor.execute(query, names)
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
