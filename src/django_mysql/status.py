@@ -44,10 +44,16 @@ class BaseStatus:
             )
 
         with self.get_cursor() as cursor:
-            query = [self.query, "WHERE Variable_name IN ("]
-            query.extend(", ".join("%s" for n in names))
-            query.append(")")
-            cursor.execute(" ".join(query), names)
+            query = " ".join(
+                [
+                    self.query,
+                    "WHERE Variable_name IN (",
+                    ", ".join("%s" for n in names),
+                    ")",
+                ]
+            )
+
+            cursor.execute(query, names)
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
@@ -92,11 +98,7 @@ class GlobalStatus(BaseStatus):
         while True:
             current = self.get_many(names)
 
-            higher = []
-            for name in names:
-                if current[name] > thresholds[name]:
-                    higher.append(name)
-
+            higher = [name for name in names if current[name] > thresholds[name]]
             if not higher:
                 return
 

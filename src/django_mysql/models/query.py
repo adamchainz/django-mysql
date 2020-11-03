@@ -598,7 +598,7 @@ def can_approx_count(queryset):
     for child in query.where.children:
         if not isinstance(child, ExtraWhere):
             return False
-        elif not all((REWRITE_MARKER in sql) for sql in child.sqls):
+        elif any(REWRITE_MARKER not in sql for sql in child.sqls):
             return False
 
     return True

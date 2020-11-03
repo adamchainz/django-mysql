@@ -69,14 +69,14 @@ class JSONField(Field):
     def _check_mysql_version(self):
         errors = []
 
-        any_conn_works = False
-        for _alias, conn in mysql_connections():
-            if (
+        any_conn_works = any(
+            (
                 hasattr(conn, "mysql_version")
                 and not connection_is_mariadb(conn)
                 and conn.mysql_version >= (5, 7)
-            ):
-                any_conn_works = True
+            )
+            for _alias, conn in mysql_connections()
+        )
 
         if not any_conn_works:
             errors.append(

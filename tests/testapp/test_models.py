@@ -606,9 +606,10 @@ class SmartIteratorTests(TestCase):
         AuthorExtra.objects.create(author=author, legs=2)
         AuthorExtra.objects.create(author=author2, legs=1)
 
-        seen_author_ids = []
-        for extra in AuthorExtra.objects.iter_smart():
-            seen_author_ids.append(extra.author_id)
+        seen_author_ids = [
+            extra.author_id for extra in AuthorExtra.objects.iter_smart()
+        ]
+
         assert seen_author_ids == [author.id, author2.id]
 
     def test_iter_smart_fk_string_primary_key_fails(self):

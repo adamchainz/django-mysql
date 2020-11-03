@@ -77,10 +77,7 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
 
 def fetchall_dicts(cursor):
     columns = [x[0] for x in cursor.description]
-    rows = []
-    for row in cursor.fetchall():
-        rows.append(dict(zip(columns, row)))
-    return rows
+    return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
 @contextmanager

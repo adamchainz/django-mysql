@@ -134,9 +134,7 @@ class TableLock:
             self._atomic = atomic(using=self.db)
             self._atomic.__enter__()
 
-            locks = []
-            for name in self.read:
-                locks.append("{} READ".format(qn(name)))
+            locks = ["{} READ".format(qn(name)) for name in self.read]
             for name in self.write:
                 locks.append("{} WRITE".format(qn(name)))
             cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
