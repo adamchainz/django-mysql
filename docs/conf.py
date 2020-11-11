@@ -307,7 +307,7 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     "django": (
-        "https://docs.djangoproject.com/en/3.0/",
-        "https://docs.djangoproject.com/en/3.0/_objects/",
+        "https://docs.djangoproject.com/en/stable/",
+        "https://docs.djangoproject.com/en/stable/_objects/",
     ),
 }
