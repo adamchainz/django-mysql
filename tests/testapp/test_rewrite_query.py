@@ -285,4 +285,4 @@ class RewriteQueryTests(TestCase):
         query = "SELECT 1 FROM DUAL WHERE (/*QueryRewrite':STRAIGHT_JOIN*/1)"
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute(query)
-        cap.query == query
+        assert cap.query == query
