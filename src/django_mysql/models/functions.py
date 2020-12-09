@@ -97,7 +97,7 @@ class ConcatWS(Func):
         if len(kwargs) > 0:
             keys_str = ""
             for key in kwargs.keys():
-                if keys_str:
+                if keys_str: # pragma: no cover
                     keys_str += ","
                 keys_str += key
             raise ValueError(

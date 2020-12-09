@@ -51,7 +51,7 @@ class GroupConcat(Aggregate):
                     
         expr_sql = ""
         for v in expr_parts:
-            if expr_sql:
+            if expr_sql: # pragma: no cover
                 expr_sql += self.arg_joiner
             expr_sql += v
         sql.append(expr_sql)
