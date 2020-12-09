@@ -2,11 +2,18 @@
 History
 =======
 
+3.10.0 (2020-12-09)
+------------------
+
 * Drop Python 3.5 support.
 * Support Python 3.9.
 * Deprecate the ``Greatest``, ``Least``, ``Abs``, ``Ceiling``, ``Floor`` and
   ``Round`` database functions as they exist in Django core now. Using the
   Django-MySQL versions now triggers a ``DeprecationWarning``.
+* Deprecate ``JSONField``. Django 3.1 provides a ``JSONField`` implementation
+* that works with all database backends, use that instead. If you are on an
+* earlier version of Django, use
+  `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__.
 
 3.9.0 (2020-10-11)
 ------------------
