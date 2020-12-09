@@ -25,9 +25,8 @@ Comparison Functions
 
     .. note::
 
-        Django core has included this since Django 1.9 as
-        :class:`django.db.models.functions.Greatest`; it's preferable to use
-        that instead.
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Greatest` instead.
 
     With two or more arguments, returns the largest (maximum-valued) argument.
 
@@ -46,9 +45,8 @@ Comparison Functions
 
     .. note::
 
-        Django core has included this since Django 1.9 as
-        :class:`django.db.models.functions.Least`; it's preferable to use
-        that instead.
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Least` instead.
 
     With two or more arguments, returns the smallest (minimum-valued) argument.
 
@@ -96,6 +94,11 @@ Numeric Functions
 
 .. class:: Abs(expression)
 
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Abs` instead.
+
     Returns the absolute (non-negative) value of ``expression```. If
     ``expression`` is not a number, it is converted to a numeric type.
 
@@ -111,6 +114,11 @@ Numeric Functions
 
 
 .. class:: Ceiling(expression)
+
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Ceil` instead.
 
     Returns the smallest integer value not less than `expression`.
 
@@ -144,6 +152,11 @@ Numeric Functions
 
 .. class:: Floor(expression)
 
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Floor` instead.
+
     Returns the largest integer value not greater than ``expression``.
 
     Docs:
@@ -158,6 +171,11 @@ Numeric Functions
 
 
 .. class:: Round(expression, places=0)
+
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Round` instead.
 
     Rounds the argument ``expression`` to ``places`` decimal places. The
     rounding algorithm depends on the data type of ``expression``. ``places``

@@ -50,16 +50,30 @@ from tests.testapp.test_jsonfield import JSONFieldTestCase
 class ComparisonFunctionTests(TestCase):
     def test_greatest(self):
         Alphabet.objects.create(d="A", e="B")
-        ab = Alphabet.objects.annotate(best=Greatest("d", "e")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            best = Greatest("d", "e")
+        ab = Alphabet.objects.annotate(best=best).first()
+
         assert ab.best == "B"
 
     def test_greatest_takes_no_kwargs(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError), self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
             Greatest("a", something="wrong")
 
     def test_least(self):
         Alphabet.objects.create(a=1, b=2, c=-1)
-        ab = Alphabet.objects.annotate(worst=Least("a", "b", "c")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            worst = Least("a", "b", "c")
+        ab = Alphabet.objects.annotate(worst=worst).first()
+
         assert ab.worst == -1
 
 
@@ -130,12 +144,24 @@ class ControlFlowFunctionTests(TestCase):
 class NumericFunctionTests(TestCase):
     def test_abs(self):
         Alphabet.objects.create(a=-2)
-        ab = Alphabet.objects.annotate(aaa=Abs("a")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            aaa = Abs("a")
+        ab = Alphabet.objects.annotate(aaa=aaa).first()
+
         assert ab.aaa == 2
 
     def test_ceiling(self):
         Alphabet.objects.create(g=0.5)
-        ab = Alphabet.objects.annotate(gceil=Ceiling("g")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            gceil = Ceiling("g")
+        ab = Alphabet.objects.annotate(gceil=gceil).first()
+
         assert ab.gceil == 1
 
     def test_crc32(self):
@@ -154,22 +180,46 @@ class NumericFunctionTests(TestCase):
 
     def test_floor(self):
         Alphabet.objects.create(g=1.5)
-        ab = Alphabet.objects.annotate(gfloor=Floor("g")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            gfloor = Floor("g")
+        ab = Alphabet.objects.annotate(gfloor=gfloor).first()
+
         assert ab.gfloor == 1
 
     def test_round(self):
         Alphabet.objects.create(g=24.459)
-        ab = Alphabet.objects.annotate(ground=Round("g")).get()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            ground = Round("g")
+        ab = Alphabet.objects.annotate(ground=ground).get()
+
         assert ab.ground == 24
 
     def test_round_up(self):
         Alphabet.objects.create(g=27.859)
-        ab = Alphabet.objects.annotate(ground=Round("g")).get()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            ground = Round("g")
+        ab = Alphabet.objects.annotate(ground=ground).get()
+
         assert ab.ground == 28
 
     def test_round_places(self):
         Alphabet.objects.create(a=81731)
-        ab = Alphabet.objects.annotate(around=Round("a", -2)).get()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            around = Round("a", -2)
+        ab = Alphabet.objects.annotate(around=around).get()
+
         assert ab.around == 81700
 
     def test_sign(self):

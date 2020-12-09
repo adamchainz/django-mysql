@@ -3,8 +3,10 @@ History
 =======
 
 * Drop Python 3.5 support.
-
 * Support Python 3.9.
+* Deprecate the ``Greatest``, ``Least``, ``Abs``, ``Ceiling``, ``Floor`` and
+  ``Round`` database functions as they exist in Django core now. Using the
+  Django-MySQL versions now triggers a ``DeprecationWarning``.
 
 3.9.0 (2020-10-11)
 ------------------
