@@ -19,15 +19,6 @@ migrations, allowing you to swap them for the existing Django class and then
 use a migration to change their size class. This might help when taking over a
 legacy database for example.
 
-.. warning::
-
-    One caveat on migrations - you won't be able to use a `default` properly at
-    sizes other than ``LONGTEXT``/``LONGBLOB`` until Django 1.9 which includes
-    a fix from `Django Ticket 24846
-    <https://code.djangoproject.com/ticket/24846>`_. This is anyway mostly due
-    to a MySQL limitation - ``DEFAULT`` cannot be specified, other than the
-    empty string, for ``TEXT`` and ``BLOB`` columns.
-
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/storage-requirements.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/data-type-storage-requirements/>`_.

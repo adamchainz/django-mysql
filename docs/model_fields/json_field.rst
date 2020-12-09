@@ -36,9 +36,9 @@ Django-MySQL supports the JSON data type and related functions through
         mymodel.myfield = ["a", "list"]
         mymodel.myfield = {"a": "dict"}
 
-    This field requires Django 1.8+ and MySQL 5.7+. Both requirements are
-    checked by the field and you'll get sensible errors for them when Django's
-    checks run if you're not up to date on either.
+    This field requires MySQL 5.7+. This is checked by the field and you'll get
+    sensible errors for them when Django's checks run if you're not up to date
+    on either.
 
     .. warning::
 

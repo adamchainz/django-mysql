@@ -12,11 +12,6 @@ for the ORM.
 
 The following can be imported from ``django_mysql.models.functions``.
 
-.. note::
-
-    Functions were only added to Django in version 1.8.
-
-
 Comparison Functions
 --------------------
 
