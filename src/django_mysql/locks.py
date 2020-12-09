@@ -22,12 +22,7 @@ class Lock:
 
     @classmethod
     def make_name(cls, db, name):
-        db_names_str = ""
-        for db_name in connections[db].settings_dict["NAME"]:
-            if db_names_str:
-                db_names_str += "."
-            db_names_str += db_name
-        return db_names_str + "." + name
+        return connections[db].settings_dict["NAME"] + "." + name
 
     @classmethod
     def unmake_name(cls, db, name):
