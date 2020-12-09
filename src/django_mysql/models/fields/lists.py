@@ -41,9 +41,11 @@ class ListFieldMixin:
         # Remove the field name checks as they are not needed here.
         base_errors = self.base_field.check()
         if base_errors:
-            messages = "\n    ".join(
-                "{} ({})".format(error.msg, error.id) for error in base_errors
-            )
+            messages = ""
+            for v in base_errors:
+                if messages:
+                    messages += "\n    "
+                messages += "{} ({})".format(v.msg, v.id)
             errors.append(
                 checks.Error(
                     "Base field for list has errors:\n    %s" % messages,
@@ -110,7 +112,12 @@ class ListFieldMixin:
                             klass=self.__class__.__name__, name=self.name
                         )
                     )
-            return ",".join(value)
+            output = ""
+            for v in value:
+                if output:
+                    output = output + ","
+                output = output + v
+            return output
         return value
 
     def get_lookup(self, lookup_name):

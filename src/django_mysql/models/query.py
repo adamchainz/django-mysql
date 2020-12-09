@@ -216,7 +216,12 @@ class QuerySetMixin:
         if len(index_names) == 0:
             indexes = "NONE"
         else:
-            indexes = "`" + "`,`".join(index_names) + "`"
+            i_names_str = ""
+            for i_name in index_names:
+                if i_names_str:
+                    i_names_str += "`,`"
+                i_names_str += i_name
+            indexes = "`" + i_names_str + "`"
 
         hint = (
             "/*QueryRewrite':index=`{table_name}` {hint} {for_bit}{indexes}*/1"

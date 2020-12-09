@@ -65,8 +65,13 @@ class Handler:
         if index_op is not None:
             sql.append(index_op)
             if isinstance(index_value, tuple):
+                sql_str = ""
+                for _ in index_value:
+                    if sql_str:
+                        sql_str += ","
+                    sql_str += "%s"
                 sql.append("(")
-                sql.append(",".join("%s" for x in index_value))
+                sql.append(sql_str)
                 sql.append(")")
                 params += index_value
             else:
@@ -77,10 +82,13 @@ class Handler:
             try:
                 sql.append(self._read_modes[mode])
             except KeyError:
+                err = ""
+                for key in self._read_modes.keys():
+                    if err:
+                        err += ","
+                    err += key
                 raise ValueError(
-                    "'mode' must be one of: {}".format(
-                        ",".join(self._read_modes.keys())
-                    )
+                    "'mode' must be one of: {}".format(err)
                 )
 
         if where is None:
@@ -103,7 +111,12 @@ class Handler:
             sql.append("LIMIT %s")
             params += (limit,)
 
-        return self._model.objects.using(self.db).raw(" ".join(sql), params)
+        r_input = ""
+        for v in sql:
+            if r_input:
+                r_input += " "
+            r_input += v
+        return self._model.objects.using(self.db).raw(r_input, params)
 
     _read_modes = {"first": "FIRST", "last": "LAST", "next": "NEXT", "prev": "PREV"}
 
@@ -114,9 +127,14 @@ class Handler:
         if len(kwargs) == 0:
             return None, None
         elif len(kwargs) > 1:
+            err = ""
+            for key in kwargs.keys():
+                if err:
+                    err += ","
+                err += key
             raise ValueError(
                 "You can't pass more than one value expression, "
-                "you passed {}".format(",".join(kwargs.keys()))
+                "you passed {}".format(err)
             )
 
         name, value = list(kwargs.items())[0]
@@ -138,10 +156,15 @@ class Handler:
         try:
             return (self._operator_values[operator], value)
         except KeyError:
+            err = ""
+            for key in self._operator_values.keys():
+                if err:
+                    err += ","
+                err += key
             raise ValueError(
                 "The operator {op} is not valid for index value matching. "
                 "Valid operators are {valid}".format(
-                    op=operator, valid=",".join(self._operator_values.keys())
+                    op=operator, valid=err
                 )
             )
 

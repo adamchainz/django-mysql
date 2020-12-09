@@ -22,7 +22,12 @@ class Lock:
 
     @classmethod
     def make_name(cls, db, name):
-        return ".".join((connections[db].settings_dict["NAME"], name))
+        db_names_str = ""
+        for db_name in connections[db].settings_dict["NAME"]:
+            if db_names_str:
+                db_names_str += "."
+            db_names_str += db_name
+        return db_names_str + "." + name
 
     @classmethod
     def unmake_name(cls, db, name):
@@ -137,7 +142,12 @@ class TableLock:
             locks = ["{} READ".format(qn(name)) for name in self.read]
             for name in self.write:
                 locks.append("{} WRITE".format(qn(name)))
-            cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
+            locks_vals = ''
+            for lock in locks:
+                if locks_vals:
+                    locks_vals += ", "
+                locks_vals += lock
+            cursor.execute("LOCK TABLES {}".format(locks_vals))
 
     def release(self, exc_type=None, exc_value=None, traceback=None):
         connection = connections[self.db]

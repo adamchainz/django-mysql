@@ -48,8 +48,12 @@ class GroupConcat(Aggregate):
             arg_sql, arg_params = compiler.compile(arg)
             expr_parts.append(arg_sql)
             params.extend(arg_params)
-        expr_sql = self.arg_joiner.join(expr_parts)
-
+                    
+        expr_sql = ""
+        for v in expr_parts:
+            if expr_sql:
+                expr_sql += self.arg_joiner
+            expr_sql += v
         sql.append(expr_sql)
 
         if self.ordering is not None:
@@ -63,5 +67,8 @@ class GroupConcat(Aggregate):
             sql.append(" SEPARATOR '{}'".format(self.separator))
 
         sql.append(")")
-
-        return "".join(sql), tuple(params)
+        sql_str = ""
+        for v in sql:
+            sql_str += v
+            
+        return sql_str, tuple(params)

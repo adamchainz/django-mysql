@@ -277,9 +277,14 @@ class MySQLCache(BaseDatabaseCache):
             value, value_type = self.encode(value)
             params.extend((made_key, value, value_type, exp))
 
+        val_c = ""            
+        for _ in data:
+            if val_c:
+                val_c += ","
+            val_c += "(%s, %s, %s, %s)"            
+
         query = self._set_many_query.replace(
-            "{{VALUES_CLAUSE}}", ",".join("(%s, %s, %s, %s)" for key in data)
-        ).format(table=table)
+            "{{VALUES_CLAUSE}}", val_c).format(table=table)
 
         with connections[db].cursor() as cursor:
             cursor.execute(query, params)

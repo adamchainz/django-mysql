@@ -84,7 +84,11 @@ def format_duration(total_seconds):
     if hours or minutes:
         out.extend([str(minutes), "m"])
     out.extend([str(seconds), "s"])
-    return "".join(out)
+    
+    out_str = ""
+    for item in out:
+        out_str += item
+    return out_str
 
 
 if django.VERSION >= (3, 0):
@@ -257,7 +261,11 @@ class PTFingerprintThread(Thread):
 
 def collapse_spaces(string):
     bits = string.replace("\n", " ").split(" ")
-    return " ".join(filter(None, bits))
+    output = ""
+    for value in filter(None, bits):
+        output += value + " "        
+    output.rstrip()
+    return output
 
 
 def index_name(model, *field_names, **kwargs):
@@ -276,7 +284,11 @@ def index_name(model, *field_names, **kwargs):
 
     if len(fields) != len(field_names):
         unfound_names = set(field_names) - {field.name for field in fields}
-        raise ValueError("Fields do not exist: " + ",".join(unfound_names))
+        unames_str = ''
+        for name in unfound_names:
+            unames_str += name + ","
+        unames_str.rstrip(",")
+        raise ValueError("Fields do not exist: " + unames_str)
     column_names = tuple(field.column for field in fields)
     list_sql = get_list_sql(column_names)
 
@@ -301,11 +313,21 @@ def index_name(model, *field_names, **kwargs):
     try:
         return indexes_by_columns[column_names]
     except KeyError:
-        raise KeyError("There is no index on (" + ",".join(field_names) + ")")
+        fname_output = ""
+        for i, v in enumerate(field_names):
+            fname_output += v
+            if i is not len(field_names) - 1:
+                fname_output += ","
+        raise KeyError("There is no index on (" + fname_output + ")")
 
 
 def get_list_sql(sequence):
-    return "({})".format(",".join("%s" for x in sequence))
+    output = ""
+    for i, _ in enumerate(sequence):
+        output += "%s"
+        if i is not len(sequence) - 1:
+            output += ","
+    return "({})".format(output)
 
 
 def mysql_connections():

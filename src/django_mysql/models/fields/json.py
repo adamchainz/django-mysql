@@ -231,7 +231,10 @@ class KeyTransform(Transform):
             except ValueError:  # non-integer
                 path.append(".")
                 path.append(key_transform)
-        return "".join(path)
+        output = ""
+        for v in path:
+            output += v
+        return output
 
 
 class KeyTransformFactory:

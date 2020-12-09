@@ -33,7 +33,12 @@ class SimpleListField(forms.CharField):
 
     def prepare_value(self, value):
         if isinstance(value, list):
-            return ",".join(str(self.base_field.prepare_value(v)) for v in value)
+            joined_val = ""
+            for v in value:
+                if joined_val:
+                    joined_val += ","
+                joined_val += str(self.base_field.prepare_value(v))
+            return joined_val
         return value
 
     def to_python(self, value):
@@ -147,7 +152,13 @@ class SimpleSetField(forms.CharField):
 
     def prepare_value(self, value):
         if isinstance(value, set):
-            return ",".join(str(self.base_field.prepare_value(v)) for v in value)
+            joined_val = ""
+            for v in value:
+                if joined_val:
+                    joined_val += ","
+                joined_val += str(self.base_field.prepare_value(v))
+                
+            return joined_val
         return value
 
     def to_python(self, value):

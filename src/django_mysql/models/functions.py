@@ -95,9 +95,14 @@ class ConcatWS(Func):
     def __init__(self, *expressions, **kwargs):
         separator = kwargs.pop("separator", ",")
         if len(kwargs) > 0:
+            keys_str = ""
+            for key in kwargs.keys():
+                if keys_str:
+                    keys_str += ","
+                keys_str += key
             raise ValueError(
                 "Invalid keyword arguments for ConcatWS: {}".format(
-                    ",".join(kwargs.keys())
+                    keys_str
                 )
             )
 
@@ -184,10 +189,13 @@ class SHA2(Func):
 
     def __init__(self, expression, hash_len=512):
         if hash_len not in self.hash_lens:
+            output = ""
+            for v in self.hash_lens:
+                if output:
+                    output += ","
+                output += str(v)
             raise ValueError(
-                "hash_len must be one of {}".format(
-                    ",".join(str(x) for x in self.hash_lens)
-                )
+                "hash_len must be one of {}".format(output)
             )
         super().__init__(expression, Value(hash_len))
 

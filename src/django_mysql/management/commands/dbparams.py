@@ -71,7 +71,12 @@ class Command(BaseCommand):
     def output_for_mysql(self, settings_dict):
         args = settings_to_cmd_args(settings_dict)
         args = args[1:]  # Delete the 'mysql' at the start
-        self.stdout.write(" ".join(args), ending="")
+        output = ""
+        for arg in args:
+            if output:
+                output += " "
+            output += arg
+        self.stdout.write(output, ending="")
 
     def output_for_dsn(self, settings_dict):
         cert = settings_dict["OPTIONS"].get("ssl", {}).get("ca")
@@ -107,5 +112,9 @@ class Command(BaseCommand):
         if db:
             args.append("D={}".format(db))
 
-        dsn = ",".join(args)
+        dsn = ""
+        for arg in args:
+            if dsn:
+                dsn += ","
+            dsn += arg
         self.stdout.write(dsn, ending="")

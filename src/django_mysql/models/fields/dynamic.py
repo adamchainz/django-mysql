@@ -262,7 +262,15 @@ class KeyTransform(Transform):
         dict: "BINARY",
     }
 
-    SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
+    SPEC_MAP_NAMES = ""
+    sm_n = ()
+    for key in SPEC_MAP.keys():
+        sm_n += (key.__name__, )
+    sm_n = sorted(sm_n)
+    for v in sm_n:
+        if SPEC_MAP_NAMES:
+            SPEC_MAP_NAMES += ", "
+        SPEC_MAP_NAMES += v
 
     TYPE_MAP = {
         "BINARY": DynamicField,

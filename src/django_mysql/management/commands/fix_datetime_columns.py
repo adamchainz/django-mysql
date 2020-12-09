@@ -86,8 +86,14 @@ class Command(BaseCommand):
                 "MODIFY COLUMN {} {}".format(qn(column_name), new_column_spec)
             )
 
+        column_str = ""
+        for column in modify_columns:
+            if column_str:
+                column_str += ",\n    "
+            column_str += column
+
         return "ALTER TABLE {table_name}\n    {columns};".format(
-            table_name=qn(table_name), columns=",\n    ".join(modify_columns)
+            table_name=qn(table_name), columns=column_str
         )
 
 

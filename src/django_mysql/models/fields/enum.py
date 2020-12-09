@@ -54,4 +54,9 @@ class EnumField(CharField):
         values = [connection.connection.escape_string(c) for c, _ in self.flatchoices]
         # Use force_str because MySQLdb escape_string() returns bytes, but
         # pymysql returns str
-        return "enum(%s)" % ",".join("'%s'" % force_str(v) for v in values)
+        output = "" 
+        for v in values:
+            if output:
+                output += ","
+            output += "'%s'" % force_str(v)
+        return "enum(%s)" % output

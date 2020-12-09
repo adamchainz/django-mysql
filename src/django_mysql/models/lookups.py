@@ -207,15 +207,23 @@ class JSONHasKeys(JSONSequencesMixin, Lookup):
         paths = tuple("$.{}".format(json.dumps(key_name)) for key_name in self.rhs)
         params = tuple(lhs_params) + paths
 
+        p_str = ""
+        for _ in paths:
+            if p_str:
+                p_str += ", "
+            p_str += "%s"
         sql = [
             "JSON_CONTAINS_PATH(",
             lhs,
             ", 'all', ",
-            ", ".join("%s" for _ in paths),
+            p_str,
             ")",
         ]
 
-        return "".join(sql), params
+        output = ""
+        for c in sql:
+            output += c
+        return output, params
 
 
 class JSONHasAnyKeys(JSONSequencesMixin, Lookup):
@@ -226,15 +234,23 @@ class JSONHasAnyKeys(JSONSequencesMixin, Lookup):
         paths = tuple("$.{}".format(json.dumps(key_name)) for key_name in self.rhs)
         params = tuple(lhs_params) + paths
 
+        p_str = ""
+        for _ in paths:
+            if p_str:
+                p_str += ", "
+            p_str += "%s"
         sql = [
             "JSON_CONTAINS_PATH(",
             lhs,
             ", 'one', ",
-            ", ".join("%s" for _ in paths),
+            p_str,
             ")",
         ]
 
-        return "".join(sql), params
+        output = ""
+        for c in sql:
+            output += c
+        return output, params
 
 
 # Set{Char,Text}Field

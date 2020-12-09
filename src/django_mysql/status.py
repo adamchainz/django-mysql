@@ -44,14 +44,14 @@ class BaseStatus:
             )
 
         with self.get_cursor() as cursor:
-            query = " ".join(
-                [
-                    self.query,
-                    "WHERE Variable_name IN (",
-                    ", ".join("%s" for n in names),
-                    ")",
-                ]
-            )
+            query = self.query + " "
+            query += "WHERE Variable_name IN (" + " "
+            query_val = ""
+            for _ in names:
+                if query_val:
+                    query_val += ", "
+                query_val += "%s"
+            query += query_val + ")"
 
             cursor.execute(query, names)
 
@@ -103,12 +103,15 @@ class GlobalStatus(BaseStatus):
                 return
 
             if timeout and time.time() > start + timeout:
-                raise TimeoutError(
-                    "Span too long waiting for load to drop: "
-                    + ",".join(
-                        "{} > {}".format(name, thresholds[name]) for name in higher
-                    )
-                )
+                msg_names = ""
+                for name in higher:
+                    if msg_names:
+                        msg_names += ","
+                    msg_names += "{} > {}".format(name, thresholds[name])
+                msg = "Span too long waiting for load to drop: " + msg_names
+                raise TimeoutError(msg)
+
+
             time.sleep(sleep)
 
 

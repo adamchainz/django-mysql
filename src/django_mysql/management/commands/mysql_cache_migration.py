@@ -56,7 +56,10 @@ class Command(BaseCommand):
         for table in tables:
             out.append(table_operation.replace("{{ table }}", table))
         out.append(footer)
-        return "".join(out)
+        output = ""
+        for o in out:
+            output += o
+        return output
 
 
 header = """
@@ -74,10 +77,12 @@ class Migration(migrations.Migration):
     operations = [
 """.strip()
 
-create_table_sql = "\n".join(
-    "    " * 3 + line for line in MySQLCache.create_table_sql.splitlines()
-).format(table_name="{{ table }}")
-
+sql_str = ""
+for line in MySQLCache.create_table_sql.splitlines():
+    if sql_str:
+        sql_str += "\n"
+    sql_str += "    " * 3 + line
+create_table_sql = sql_str.format(table_name="{{ table }}")
 
 table_operation = (
     '''
