@@ -47,7 +47,10 @@ class JSONField(Field):
         return [
             checks.Warning(
                 "django_mysql.models.JSONField is deprecated.",
-                hint="Use django.db.models.JSONField or django-jsonfield-backport instead.",
+                hint=(
+                    "Use django.db.models.JSONField or "
+                    + "django-jsonfield-backport instead."
+                ),
                 obj=self,
                 id="django_mysql.W004",
             )
