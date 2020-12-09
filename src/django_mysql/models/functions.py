@@ -30,7 +30,10 @@ class Greatest(MultiArgFunc):
 
     def __init__(self, *args, **kwargs):
         warnings.warn(
-            "This function is deprecated. Use django.db.models.functions.Greatest instead.",
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Greatest instead."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
@@ -42,7 +45,10 @@ class Least(MultiArgFunc):
 
     def __init__(self, *args, **kwargs):
         warnings.warn(
-            "This function is deprecated. Use django.db.models.functions.Least instead.",
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Least instead."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
@@ -103,7 +109,10 @@ class Floor(SingleArgFunc):
 
     def __init__(self, *args, **kwargs):
         warnings.warn(
-            "This function is deprecated. Use django.db.models.functions.Floor instead.",
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Floor instead."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
@@ -116,7 +125,10 @@ class Round(Func):
 
     def __init__(self, expression, places=0):
         warnings.warn(
-            "This function is deprecated. Use django.db.models.functions.Round instead.",
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Round instead."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
