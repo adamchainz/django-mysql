@@ -1,4 +1,5 @@
 import json
+import warnings
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import CharField
@@ -27,9 +28,31 @@ class MultiArgFunc(Func):
 class Greatest(MultiArgFunc):
     function = "GREATEST"
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Greatest instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
+
 
 class Least(MultiArgFunc):
     function = "LEAST"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Least instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
 
 # Control Flow Functions
@@ -53,10 +76,26 @@ class Abs(SingleArgFunc):
     function = "ABS"
     output_field_class = IntegerField
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "This function is deprecated. Use django.db.models.functions.Abs instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
+
 
 class Ceiling(SingleArgFunc):
     function = "CEILING"
     output_field_class = IntegerField
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "This function is deprecated. Use django.db.models.functions.Ceil instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
 
 class CRC32(SingleArgFunc):
@@ -68,12 +107,31 @@ class Floor(SingleArgFunc):
     function = "FLOOR"
     output_field_class = IntegerField
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Floor instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
+
 
 class Round(Func):
     function = "ROUND"
     output_field_class = IntegerField
 
     def __init__(self, expression, places=0):
+        warnings.warn(
+            (
+                "This function is deprecated. Use "
+                + "django.db.models.functions.Round instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(expression, places)
 
 
