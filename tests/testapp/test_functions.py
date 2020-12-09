@@ -135,9 +135,18 @@ class NumericFunctionTests(TestCase):
 
     def test_sign(self):
         Alphabet.objects.create(a=123, b=0, c=-999)
-        ab = Alphabet.objects.annotate(
-            asign=Sign("a"), bsign=Sign("b"), csign=Sign("c")
-        ).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            kwargs = {
+                "asign": Sign("a"),
+                "bsign": Sign("b"),
+                "csign": Sign("c"),
+            }
+
+        ab = Alphabet.objects.annotate(**kwargs).first()
+
         assert ab.asign == 1
         assert ab.bsign == 0
         assert ab.csign == -1
@@ -287,14 +296,26 @@ class EncryptionFunctionTests(TestCase):
         string = "A string"
         Alphabet.objects.create(d=string)
         pymd5 = hashlib.md5(string.encode("ascii")).hexdigest()
-        ab = Alphabet.objects.annotate(md5=MD5("d")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            md5 = MD5("d")
+        ab = Alphabet.objects.annotate(md5=md5).first()
+
         assert ab.md5 == pymd5
 
     def test_sha1_string(self):
         string = "A string"
         Alphabet.objects.create(d=string)
         pysha1 = hashlib.sha1(string.encode("ascii")).hexdigest()
-        ab = Alphabet.objects.annotate(sha=SHA1("d")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            sha1 = SHA1("d")
+        ab = Alphabet.objects.annotate(sha=sha1).first()
+
         assert ab.sha == pysha1
 
     def test_sha2_string(self):
@@ -304,14 +325,26 @@ class EncryptionFunctionTests(TestCase):
         for hash_len in (224, 256, 384, 512):
             sha_func = getattr(hashlib, f"sha{hash_len}")
             pysha = sha_func(string.encode("ascii")).hexdigest()
-            ab = Alphabet.objects.annotate(sha=SHA2("d", hash_len)).first()
+
+            with self.assertWarnsMessage(
+                DeprecationWarning, "This function is deprecated."
+            ):
+                sha2 = SHA2("d", hash_len)
+            ab = Alphabet.objects.annotate(sha=sha2).first()
+
             assert ab.sha == pysha
 
     def test_sha2_string_hash_len_default(self):
         string = "A string"
         Alphabet.objects.create(d=string)
         pysha512 = hashlib.sha512(string.encode("ascii")).hexdigest()
-        ab = Alphabet.objects.annotate(sha=SHA2("d")).first()
+
+        with self.assertWarnsMessage(
+            DeprecationWarning, "This function is deprecated."
+        ):
+            sha2 = SHA2("d")
+        ab = Alphabet.objects.annotate(sha=sha2).first()
+
         assert ab.sha == pysha512
 
     def test_sha2_bad_hash_len(self):

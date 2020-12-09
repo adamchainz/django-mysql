@@ -60,6 +60,11 @@ Numeric Functions
 
 .. class:: Sign(expression)
 
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.Sign` instead.
+
     Returns the sign of the argument as -1, 0, or 1, depending on whether
     ``expression`` is negative, zero, or positive.
 
@@ -299,6 +304,11 @@ Encryption Functions
 
 .. class:: MD5(expression)
 
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.MD5` instead.
+
     Calculates an MD5 128-bit checksum for the string ``expression``.
 
     Docs:
@@ -313,6 +323,11 @@ Encryption Functions
 
 
 .. class:: SHA1(expression)
+
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.SHA1` instead.
 
     Calculates an SHA-1 160-bit checksum for the string ``expression``, as
     described in RFC 3174 (Secure Hash Algorithm).
@@ -329,6 +344,14 @@ Encryption Functions
 
 
 .. class:: SHA2(expression, hash_len=512)
+
+    .. note::
+
+        This function is deprecated. Use
+        :class:`django.db.models.functions.SHA224`,
+        :class:`~django.db.models.functions.SHA256`,
+        :class:`~django.db.models.functions.SHA384`, or
+        :class:`~django.db.models.functions.SHA512` instead.
 
     Given a string ``expression``, calculates a SHA-2 checksum, which is
     considered more cryptographically secure than its SHA-1 equivalent. The

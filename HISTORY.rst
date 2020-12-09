@@ -13,6 +13,13 @@ History
 
       connection.vendor == "mysql" and connection.mysql_is_mariadb
 
+* Deprecate database functions which exist in Django 3.0+:
+
+  * ``Sign``
+  * ``MD5``
+  * ``SHA1``
+  * ``SHA2``
+
 4.5.0 (2022-01-23)
 ------------------
 
