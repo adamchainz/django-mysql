@@ -37,10 +37,24 @@ class JSONField(Field):
 
     def check(self, **kwargs):
         errors = super().check(**kwargs)
+        errors.extend(self._check_deprecated())
         errors.extend(self._check_default())
         errors.extend(self._check_mysql_version())
         errors.extend(self._check_json_encoder_decoder())
         return errors
+
+    def _check_deprecated(self):
+        return [
+            checks.Warning(
+                "django_mysql.models.JSONField is deprecated.",
+                hint=(
+                    "Use django.db.models.JSONField or "
+                    + "django-jsonfield-backport instead."
+                ),
+                obj=self,
+                id="django_mysql.W004",
+            )
+        ]
 
     def _check_default(self):
         errors = []

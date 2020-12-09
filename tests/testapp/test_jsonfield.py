@@ -556,23 +556,32 @@ class TestCheck(JSONFieldTestCase):
 
     databases = ["default", "other"]
 
+    def test_deprecated(self):
+        class InvalidJSONModel0(TemporaryModel):
+            field = JSONField()
+
+        errors = InvalidJSONModel0.check(actually_check=True)
+        assert len(errors) == 1
+        assert errors[0].id == "django_mysql.W004"
+        assert errors[0].msg == "django_mysql.models.JSONField is deprecated."
+
     def test_mutable_default_list(self):
         class InvalidJSONModel1(TemporaryModel):
             field = JSONField(default=[])
 
         errors = InvalidJSONModel1.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E017"
-        assert "Do not use mutable defaults for JSONField" in errors[0].msg
+        assert len(errors) == 2
+        assert errors[1].id == "django_mysql.E017"
+        assert "Do not use mutable defaults for JSONField" in errors[1].msg
 
     def test_mutable_default_dict(self):
         class InvalidJSONModel2(TemporaryModel):
             field = JSONField(default={})
 
         errors = InvalidJSONModel2.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E017"
-        assert "Do not use mutable defaults for JSONField" in errors[0].msg
+        assert len(errors) == 2
+        assert errors[1].id == "django_mysql.E017"
+        assert "Do not use mutable defaults for JSONField" in errors[1].msg
 
     @mock.patch("django_mysql.models.fields.json.connection_is_mariadb")
     def test_db_not_mysql(self, is_mariadb):
@@ -582,9 +591,9 @@ class TestCheck(JSONFieldTestCase):
             field = JSONField()
 
         errors = InvalidJSONModel3.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E016"
-        assert "MySQL 5.7+ is required" in errors[0].msg
+        assert len(errors) == 2
+        assert errors[1].id == "django_mysql.E016"
+        assert "MySQL 5.7+ is required" in errors[1].msg
 
     @mock_mysql_version(default=(5, 5, 3), other=(5, 5, 3))
     def test_mysql_old_version(self):
@@ -592,9 +601,9 @@ class TestCheck(JSONFieldTestCase):
             field = JSONField()
 
         errors = InvalidJSONModel4.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E016"
-        assert "MySQL 5.7+ is required" in errors[0].msg
+        assert len(errors) == 2
+        assert errors[1].id == "django_mysql.E016"
+        assert "MySQL 5.7+ is required" in errors[1].msg
 
     @mock_mysql_version(default=(5, 5, 3), other=(5, 7, 1))
     def test_mysql_one_conn_old_version(self):
@@ -602,25 +611,26 @@ class TestCheck(JSONFieldTestCase):
             field = JSONField()
 
         errors = InvalidJSONModel5.check(actually_check=True)
-        assert len(errors) == 0
+        assert len(errors) == 1
+        assert errors[0].id == "django_mysql.W004"
 
     def test_bad_custom_encoder(self):
         class InvalidJSONModel6(TemporaryModel):
             field = JSONField(encoder=json.JSONEncoder())
 
         errors = InvalidJSONModel6.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E018"
-        assert errors[0].msg.startswith("Custom JSON encoder should have")
+        assert len(errors) == 2
+        assert errors[1].id == "django_mysql.E018"
+        assert errors[1].msg.startswith("Custom JSON encoder should have")
 
     def test_bad_custom_decoder(self):
         class InvalidJSONModel7(TemporaryModel):
             field = JSONField(decoder=json.JSONDecoder())
 
         errors = InvalidJSONModel7.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E019"
-        assert errors[0].msg.startswith("Custom JSON decoder should have")
+        assert len(errors) == 2
+        assert errors[1].id == "django_mysql.E019"
+        assert errors[1].msg.startswith("Custom JSON decoder should have")
 
 
 class TestFormField(JSONFieldTestCase):
