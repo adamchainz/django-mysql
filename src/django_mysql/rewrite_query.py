@@ -90,13 +90,14 @@ SELECT_HINT_TOKENS = frozenset(reduce(operator.add, SELECT_HINTS.values()))
 # Don't go crazy reading this - it's just templating a piece of the below regex
 hints_re_piece = ""
 for group_name, token_set in SELECT_HINTS.items():
-    line_tokens = ''
+    line_tokens = ""
     for token in token_set:
         if line_tokens:
             line_tokens += "|"
         line_tokens += token
     hints_re_piece += r"(?P<{group_name}>({tokens})\s+)?".format(
-                            group_name=group_name, tokens=line_tokens)
+        group_name=group_name, tokens=line_tokens
+    )
     hints_re_piece += "\n"
 
 # This is the one big regex that parses the start of the SQL statement
@@ -155,7 +156,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
                     tokens.append(existing.rstrip())
 
     # Maybe rewrite the remainder of the statement for index hints
-    remainder = sql[match.end():]
+    remainder = sql[match.end() :]
 
     if tokens[0] == "SELECT" and add_index_hints:
         for index_hint in add_index_hints:
@@ -163,7 +164,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 
     # Join everything
     tokens.append(remainder)
-    joined_tokens = ''
+    joined_tokens = ""
     for token in tokens:
         if joined_tokens:
             joined_tokens += " "

@@ -265,7 +265,7 @@ class KeyTransform(Transform):
     SPEC_MAP_NAMES = ""
     sm_n = ()
     for key in SPEC_MAP.keys():
-        sm_n += (key.__name__, )
+        sm_n += (key.__name__,)
     sm_n = sorted(sm_n)
     for v in sm_n:
         if SPEC_MAP_NAMES:

@@ -28,7 +28,7 @@ class Lock:
     def unmake_name(cls, db, name):
         # Cut off the 'dbname.' prefix
         db_name = connections[db].settings_dict["NAME"]
-        return name[len(db_name) + 1:]
+        return name[len(db_name) + 1 :]
 
     def get_cursor(self):
         return connections[self.db].cursor()
@@ -137,7 +137,7 @@ class TableLock:
             locks = ["{} READ".format(qn(name)) for name in self.read]
             for name in self.write:
                 locks.append("{} WRITE".format(qn(name)))
-            locks_vals = ''
+            locks_vals = ""
             for lock in locks:
                 if locks_vals:
                     locks_vals += ", "

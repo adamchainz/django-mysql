@@ -87,9 +87,7 @@ class Handler:
                     if err:
                         err += ","
                     err += key
-                raise ValueError(
-                    "'mode' must be one of: {}".format(err)
-                )
+                raise ValueError("'mode' must be one of: {}".format(err))
 
         if where is None:
             # Use default
@@ -152,7 +150,7 @@ class Handler:
                 "The keyword arg {} is not valid for this " "function".format(name)
             )
 
-        operator = name[name.find("__") + 2:]
+        operator = name[name.find("__") + 2 :]
         try:
             return (self._operator_values[operator], value)
         except KeyError:
@@ -163,9 +161,7 @@ class Handler:
                 err += key
             raise ValueError(
                 "The operator {op} is not valid for index value matching. "
-                "Valid operators are {valid}".format(
-                    op=operator, valid=err
-                )
+                "Valid operators are {valid}".format(op=operator, valid=err)
             )
 
     _operator_values = {"lt": "<", "lte": "<=", "exact": "=", "gte": ">=", "gt": ">"}

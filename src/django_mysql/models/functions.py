@@ -101,9 +101,7 @@ class ConcatWS(Func):
                     keys_str += ","
                 keys_str += key
             raise ValueError(
-                "Invalid keyword arguments for ConcatWS: {}".format(
-                    keys_str
-                )
+                "Invalid keyword arguments for ConcatWS: {}".format(keys_str)
             )
 
         if len(expressions) < 2:
@@ -194,9 +192,7 @@ class SHA2(Func):
                 if output:
                     output += ","
                 output += str(v)
-            raise ValueError(
-                "hash_len must be one of {}".format(output)
-            )
+            raise ValueError("hash_len must be one of {}".format(output))
         super().__init__(expression, Value(hash_len))
 
 

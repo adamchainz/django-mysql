@@ -283,7 +283,7 @@ def index_name(model, *field_names, **kwargs):
 
     if len(fields) != len(field_names):
         unfound_names = set(field_names) - {field.name for field in fields}
-        unames_str = ''
+        unames_str = ""
         for name in unfound_names:
             unames_str += name + ","
         unames_str.rstrip(",")
