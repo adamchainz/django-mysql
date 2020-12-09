@@ -48,10 +48,9 @@ class GroupConcat(Aggregate):
             arg_sql, arg_params = compiler.compile(arg)
             expr_parts.append(arg_sql)
             params.extend(arg_params)
-                    
         expr_sql = ""
         for v in expr_parts:
-            if expr_sql: # pragma: no cover
+            if expr_sql:  # pragma: no cover
                 expr_sql += self.arg_joiner
             expr_sql += v
         sql.append(expr_sql)
@@ -70,5 +69,4 @@ class GroupConcat(Aggregate):
         sql_str = ""
         for v in sql:
             sql_str += v
-            
         return sql_str, tuple(params)

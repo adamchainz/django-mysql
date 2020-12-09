@@ -157,7 +157,6 @@ class SimpleSetField(forms.CharField):
                 if joined_val:
                     joined_val += ","
                 joined_val += str(self.base_field.prepare_value(v))
-                
             return joined_val
         return value
 

@@ -84,7 +84,6 @@ def format_duration(total_seconds):
     if hours or minutes:
         out.extend([str(minutes), "m"])
     out.extend([str(seconds), "s"])
-    
     out_str = ""
     for item in out:
         out_str += item
@@ -263,7 +262,7 @@ def collapse_spaces(string):
     bits = string.replace("\n", " ").split(" ")
     output = ""
     for value in filter(None, bits):
-        output += value + " "        
+        output += value + " "
     output.rstrip()
     return output
 

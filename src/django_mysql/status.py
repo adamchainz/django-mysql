@@ -105,12 +105,11 @@ class GlobalStatus(BaseStatus):
             if timeout and time.time() > start + timeout:
                 msg_names = ""
                 for name in higher:
-                    if msg_names: # pragma: no cover
+                    if msg_names:  # pragma: no cover
                         msg_names += ","
                     msg_names += "{} > {}".format(name, thresholds[name])
                 msg = "Span too long waiting for load to drop: " + msg_names
                 raise TimeoutError(msg)
-
 
             time.sleep(sleep)
 

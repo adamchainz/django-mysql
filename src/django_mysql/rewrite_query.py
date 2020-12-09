@@ -155,7 +155,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
                     tokens.append(existing.rstrip())
 
     # Maybe rewrite the remainder of the statement for index hints
-    remainder = sql[match.end() :]
+    remainder = sql[match.end():]
 
     if tokens[0] == "SELECT" and add_index_hints:
         for index_hint in add_index_hints:

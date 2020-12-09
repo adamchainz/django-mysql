@@ -43,7 +43,7 @@ class SetFieldMixin:
         if base_errors:
             messages = ""
             for v in base_errors:
-                if messages: # pragma: no cover
+                if messages:  # pragma: no cover
                     messages += "\n    "
                 messages += "{} ({})".format(v.msg, v.id)
             errors.append(

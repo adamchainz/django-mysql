@@ -152,7 +152,7 @@ class Handler:
                 "The keyword arg {} is not valid for this " "function".format(name)
             )
 
-        operator = name[name.find("__") + 2 :]
+        operator = name[name.find("__") + 2:]
         try:
             return (self._operator_values[operator], value)
         except KeyError:
