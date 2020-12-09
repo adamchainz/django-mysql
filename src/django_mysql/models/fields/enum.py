@@ -1,3 +1,6 @@
+from typing import Tuple
+
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
@@ -6,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 class EnumField(CharField):
     description = _("Enumeration")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if "choices" not in kwargs or len(kwargs["choices"]) == 0:
             raise ValueError('"choices" argument must be be a non-empty list')
 
@@ -34,7 +37,7 @@ class EnumField(CharField):
 
         super().__init__(*args, **kwargs)
 
-    def deconstruct(self):
+    def deconstruct(self) -> Tuple[str, str, tuple, dict]:
         name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
@@ -49,7 +52,7 @@ class EnumField(CharField):
 
         return name, path, args, kwargs
 
-    def db_type(self, connection):
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         connection.ensure_connection()
         values = [connection.connection.escape_string(c) for c, _ in self.flatchoices]
         # Use force_str because MySQLdb escape_string() returns bytes, but

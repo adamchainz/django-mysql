@@ -1253,7 +1253,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         for n in range(9):
             cache.set_many({str(n * 10 + i): True for i in range(10)})
 
-        cache.cull()
+        result = cache.cull()
+        assert result == 0
         assert self.table_count() == 90
 
     def test_cull_mysql_caches_basic(self):

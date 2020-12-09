@@ -1,5 +1,8 @@
+from typing import Any, Callable, Iterable
+
 from django.apps import AppConfig
 from django.conf import settings
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.signals import connection_created
 from django.utils.translation import gettext_lazy as _
 
@@ -12,12 +15,12 @@ class MySQLConfig(AppConfig):
     name = "django_mysql"
     verbose_name = _("MySQL extensions")
 
-    def ready(self):
+    def ready(self) -> None:
         self.add_database_instrumentation()
         self.add_lookups()
         register_checks()
 
-    def add_database_instrumentation(self):
+    def add_database_instrumentation(self) -> None:
         if not getattr(
             settings, "DJANGO_MYSQL_REWRITE_QUERIES", False
         ):  # pragma: no cover
@@ -26,7 +29,7 @@ class MySQLConfig(AppConfig):
             install_rewrite_hook(connection)
         connection_created.connect(install_rewrite_hook)
 
-    def add_lookups(self):
+    def add_lookups(self) -> None:
         from django.db.models import CharField, TextField
 
         from django_mysql.models.lookups import CaseSensitiveExact, Soundex, SoundsLike
@@ -39,7 +42,7 @@ class MySQLConfig(AppConfig):
         TextField.register_lookup(Soundex)
 
 
-def install_rewrite_hook(connection, **kwargs):
+def install_rewrite_hook(connection: BaseDatabaseWrapper, **kwargs) -> None:
     """
     Rather than use the documented API of the `execute_wrapper()` context
     manager, directly insert the hook. This is done because:
@@ -53,7 +56,9 @@ def install_rewrite_hook(connection, **kwargs):
         connection.execute_wrappers.insert(0, rewrite_hook)
 
 
-def rewrite_hook(execute, sql, params, many, context):
+def rewrite_hook(
+    execute: Callable, sql: str, params: Iterable, many: bool, context: dict
+) -> Any:
     if (
         getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False)
         and REWRITE_MARKER in sql

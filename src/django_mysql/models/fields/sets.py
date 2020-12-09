@@ -1,5 +1,7 @@
+from typing import Optional, Union, Tuple, Any, List
+
 from django.core import checks
-from django.db.models import CharField, IntegerField, TextField
+from django.db.models import CharField, IntegerField, TextField, Field, Model
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleSetField
@@ -9,7 +11,12 @@ from django_mysql.validators import SetMaxLengthValidator
 
 
 class SetFieldMixin:
-    def __init__(self, base_field, size=None, **kwargs):
+    def __init__(
+        self,
+        base_field: Field,
+        size: Optional[int] = None,
+        **kwargs,
+    ) -> None:
         self.base_field = base_field
         self.size = size
 
@@ -18,14 +25,14 @@ class SetFieldMixin:
         if self.size:
             self.validators.append(SetMaxLengthValidator(int(self.size)))
 
-    def get_default(self):
+    def get_default(self) -> Any:
         default = super().get_default()
         if default == "":
             return set()
         else:
             return default
 
-    def check(self, **kwargs):
+    def check(self, **kwargs) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
@@ -55,16 +62,16 @@ class SetFieldMixin:
         return errors
 
     @property
-    def description(self):
+    def description(self) -> str:
         return _("Set of %(base_description)s") % {
             "base_description": self.base_field.description
         }
 
-    def set_attributes_from_name(self, name):
+    def set_attributes_from_name(self, name: str) -> None:
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
-    def deconstruct(self):
+    def deconstruct(self) -> Tuple[str, str, tuple, dict]:
         name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
@@ -78,7 +85,7 @@ class SetFieldMixin:
         kwargs["size"] = self.size
         return name, path, args, kwargs
 
-    def to_python(self, value):
+    def to_python(self, value: Any) -> set:
         if isinstance(value, str):
             if not len(value):
                 value = set()
@@ -94,7 +101,7 @@ class SetFieldMixin:
                 value = {self.base_field.to_python(v) for v in value.split(",")}
         return value
 
-    def get_prep_value(self, value):
+    def get_prep_value(self, value: Union[int, str]) -> Union[int, str]:
         if isinstance(value, set):
             value = {str(self.base_field.get_prep_value(v)) for v in value}
             for v in value:
@@ -113,11 +120,11 @@ class SetFieldMixin:
             return ",".join(value)
         return value
 
-    def value_to_string(self, obj):
+    def value_to_string(self, obj: Model) -> str:
         vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs) -> SimpleSetField:
         defaults = {
             "form_class": SimpleSetField,
             "base_field": self.base_field.formfield(),

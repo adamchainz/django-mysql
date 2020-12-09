@@ -4,6 +4,7 @@ import zlib
 from random import random
 from textwrap import dedent
 from time import time
+from typing import Tuple, Any, Optional, Union, Callable, Dict, Iterable, List, Literal
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
 from django.db import connections, router
@@ -23,13 +24,16 @@ BIGINT_UNSIGNED_MAX = 18446744073709551615
 # command
 
 
+ValueType = Literal["i", "z", "p"]
+
+
 class Options:
     """A class that will quack like a Django model _meta class.
 
     This allows cache operations to be controlled by the router
     """
 
-    def __init__(self, table):
+    def __init__(self, table: str) -> None:
         self.db_table = table
         self.app_label = "django_mysql"
         self.model_name = "cacheentry"
@@ -56,7 +60,7 @@ class BaseDatabaseCache(BaseCache):
 reverse_key_re = re.compile(r"^([^:]*):(\d+):(.*)")
 
 
-def default_reverse_key_func(full_key):
+def default_reverse_key_func(full_key: str) -> Tuple[str, str, int]:
     """
     Reverse of Django's default_key_func, i.e. undoing:
 
@@ -67,7 +71,9 @@ def default_reverse_key_func(full_key):
     return match.group(3), match.group(1), int(match.group(2))
 
 
-def get_reverse_key_func(reverse_key_func):
+def get_reverse_key_func(
+    reverse_key_func: Optional[Callable[str, Tuple[str, str, int]]]
+) -> None:
     """
     Function to decide which reverse key function to use
 
@@ -130,7 +136,12 @@ class MySQLCache(BaseDatabaseCache):
 
     # Django API + helpers
 
-    def get(self, key, default=None, version=None):
+    def get(
+        self,
+        key: str,
+        default: Optional[Any] = None,
+        version: Optional[int] = None,
+    ) -> Any:
         key = self.make_key(key, version=version)
         self.validate_key(key)
         db = router.db_for_read(self.cache_model_class)
@@ -155,7 +166,7 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def get_many(self, keys, version=None):
+    def get_many(self, keys: Iterable[str], version: Optional[int] = None):
         made_key_to_key = {self.make_key(key, version=version): key for key in keys}
         made_keys = list(made_key_to_key.keys())
         for key in made_keys:
@@ -190,17 +201,35 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+    def set(
+        self,
+        key: str,
+        value: Any,
+        timeout: Optional[Union[float, int]] = DEFAULT_TIMEOUT,
+        version: Optional[int] = None,
+    ) -> None:
         key = self.make_key(key, version=version)
         self.validate_key(key)
         self._base_set("set", key, value, timeout)
 
-    def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+    def add(
+        self,
+        key: str,
+        value: Any,
+        timeout: Optional[Union[float, int]] = DEFAULT_TIMEOUT,
+        version: Optional[int] = None,
+    ) -> bool:
         key = self.make_key(key, version=version)
         self.validate_key(key)
         return self._base_set("add", key, value, timeout)
 
-    def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
+    def _base_set(
+        self,
+        mode: str,
+        key: str,
+        value: Any,
+        timeout: Optional[Union[float, int]] = DEFAULT_TIMEOUT,
+    ) -> bool:
         if mode not in ("set", "add"):
             raise ValueError("'mode' should be 'set' or 'add'")
 
@@ -263,7 +292,12 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+    def set_many(
+        self,
+        data: Dict[str, Any],
+        timeout: Union[int, float] = DEFAULT_TIMEOUT,
+        version: Optional[int] = None,
+    ) -> List[str]:
         exp = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
@@ -285,7 +319,7 @@ class MySQLCache(BaseDatabaseCache):
             cursor.execute(query, params)
         return []
 
-    def delete(self, key, version=None):
+    def delete(self, key: str, version: Optional[int] = None) -> None:
         key = self.make_key(key, version=version)
         self.validate_key(key)
 
@@ -302,7 +336,7 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def delete_many(self, keys, version=None):
+    def delete_many(self, keys: Iterable[str], version: Optional[int] = None):
         made_keys = [self.make_key(key, version=version) for key in keys]
         for key in made_keys:
             self.validate_key(key)
@@ -325,7 +359,7 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def has_key(self, key, version=None):
+    def has_key(self, key: str, version: Optional[int] = None) -> bool:
         key = self.make_key(key, version=version)
         self.validate_key(key)
 
@@ -343,13 +377,15 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def incr(self, key, delta=1, version=None):
+    def incr(self, key: str, delta: int = 1, version: Optional[int] = None) -> int:
         return self._base_delta(key, delta, version, "+")
 
-    def decr(self, key, delta=1, version=None):
+    def decr(self, key: str, delta: int = 1, version: Optional[int] = None) -> int:
         return self._base_delta(key, delta, version, "-")
 
-    def _base_delta(self, key, delta, version, operation):
+    def _base_delta(
+        self, key: str, delta: int, version: Optional[int], operation: str
+    ) -> int:
         key = self.make_key(key, version=version)
         self.validate_key(key)
 
@@ -382,13 +418,18 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def clear(self):
+    def clear(self) -> None:
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
             cursor.execute("DELETE FROM {table}".format(table=table))
 
-    def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+    def touch(
+        self,
+        key: str,
+        timeout: Union[int, float] = DEFAULT_TIMEOUT,
+        version: Optional[int] = None,
+    ) -> None:
         key = self.make_key(key, version=version)
         self.validate_key(key)
         exp = self.get_backend_timeout(timeout)
@@ -408,7 +449,7 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def validate_key(self, key):
+    def validate_key(self, key: str) -> None:
         """
         Django normally warns about maximum key length, but we error on it.
         """
@@ -418,7 +459,7 @@ class MySQLCache(BaseDatabaseCache):
             )
         return super().validate_key(key)
 
-    def encode(self, obj):
+    def encode(self, obj: Any) -> Tuple[bytes, ValueType]:
         """
         Take a Python object and return it as a tuple (value, value_type), a
         blob and a one-char code for what type it is
@@ -433,7 +474,7 @@ class MySQLCache(BaseDatabaseCache):
             value_type = "z"
         return value, value_type
 
-    def _is_valid_mysql_bigint(self, value):
+    def _is_valid_mysql_bigint(self, value: Any) -> bool:
         return (
             # Can't support int subclasses since they should are expected to
             # decode back to the same object
@@ -442,7 +483,7 @@ class MySQLCache(BaseDatabaseCache):
             and BIGINT_SIGNED_MIN <= value <= BIGINT_SIGNED_MAX
         )
 
-    def decode(self, value, value_type):
+    def decode(self, value: bytes, value_type: ValueType) -> Any:
         """
         Take a value blob and its value_type one-char code and convert it back
         to a python object
@@ -461,12 +502,14 @@ class MySQLCache(BaseDatabaseCache):
             "Unknown value_type '{}' read from the cache table.".format(value_type)
         )
 
-    def _maybe_cull(self):
+    def _maybe_cull(self) -> None:
         # Roll the dice, if it says yes then cull
         if self._cull_probability and random() <= self._cull_probability:
             self.cull()
 
-    def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
+    def get_backend_timeout(
+        self, timeout: Optional[Union[int, float]] = DEFAULT_TIMEOUT
+    ) -> int:
         if timeout is None:
             return self.FOREVER_TIMEOUT
         timeout = super().get_backend_timeout(timeout)
@@ -474,7 +517,7 @@ class MySQLCache(BaseDatabaseCache):
 
     # Our API extensions
 
-    def keys_with_prefix(self, prefix, version=None):
+    def keys_with_prefix(self, prefix: str, version: Optional[int] = None):
         if self.reverse_key_func is None:
             raise ValueError(
                 "To use the _with_prefix commands with a custom KEY_FUNCTION, "
@@ -509,7 +552,7 @@ class MySQLCache(BaseDatabaseCache):
                     keys[key] = key_version
             return set(keys.keys())
 
-    def get_with_prefix(self, prefix, version=None):
+    def get_with_prefix(self, prefix: str, version: Optional[int] = None):
         if self.reverse_key_func is None:
             raise ValueError(
                 "To use the _with_prefix commands with a custom KEY_FUNCTION, "
@@ -544,7 +587,7 @@ class MySQLCache(BaseDatabaseCache):
 
             return data
 
-    def delete_with_prefix(self, prefix, version=None):
+    def delete_with_prefix(self, prefix: str, version: Optional[int] = None) -> int:
         if version is None:
             version = self.version
 
@@ -562,7 +605,7 @@ class MySQLCache(BaseDatabaseCache):
                 (prefix,),
             )
 
-    def cull(self):
+    def cull(self) -> int:
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
@@ -575,7 +618,7 @@ class MySQLCache(BaseDatabaseCache):
 
             # -1 means "Don't limit size"
             if self._max_entries == -1:
-                return
+                return 0
 
             cursor.execute("SELECT COUNT(*) FROM {table}".format(table=table))
             num = cursor.fetchone()[0]

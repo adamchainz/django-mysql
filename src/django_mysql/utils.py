@@ -7,6 +7,7 @@ from threading import Lock, Thread
 from weakref import WeakKeyDictionary
 
 import django
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db import DEFAULT_DB_ALIAS
 from django.db import connection as default_connection
 from django.db import connections
@@ -18,7 +19,7 @@ class WeightedAverageRate:
     at a certain rate of activity (row iterations etc.).
     """
 
-    def __init__(self, target_t, weight=0.75):
+    def __init__(self, target_t: float, weight: float = 0.75) -> None:
         """
         target_t - Target time for t in update()
         weight - Weight of previous n/t values
@@ -28,7 +29,7 @@ class WeightedAverageRate:
         self.avg_t = 0.0
         self.weight = weight
 
-    def update(self, n, t):
+    def update(self, n: int, t: float) -> int:
         """
         Update weighted average rate.  Param n is generic; it's how many of
         whatever the caller is doing (rows, checksums, etc.).  Param s is how
@@ -51,7 +52,7 @@ class WeightedAverageRate:
         return int(self.avg_rate * self.target_t)
 
     @property
-    def avg_rate(self):
+    def avg_rate(self) -> float:
         try:
             return self.avg_n / self.avg_t
         except ZeroDivisionError:
@@ -64,16 +65,16 @@ class StopWatch:
     Context manager for timing a block
     """
 
-    def __enter__(self):
+    def __enter__(self) -> "StopWatch":
         self.start_time = time.time()
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args, **kwargs) -> None:
         self.end_time = time.time()
         self.total_time = self.end_time - self.start_time
 
 
-def format_duration(total_seconds):
+def format_duration(total_seconds: int) -> str:
     hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
     seconds = total_seconds % 60
@@ -89,7 +90,7 @@ def format_duration(total_seconds):
 
 if django.VERSION >= (3, 0):
 
-    def connection_is_mariadb(connection):
+    def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
         return connection.vendor == "mysql" and connection.mysql_is_mariadb
 
 
@@ -97,7 +98,7 @@ else:
 
     _is_mariadb_cache = WeakKeyDictionary()
 
-    def connection_is_mariadb(connection):
+    def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
         if connection.vendor != "mysql":
             return False
 
@@ -152,7 +153,7 @@ def settings_to_cmd_args(settings_dict):
 programs_memo = {}
 
 
-def have_program(program_name):
+def have_program(program_name: str) -> bool:
     global programs_memo
     if program_name not in programs_memo:
         status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
@@ -161,7 +162,7 @@ def have_program(program_name):
     return programs_memo[program_name]
 
 
-def pt_fingerprint(query):
+def pt_fingerprint(query: str) -> str:
     """
     Takes a query (in a string) and returns its 'fingerprint'
     """
@@ -210,7 +211,7 @@ class PTFingerprintThread(Thread):
 
         return cls.the_thread
 
-    def __init__(self, in_queue, out_queue, **kwargs):
+    def __init__(self, in_queue: Queue, out_queue: Queue, **kwargs) -> None:
         self.in_queue = in_queue
         self.out_queue = out_queue
         super().__init__(**kwargs)
@@ -255,7 +256,7 @@ class PTFingerprintThread(Thread):
         self.life_lock.release()
 
 
-def collapse_spaces(string):
+def collapse_spaces(string: str) -> str:
     bits = string.replace("\n", " ").split(" ")
     return " ".join(filter(None, bits))
 
