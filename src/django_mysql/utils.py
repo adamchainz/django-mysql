@@ -312,7 +312,5 @@ def mysql_connections():
     conn_names = [DEFAULT_DB_ALIAS] + list(set(connections) - {DEFAULT_DB_ALIAS})
     for alias in conn_names:
         connection = connections[alias]
-        if connection.vendor != "mysql":
-            continue
-
-        yield alias, connection
+        if connection.vendor == "mysql":
+            yield alias, connection

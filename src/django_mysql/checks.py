@@ -1,21 +1,35 @@
+import django
 from django.core.checks import Tags, Warning, register
 
 from django_mysql.utils import mysql_connections
 
 
 def register_checks():
-    register(Tags.compatibility)(check_variables)
+    register(Tags.database)(check_variables)
 
 
 def check_variables(app_configs, **kwargs):
+    if django.VERSION >= (3, 1):
+        # when moving to Django 3.1+ only support, make this a real argument
+        databases = kwargs["databases"]
+    else:
+        databases = {alias for alias, connection in mysql_connections()}
+
     errors = []
 
+    if databases is None:
+        return errors
+    databases = set(databases)
+
     for alias, connection in mysql_connections():
+        if alias not in databases:
+            continue
+
         with connection.temporary_connection() as cursor:
             cursor.execute(
                 """SELECT @@sql_mode,
-                                     @@innodb_strict_mode,
-                                     @@character_set_connection"""
+                          @@innodb_strict_mode,
+                          @@character_set_connection"""
             )
             variables = cursor.fetchone()
             sql_mode, innodb_strict_mode, character_set_connection = variables
