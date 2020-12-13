@@ -3,7 +3,6 @@ from django.test import TestCase, TransactionTestCase
 
 from django_mysql.checks import check_variables
 from django_mysql.test.utils import override_mysql_variables
-
 from tests.testapp.utils import skip_if_django_3_1_plus, skip_if_django_before_3_1
 
 
