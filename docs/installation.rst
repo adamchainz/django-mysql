@@ -35,13 +35,15 @@ Add ``'django_mysql'`` to your ``INSTALLED_APPS`` setting:
         'django_mysql',
     )
 
-Django-MySQL comes with some extra checks to ensure your configuration for
-Django + MySQL is optimal. It's best to run these now you've installed to see
-if there is anything to fix:
+Django-MySQL comes with some extra checks to ensure your database configuration
+is optimal. It's best to run these now you've installed to see if there is
+anything to fix:
 
 .. code-block:: console
 
-    $ ./manage.py check
+    $ python manage.py check --database default
+
+(The ``--database`` argument is new in Django 3.1.)
 
 For help fixing any warnings, see :doc:`checks`.
 

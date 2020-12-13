@@ -1,10 +1,16 @@
 Checks
 ======
 
-Django-MySQL runs some extra checks as part of Django's check framework to
-ensure your configuration for Django + MySQL is optimal. If triggered, the
-checks give a brief message, and a link here for documentation on how to fix
-it.
+Django-MySQL adds some extra checks to Django's system check framework to
+advise on your database configuration. If triggered, the checks give a brief
+message, and a link here for documentation on how to fix it.
+
+.. warning::
+
+    From Django 3.1 onwards, database checks are not automatically run in most
+    situations. You should use the ``--database`` argument to
+    ``manage.py check`` to run the checks. For example, with just one database
+    connection you can run ``manage.py check --database default``.
 
 .. note::
 
