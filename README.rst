@@ -9,7 +9,7 @@ Django-MySQL
    :target: https://github.com/adamchainz/django-mysql/actions?workflow=CI
 
 .. image:: https://img.shields.io/coveralls/github/adamchainz/django-mysql/master?style=for-the-badge
-   :target: https://coveralls.io/r/adamchainz/django-mysql
+   :target: https://app.codecov.io/gh/adamchainz/django-mysql
 
 .. image:: https://img.shields.io/pypi/v/django-mysql.svg?style=for-the-badge
    :target: https://pypi.org/project/django-mysql/
