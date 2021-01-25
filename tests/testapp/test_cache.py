@@ -1079,9 +1079,11 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             assert n == 0
 
     def test_bad_key_prefix_for_reverse_function(self):
-        override = override_cache_settings(KEY_PREFIX="a:bad:prefix")
-        with override, pytest.raises(ValueError) as excinfo:
-            caches["default"]
+        with pytest.raises(ValueError) as excinfo:
+            MySQLCache(
+                table="test cache table",
+                params={"KEY_PREFIX": "a:bad:prefix"},
+            )
         assert str(excinfo.value).startswith("Cannot use the default KEY_FUNCTION")
 
     @parameterized.expand(["default", "prefix", "custom_key", "custom_key2"])
