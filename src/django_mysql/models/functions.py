@@ -121,7 +121,6 @@ class Floor(SingleArgFunc):
 
 class Round(Func):
     function = "ROUND"
-    output_field_class = IntegerField
 
     def __init__(self, expression, places=0):
         warnings.warn(
@@ -132,7 +131,7 @@ class Round(Func):
             DeprecationWarning,
             stacklevel=2,
         )
-        super().__init__(expression, places)
+        super().__init__(expression, places, output_field=IntegerField())
 
 
 class Sign(SingleArgFunc):
@@ -247,7 +246,7 @@ class SHA2(Func):
                     ",".join(str(x) for x in self.hash_lens)
                 )
             )
-        super().__init__(expression, Value(hash_len))
+        super().__init__(expression, Value(hash_len), output_field=TextField())
 
 
 # Information Functions

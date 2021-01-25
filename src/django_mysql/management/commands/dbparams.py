@@ -1,3 +1,4 @@
+import django
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import ConnectionDoesNotExist
@@ -15,7 +16,10 @@ class Command(BaseCommand):
         "'{default}'."
     ).format(default=DEFAULT_DB_ALIAS)
 
-    requires_system_checks = False
+    if django.VERSION >= (3, 2):
+        requires_system_checks = []
+    else:
+        requires_system_checks = False
 
     def add_arguments(self, parser):
         parser.add_argument(

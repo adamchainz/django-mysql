@@ -384,6 +384,10 @@ class FoundRowsTests(TestCase):
             assert authors.found_rows == 10
 
     def test_it_working_prefetching(self):
+        author1, author2 = Author.objects.all()[:2]
+        author2.tutor = author1
+        author2.save()
+
         with self.assertNumQueries(3):
             authors = Author.objects.sql_calc_found_rows().prefetch_related("tutor")[:5]
             list(authors)

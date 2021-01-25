@@ -2,6 +2,8 @@
 History
 =======
 
+* Support Django 3.2.
+
 * Rework system checks for Django 3.1, which made database checks optional. To
   run the checks you now need to pass the ``--database`` argument to the
   ``check`` command, for example ``python manage.py check --database default``.
