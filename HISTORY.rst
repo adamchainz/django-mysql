@@ -2,6 +2,9 @@
 History
 =======
 
+3.11.0 (2021-01-25)
+-------------------
+
 * Support Django 3.2.
 
 * Rework system checks for Django 3.1, which made database checks optional. To
