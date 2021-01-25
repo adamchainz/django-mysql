@@ -247,7 +247,7 @@ class SHA2(Func):
                     ",".join(str(x) for x in self.hash_lens)
                 )
             )
-        super().__init__(expression, Value(hash_len))
+        super().__init__(expression, Value(hash_len), output_field=TextField())
 
 
 # Information Functions
