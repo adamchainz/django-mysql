@@ -1,5 +1,7 @@
 import os
 
+import django
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -52,5 +54,7 @@ TEMPLATES = [
     }
 ]
 
+if django.VERSION >= (3, 2):
+    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DJANGO_MYSQL_REWRITE_QUERIES = True
