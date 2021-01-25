@@ -1,1 +1,4 @@
-default_app_config = "django_mysql.apps.MySQLConfig"
+import django
+
+if django.VERSION < (3, 2):
+    default_app_config = "django_mysql.apps.MySQLConfig"
