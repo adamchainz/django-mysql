@@ -2,6 +2,9 @@
 History
 =======
 
+3.11.1 (2021-01-26)
+-------------------
+
 * Pass the ``chunk_size`` argument through in ``QuerySetMixin.iterator()``.
   (`Issue #752 <https://github.com/adamchainz/django-mysql/issues/752>`__)
 
