@@ -154,10 +154,10 @@ class QuerySetMixin:
             )
         return self._found_rows
 
-    def iterator(self):
+    def iterator(self, *args, **kwargs):
         if getattr(self, "_found_rows", 0) is None:
             raise ValueError("sql_calc_found_rows() doesn't work with iterator()")
-        return super().iterator()
+        return super().iterator(*args, **kwargs)
 
     @property
     def _result_cache(self):

@@ -371,6 +371,10 @@ class FoundRowsTests(TestCase):
         authors = Author.objects.all()[:5]
         authors.iterator()
 
+    def test_iterator_without_it_works_with_chunk_size(self):
+        authors = Author.objects.all()[:5]
+        authors.iterator(chunk_size=100)
+
     def test_it_working(self):
         with self.assertNumQueries(2):
             authors = Author.objects.sql_calc_found_rows()[:5]
