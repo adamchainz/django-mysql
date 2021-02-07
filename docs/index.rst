@@ -1,7 +1,7 @@
 Django-MySQL Documentation
 ==========================
 
-.. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
+.. figure:: https://raw.github.com/adamchainz/django-mysql/main/docs/images/dolphin-pony.png
    :alt: The dolphin-pony - proof that cute + cute = double cute.
 
 Django-MySQL extends Django's built-in MySQL and MariaDB support their specific

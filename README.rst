@@ -5,10 +5,10 @@ Django-MySQL
 .. image:: https://img.shields.io/readthedocs/django-mysql?style=for-the-badge
    :target: https://django-mysql.readthedocs.io/en/latest/
 
-.. image:: https://img.shields.io/github/workflow/status/adamchainz/django-mysql/CI/master?style=for-the-badge
+.. image:: https://img.shields.io/github/workflow/status/adamchainz/django-mysql/CI/main?style=for-the-badge
    :target: https://github.com/adamchainz/django-mysql/actions?workflow=CI
 
-.. image:: https://img.shields.io/coveralls/github/adamchainz/django-mysql/master?style=for-the-badge
+.. image:: https://img.shields.io/coveralls/github/adamchainz/django-mysql/main?style=for-the-badge
    :target: https://app.codecov.io/gh/adamchainz/django-mysql
 
 .. image:: https://img.shields.io/pypi/v/django-mysql.svg?style=for-the-badge
@@ -21,7 +21,7 @@ Django-MySQL
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
-.. figure:: https://raw.github.com/adamchainz/django-mysql/master/docs/images/dolphin-pony.png
+.. figure:: https://raw.github.com/adamchainz/django-mysql/main/docs/images/dolphin-pony.png
    :alt: The dolphin-pony - proof that cute + cute = double cute.
 
 ..
