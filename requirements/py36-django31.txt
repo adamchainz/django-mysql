@@ -70,13 +70,13 @@ django==3.1.7 \
     --hash=sha256:32ce792ee9b6a0cbbec340123e229ac9f765dff8c2a4ae9247a14b2ba3a365a7 \
     --hash=sha256:baf099db36ad31f970775d0be5587cc58a6256a6771a44eb795b554d45f211b8
     # via -r requirements.in
-flake8==3.8.4 \
-    --hash=sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839 \
-    --hash=sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b
+flake8==3.9.0 \
+    --hash=sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff \
+    --hash=sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0
     # via pytest-flake8dir
-importlib-metadata==3.7.2 \
-    --hash=sha256:18d5ff601069f98d5d605b6a4b50c18a34811d655c55548adc833e687289acde \
-    --hash=sha256:407d13f55dc6f2a844e62325d18ad7019a436c4bfcaee34cda35f2be6e7c3e34
+importlib-metadata==3.7.3 \
+    --hash=sha256:742add720a20d0467df2f444ae41704000f50e1234f46174b51f9c6031a1bd71 \
+    --hash=sha256:b74159469b464a99cb8cc3e21973e4d96e05d3024d337313fedb618a6e86e6f4
     # via
     #   flake8
     #   pluggy
@@ -117,13 +117,13 @@ py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
     --hash=sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a
     # via pytest
-pycodestyle==2.6.0 \
-    --hash=sha256:2295e7b2f6b5bd100585ebcb1f616591b652db8a741695b3d8f5d28bdc934367 \
-    --hash=sha256:c58a7d2815e0e8d7972bf1803331fb0152f867bd89adf8a01dfd55085434192e
+pycodestyle==2.7.0 \
+    --hash=sha256:514f76d918fcc0b55c6680472f0a37970994e07bbb80725808c17089be302068 \
+    --hash=sha256:c389c1d06bf7904078ca03399a4816f974a1d590090fecea0c63ec26ebaf1cef
     # via flake8
-pyflakes==2.2.0 \
-    --hash=sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92 \
-    --hash=sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8
+pyflakes==2.3.0 \
+    --hash=sha256:910208209dcea632721cb58363d0f72913d9e8cf64dc6f8ae2e02a3609aba40d \
+    --hash=sha256:e59fd8e750e588358f1b8885e5a4751203a0516e0ee6d34811089ac294c8806f
     # via flake8
 pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
@@ -133,9 +133,9 @@ pytest-django==4.1.0 \
     --hash=sha256:10e384e6b8912ded92db64c58be8139d9ae23fb8361e5fc139d8e4f8fc601bc2 \
     --hash=sha256:26f02c16d36fd4c8672390deebe3413678d89f30720c16efb8b2a6bf63b9041f
     # via -r requirements.in
-pytest-flake8dir==2.3.0 \
-    --hash=sha256:3ecab1b2f50d5bfbcfe198aa7939e7904cb4506aa9226e64ed65723836421005 \
-    --hash=sha256:f9fc1b0bb4eca57132cec242e613675eb12c0188aa0ebae5571f3c49463e1847
+pytest-flake8dir==2.3.1 \
+    --hash=sha256:dd49f03bd4431c662bc1758e0b7ab91071ab7a8facdc091fa1d4f8b6d100f84e \
+    --hash=sha256:f3b9a0f35e9d8502e8c24622b7e61683a83ef11f73740a304b5705bfb6a30c1c
     # via -r requirements.in
 pytest-randomly==3.5.0 \
     --hash=sha256:440cec143fd9b0adeb072006c71e0294402a2bc2ccd08079c2341087ba4cf2d1 \
