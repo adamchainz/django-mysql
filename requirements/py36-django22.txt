@@ -62,9 +62,9 @@ coverage==5.5 \
     --hash=sha256:f0b278ce10936db1a37e6954e15a3730bea96a0997c26d7fee88e6c396c2086d \
     --hash=sha256:f11642dddbb0253cc8853254301b51390ba0081750a8ac03f20ea8103f0c56b6
     # via -r requirements.in
-django==2.2.22 \
-    --hash=sha256:db2214db1c99017cbd971e58824e6f424375154fe358afc30e976f5b99fc6060 \
-    --hash=sha256:e831105edb153af1324de44d06091ca75520a227456387dda4a47d2f1cc2731a
+django==2.2.23 \
+    --hash=sha256:12cfc045a4ccb2348719aaaa77b17e66a26bff9fc238b4c765a3e825ef92e414 \
+    --hash=sha256:2710bff9dd480cf886e38947ee00aea3d6b9b04b77a748e352e3ce447b0fe17f
     # via -r requirements.in
 flake8==3.9.2 \
     --hash=sha256:07528381786f2a6237b061f6e96610a4167b226cb926e2aa2b6b1d78057c576b \
@@ -82,9 +82,9 @@ iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
     # via pytest
-mariadb-dyncol==3.2.0 \
-    --hash=sha256:4a614716f205f8d161fdc0fcdb81d6f9e289137d28cd86dafa2da125fd72ec14 \
-    --hash=sha256:c18d44f09203d8f41136c64601c54354e9f6d25b3dbc89e127b1a4acbee5ac86
+mariadb-dyncol==3.3.0 \
+    --hash=sha256:0ac5273954c699c6cd93d14e11f5ccc6fd9a8a53a17cfb67106d64549db3ad8c \
+    --hash=sha256:65bd203f6f508dde1ef246b234e575dccb72ce4961e7e2d9bbf8ea2297b6e218
     # via -r requirements.in
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
@@ -125,21 +125,21 @@ pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
     --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b
     # via packaging
-pytest-django==4.2.0 \
-    --hash=sha256:80f8875226ec4dc0b205f0578072034563879d98d9b1bec143a80b9045716cb0 \
-    --hash=sha256:a51150d8962200250e850c6adcab670779b9c2aa07271471059d1fb92a843fa9
+pytest-django==4.3.0 \
+    --hash=sha256:d1c6758a592fb0ef8abaa2fe12dd28858c1dcfc3d466102ffe52aa8934733dca \
+    --hash=sha256:f96c4556f4e7b15d987dd1dcc1d1526df81d40c1548d31ce840d597ed2be8c46
     # via -r requirements.in
-pytest-flake8dir==2.3.1 \
-    --hash=sha256:dd49f03bd4431c662bc1758e0b7ab91071ab7a8facdc091fa1d4f8b6d100f84e \
-    --hash=sha256:f3b9a0f35e9d8502e8c24622b7e61683a83ef11f73740a304b5705bfb6a30c1c
+pytest-flake8dir==2.5.0 \
+    --hash=sha256:1588fb9e146cb106a6cdc945d390ce982564c09cdf5a996dae12a985fa04cf9b \
+    --hash=sha256:4e82642da14594616b30847745834a0b063a0bd9295cc720f92512f0972e7df1
     # via -r requirements.in
-pytest-randomly==3.7.0 \
-    --hash=sha256:89a4f98aed1753c447a3927b66571a796e53cdecbf671e7318f6c57d79c7f6a3 \
-    --hash=sha256:cd68c1da7d152509f59fec725f5314437727937fad31a50028693269c9261d90
+pytest-randomly==3.8.0 \
+    --hash=sha256:d9e21a72446757129378beea00bc9a32df1fb1cfd0bbe408be1ae9685bdf1209 \
+    --hash=sha256:f5b7a09e84ee1eabcdedbb73c51d0929ae2f582bab6941dbb513bb49296d6340
     # via -r requirements.in
-pytest-super-check==2.2.0 \
-    --hash=sha256:4e1725ac5e814a74c2fe782a83e5a87364deaf61347170b5cd814ffc1aab3fc8 \
-    --hash=sha256:cea823eda8dd5247c5fcb1a237eb82c3a6f49c0137881a317f19f46c59632981
+pytest-super-check==2.3.0 \
+    --hash=sha256:c633e69fe7a324a7363303d4b9034341961f177b94ddfda07efb93115a49e16b \
+    --hash=sha256:efaa34a48140b61d8e458581df208b7a6beec442fad247c8ab36f1e311fa4282
     # via -r requirements.in
 pytest==6.2.4 \
     --hash=sha256:50bcad0a0b9c5a72c8e4e7c9855a3ad496ca6a881a3641b4260605450772c54b \
