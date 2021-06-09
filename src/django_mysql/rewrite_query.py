@@ -171,7 +171,8 @@ table_spec_re_template = r"""
 """
 
 replacement_template = (
-    r"\g<operator> \g<table_name_with_alias> " r"{rule} INDEX {for_section}({index_names}) "
+    r"\g<operator> \g<table_name_with_alias> "
+    r"{rule} INDEX {for_section}({index_names}) "
 )
 
 
