@@ -225,6 +225,15 @@ class RewriteQueryTests(TestCase):
             + "USE INDEX (`myindex`) WHERE (1)"
         )
 
+    def test_index_hint_with_alias(self):
+        assert (
+            rewrite_query(
+                "SELECT col_a, col_b FROM `sometable` U1"
+                + "WHERE (/*QueryRewrite':index=`sometable` USE `col_a_idx`*/1)"
+            )
+            == "SELECT col_a, col_b FROM `sometable` U1 USE INDEX (`col_a_idx`) WHERE (1)"
+        )
+
     def test_index_hint_multiple_indexes(self):
         assert rewrite_query(
             "SELECT col_a FROM `tabl` WHERE "

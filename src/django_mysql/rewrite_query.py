@@ -166,12 +166,12 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 table_spec_re_template = r"""
     \b(?P<operator>FROM|JOIN)
     \s+
-    {table_name}
+    (?P<table_name_with_alias>{table_name}(\s+[A-Z]+[0-9]+)?)
     \s+
 """
 
 replacement_template = (
-    r"\g<operator> {table_name} " r"{rule} INDEX {for_section}({index_names}) "
+    r"\g<operator> \g<table_name_with_alias> " r"{rule} INDEX {for_section}({index_names}) "
 )
 
 
@@ -182,7 +182,6 @@ def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
     else:
         for_section = ""
     replacement = replacement_template.format(
-        table_name=table_name,
         rule=rule,
         for_section=for_section,
         index_names=("" if index_names == "NONE" else index_names),
