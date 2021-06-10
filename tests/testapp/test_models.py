@@ -245,11 +245,9 @@ class QueryHintTests(TestCase):
                     has_books=Exists(
                         Book.objects.filter(
                             author_id=OuterRef("id"), title__gt=""
-                        )
-                        .use_index(title_idx, table_name="testapp_book")
+                        ).use_index(title_idx, table_name="testapp_book")
                     )
-                )
-                .filter(has_books=True)
+                ).filter(has_books=True)
             )
         assert ("USE INDEX (`" + title_idx + "`)") in cap.query
         used = used_indexes(cap.query)
@@ -277,11 +275,9 @@ class QueryHintTests(TestCase):
                     has_books=Exists(
                         Book.objects.filter(
                             author_id=OuterRef("id"), title__gt=""
-                        )
-                        .force_index(title_idx, table_name="testapp_book")
+                        ).force_index(title_idx, table_name="testapp_book")
                     )
-                )
-                .filter(has_books=True)
+                ).filter(has_books=True)
             )
         assert ("FORCE INDEX (`" + title_idx + "`)") in cap.query
         used = used_indexes(cap.query)
