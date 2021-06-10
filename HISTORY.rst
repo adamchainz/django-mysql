@@ -2,6 +2,9 @@
 History
 =======
 
+3.12.0 (2021-06-11)
+-------------------
+
 * Fix index hints for tables with aliases.
 
   Thanks to Henrik Aarnio in `PR #786 <https://github.com/adamchainz/django-mysql/pull/786>`__.
