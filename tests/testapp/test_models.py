@@ -5,8 +5,7 @@ from unittest import mock, skipUnless
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import OuterRef
-from django.db.models import Exists
+from django.db.models import Exists, OuterRef
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
@@ -241,9 +240,15 @@ class QueryHintTests(TestCase):
     def test_use_index_inner_query(self):
         title_idx = index_name(Book, "title")
         with CaptureLastQuery() as cap:
-            list(Author.objects.annotate(has_books=Exists(
-                Book.objects.filter(author_id=OuterRef('id'), title__gt="")
-            )).filter(has_books=True).use_index(title_idx, table_name="testapp_book"))
+            list(
+                Author.objects.annotate(
+                    has_books=Exists(
+                        Book.objects.filter(author_id=OuterRef("id"), title__gt="")
+                    )
+                )
+                .filter(has_books=True)
+                .use_index(title_idx, table_name="testapp_book")
+            )
         assert ("USE INDEX (`" + title_idx + "`)") in cap.query
         used = used_indexes(cap.query)
         assert len(used) == 0 or title_idx in used
