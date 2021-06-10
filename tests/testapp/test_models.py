@@ -242,8 +242,10 @@ class QueryHintTests(TestCase):
         title_idx = index_name(Book, "title")
         with CaptureLastQuery() as cap:
             list(Author.objects.annotate(has_books=Exists(
-                Book.objects.filter(author_id=OuterRef('id'), title__gt="")
-            )).filter(has_books=True).use_index(title_idx, table_name="testapp_book"))
+                Book.objects.filter(
+                    author_id=OuterRef('id'), title__gt=""
+                ).use_index(title_idx)
+            )).filter(has_books=True))
         assert ("USE INDEX (`" + title_idx + "`)") in cap.query
         used = used_indexes(cap.query)
         assert len(used) == 0 or title_idx in used
@@ -261,6 +263,18 @@ class QueryHintTests(TestCase):
         assert ("FORCE INDEX (`PRIMARY`)") in cap.query
         used = used_indexes(cap.query)
         assert len(used) == 0 or "PRIMARY" in used
+
+    def test_force_index_inner_query(self):
+        title_idx = index_name(Book, "title")
+        with CaptureLastQuery() as cap:
+            list(Author.objects.annotate(has_books=Exists(
+                Book.objects.filter(
+                    author_id=OuterRef('id'), title__gt=""
+                ).force_index(title_idx)
+            )).filter(has_books=True))
+        assert ("FORCE INDEX (`" + title_idx + "`)") in cap.query
+        used = used_indexes(cap.query)
+        assert title_idx in used
 
     def test_ignore_index(self):
         name_idx = index_name(Author, "name")
