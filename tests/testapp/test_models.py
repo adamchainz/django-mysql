@@ -5,6 +5,7 @@ from unittest import mock, skipUnless
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import Exists, OuterRef
 from django.db.models.query import QuerySet
 from django.template import Context, Template
 from django.test import TestCase
@@ -236,6 +237,22 @@ class QueryHintTests(TestCase):
         used = used_indexes(cap.query)
         assert len(used) == 0 or "PRIMARY" in used
 
+    def test_use_index_inner_query(self):
+        title_idx = index_name(Book, "title")
+        with CaptureLastQuery() as cap:
+            list(
+                Author.objects.annotate(
+                    has_books=Exists(
+                        Book.objects.filter(
+                            author_id=OuterRef("id"), title__gt=""
+                        ).use_index(title_idx, table_name="testapp_book")
+                    )
+                ).filter(has_books=True)
+            )
+        assert ("USE INDEX (`" + title_idx + "`)") in cap.query
+        used = used_indexes(cap.query)
+        assert len(used) == 0 or title_idx in used
+
     def test_force_index(self):
         name_idx = index_name(Author, "name")
         with CaptureLastQuery() as cap:
@@ -249,6 +266,22 @@ class QueryHintTests(TestCase):
         assert ("FORCE INDEX (`PRIMARY`)") in cap.query
         used = used_indexes(cap.query)
         assert len(used) == 0 or "PRIMARY" in used
+
+    def test_force_index_inner_query(self):
+        title_idx = index_name(Book, "title")
+        with CaptureLastQuery() as cap:
+            list(
+                Author.objects.annotate(
+                    has_books=Exists(
+                        Book.objects.filter(
+                            author_id=OuterRef("id"), title__gt=""
+                        ).force_index(title_idx, table_name="testapp_book")
+                    )
+                ).filter(has_books=True)
+            )
+        assert ("FORCE INDEX (`" + title_idx + "`)") in cap.query
+        used = used_indexes(cap.query)
+        assert title_idx in used
 
     def test_ignore_index(self):
         name_idx = index_name(Author, "name")

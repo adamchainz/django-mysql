@@ -2,6 +2,10 @@
 History
 =======
 
+* Fix index hints for tables with aliases.
+
+  Thanks to Henrik Aarnio in `PR #786 <https://github.com/adamchainz/django-mysql/pull/786>`__.
+
 * Stop distributing tests to reduce package size. Tests are not intended to be
   run outside of the tox setup in the repository. Repackagers can use GitHub's
   tarballs per tag.
