@@ -220,7 +220,7 @@ History
   a JSON object at the MySQL layer and deserialize it when returned. For
   example you could do this:
 
-  .. code-block:: python
+  .. code-block:: pycon
 
       >>> mymodel.attrs = '{"foo": "bar"}'
       >>> mymodel.save()
@@ -230,10 +230,11 @@ History
 
   The new behaviour now correctly returns what you put in:
 
-  .. code-block:: python
+  .. code-block:: pycon
 
       >>> mymodel.attrs
       '{"foo": "bar"}'
+
 * Removed the ``connection.is_mariadb`` monkey patch. This is a small backwards
   incompatible change. Instead of using it, use
   ``django_mysql.utils.connection_is_mariadb``.

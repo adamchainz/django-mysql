@@ -34,15 +34,19 @@ Docs:
 
         from django_mysql.models import EnumField
 
+
         class BookCover(Model):
-            color = EnumField(choices=['red', 'green', 'blue'])
+            color = EnumField(choices=["red", "green", "blue"])
+
 
         class Book(Model):
-            color = EnumField(choices=[
-              ('red', 'Bright Red'),
-              ('green', 'Vibrant Green'),
-              'blue',  # human readable name will be set to "blue"
-            ])
+            color = EnumField(
+                choices=[
+                    ("red", "Bright Red"),
+                    ("green", "Vibrant Green"),
+                    "blue",  # human readable name will be set to "blue"
+                ]
+            )
 
 
     .. warning::

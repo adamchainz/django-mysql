@@ -69,15 +69,18 @@ to pack and unpack Dynamic Columns blobs in Python rather than in MariaDB
 
             import datetime
 
+
             class SpecModel(Model):
-                attrs = DynamicField(spec={
-                    'an_integer_key': int,
-                    'created_at': datetime.datetime,
-                    'nested_columns': {
-                        'lat': int,
-                        'lon': int,
+                attrs = DynamicField(
+                    spec={
+                        "an_integer_key": int,
+                        "created_at": datetime.datetime,
+                        "nested_columns": {
+                            "lat": int,
+                            "lon": int,
+                        },
                     }
-                })
+                )
 
         This will enforce the following rules:
 
@@ -94,14 +97,14 @@ to pack and unpack Dynamic Columns blobs in Python rather than in MariaDB
 
         For example:
 
-        .. code-block:: python
+        .. code-block:: pycon
 
-            >>> SpecModel.objects.create(attrs={'an_integer_key': 1})  # Fine
-            >>> SpecModel.objects.create(attrs={'an_integer_key': 2.0})
+            >>> SpecModel.objects.create(attrs={"an_integer_key": 1})  # Fine
+            >>> SpecModel.objects.create(attrs={"an_integer_key": 2.0})
             Traceback (most recent call last):
             ...
             TypeError: Key 'an_integer_key' should be of type 'int'
-            >>> SpecModel.objects.create(attrs={'non_spec_key': 'anytype'})  # Fine
+            >>> SpecModel.objects.create(attrs={"non_spec_key": "anytype"})  # Fine
 
 DynamicFields in Forms
 ----------------------
@@ -128,11 +131,14 @@ We'll use the following example model:
 
     from django_mysql.models import DynamicField, Model
 
+
     class ShopItem(Model):
         name = models.CharField(max_length=200)
-        attrs = DynamicField(spec={
-            'size': str,
-        })
+        attrs = DynamicField(
+            spec={
+                "size": str,
+            }
+        )
 
         def __str__(self):
             return self.name
@@ -144,14 +150,14 @@ To query based on an exact match, just use a dictionary.
 
 For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> ShopItem.objects.create(name='Camembert', attrs={'smelliness': 15})
-    >>> ShopItem.objects.create(name='Cheddar', attrs={'smelliness': 15, 'hardness': 5})
+    >>> ShopItem.objects.create(name="Camembert", attrs={"smelliness": 15})
+    >>> ShopItem.objects.create(name="Cheddar", attrs={"smelliness": 15, "hardness": 5})
 
-    >>> ShopItem.objects.filter(attrs={'smelliness': 15})
+    >>> ShopItem.objects.filter(attrs={"smelliness": 15})
     [<ShopItem: Camembert>]
-    >>> ShopItem.objects.filter(attrs={'smelliness': 15, 'hardness': 5})
+    >>> ShopItem.objects.filter(attrs={"smelliness": 15, "hardness": 5})
     [<ShopItem: Cheddar>]
 
 
@@ -181,20 +187,20 @@ not defined for a row.
 
 For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> ShopItem.objects.create(name='T-Shirt', attrs={'size': 'Large'})
-    >>> ShopItem.objects.create(name='Rocketship', attrs={
-    ...     'speed_mph': 300,
-    ...     'dimensions': {'width_m': 10, 'height_m': 50}
-    ... })
+    >>> ShopItem.objects.create(name="T-Shirt", attrs={"size": "Large"})
+    >>> ShopItem.objects.create(
+    ...     name="Rocketship",
+    ...     attrs={"speed_mph": 300, "dimensions": {"width_m": 10, "height_m": 50}},
+    ... )
 
     # Basic template: DynamicField + '__' + column name + '_' + SQL type
-    >>> ShopItem.objects.filter(attrs__size_CHAR='Large')
+    >>> ShopItem.objects.filter(attrs__size_CHAR="Large")
     [<ShopItem: T-Shirt>]
 
     # As 'size' is in the field's spec, there is no need to give the SQL type
-    >>> ShopItem.objects.filter(attrs__size='Large')
+    >>> ShopItem.objects.filter(attrs__size="Large")
     [<ShopItem: T-Shirt>]
 
     # Chained lookups are possible based on the data type
@@ -206,7 +212,7 @@ For example:
     [<ShopItem: Rocketship>]
 
     # Nested DynamicFields can be queried as ``dict``s, as per the ``exact`` lookup
-    >>> ShopItem.objects.filter(attrs__dimensions_BINARY={'width_m': 10, 'height_m': 50})
+    >>> ShopItem.objects.filter(attrs__dimensions_BINARY={"width_m": 10, "height_m": 50})
     [<ShopItem: Rocketship>]
 
     # Missing keys are always NULL

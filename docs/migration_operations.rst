@@ -135,6 +135,4 @@ Alter Storage Engine
 
             dependencies = []
 
-            operations = [
-                AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")
-            ]
+            operations = [AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")]

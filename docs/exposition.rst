@@ -142,11 +142,14 @@ Implements MySQL 5.7+'s JSON data type for storing arbitrary JSON data:
 
 .. code-block:: pycon
 
-    >>> APIResponse.objects.create(url='/api/twoots/1/', data={
-        'id': '123',
-        'message': 'Loving #django and #mysql',
-        'coords': [34.4, 56.2]
-    })
+    >>> APIResponse.objects.create(
+    ...     url="/api/twoots/1/",
+    ...     data={
+    ...         "id": "123",
+    ...         "message": "Loving #django and #mysql",
+    ...         "coords": [34.4, 56.2],
+    ...     },
+    ... )
     >>> APIResponse.objects.filter(data__coords__0=34.4)
     [<APIResponse: /api/twoots/1/>]
 
@@ -166,8 +169,8 @@ values:
 
 .. code-block:: pycon
 
-    >>> ShopItem.objects.create(name='Camembert', attrs={'smelliness': 15})
-    >>> ShopItem.objects.create(name='Brie', attrs={'smelliness': 5, 'squishiness': 10})
+    >>> ShopItem.objects.create(name="Camembert", attrs={"smelliness": 15})
+    >>> ShopItem.objects.create(name="Brie", attrs={"smelliness": 5, "squishiness": 10})
     >>> ShopItem.objects.filter(attrs__smelliness_INTEGER__gte=10)
     [<ShopItem: Camembert>]
 
@@ -183,13 +186,11 @@ string:
 
     class Person(Model):
         name = CharField(max_length=32)
-        post_nominals = ListTextField(
-            base_field=CharField(max_length=32)
-        )
+        post_nominals = ListTextField(base_field=CharField(max_length=32))
 
 .. code-block:: pycon
 
-    >>> Person.objects.filter(post_nominals__contains='PhD')
+    >>> Person.objects.filter(post_nominals__contains="PhD")
     [<Person: Horatio>, <Person: Severus>]
 
 :ref:`Read more <list-fields>`
@@ -205,14 +206,12 @@ string:
 
     class Post(Model):
         name = CharField(max_length=32)
-        tags = SetTextField(
-            base_field=CharField(max_length=10)
-        )
+        tags = SetTextField(base_field=CharField(max_length=10))
 
 .. code-block:: pycon
 
-    >>> Post.objects.create(name='First post', tags={'thoughts', 'django'})
-    >>> Post.objects.filter(tags__contains='django')
+    >>> Post.objects.create(name="First post", tags={"thoughts", "django"})
+    >>> Post.objects.filter(tags__contains="django")
     [<Post: First post>]
 
 :ref:`Read more <set-fields>`
@@ -226,7 +225,7 @@ restricted to a set of choices to be stored in a space efficient manner:
 .. code-block:: python
 
     class BookCover(Model):
-        color = EnumField(choices=['red', 'green', 'blue'])
+        color = EnumField(choices=["red", "green", "blue"])
 
 :ref:`Read more <enum-field>`
 
@@ -272,7 +271,7 @@ ORM extensions to built-in fields:
 
 .. code-block:: pycon
 
-    >>> Author.objects.filter(name__sounds_like='Robert')
+    >>> Author.objects.filter(name__sounds_like="Robert")
     [<Author: Robert>, <Author: Rupert>]
 
 :ref:`Read more <field-lookups>`
@@ -287,9 +286,9 @@ you to bring back the concatenation of values from a group in one query:
 
 .. code-block:: pycon
 
-    >>> author = Author.objects.annotate(
-    ...     book_ids=GroupConcat('books__id')
-    ... ).get(name="William Shakespeare")
+    >>> author = Author.objects.annotate(book_ids=GroupConcat("books__id")).get(
+    ...     name="William Shakespeare"
+    ... )
     >>> author.book_ids
     "1,2,5,17,29"
 
@@ -305,7 +304,7 @@ MySQL-specific database functions for the ORM:
 .. code-block:: pycon
 
     >>> Author.objects.annotate(
-    ...     full_name=ConcatWS('first_name', 'last_name', separator=' ')
+    ...     full_name=ConcatWS("first_name", "last_name", separator=" ")
     ... ).first().full_name
     "Charles Dickens"
 
@@ -327,9 +326,7 @@ MySQL-specific operations for django migrations:
     class Migration(migrations.Migration):
         dependencies = []
 
-        operations = [
-            InstallPlugin("metadata_lock_info", "metadata_lock_info.so")
-        ]
+        operations = [InstallPlugin("metadata_lock_info", "metadata_lock_info.so")]
 
 :ref:`Read more <migration_operations>`
 
@@ -370,7 +367,7 @@ Easy access to global or session status variables:
 
 .. code-block:: python
 
-    if global_status.get('Threads_running') > 100:
+    if global_status.get("Threads_running") > 100:
         raise BorkError("Server too busy right now, come back later")
 
 :ref:`Read more <status>`
@@ -423,7 +420,6 @@ specific one:
 .. code-block:: python
 
     class MyTests(TestCase):
-
         @override_mysql_variables(SQL_MODE="ANSI")
         def test_it_works_in_ansi_mode(self):
             self.run_it()

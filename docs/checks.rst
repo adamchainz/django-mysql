@@ -23,7 +23,7 @@ message, and a link here for documentation on how to fix it.
     .. code-block:: python
 
         SILENCED_SYSTEM_CHECKS = [
-            'django_mysql.W002',
+            "django_mysql.W002",
         ]
 
 
@@ -50,11 +50,11 @@ The easiest way to change ``sql_mode`` for your app is to set it from the
 .. code-block:: python
 
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'my_database',
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "my_database",
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
             },
         }
     }
@@ -88,11 +88,11 @@ your ``DATABASES`` setting:
 .. code-block:: python
 
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'my_database',
-            'OPTIONS': {
-                'init_command': 'SET innodb_strict_mode=1',
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "my_database",
+            "OPTIONS": {
+                "init_command": "SET innodb_strict_mode=1",
             },
         }
     }
@@ -136,18 +136,18 @@ creates the test database, and thus all tables, with the right character set:
 .. code-block:: python
 
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'my_database',
-            'OPTIONS': {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "my_database",
+            "OPTIONS": {
                 # Tell MySQLdb to connect with 'utf8mb4' character set
-                'charset': 'utf8mb4',
+                "charset": "utf8mb4",
             },
             # Tell Django to build the test database with the 'utf8mb4' character set
-            'TEST': {
-                'CHARSET': 'utf8mb4',
-                'COLLATION': 'utf8mb4_unicode_ci',
-            }
+            "TEST": {
+                "CHARSET": "utf8mb4",
+                "COLLATION": "utf8mb4_unicode_ci",
+            },
         }
     }
 

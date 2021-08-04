@@ -33,7 +33,7 @@ The following can be imported from ``django_mysql.locks``.
         from django_mysql.locks import Lock
 
         try:
-            with Lock('my_unique_name', acquire_timeout=2.0):
+            with Lock("my_unique_name", acquire_timeout=2.0):
                 mutually_exclusive_process()
         except TimeoutError:
             print "Could not get the lock"
@@ -97,7 +97,7 @@ The following can be imported from ``django_mysql.locks``.
 
             from django_mysql.locks import Lock
 
-            lock = Lock('my_unique_name')
+            lock = Lock("my_unique_name")
             lock.acquire()
             try:
                 mutually_exclusive_process()
@@ -119,7 +119,7 @@ The following can be imported from ``django_mysql.locks``.
 
         .. code-block:: pycon
 
-            >>> Lock.held_with_prefix('Author')
+            >>> Lock.held_with_prefix("Author")
             {'Author.1': 451, 'Author.2': 457}
 
         .. note::
@@ -139,7 +139,7 @@ The following can be imported from ``django_mysql.locks``.
 
                     operations = [
                         # Install https://mariadb.com/kb/en/mariadb/metadata_lock_info/
-                        InstallSOName('metadata_lock_info')
+                        InstallSOName("metadata_lock_info")
                     ]
 
 .. class:: TableLock(write=None, read=none, using=None)

@@ -20,7 +20,6 @@ The following can be imported from ``django_mysql.test.utils``.
 
         @override_mysql_variables(SQL_MODE="MSSQL")
         class MyTests(TestCase):
-
             def test_it_works_in_mssql(self):
                 run_it()
 

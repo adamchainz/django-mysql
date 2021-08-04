@@ -63,7 +63,8 @@ Django-MySQL supports the JSON data type and related functions through
         .. code-block:: python
 
             def my_default():
-                return {'foo': 'bar'}
+                return {"foo": "bar"}
+
 
             class MyModel(Model):
                 attrs = JSONField(default=my_default)
@@ -104,6 +105,7 @@ We'll use the following example model:
 
     from django_mysql.models import JSONField, Model
 
+
     class ShopItem(Model):
         name = models.CharField(max_length=200)
         attrs = JSONField()
@@ -118,17 +120,17 @@ To query based on an exact match, just use an object of any JSON type.
 
 For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> ShopItem.objects.create(name='Gruyère', attrs={'smelliness': 5})
-    >>> ShopItem.objects.create(name='Feta', attrs={'smelliness': 3, 'crumbliness': 10})
-    >>> ShopItem.objects.create(name='Hack', attrs=[1, 'arbitrary', 'data'])
+    >>> ShopItem.objects.create(name="Gruyère", attrs={"smelliness": 5})
+    >>> ShopItem.objects.create(name="Feta", attrs={"smelliness": 3, "crumbliness": 10})
+    >>> ShopItem.objects.create(name="Hack", attrs=[1, "arbitrary", "data"])
 
-    >>> ShopItem.objects.filter(attrs={'smelliness': 5})
+    >>> ShopItem.objects.filter(attrs={"smelliness": 5})
     [<ShopItem: Gruyère>]
-    >>> ShopItem.objects.filter(attrs__exact={'smelliness': 3, 'crumbliness': 10})
+    >>> ShopItem.objects.filter(attrs__exact={"smelliness": 3, "crumbliness": 10})
     [<ShopItem: Feta>]
-    >>> ShopItem.objects.filter(attrs=[1, 'arbitrary', 'data'])
+    >>> ShopItem.objects.filter(attrs=[1, "arbitrary", "data"])
     [<ShopItem: Hack>]
 
 
@@ -144,14 +146,14 @@ built-in ``gt``, ``gte``, ``lt``, and ``lte`` lookups.
 
 For example:
 
-.. code-block:: py
+.. code-block:: pycon
 
-    >>> ShopItem.objects.create(name='Cheshire', attrs=['Dense', 'Crumbly'])
-    >>> ShopItem.objects.create(name='Double Gloucester', attrs=['Semi-hard'])
+    >>> ShopItem.objects.create(name="Cheshire", attrs=["Dense", "Crumbly"])
+    >>> ShopItem.objects.create(name="Double Gloucester", attrs=["Semi-hard"])
 
-    >>> ShopItem.objects.filter(attrs__gt=['Dense', 'Crumbly'])
+    >>> ShopItem.objects.filter(attrs__gt=["Dense", "Crumbly"])
     [<ShopItem: Double Gloucester>]
-    >>> ShopItem.objects.filter(attrs__lte=['ZZZ'])
+    >>> ShopItem.objects.filter(attrs__lte=["ZZZ"])
     [<ShopItem: Cheshire>, <ShopItem: Double Gloucester>]
 
 Key, Index, and Path Lookups
@@ -159,33 +161,33 @@ Key, Index, and Path Lookups
 
 To query based on a given dictionary key, use that key as the lookup name:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> ShopItem.objects.create(name='Gruyère', attrs={
-        'smelliness': 5,
-        'origin': {
-            'country': 'Switzerland',
-        }
-        'certifications': ['Swiss AOC', 'Swiss AOP'],
-    })
-    >>> ShopItem.objects.create(name='Feta', attrs={'smelliness': 3, 'crumbliness': 10})
-
+    >>> ShopItem.objects.create(
+    ...     name="Gruyère",
+    ...     attrs={
+    ...         "smelliness": 5,
+    ...         "origin": {"country": "Switzerland"},
+    ...         "certifications": ["Swiss AOC", "Swiss AOP"],
+    ...     },
+    ... )
+    >>> ShopItem.objects.create(name="Feta", attrs={"smelliness": 3, "crumbliness": 10})
     >>> ShopItem.objects.filter(attrs__smelliness=3)
     [<ShopItem: Feta>]
 
 Multiple keys can be chained together to form a path lookup:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> ShopItem.objects.filter(attrs__origin__country='Switzerland')
+    >>> ShopItem.objects.filter(attrs__origin__country="Switzerland")
     [<ShopItem: Gruyère>]
 
 If the key is an integer, it will be interpreted as an index lookup in an
 array:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> ShopItem.objects.filter(attrs__certifications__0='Swiss AOC')
+    >>> ShopItem.objects.filter(attrs__certifications__0="Swiss AOC")
     [<ShopItem: Gruyère>]
 
 If the key you wish to query is not valid for a Python keyword argument (e.g.
@@ -198,31 +200,31 @@ Key Presence Lookups
 
 To query to check if an object has a given key, use the ``has_key`` lookup:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Find all ShopItems with a hardness rating
-    >>> ShopItem.objects.filter(attrs__has_key='hardness')
+    >>> ShopItem.objects.filter(attrs__has_key="hardness")
     []
     # Find all ShopItems missing certification information
-    >>> ShopItem.objects.exclude(attrs__has_key='certifications')
+    >>> ShopItem.objects.exclude(attrs__has_key="certifications")
     [<ShopItem: Feta>]
 
 To check if an object has several keys, use the ``has_keys`` lookup with a list
 of keys:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Find all ShopItems with both origin and certification information
-    >>> ShopItem.objects.filter(attrs__has_keys=['origin', 'certifications'])
+    >>> ShopItem.objects.filter(attrs__has_keys=["origin", "certifications"])
     [<ShopItem: Gruyère>]
 
 To find objects with one of several keys, use the ``has_any_keys`` lookup with
 a list of keys:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Find all ShopItems with either a smelliness or a hardness rating
-    >>> ShopItem.objects.filter(attrs__has_any_keys=['smelliness', 'hardness'])
+    >>> ShopItem.objects.filter(attrs__has_any_keys=["smelliness", "hardness"])
     [<ShopItem: Gruyère>, <ShopItem: Feta>]
 
 Length Lookup
@@ -245,7 +247,7 @@ Docs:
 
 For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Find all the ShopItems with nothing in 'attrs'
     >>> ShopItems.objects.filter(attrs__length=0)
@@ -286,21 +288,16 @@ Docs:
 
 For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Find all ShopItems with a crumbliness of 10 and a smelliness of 5
-    >>> ShopItems.objects.filter(attrs__contains={
-        'crumbliness': 10,
-        'smelliness': 5,
-    })
+    >>> ShopItems.objects.filter(attrs__contains={"crumbliness": 10, "smelliness": 5})
     [<ShopItem: Feta>]
 
     # Find all ShopItems that have either 0 properties, or 1 or more of the given properties
-    >>> ShopItems.objects.filter(attrs__contained_by={
-        'crumbliness': 10,
-        'hardness': 1,
-        'smelliness': 5,
-    })
+    >>> ShopItems.objects.filter(
+    ...     attrs__contained_by={"crumbliness": 10, "hardness": 1, "smelliness": 5}
+    ... )
     [<ShopItem: Feta>]
 
 "In" Lookup
@@ -311,7 +308,7 @@ values.
 
 For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Find all ShopItems with a crumbliness of either 0 or 10
     >>> ShopItems.objects.filter(attrs__crumbliness__in=[0, 10])

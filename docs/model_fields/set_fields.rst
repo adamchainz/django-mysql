@@ -41,11 +41,12 @@ of 2\ :sup:`32` - 1 bytes).
         from django.db.models import IntegerField, Model
         from django_mysql.models import SetCharField
 
+
         class LotteryTicket(Model):
             numbers = SetCharField(
                 base_field=IntegerField(),
                 size=6,
-                max_length=(6 * 3)  # 6 two digit numbers plus commas
+                max_length=(6 * 3),  # 6 two digit numbers plus commas
             )
 
     In Python simply set the field's value as a set:
@@ -86,6 +87,7 @@ of 2\ :sup:`32` - 1 bytes).
         from django.db.models import IntegerField, Model
         from django_mysql.models import SetTextField
 
+
         class Post(Model):
             tags = SetTextField(
                 base_field=CharField(max_length=32),
@@ -114,17 +116,17 @@ For example:
 
 .. code-block:: pycon
 
-    >>> Post.objects.create(name='First post', tags={'thoughts', 'django'})
-    >>> Post.objects.create(name='Second post', tags={'thoughts'})
-    >>> Post.objects.create(name='Third post', tags={'tutorial', 'django'})
+    >>> Post.objects.create(name="First post", tags={"thoughts", "django"})
+    >>> Post.objects.create(name="Second post", tags={"thoughts"})
+    >>> Post.objects.create(name="Third post", tags={"tutorial", "django"})
 
-    >>> Post.objects.filter(tags__contains='thoughts')
+    >>> Post.objects.filter(tags__contains="thoughts")
     [<Post: First post>, <Post: Second post>]
 
-    >>> Post.objects.filter(tags__contains='django')
+    >>> Post.objects.filter(tags__contains="django")
     [<Post: First post>, <Post: Third post>]
 
-    >>> Post.objects.filter(Q(tags__contains='django') & Q(tags__contains='thoughts'))
+    >>> Post.objects.filter(Q(tags__contains="django") & Q(tags__contains="thoughts"))
     [<Post: First post>]
 
 
@@ -162,17 +164,19 @@ level:
 .. code-block:: pycon
 
     >>> from django_mysql.models import SetF
-    >>> Post.objects.filter(tags__contains="django").update(tags=SetF('tags').add('programming'))
+    >>> Post.objects.filter(tags__contains="django").update(
+    ...     tags=SetF("tags").add("programming")
+    ... )
     2
-    >>> Post.objects.update(tags=SetF('tags').remove('thoughts'))
+    >>> Post.objects.update(tags=SetF("tags").remove("thoughts"))
     2
 
 Or with attribute assignment to a model:
 
 .. code-block:: pycon
 
-    >>> post = Post.objects.earliest('id')
-    >>> post.tags = SetF('tags').add('python')
+    >>> post = Post.objects.earliest("id")
+    >>> post.tags = SetF("tags").add("python")
     >>> post.save()
 
 .. class:: SetF(field_name)
@@ -192,7 +196,7 @@ Or with attribute assignment to a model:
 
         .. code-block:: python
 
-            post.tags = SetF('tags').add('python')
+            post.tags = SetF("tags").add("python")
             post.save()
 
     .. method:: remove(value)
@@ -202,7 +206,7 @@ Or with attribute assignment to a model:
 
         .. code-block:: python
 
-            post.tags = SetF('tags').remove('python')
+            post.tags = SetF("tags").remove("python")
             post.save()
 
     .. warning::

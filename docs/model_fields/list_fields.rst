@@ -44,22 +44,23 @@ underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
         from django.db.models import CharField, Model
         from django_mysql.models import ListCharField
 
+
         class Person(Model):
             name = CharField()
             post_nominals = ListCharField(
                 base_field=CharField(max_length=10),
                 size=6,
-                max_length=(6 * 11)  # 6 * 10 character nominals, plus commas
+                max_length=(6 * 11),  # 6 * 10 character nominals, plus commas
             )
 
     In Python simply set the field's value as a list:
 
     .. code-block:: pycon
 
-        >>> p = Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.'])
+        >>> p = Person.objects.create(name="Horatio", post_nominals=["PhD", "Esq."])
         >>> p.post_nominals
         ['PhD', 'Esq.']
-        >>> p.post_nominals.append('III')
+        >>> p.post_nominals.append("III")
         >>> p.post_nominals
         ['PhD', 'Esq.', 'III']
         >>> p.save()
@@ -88,6 +89,7 @@ underlying ``LONGTEXT`` MySQL datatype has a maximum length of 2\ :sup:`32` -
 
         from django.db.models import IntegerField, Model
         from django_mysql.models import ListTextField
+
 
         class Widget(Model):
             widget_group_ids = ListTextField(
@@ -118,20 +120,22 @@ For example:
 
 .. code-block:: pycon
 
-    >>> Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.', 'III'])
-    >>> Person.objects.create(name='Severus', post_nominals=['PhD', 'DPhil'])
-    >>> Person.objects.create(name='Paulus', post_nominals=[])
+    >>> Person.objects.create(name="Horatio", post_nominals=["PhD", "Esq.", "III"])
+    >>> Person.objects.create(name="Severus", post_nominals=["PhD", "DPhil"])
+    >>> Person.objects.create(name="Paulus", post_nominals=[])
 
-    >>> Person.objects.filter(post_nominals__contains='PhD')
+    >>> Person.objects.filter(post_nominals__contains="PhD")
     [<Person: Horatio>, <Person: Severus>]
 
-    >>> Person.objects.filter(post_nominals__contains='Esq.')
+    >>> Person.objects.filter(post_nominals__contains="Esq.")
     [<Person: Horatio>]
 
-    >>> Person.objects.filter(post_nominals__contains='DPhil')
+    >>> Person.objects.filter(post_nominals__contains="DPhil")
     [<Person: Severus>]
 
-    >>> Person.objects.filter(Q(post_nominals__contains='PhD') & Q(post_nominals__contains='III'))
+    >>> Person.objects.filter(
+    ...     Q(post_nominals__contains="PhD") & Q(post_nominals__contains="III")
+    ... )
     [<Person: Horatio>]
 
 .. note::
@@ -167,13 +171,13 @@ it exceeds the ``size`` of the list. For example:
 
 .. code-block:: pycon
 
-    >>> Person.objects.filter(post_nominals__0='PhD')
+    >>> Person.objects.filter(post_nominals__0="PhD")
     [<Person: Horatio>, <Person: Severus>]
 
-    >>> Person.objects.filter(post_nominals__1='DPhil')
+    >>> Person.objects.filter(post_nominals__1="DPhil")
     [<Person: Severus>]
 
-    >>> Person.objects.filter(post_nominals__100='VC')
+    >>> Person.objects.filter(post_nominals__100="VC")
     []
 
 
@@ -186,8 +190,8 @@ it exceeds the ``size`` of the list. For example:
 
     .. code-block:: pycon
 
-        >>> Person.objects.create(name='Cacistus', post_nominals=['MSc', 'MSc'])
-        >>> Person.objects.filter(post_nominals__1='MSc')
+        >>> Person.objects.create(name="Cacistus", post_nominals=["MSc", "MSc"])
+        >>> Person.objects.filter(post_nominals__1="MSc")
         []  # Cacistus does not appear because his first MSc is at position 0
 
     This may be fine for your application, but be careful!
@@ -218,20 +222,18 @@ level:
 
     >>> from django_mysql.models import ListF
     >>> Person.objects.filter(post_nominals__contains="PhD").update(
-    ...     post_nominals=ListF('post_nominals').append('Sr.')
+    ...     post_nominals=ListF("post_nominals").append("Sr.")
     ... )
     2
-    >>> Person.objects.update(
-    ...     post_nominals=ListF('post_nominals').pop()
-    ... )
+    >>> Person.objects.update(post_nominals=ListF("post_nominals").pop())
     3
 
 Or with attribute assignment to a model:
 
 .. code-block:: pycon
 
-    >>> horatio = Person.objects.get(name='Horatio')
-    >>> horatio.post_nominals = ListF('post_nominals').append('DSocSci')
+    >>> horatio = Person.objects.get(name="Horatio")
+    >>> horatio.post_nominals = ListF("post_nominals").append("DSocSci")
     >>> horatio.save()
 
 .. class:: ListF(field_name)
@@ -250,10 +252,8 @@ Or with attribute assignment to a model:
 
         .. code-block:: pycon
 
-            >>> Person.objects.create(name='Horatio', post_nominals=['PhD', 'Esq.', 'III'])
-            >>> Person.objects.update(
-            ...     post_nominals=ListF('post_nominals').append('DSocSci')
-            ... )
+            >>> Person.objects.create(name="Horatio", post_nominals=["PhD", "Esq.", "III"])
+            >>> Person.objects.update(post_nominals=ListF("post_nominals").append("DSocSci"))
             >>> Person.objects.get().full_name
             "Horatio Phd Esq. III DSocSci"
 
@@ -264,9 +264,7 @@ Or with attribute assignment to a model:
 
         .. code-block:: pycon
 
-            >>> Person.objects.update(
-            ...     post_nominals=ListF('post_nominals').appendleft('BArch')
-            ... )
+            >>> Person.objects.update(post_nominals=ListF("post_nominals").appendleft("BArch"))
             >>> Person.objects.get().full_name
             "Horatio BArch Phd Esq. III DSocSci"
 
@@ -277,9 +275,7 @@ Or with attribute assignment to a model:
 
         .. code-block:: pycon
 
-            >>> Person.objects.update(
-            ...     post_nominals=ListF('post_nominals').pop()
-            ... )
+            >>> Person.objects.update(post_nominals=ListF("post_nominals").pop())
             >>> Person.objects.get().full_name
             "Horatio BArch Phd Esq. III"
 
@@ -290,9 +286,7 @@ Or with attribute assignment to a model:
 
         .. code-block:: pycon
 
-            >>> Person.objects.update(
-            ...     post_nominals=ListF('post_nominals').popleft()
-            ... )
+            >>> Person.objects.update(post_nominals=ListF("post_nominals").popleft())
             >>> Person.objects.get().full_name
             "Horatio Phd Esq. III"
 

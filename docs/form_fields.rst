@@ -49,14 +49,15 @@ SimpleListField
 
             >>> class NumberListForm(forms.Form):
             ...     numbers = SimpleListField(forms.IntegerField())
+            ...
 
-            >>> form = NumberListForm({'numbers': '1,2,3'})
+            >>> form = NumberListForm({"numbers": "1,2,3"})
             >>> form.is_valid()
             True
             >>> form.cleaned_data
             {'numbers': [1, 2, 3]}
 
-            >>> form = NumberListForm({'numbers': '1,2,a'})
+            >>> form = NumberListForm({"numbers": "1,2,a"})
             >>> form.is_valid()
             False
 
@@ -101,14 +102,15 @@ SimpleSetField
 
             >>> class NumberSetForm(forms.Form):
             ...     numbers = SimpleSetField(forms.IntegerField())
+            ...
 
-            >>> form = NumberSetForm({'numbers': '1,2,3'})
+            >>> form = NumberSetForm({"numbers": "1,2,3"})
             >>> form.is_valid()
             True
             >>> form.cleaned_data
             {'numbers': set([1, 2, 3])}
 
-            >>> form = NumberSetForm({'numbers': '1,2,a'})
+            >>> form = NumberSetForm({"numbers": "1,2,a"})
             >>> form.is_valid()
             False
 

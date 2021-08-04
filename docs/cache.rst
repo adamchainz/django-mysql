@@ -44,9 +44,9 @@ For example:
 .. code-block:: python
 
     CACHES = {
-        'default': {
-            'BACKEND': 'django_mysql.cache.MySQLCache',
-            'LOCATION': 'my_super_cache'
+        "default": {
+            "BACKEND": "django_mysql.cache.MySQLCache",
+            "LOCATION": "my_super_cache",
         }
     }
 
@@ -177,12 +177,10 @@ ways:
    .. code-block:: python
 
        CACHES = {
-           'default': {
-               'BACKEND': 'django_mysql.cache.MySQLCache',
-               'LOCATION': 'some_table_name',
-               'OPTIONS': {
-                   'CULL_PROBABILITY': 1.0
-               }
+           "default": {
+               "BACKEND": "django_mysql.cache.MySQLCache",
+               "LOCATION": "some_table_name",
+               "OPTIONS": {"CULL_PROBABILITY": 1.0},
            }
        }
 
@@ -196,8 +194,8 @@ ways:
 
        @shared_task
        def clear_caches():
-           caches['default'].cull()
-           caches['other_cache'].cull()
+           caches["default"].cull()
+           caches["other_cache"].cull()
 
    This functionality is also available as the management command
    ``cull_mysql_caches``, which you might run as a cron job. It performs
@@ -218,12 +216,10 @@ set ``MAX_ENTRIES`` to -1:
 .. code-block:: python
 
     CACHES = {
-        'default': {
-            'BACKEND': 'django_mysql.cache.MySQLCache',
-            'LOCATION': 'some_table_name',
-            'OPTIONS': {
-                'MAX_ENTRIES': -1
-            }
+        "default": {
+            "BACKEND": "django_mysql.cache.MySQLCache",
+            "LOCATION": "some_table_name",
+            "OPTIONS": {"MAX_ENTRIES": -1},
         }
     }
 
@@ -249,13 +245,10 @@ like so:
 .. code-block:: python
 
     CACHES = {
-        'default': {
-            'BACKEND': 'django_mysql.cache.MySQLCache',
-            'LOCATION': 'some_table_name',
-            'OPTIONS': {
-                'COMPRESS_MIN_LENGTH': 100,
-                'COMPRESS_LEVEL': 9
-            }
+        "default": {
+            "BACKEND": "django_mysql.cache.MySQLCache",
+            "LOCATION": "some_table_name",
+            "OPTIONS": {"COMPRESS_MIN_LENGTH": 100, "COMPRESS_LEVEL": 9},
         }
     }
 
@@ -332,11 +325,11 @@ you might do this:
 
 
     CACHES = {
-        'default': {
-            'BACKEND': 'django_mysql.cache.MySQLCache',
-            'LOCATION': 'some_table_name',
-            'KEY_FUNCTION': my_key_func,
-            'REVERSE_KEY_FUNCTION': my_reverse_key_func
+        "default": {
+            "BACKEND": "django_mysql.cache.MySQLCache",
+            "LOCATION": "some_table_name",
+            "KEY_FUNCTION": my_key_func,
+            "REVERSE_KEY_FUNCTION": my_reverse_key_func,
         }
     }
 
@@ -350,10 +343,10 @@ Once you’re set up, the following prefix methods can be used:
 
     .. code-block:: pycon
 
-        >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
-        >>> cache.delete_with_prefix('Truck')
+        >>> cache.set_many({"Car1": "Blue", "Car4": "Red", "Truck3": "Yellow"})
+        >>> cache.delete_with_prefix("Truck")
         1
-        >>> cache.get('Truck3')
+        >>> cache.get("Truck3")
         None
 
     .. note::
@@ -368,12 +361,12 @@ Once you’re set up, the following prefix methods can be used:
 
     .. code-block:: pycon
 
-        >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
-        >>> cache.get_with_prefix('Truck')
+        >>> cache.set_many({"Car1": "Blue", "Car4": "Red", "Truck3": "Yellow"})
+        >>> cache.get_with_prefix("Truck")
         {'Truck3': 'Yellow'}
-        >>> cache.get_with_prefix('Ca')
+        >>> cache.get_with_prefix("Ca")
         {'Car1': 'Blue', 'Car4': 'Red'}
-        >>> cache.get_with_prefix('')
+        >>> cache.get_with_prefix("")
         {'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'}
 
 .. method:: keys_with_prefix(prefix, version=None)
@@ -384,8 +377,8 @@ Once you’re set up, the following prefix methods can be used:
 
     .. code-block:: pycon
 
-        >>> cache.set_many({'Car1': 'Blue', 'Car4': 'Red', 'Truck3': 'Yellow'})
-        >>> cache.keys_with_prefix('Car')
+        >>> cache.set_many({"Car1": "Blue", "Car4": "Red", "Truck3": "Yellow"})
+        >>> cache.keys_with_prefix("Car")
         set(['Car1', 'Car2'])
 
 
@@ -432,6 +425,6 @@ Or as a reversible migration:
                 ALTER TABLE yourtablename
                     MODIFY cache_key varchar(255) CHARACTER SET utf8 NOT NULL,
                     MODIFY value_type char(1) CHARACTER SET latin1 NOT NULL DEFAULT 'p'
-                """
+                """,
             )
         ]
