@@ -30,7 +30,7 @@ The following can be imported from ``django_mysql.models``.
 
         >>> Book.objects.create(bitfield=29)
         >>> Book.objects.create(bitfield=15)
-        >>> Book.objects.all().aggregate(BitAnd('bitfield'))
+        >>> Book.objects.all().aggregate(BitAnd("bitfield"))
         {'bitfield__bitand': 13}
 
 
@@ -50,7 +50,7 @@ The following can be imported from ``django_mysql.models``.
 
         >>> Book.objects.create(bitfield=29)
         >>> Book.objects.create(bitfield=15)
-        >>> Book.objects.all().aggregate(BitOr('bitfield'))
+        >>> Book.objects.all().aggregate(BitOr("bitfield"))
         {'bitfield__bitor': 31}
 
 
@@ -70,7 +70,7 @@ The following can be imported from ``django_mysql.models``.
 
         >>> Book.objects.create(bitfield=11)
         >>> Book.objects.create(bitfield=3)
-        >>> Book.objects.all().aggregate(BitXor('bitfield'))
+        >>> Book.objects.all().aggregate(BitXor("bitfield"))
         {'bitfield__bitxor': 8}
 
 
@@ -88,9 +88,9 @@ The following can be imported from ``django_mysql.models``.
     .. code-block:: pycon
 
         >>> from django_mysql.models import GroupConcat
-        >>> author = Author.objects.annotate(
-        ...     book_ids=GroupConcat('books__id')
-        ... ).get(name="William Shakespeare")
+        >>> author = Author.objects.annotate(book_ids=GroupConcat("books__id")).get(
+        ...     name="William Shakespeare"
+        ... )
         >>> author.book_ids
         "1,2,5,17,29"
 
@@ -129,6 +129,4 @@ The following can be imported from ``django_mysql.models``.
 
         .. code-block:: pycon
 
-            >>> Author.objects.annotate(
-            ...     book_ids=GroupConcat('books__id', ordering='asc')
-            ... )
+            >>> Author.objects.annotate(book_ids=GroupConcat("books__id", ordering="asc"))

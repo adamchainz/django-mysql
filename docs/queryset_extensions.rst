@@ -94,7 +94,6 @@ Approximate Counting
         .. code-block:: python
 
             class AuthorAdmin(ModelAdmin):
-
                 def get_queryset(self, request):
                     qs = super(AuthorAdmin, self).get_queryset(request)
                     return qs.count_tries_approx()
@@ -198,7 +197,7 @@ Once you’ve done this, the following methods will work.
 
         # Note from Adam: we have very few distinct birthdays, so using a
         # temporary table is slower
-        Author.objects.values('birthday').distinct().sql_small_result()
+        Author.objects.values("birthday").distinct().sql_small_result()
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
@@ -260,7 +259,7 @@ Once you’ve done this, the following methods will work.
     .. code-block:: python
 
         # Fetch recent posts, cached in MySQL for speed
-        recent_posts = BlogPost.objects.sql_cache().order_by('-created')[:5]
+        recent_posts = BlogPost.objects.sql_cache().order_by("-created")[:5]
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
@@ -287,9 +286,7 @@ Once you’ve done this, the following methods will work.
         # Avoid caching all the expired sessions, since we’re about to delete
         # them
         deletable_session_ids = (
-            Session.objects.sql_no_cache()
-                           .filter(expiry__lt=now())
-                           .values_list('id', flat=True)
+            Session.objects.sql_no_cache().filter(expiry__lt=now()).values_list("id", flat=True)
         )
 
     Docs:
@@ -362,13 +359,13 @@ Once you’ve done this, the following methods will work.
     .. code-block:: pycon
 
         # SELECT ... FROM `author` USE INDEX (`name_12345`) WHERE ...
-        >>> Author.objects.use_index('name_12345').filter(name='John')
+        >>> Author.objects.use_index("name_12345").filter(name="John")
         # SELECT ... FROM `author` USE INDEX (`name_12345`, `name_age_678`) WHERE ...
-        >>> Author.objects.use_index('name_12345', 'name_age_678').filter(name='John')
+        >>> Author.objects.use_index("name_12345", "name_age_678").filter(name="John")
         # SELECT ... FROM `author` USE INDEX FOR ORDER BY (`name_12345`) ... ORDER BY `name`
-        >>> Author.objects.use_index('name_12345', for_='ORDER BY').order_by('name')
+        >>> Author.objects.use_index("name_12345", for_="ORDER BY").order_by("name")
         # SELECT ... FROM `book` INNER JOIN `author` USE INDEX (`authbook`) ...
-        >>> Book.objects.select_related('author').use_index('authbook', table_name='author')
+        >>> Book.objects.select_related("author").use_index("authbook", table_name="author")
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/index-hints.html>`__ /
@@ -418,11 +415,10 @@ tends to get ugly/complicated pretty quickly:
 
     min_id = 0
     max_id = 1000
-    biggest_author_id = Author.objects.order_by('-id')[0].id
+    biggest_author_id = Author.objects.order_by("-id")[0].id
     while True:
-        Author.objects.filter(id__gte=min_id, id__lte=BLA BLA BLA
-
-    # I'm not even going to type this all out, it's so much code
+        Author.objects.filter(id__gte=min_id, id__lte=...)
+        # I'm not even going to type this all out, it's so much code
 
 Here's the solution to this boilerplate with added safety features - 'smart'
 iteration! There are two classes; one yields chunks of the given ``QuerySet``,
@@ -617,11 +613,14 @@ can be thought of in one of these two methods.
     .. code-block:: python
 
         for authors_chunk in Author.objects.iter_smart_chunks():
-            limits = author_chunk.aggregate(min_pk=Min('pk'), max_pk=Max('pk'))
-            authors = Author.objects.raw("""
+            limits = author_chunk.aggregate(min_pk=Min("pk"), max_pk=Max("pk"))
+            authors = Author.objects.raw(
+                """
                 SELECT name from app_author
                 WHERE id >= %s AND id <= %s
-            """, (limits['min_pk'], limits['max_pk']))
+            """,
+                (limits["min_pk"], limits["max_pk"]),
+            )
             # etc...
 
     ...you can do this:
@@ -629,10 +628,13 @@ can be thought of in one of these two methods.
     .. code-block:: python
 
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
-            authors = Author.objects.raw("""
+            authors = Author.objects.raw(
+                """
                 SELECT name from app_author
                 WHERE id >= %s AND id < %s
-            """, (start_pk, end_pk))
+            """,
+                (start_pk, end_pk),
+            )
             # etc...
 
     In the first format we were forced to perform a dumb query to determine the
@@ -812,8 +814,7 @@ easily as well:
 
             .. code-block:: python
 
-                grisham = handler.read(index='full_name_idx',
-                                       value=('John', 'Grisham'))
+                grisham = handler.read(index="full_name_idx", value=("John", "Grisham"))
 
         .. attribute:: mode=None
 

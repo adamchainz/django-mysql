@@ -30,10 +30,11 @@ Add ``'django_mysql'`` to your ``INSTALLED_APPS`` setting:
 
 .. code-block:: python
 
-    INSTALLED_APPS = (
-        ...
-        'django_mysql',
-    )
+    INSTALLED_APPS = [
+        ...,
+        "django_mysql",
+        ...,
+    ]
 
 Django-MySQL comes with some extra checks to ensure your database configuration
 is optimal. It's best to run these now you've installed to see if there is
@@ -73,6 +74,7 @@ imported from ``django_mysql.models``.
         # from django.db.models import Model - no more!
         from django_mysql.models import Model
 
+
         class MySuperModel(Model):
             pass  # TODO: come up with startup idea.
 
@@ -87,6 +89,7 @@ imported from ``django_mysql.models``.
         from mythings import MyBaseModel
         from django_mysql.models import QuerySet
 
+
         class MySuperDuperModel(MyBaseModel):
             objects = QuerySet.as_manager()
             # TODO: what fields should this model have??
@@ -97,6 +100,7 @@ imported from ``django_mysql.models``.
 
         from django.db import models
         from django_mysql.models import QuerySet
+
 
         class MySuperDuperManager(models.Manager):
             pass
@@ -118,8 +122,10 @@ imported from ``django_mysql.models``.
         from django_mysql.models import QuerySetMixin
         from stackoverflow import CopyPasteQuerySet
 
+
         class MySplendidQuerySet(QuerySetMixin, CopyPasteQuerySet):
             pass
+
 
         class MySplendidModel(Model):
             objects = MySplendidQuerySet.as_manager()

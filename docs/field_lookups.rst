@@ -55,7 +55,7 @@ Match a given soundex string:
 
 .. code-block:: pycon
 
-    >>> Author.objects.filter(name__soundex='R163')
+    >>> Author.objects.filter(name__soundex="R163")
     [<Author: Robert>, <Author: Rupert>]
 
 SQL equivalent:
@@ -72,7 +72,7 @@ Match the ``SOUNDEX`` of the given string:
 
 .. code-block:: pycon
 
-    >>> Author.objects.filter(name__sounds_like='Robert')
+    >>> Author.objects.filter(name__sounds_like="Robert")
     [<Author: Robert>, <Author: Rupert>]
 
 SQL equivalent:

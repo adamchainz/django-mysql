@@ -26,7 +26,7 @@ The following can all be imported from ``django_mysql.status``.
         from django_mysql.status import global_status
 
         # Wait until a quiet moment
-        while global_status.get('Threads_running') >= 5:
+        while global_status.get("Threads_running") >= 5:
             time.sleep(1)
 
         # Log all status variables
@@ -39,7 +39,7 @@ The following can all be imported from ``django_mysql.status``.
     .. code-block:: pycon
 
         >>> from django_mysql.status import GlobalStatus
-        >>> GlobalStatus(using='replica1').get('Threads_running')
+        >>> GlobalStatus(using="replica1").get("Threads_running")
         47
 
     To see the names of all the available variables, refer to the documentation:
@@ -126,4 +126,4 @@ The following can all be imported from ``django_mysql.status``.
 
         from django_mysql.status import SessionStatus
 
-        replica1_reads = SessionStatus(using='replica1').get("Handler_read")
+        replica1_reads = SessionStatus(using="replica1").get("Handler_read")

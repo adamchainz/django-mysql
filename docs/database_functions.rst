@@ -33,7 +33,7 @@ Comparison Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.filter(sales_eu=Greatest('sales_eu', 'sales_us'))
+        >>> Author.objects.filter(sales_eu=Greatest("sales_eu", "sales_us"))
 
 
 .. class:: Least(*expressions)
@@ -53,7 +53,7 @@ Comparison Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.filter(sales_eu=Least('sales_eu', 'sales_us'))
+        >>> Author.objects.filter(sales_eu=Least("sales_eu", "sales_us"))
 
 
 Control Flow Functions
@@ -76,8 +76,8 @@ Control Flow Functions
     .. code-block:: pycon
 
         >>> Author.objects.annotate(
-        ...     is_william=If(Q(name__startswith='William '), True, False)
-        ... ).values_list('name', 'is_william')
+        ...     is_william=If(Q(name__startswith="William "), True, False)
+        ... ).values_list("name", "is_william")
         [('William Shakespeare', True),
          ('Ian Fleming', False),
          ('William Wordsworth', True)]
@@ -105,7 +105,7 @@ Numeric Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(abs_wealth=Abs('dollars'))
+        >>> Author.objects.annotate(abs_wealth=Abs("dollars"))
 
 
 .. class:: Ceiling(expression)
@@ -125,7 +125,7 @@ Numeric Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(years_ceiling=Ceiling('age'))
+        >>> Author.objects.annotate(years_ceiling=Ceiling("age"))
 
 
 .. class:: CRC32(expression)
@@ -142,7 +142,7 @@ Numeric Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(description_crc=CRC32('description'))
+        >>> Author.objects.annotate(description_crc=CRC32("description"))
 
 
 .. class:: Floor(expression)
@@ -186,7 +186,7 @@ Numeric Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(kilo_sales=Round('sales', -3))
+        >>> Author.objects.annotate(kilo_sales=Round("sales", -3))
 
 
 .. class:: Sign(expression)
@@ -202,7 +202,7 @@ Numeric Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(wealth_sign=Sign('wealth'))
+        >>> Author.objects.annotate(wealth_sign=Sign("wealth"))
 
 
 String Functions
@@ -230,7 +230,7 @@ String Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(sales_list=ConcatWS('sales_eu', 'sales_us'))
+        >>> Author.objects.annotate(sales_list=ConcatWS("sales_eu", "sales_us"))
 
 .. class:: ELT(number, values)
 
@@ -255,9 +255,7 @@ String Functions
     .. code-block:: pycon
 
         >>> # Say Person.life_state is either 1 (alive), 2 (dead), or 3 (M.I.A.)
-        >>> Person.objects.annotate(
-        ...     state_name=ELT('life_state', ['Alive', 'Dead', 'M.I.A.'])
-        ... )
+        >>> Person.objects.annotate(state_name=ELT("life_state", ["Alive", "Dead", "M.I.A."]))
 
 .. class:: Field(expression, values)
 
@@ -282,9 +280,7 @@ String Functions
     .. code-block:: pycon
 
         >>> # Females, then males - but other values of gender (e.g. empty string) first
-        >>> Person.objects.all().order_by(
-        ...     Field('gender', ['Female', 'Male'])
-        ... )
+        >>> Person.objects.all().order_by(Field("gender", ["Female", "Male"]))
 
 
 XML Functions
@@ -313,9 +309,7 @@ XML Functions
     .. code-block:: pycon
 
         # Remove 'sagacity' from all authors' xml_attrs
-        >>> Author.objects.update(
-        ...     xml_attrs=UpdateXML('xml_attrs', '/sagacity', '')
-        ... )
+        >>> Author.objects.update(xml_attrs=UpdateXML("xml_attrs", "/sagacity", ""))
 
 
 .. class:: XMLExtractValue(xml_frag, xpath_expr)
@@ -339,9 +333,13 @@ XML Functions
     .. code-block:: pycon
 
         # Count the number of authors with 'sagacity' in their xml_attrs
-        >>> num_authors_with_sagacity = Author.objects.annotate(
-        ...     has_sagacity=XMLExtractValue('xml_attrs', 'count(/sagacity)')
-        ... ).filter(has_sagacity='1').count()
+        >>> num_authors_with_sagacity = (
+        ...     Author.objects.annotate(
+        ...         has_sagacity=XMLExtractValue("xml_attrs", "count(/sagacity)")
+        ...     )
+        ...     .filter(has_sagacity="1")
+        ...     .count()
+        ... )
 
 
 Regexp Functions
@@ -370,8 +368,7 @@ Regexp Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(name_pos=RegexpInstr('name', r'ens')) \
-        ...               .filter(name_pos__gt=0)
+        >>> Author.objects.annotate(name_pos=RegexpInstr("name", r"ens")).filter(name_pos__gt=0)
         [<Author: Charles Dickens>, <Author: Robert Louis Stevenson>]
 
 
@@ -395,8 +392,8 @@ Regexp Functions
         >>> Author.objects.create(name="Charles Dickens")
         >>> Author.objects.create(name="Roald Dahl")
         >>> qs = Author.objects.annotate(
-        ...     surname_first=RegexpReplace('name', r'^(.*) (.*)$', r'\2, \1')
-        ... ).order_by('surname_first')
+        ...     surname_first=RegexpReplace("name", r"^(.*) (.*)$", r"\2, \1")
+        ... ).order_by("surname_first")
         >>> qs
         [<Author: Roald Dahl>, <Author: Charles Dickens>]
         >>> qs[0].surname_first
@@ -422,9 +419,9 @@ Regexp Functions
         >>> Author.objects.create(name="Euripides")
         >>> Author.objects.create(name="Frank Miller")
         >>> Author.objects.create(name="Sophocles")
-        >>> Author.objects.annotate(
-        ...     name_has_space=CharLength(RegexpSubstr('name', r'\s'))
-        ... ).filter(name_has_space=0)
+        >>> Author.objects.annotate(name_has_space=CharLength(RegexpSubstr("name", r"\s"))).filter(
+        ...     name_has_space=0
+        ... )
         [<Author: Euripides>, <Author: Sophocles>]
 
 Encryption Functions
@@ -443,7 +440,7 @@ Encryption Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(description_md5=MD5('description'))
+        >>> Author.objects.annotate(description_md5=MD5("description"))
 
 
 .. class:: SHA1(expression)
@@ -459,7 +456,7 @@ Encryption Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(description_sha=SHA1('description'))
+        >>> Author.objects.annotate(description_sha=SHA1("description"))
 
 
 .. class:: SHA2(expression, hash_len=512)
@@ -478,7 +475,7 @@ Encryption Functions
 
     .. code-block:: pycon
 
-        >>> Author.objects.annotate(description_sha256=SHA2('description', 256))
+        >>> Author.objects.annotate(description_sha256=SHA2("description", 256))
 
 
 Information Functions
@@ -517,13 +514,13 @@ Information Functions
 
     .. code-block:: pycon
 
-        >>> Countable.objects.filter(id=1).update(counter=LastInsertId('counter') + 1)
+        >>> Countable.objects.filter(id=1).update(counter=LastInsertId("counter") + 1)
         1
         >>> # Get the pre-increase value of 'counter' as stored on the server
         >>> LastInsertId.get()
         242
 
-        >>> Author.objects.filter(id=1, age=LastInsertId('age')).delete()
+        >>> Author.objects.filter(id=1, age=LastInsertId("age")).delete()
         1
         >>> # We can also use the stored value directly in a query
         >>> Author.objects.filter(id=2).update(age=LastInsertId())
@@ -571,14 +568,12 @@ more information on their syntax, refer to the MySQL documentation.
     .. code-block:: pycon
 
         >>> # Fetch a list of tuples (id, size_or_None) for all ShopItems
-        >>> ShopItem.objects.annotate(
-        ...     size=JSONExtract('attrs', '$.size')
-        ... ).values_list('id', 'size')
+        >>> ShopItem.objects.annotate(size=JSONExtract("attrs", "$.size")).values_list("id", "size")
         [(1, '3m'), (3, '5nm'), (8, None)]
         >>> # Fetch the distinct values of attrs['colours'][0] for all items
         >>> ShopItem.objects.annotate(
-        ...     primary_colour=JSONExtract('attrs', '$.colours[0]')
-        ... ).distinct().values_list('primary_colour', flat=True)
+        ...     primary_colour=JSONExtract("attrs", "$.colours[0]")
+        ... ).distinct().values_list("primary_colour", flat=True)
         ['Red', 'Blue', None]
 
 
@@ -601,14 +596,12 @@ more information on their syntax, refer to the MySQL documentation.
     .. code-block:: pycon
 
         >>> # Fetch the top-level keys for the first item
-        >>> ShopItem.objects.annotate(
-        ...     keys=JSONKeys('attrs')
-        ... ).values_list('keys', flat=True)[0]
+        >>> ShopItem.objects.annotate(keys=JSONKeys("attrs")).values_list("keys", flat=True)[0]
         ['size', 'colours', 'age', 'price', 'origin']
         >>> # Fetch the keys in 'origin' for the first item
-        >>> ShopItem.objects.annotate(
-        ...     keys=JSONKeys('attrs', '$.origin')
-        ... ).values_list('keys', flat=True)[0]
+        >>> ShopItem.objects.annotate(keys=JSONKeys("attrs", "$.origin")).values_list(
+        ...     "keys", flat=True
+        ... )[0]
         ['continent', 'country', 'town']
 
 
@@ -638,9 +631,9 @@ more information on their syntax, refer to the MySQL documentation.
     .. code-block:: pycon
 
         >>> # Which ShopItems don't have more than three colours?
-        >>> ShopItem.objects.annotate(
-        ...     num_colours=JSONLength('attrs', '$.colours')
-        ... ).filter(num_colours__gt=3)
+        >>> ShopItem.objects.annotate(num_colours=JSONLength("attrs", "$.colours")).filter(
+        ...     num_colours__gt=3
+        ... )
         [<ShopItem: Rainbow Wheel>, <ShopItem: Hard Candies>]
 
 
@@ -663,9 +656,7 @@ more information on their syntax, refer to the MySQL documentation.
     .. code-block:: pycon
 
         >>> # Add power_level = 0 for those items that don't have power_level
-        >>> ShopItem.objects.update(
-        ...     attrs=JSONInsert('attrs', {'$.power_level': 0})
-        ... )
+        >>> ShopItem.objects.update(attrs=JSONInsert("attrs", {"$.power_level": 0}))
 
 
 .. class:: JSONReplace(expression, data)
@@ -687,9 +678,7 @@ more information on their syntax, refer to the MySQL documentation.
     .. code-block:: pycon
 
         >>> # Reset all items' monthly_sales to 0 directly in MySQL
-        >>> ShopItem.objects.update(
-        ...     attrs=JSONReplace('attrs', {'$.monthly_sales': 0})
-        ... )
+        >>> ShopItem.objects.update(attrs=JSONReplace("attrs", {"$.monthly_sales": 0}))
 
 
 .. class:: JSONSet(expression, data)
@@ -712,7 +701,7 @@ more information on their syntax, refer to the MySQL documentation.
 
         >>> # Modify 'size' value to '10m' directly in MySQL
         >>> shop_item = ShopItem.objects.latest()
-        >>> shop_item.attrs = JSONSet('attrs', {'$.size': '10m'})
+        >>> shop_item.attrs = JSONSet("attrs", {"$.size": "10m"})
         >>> shop_item.save()
 
 
@@ -738,7 +727,7 @@ more information on their syntax, refer to the MySQL documentation.
 
         >>> # Append the string '10m' to the array 'sizes' directly in MySQL
         >>> shop_item = ShopItem.objects.latest()
-        >>> shop_item.attrs = JSONArrayAppend('attrs', {'$.sizes': '10m'})
+        >>> shop_item.attrs = JSONArrayAppend("attrs", {"$.sizes": "10m"})
         >>> shop_item.save()
 
 
@@ -779,12 +768,10 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     .. code-block:: pycon
 
         >>> # Add default 'for_sale' as INTEGER 1 to every item
-        >>> ShopItem.objects.update(
-        ...     attrs=ColumnAdd('attrs', {'for_sale': AsType(1, 'INTEGER')})
-        ... )
+        >>> ShopItem.objects.update(attrs=ColumnAdd("attrs", {"for_sale": AsType(1, "INTEGER")}))
         >>> # Fix some data
-        >>> ShopItem.objects.filter(attrs__size='L').update(
-        ...     attrs=ColumnAdd('attrs', {'size': AsType('Large', 'CHAR')})
+        >>> ShopItem.objects.filter(attrs__size="L").update(
+        ...     attrs=ColumnAdd("attrs", {"size": AsType("Large", "CHAR")})
         ... )
 
 
@@ -808,9 +795,7 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     .. code-block:: pycon
 
         >>> # Remove 'for_sail' and 'for_purchase' from every item
-        >>> ShopItem.objects.update(
-        ...     attrs=ColumnDelete('attrs', 'for_sail', 'for_purchase')
-        ... )
+        >>> ShopItem.objects.update(attrs=ColumnDelete("attrs", "for_sail", "for_purchase"))
 
 
 .. class:: ColumnGet(expression, name, data_type)
@@ -830,10 +815,10 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     .. code-block:: pycon
 
         >>> # Fetch a list of tuples (id, size_or_None) for all items
-        >>> ShopItem.objects.annotate(
-        ...     size=ColumnGet('attrs', 'size', 'CHAR')
-        ... ).values_list('id', 'size')
+        >>> ShopItem.objects.annotate(size=ColumnGet("attrs", "size", "CHAR")).values_list(
+        ...     "id", "size"
+        ... )
         >>> # Fetch the distinct values of attrs['seller']['url'] for all items
         >>> ShopItem.objects.annotate(
-        ...     seller_url=ColumnGet(ColumnGet('attrs', 'seller', 'BINARY'), 'url', 'CHAR')
-        ... ).distinct().values_list('seller_url', flat=True)
+        ...     seller_url=ColumnGet(ColumnGet("attrs", "seller", "BINARY"), "url", "CHAR")
+        ... ).distinct().values_list("seller_url", flat=True)
