@@ -430,7 +430,7 @@ class AsType(Func):
             expression = Value(expression)
 
         if data_type not in self.TYPE_MAP:
-            raise ValueError("Invalid data_type '{}'".format(data_type))
+            raise ValueError(f"Invalid data_type '{data_type}'")
 
         super().__init__(expression, data_type=data_type)
 
@@ -488,7 +488,7 @@ class ColumnGet(Func):
         try:
             output_field = self.TYPE_MAP[data_type]
         except KeyError:
-            raise ValueError("Invalid data_type '{}'".format(data_type))
+            raise ValueError(f"Invalid data_type '{data_type}'")
 
         if data_type == "BINARY":
             output_field = output_field()

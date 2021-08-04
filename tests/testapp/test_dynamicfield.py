@@ -321,7 +321,7 @@ class TestCheck(DynColTestCase):
             try:
                 errors = DynamicModel.check()
             finally:
-                cursor.execute("SET NAMES '{}'".format(orig_charset))
+                cursor.execute(f"SET NAMES '{orig_charset}'")
 
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E014"

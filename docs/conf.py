@@ -72,7 +72,7 @@ copyright = "2017-2020 Adam Johnson"
 
 
 def _get_version():
-    with open(os.path.join(project_root, "setup.cfg"), "r") as setup_fp:
+    with open(os.path.join(project_root, "setup.cfg")) as setup_fp:
         version_lines = [
             line.strip() for line in setup_fp if line.startswith("version = ")
         ]

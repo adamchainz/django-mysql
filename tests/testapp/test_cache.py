@@ -67,7 +67,7 @@ def reverse_custom_key_func(full_key):
 
 _caches_setting_base = {
     "default": {},
-    "prefix": {"KEY_PREFIX": "cacheprefix{}".format(os.getpid())},
+    "prefix": {"KEY_PREFIX": f"cacheprefix{os.getpid()}"},
     "v2": {"VERSION": 2},
     "custom_key": {
         "KEY_FUNCTION": custom_key_func,

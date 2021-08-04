@@ -42,7 +42,7 @@ class SetFieldMixin:
         base_errors = self.base_field.check()
         if base_errors:
             messages = "\n    ".join(
-                "{} ({})".format(error.msg, error.id) for error in base_errors
+                f"{error.msg} ({error.id})" for error in base_errors
             )
             errors.append(
                 checks.Error(

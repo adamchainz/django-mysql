@@ -145,7 +145,7 @@ class DynamicModel(Model):
         return super().check(**kwargs)
 
     def __unicode__(self):
-        return ",".join("{}:{}".format(key, value) for key, value in self.attrs.items())
+        return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
 
 
 class SpeclessDynamicModel(Model):
@@ -161,7 +161,7 @@ class SpeclessDynamicModel(Model):
         return super().check(**kwargs)
 
     def __unicode__(self):
-        return ",".join("{}:{}".format(key, value) for key, value in self.attrs.items())
+        return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
 
 
 class Author(Model):
@@ -172,7 +172,7 @@ class Author(Model):
     deathday = DateTimeField(null=True)
 
     def __unicode__(self):
-        return "{} {}".format(self.id, self.name)
+        return f"{self.id} {self.name}"
 
 
 class Book(Model):
@@ -184,7 +184,7 @@ class VanillaAuthor(VanillaModel):
     name = CharField(max_length=32)
 
     def __unicode__(self):
-        return "{} {}".format(self.id, self.name)
+        return f"{self.id} {self.name}"
 
 
 class AuthorExtra(Model):
@@ -196,7 +196,7 @@ class NameAuthor(Model):
     name = CharField(max_length=32, primary_key=True)
 
     def __unicode__(self):
-        return "{} {}".format(self.id, self.name)
+        return f"{self.id} {self.name}"
 
 
 class NameAuthorExtra(Model):
@@ -211,7 +211,7 @@ class AuthorMultiIndex(Model):
     country = CharField(max_length=32)
 
     def __unicode__(self):
-        return "{} {} in {}".format(self.id, self.name, self.country)
+        return f"{self.id} {self.name} in {self.country}"
 
 
 class AuthorHugeName(Model):

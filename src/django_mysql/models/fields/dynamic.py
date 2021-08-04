@@ -122,7 +122,7 @@ class DynamicField(Field):
             errors.append(
                 checks.Error(
                     "'spec' must be a dict",
-                    hint="The value passed is of type {}".format(type(spec).__name__),
+                    hint=f"The value passed is of type {type(spec).__name__}",
                     obj=self,
                     id="django_mysql.E009",
                 )
@@ -133,7 +133,7 @@ class DynamicField(Field):
             if not isinstance(key, str):
                 errors.append(
                     checks.Error(
-                        "The key '{}' in 'spec{}' is not a string".format(key, path),
+                        f"The key '{key}' in 'spec{path}' is not a string",
                         hint="'spec' keys must be of type str, "
                         "'{}' is of type {}".format(key, type(key).__name__),
                         obj=self,
@@ -143,7 +143,7 @@ class DynamicField(Field):
                 continue
 
             if isinstance(value, dict):
-                subpath = "{}.{}".format(path, key)
+                subpath = f"{path}.{key}"
                 errors.extend(self._check_spec_recursively(value, subpath))
             elif value not in KeyTransform.SPEC_MAP:
                 errors.append(
@@ -283,7 +283,7 @@ class KeyTransform(Transform):
         try:
             output_field = self.TYPE_MAP[data_type]
         except KeyError:  # pragma: no cover
-            raise ValueError("Invalid data_type '{}'".format(data_type))
+            raise ValueError(f"Invalid data_type '{data_type}'")
 
         if data_type == "BINARY":
             self.output_field = output_field(spec=subspec)
@@ -293,7 +293,7 @@ class KeyTransform(Transform):
     def as_sql(self, compiler, connection):
         lhs, params = compiler.compile(self.lhs)
         return (
-            "COLUMN_GET({}, %s AS {})".format(lhs, self.data_type),
+            f"COLUMN_GET({lhs}, %s AS {self.data_type})",
             tuple(params) + (self.key_name,),
         )
 

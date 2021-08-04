@@ -49,7 +49,7 @@ def check_variables(app_configs, **kwargs):
 
 def strict_mode_warning(alias):
     return Warning(
-        "MySQL Strict Mode is not set for database connection '{}'".format(alias),
+        f"MySQL Strict Mode is not set for database connection '{alias}'",
         hint=(
             "MySQL's Strict Mode fixes many data integrity problems in MySQL, "
             + "such as data truncation upon insertion, by escalating warnings "
@@ -62,7 +62,7 @@ def strict_mode_warning(alias):
 
 def innodb_strict_mode_warning(alias):
     return Warning(
-        "InnoDB Strict Mode is not set for database connection '{}'".format(alias),
+        f"InnoDB Strict Mode is not set for database connection '{alias}'",
         hint=(
             "InnoDB Strict Mode escalates several warnings around "
             + "InnoDB-specific statements into errors. It's recommended you "
@@ -76,7 +76,7 @@ def innodb_strict_mode_warning(alias):
 
 def utf8mb4_warning(alias):
     return Warning(
-        "The character set is not utf8mb4 for database connection '{}'".format(alias),
+        f"The character set is not utf8mb4 for database connection '{alias}'",
         hint=(
             "The default 'utf8' character set does not include support for "
             + "all Unicode characters. It's strongly recommended you move to "

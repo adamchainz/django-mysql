@@ -47,7 +47,7 @@ class Lock:
                 return self
             else:
                 raise TimeoutError(
-                    "Waited >{} seconds to gain lock".format(self.acquire_timeout)
+                    f"Waited >{self.acquire_timeout} seconds to gain lock"
                 )
 
     def release(self):
@@ -102,9 +102,7 @@ class TableLock:
             name = names.pop(0)
             if hasattr(name, "_meta"):
                 if name._meta.abstract:
-                    raise ValueError(
-                        "Can't lock abstract model {}".format(name.__name__)
-                    )
+                    raise ValueError(f"Can't lock abstract model {name.__name__}")
 
                 table_names[name._meta.db_table] = True
                 # Include all parent models - the keys are the model classes
@@ -134,9 +132,9 @@ class TableLock:
             self._atomic = atomic(using=self.db)
             self._atomic.__enter__()
 
-            locks = ["{} READ".format(qn(name)) for name in self.read]
+            locks = [f"{qn(name)} READ" for name in self.read]
             for name in self.write:
-                locks.append("{} WRITE".format(qn(name)))
+                locks.append(f"{qn(name)} WRITE")
             cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
 
     def release(self, exc_type=None, exc_value=None, traceback=None):

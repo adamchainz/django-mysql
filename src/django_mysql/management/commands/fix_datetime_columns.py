@@ -31,10 +31,10 @@ class Command(BaseCommand):
         try:
             connection = connections[alias]
         except ConnectionDoesNotExist:
-            raise CommandError("Connection '{}' does not exist".format(alias))
+            raise CommandError(f"Connection '{alias}' does not exist")
 
         if connection.vendor != "mysql":
-            raise CommandError("{} is not a MySQL database connection".format(alias))
+            raise CommandError(f"{alias} is not a MySQL database connection")
 
         sqls = []
         with connection.cursor() as cursor:
@@ -72,7 +72,7 @@ class Command(BaseCommand):
 
         qn = connection.ops.quote_name
 
-        cursor.execute("SHOW CREATE TABLE {}".format(qn(table_name)))
+        cursor.execute(f"SHOW CREATE TABLE {qn(table_name)}")
         create_table = cursor.fetchone()[1]
         column_specs = parse_create_table(create_table)
 
@@ -82,9 +82,7 @@ class Command(BaseCommand):
             column_spec = column_specs[column_name]
 
             new_column_spec = column_spec.replace("datetime", "datetime(6)", 1)
-            modify_columns.append(
-                "MODIFY COLUMN {} {}".format(qn(column_name), new_column_spec)
-            )
+            modify_columns.append(f"MODIFY COLUMN {qn(column_name)} {new_column_spec}")
 
         return "ALTER TABLE {table_name}\n    {columns};".format(
             table_name=qn(table_name), columns=",\n    ".join(modify_columns)

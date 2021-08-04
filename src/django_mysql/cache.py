@@ -386,7 +386,7 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
-            cursor.execute("DELETE FROM {table}".format(table=table))
+            cursor.execute(f"DELETE FROM {table}")
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         key = self.make_key(key, version=version)
@@ -414,7 +414,7 @@ class MySQLCache(BaseDatabaseCache):
         """
         if len(key) > 250:
             raise ValueError(
-                "Cache key is longer than the maxmimum 250 characters: {}".format(key)
+                f"Cache key is longer than the maxmimum 250 characters: {key}"
             )
         return super().validate_key(key)
 
@@ -458,7 +458,7 @@ class MySQLCache(BaseDatabaseCache):
             return pickle.loads(force_bytes(value))
 
         raise ValueError(
-            "Unknown value_type '{}' read from the cache table.".format(value_type)
+            f"Unknown value_type '{value_type}' read from the cache table."
         )
 
     def _maybe_cull(self):
@@ -569,7 +569,7 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             # First, try just deleting expired keys
             num_deleted = cursor.execute(
-                "DELETE FROM {table} WHERE expires < %s".format(table=table),
+                f"DELETE FROM {table} WHERE expires < %s",
                 (self._now(),),
             )
 
@@ -577,7 +577,7 @@ class MySQLCache(BaseDatabaseCache):
             if self._max_entries == -1:
                 return
 
-            cursor.execute("SELECT COUNT(*) FROM {table}".format(table=table))
+            cursor.execute(f"SELECT COUNT(*) FROM {table}")
             num = cursor.fetchone()[0]
 
             if num < self._max_entries:
@@ -585,7 +585,7 @@ class MySQLCache(BaseDatabaseCache):
 
             # Now do a key-based cull
             if self._cull_frequency == 0:
-                num_deleted += cursor.execute("DELETE FROM {table}".format(table=table))
+                num_deleted += cursor.execute(f"DELETE FROM {table}")
             else:
                 cull_num = num // self._cull_frequency
                 cursor.execute(

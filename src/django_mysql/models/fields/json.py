@@ -183,7 +183,7 @@ class JSONField(Field):
             "iregex",
         }:
             raise NotImplementedError(
-                "Lookup '{}' doesn't work with JSONField".format(lookup_name)
+                f"Lookup '{lookup_name}' doesn't work with JSONField"
             )
         return super().get_lookup(lookup_name)
 
@@ -234,14 +234,14 @@ class KeyTransform(Transform):
 
         json_path = self.compile_json_path(key_transforms)
 
-        return "JSON_EXTRACT({}, %s)".format(lhs), tuple(params) + (json_path,)
+        return f"JSON_EXTRACT({lhs}, %s)", tuple(params) + (json_path,)
 
     def compile_json_path(self, key_transforms):
         path = ["$"]
         for key_transform in key_transforms:
             try:
                 num = int(key_transform)
-                path.append("[{}]".format(num))
+                path.append(f"[{num}]")
             except ValueError:  # non-integer
                 path.append(".")
                 path.append(key_transform)

@@ -109,7 +109,7 @@ class QuerySetMixin:
         """
         if "*/" in string:
             raise ValueError("Bad label - cannot be embedded in SQL comment")
-        return self.extra(where=["/*QueryRewrite':label={}*/1".format(string)])
+        return self.extra(where=[f"/*QueryRewrite':label={string}*/1"])
 
     @requires_query_rewrite
     def straight_join(self):
@@ -197,15 +197,13 @@ class QuerySetMixin:
             )
 
         if hint != "USE" and not len(index_names):
-            raise ValueError(
-                "{}_index requires at least one index name".format(hint.lower())
-            )
+            raise ValueError(f"{hint.lower()}_index requires at least one index name")
 
         if table_name is None:
             table_name = self.model._meta.db_table
 
         if for_ in ("JOIN", "ORDER BY", "GROUP BY"):
-            for_bit = "FOR {} ".format(for_)
+            for_bit = f"FOR {for_} "
         elif for_ is None:
             for_bit = ""
         else:
@@ -408,9 +406,7 @@ class SmartChunkedIterator:
         elif self.pk_range is None:
             base_qs = self.queryset
         else:
-            raise ValueError(
-                "Unrecognized value for pk_range: {}".format(self.pk_range)
-            )
+            raise ValueError(f"Unrecognized value for pk_range: {self.pk_range}")
 
         if not base_qs.query.standard_ordering:  # It's reverse()d
             base_qs = base_qs.reverse()
@@ -513,7 +509,7 @@ class SmartChunkedIterator:
             if self.objects_done != "???" and self.rate.avg_rate:
                 n_remaining = self.total - self.objects_done
                 s_remaining = max(0, int(n_remaining // self.rate.avg_rate))
-                report += ", {} remaining".format(format_duration(s_remaining))
+                report += f", {format_duration(s_remaining)} remaining"
 
         # Add spaces to avoid problem with reverse iteration, see #177.
         spacing = " " * max(0, len(self.old_report) - len(report))
