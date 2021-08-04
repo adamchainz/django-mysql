@@ -42,7 +42,7 @@ class ListFieldMixin:
         base_errors = self.base_field.check()
         if base_errors:
             messages = "\n    ".join(
-                "{} ({})".format(error.msg, error.id) for error in base_errors
+                f"{error.msg} ({error.id})" for error in base_errors
             )
             errors.append(
                 checks.Error(
@@ -210,7 +210,7 @@ class IndexLookup(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
-        return "(FIND_IN_SET({}, {}) = {})".format(rhs, lhs, self.index), params
+        return f"(FIND_IN_SET({rhs}, {lhs}) = {self.index})", params
 
 
 class IndexLookupFactory:

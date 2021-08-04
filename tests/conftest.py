@@ -23,7 +23,7 @@ def pytest_report_header(config):
                 with conn.cursor() as cursor:
                     cursor.execute("SELECT VERSION()")
                     version = cursor.fetchone()[0]
-        header += "\nMySQL version: {}".format(version)
+        header += f"\nMySQL version: {version}"
 
     return header
 

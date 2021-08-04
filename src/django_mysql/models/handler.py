@@ -17,7 +17,7 @@ class Handler:
 
     def _construct_name(self, table_name):
         # Undocumented max of 64 chars (get error on HANDLER CLOSE only!)
-        return "{}_{}".format(table_name[-31:], randint(1, 2e10))
+        return f"{table_name[-31:]}_{randint(1, 2e10)}"
 
     # Context manager
 
@@ -27,7 +27,7 @@ class Handler:
         self.cursor = connections[self.db].cursor()
         self.cursor.__enter__()
         self.cursor.execute(
-            "HANDLER `{}` OPEN AS {}".format(self._table_name, self._handler_name)
+            f"HANDLER `{self._table_name}` OPEN AS {self._handler_name}"
         )
         self.open = True
         return self
@@ -35,7 +35,7 @@ class Handler:
     def __exit__(self, exc_type, exc_value, traceback):
         if not self.open:
             raise ValueError("You cannot close an unopened handler!")
-        self.cursor.execute("HANDLER `{}` CLOSE".format(self._handler_name))
+        self.cursor.execute(f"HANDLER `{self._handler_name}` CLOSE")
         self.cursor.__exit__(exc_type, exc_value, traceback)
         self.open = False
 
@@ -56,11 +56,11 @@ class Handler:
             # Default
             mode = "first"
 
-        sql = ["HANDLER {} READ".format(self._handler_name)]
+        sql = [f"HANDLER {self._handler_name} READ"]
         params = ()
 
         # Caller's responsibility to ensure the index name is correct
-        sql.append("`{}`".format(index))
+        sql.append(f"`{index}`")
 
         if index_op is not None:
             sql.append(index_op)

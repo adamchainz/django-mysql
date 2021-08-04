@@ -369,7 +369,7 @@ class EncryptionFunctionTests(TestCase):
         Alphabet.objects.create(d=string)
 
         for hash_len in (224, 256, 384, 512):
-            sha_func = getattr(hashlib, "sha{}".format(hash_len))
+            sha_func = getattr(hashlib, f"sha{hash_len}")
             pysha = sha_func(string.encode("ascii")).hexdigest()
             ab = Alphabet.objects.annotate(sha=SHA2("d", hash_len)).first()
             assert ab.sha == pysha

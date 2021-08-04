@@ -54,11 +54,11 @@ class Command(BaseCommand):
         try:
             settings_dict = connections[alias].settings_dict
         except ConnectionDoesNotExist:
-            raise CommandError("Connection '{}' does not exist".format(alias))
+            raise CommandError(f"Connection '{alias}' does not exist")
 
         connection = connections[alias]
         if connection.vendor != "mysql":
-            raise CommandError("{} is not a MySQL database connection".format(alias))
+            raise CommandError(f"{alias} is not a MySQL database connection")
 
         show_mysql = options["mysql"]
         show_dsn = options["dsn"]
@@ -96,20 +96,20 @@ class Command(BaseCommand):
 
         args = []
         if defaults_file:
-            args.append("F={}".format(defaults_file))
+            args.append(f"F={defaults_file}")
         if user:
-            args.append("u={}".format(user))
+            args.append(f"u={user}")
         if passwd:
-            args.append("p={}".format(passwd))
+            args.append(f"p={passwd}")
         if host:
             if "/" in host:
-                args.append("S={}".format(host))
+                args.append(f"S={host}")
             else:
-                args.append("h={}".format(host))
+                args.append(f"h={host}")
         if port:
-            args.append("P={}".format(port))
+            args.append(f"P={port}")
         if db:
-            args.append("D={}".format(db))
+            args.append(f"D={db}")
 
         dsn = ",".join(args)
         self.stdout.write(dsn, ending="")

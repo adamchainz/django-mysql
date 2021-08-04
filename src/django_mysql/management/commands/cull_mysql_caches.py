@@ -36,15 +36,13 @@ class Command(BaseCommand):
             try:
                 cache = caches[alias]
             except InvalidCacheBackendError:
-                raise CommandError("Cache '{}' does not exist".format(alias))
+                raise CommandError(f"Cache '{alias}' does not exist")
 
             if not isinstance(cache, MySQLCache):  # pragma: no cover
                 continue
 
             if verbosity >= 1:
-                self.stdout.write(
-                    "Deleting from cache '{}'... ".format(alias), ending=""
-                )
+                self.stdout.write(f"Deleting from cache '{alias}'... ", ending="")
             num_deleted = cache.cull()
             if verbosity >= 1:
-                self.stdout.write("{} entries deleted.".format(num_deleted))
+                self.stdout.write(f"{num_deleted} entries deleted.")

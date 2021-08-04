@@ -133,7 +133,7 @@ def modify_sql(sql, add_comments, add_hints, add_index_hints):
 
     # Inject comments after all existing comments
     for comment in add_comments:
-        tokens.append("/*{}*/".format(comment))
+        tokens.append(f"/*{comment}*/")
 
     # Don't bother with SELECT rewrite rules on non-SELECT queries
     if tokens[0] == "SELECT":
@@ -179,7 +179,7 @@ replacement_template = (
 def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
     table_spec_re = table_spec_re_template.format(table_name=table_name)
     if for_what:
-        for_section = "FOR {} ".format(for_what)
+        for_section = f"FOR {for_what} "
     else:
         for_section = ""
     replacement = replacement_template.format(

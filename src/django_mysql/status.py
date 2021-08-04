@@ -31,7 +31,7 @@ class BaseStatus:
         with self.get_cursor() as cursor:
             num_rows = cursor.execute(self.query + " LIKE %s", (name,))
             if num_rows == 0:
-                raise KeyError("No such status variable '{}'".format(name))
+                raise KeyError(f"No such status variable '{name}'")
             return self._cast(cursor.fetchone()[1])
 
     def get_many(self, names):
@@ -105,9 +105,7 @@ class GlobalStatus(BaseStatus):
             if timeout and time.time() > start + timeout:
                 raise TimeoutError(
                     "Span too long waiting for load to drop: "
-                    + ",".join(
-                        "{} > {}".format(name, thresholds[name]) for name in higher
-                    )
+                    + ",".join(f"{name} > {thresholds[name]}" for name in higher)
                 )
             time.sleep(sleep)
 

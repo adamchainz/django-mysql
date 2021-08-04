@@ -60,7 +60,7 @@ class GroupConcat(Aggregate):
             sql.append(self.ordering.upper())
 
         if self.separator is not None:
-            sql.append(" SEPARATOR '{}'".format(self.separator))
+            sql.append(f" SEPARATOR '{self.separator}'")
 
         sql.append(")")
 

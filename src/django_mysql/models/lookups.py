@@ -30,7 +30,7 @@ class SoundsLike(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
-        return "{} SOUNDS LIKE {}".format(lhs, rhs), params
+        return f"{lhs} SOUNDS LIKE {rhs}", params
 
 
 class Soundex(Transform):
@@ -139,7 +139,7 @@ class JSONContainedBy(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(rhs_params) + tuple(lhs_params)
-        return "JSON_CONTAINS({}, {})".format(rhs, lhs), params
+        return f"JSON_CONTAINS({rhs}, {lhs})", params
 
 
 class JSONContains(Lookup):
@@ -169,7 +169,7 @@ class JSONContains(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
-        return "JSON_CONTAINS({}, {})".format(lhs, rhs), params
+        return f"JSON_CONTAINS({lhs}, {rhs})", params
 
 
 class JSONHasKey(Lookup):
@@ -183,9 +183,9 @@ class JSONHasKey(Lookup):
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         key_name = self.rhs
-        path = "$.{}".format(json.dumps(key_name))
+        path = f"$.{json.dumps(key_name)}"
         params = tuple(lhs_params) + (path,)
-        return "JSON_CONTAINS_PATH({}, 'one', %s)".format(lhs), params
+        return f"JSON_CONTAINS_PATH({lhs}, 'one', %s)", params
 
 
 class JSONSequencesMixin:
@@ -204,7 +204,7 @@ class JSONHasKeys(JSONSequencesMixin, Lookup):
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
-        paths = tuple("$.{}".format(json.dumps(key_name)) for key_name in self.rhs)
+        paths = tuple(f"$.{json.dumps(key_name)}" for key_name in self.rhs)
         params = tuple(lhs_params) + paths
 
         sql = [
@@ -223,7 +223,7 @@ class JSONHasAnyKeys(JSONSequencesMixin, Lookup):
 
     def as_sql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
-        paths = tuple("$.{}".format(json.dumps(key_name)) for key_name in self.rhs)
+        paths = tuple(f"$.{json.dumps(key_name)}" for key_name in self.rhs)
         params = tuple(lhs_params) + paths
 
         sql = [
@@ -260,7 +260,7 @@ class SetContains(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
-        return "FIND_IN_SET({}, {})".format(rhs, lhs), params
+        return f"FIND_IN_SET({rhs}, {lhs})", params
 
 
 class SetIContains(SetContains):
@@ -277,4 +277,4 @@ class DynColHasKey(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
-        return "COLUMN_EXISTS({}, {})".format(lhs, rhs), params
+        return f"COLUMN_EXISTS({lhs}, {rhs})", params

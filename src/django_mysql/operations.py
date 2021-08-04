@@ -17,7 +17,7 @@ class InstallPlugin(Operation):
     def database_forwards(self, app_label, schema_editor, from_st, to_st):
         if not self.plugin_installed(schema_editor):
             schema_editor.execute(
-                "INSTALL PLUGIN {} SONAME %s".format(self.name), (self.soname,)
+                f"INSTALL PLUGIN {self.name} SONAME %s", (self.soname,)
             )
 
     def database_backwards(self, app_label, schema_editor, from_st, to_st):
@@ -36,7 +36,7 @@ class InstallPlugin(Operation):
             return count > 0
 
     def describe(self):
-        return "Installs plugin {} from {}".format(self.name, self.soname)
+        return f"Installs plugin {self.name} from {self.soname}"
 
 
 class InstallSOName(Operation):
@@ -120,7 +120,7 @@ class AlterStorageEngine(Operation):
 
     def describe(self):
         if self.from_engine:
-            from_clause = " from {}".format(self.from_engine)
+            from_clause = f" from {self.from_engine}"
         else:
             from_clause = ""
         return "Alter storage engine for {model}{from_clause} to {engine}".format(
