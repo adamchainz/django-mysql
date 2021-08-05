@@ -18,6 +18,14 @@ body:
   validations:
     required: false
 - type: input
+  id: mysql_version
+  attributes:
+    label: MariaDB/MySQL Version
+    description: Which database and version were you using?
+    placeholder: MariaDB 10.5.2
+  validations:
+    required: false
+- type: input
   id: package_version
   attributes:
     label: Package Version
