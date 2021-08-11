@@ -12,4 +12,3 @@ your ``manage.py`` when you add ``django_mysql`` to your ``INSTALLED_APPS``.
    :maxdepth: 1
 
    dbparams
-   fix_datetime_columns

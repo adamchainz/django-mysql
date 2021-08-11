@@ -4,6 +4,9 @@ History
 
 * Drop support for MySQL 5.6 and MariaDB 10.1, as they are both end of life.
 
+* Drop ``fix_datetime_columns`` management command, which was useful when
+  upgrading from MySQL < 5.6.
+
 3.12.0 (2021-06-11)
 -------------------
 
