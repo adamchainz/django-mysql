@@ -129,32 +129,6 @@ Model Fields
 
 Fields that use MySQL-specific features!
 
-JSON Field
-----------
-
-Implements MySQL 5.7+'s JSON data type for storing arbitrary JSON data:
-
-.. code-block:: python
-
-    class APIResponse(Model):
-        url = models.CharField(max_length=200)
-        data = JSONField()
-
-.. code-block:: pycon
-
-    >>> APIResponse.objects.create(
-    ...     url="/api/twoots/1/",
-    ...     data={
-    ...         "id": "123",
-    ...         "message": "Loving #django and #mysql",
-    ...         "coords": [34.4, 56.2],
-    ...     },
-    ... )
-    >>> APIResponse.objects.filter(data__coords__0=34.4)
-    [<APIResponse: /api/twoots/1/>]
-
-:ref:`Read more <json-field>`
-
 Dynamic Columns Field
 ---------------------
 
