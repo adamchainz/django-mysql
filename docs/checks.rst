@@ -30,44 +30,9 @@ message, and a link here for documentation on how to fix it.
 django_mysql.W001: Strict Mode
 ------------------------------
 
-MySQL's Strict Mode fixes many data integrity problems in MySQL, such as data
-truncation upon insertion, by escalating warnings into errors. It is strongly
-recommended you activate it.
-
-Docs:
-`MySQL <https://dev.mysql.com/doc/refman/en/sql-mode.html#sql-mode-strict>`__ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/sql_mode/#strict-mode>`__.
-
-It is configured as part of ``sql_mode``, a system variable contains a list of
-comma-separated modes to activate. Please check the value of your install and
-update it as necessary to add ``STRICT_TRANS_TABLES`` (the default in MySQL 5.7
-onwards) - the following instructions assume it is set to the empty string
-initially, which is the MySQL 5.5 default.
-
-The easiest way to change ``sql_mode`` for your app is to set it from the
-``init_command`` that is run on each new connection by ``MySQLdb``:
-
-.. code-block:: python
-
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": "my_database",
-            "OPTIONS": {
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
-    }
-
-This sets it for your app, but it does not set it for other connections to your
-database server. There is also a roundtrip added for sending a command to the
-server on each new connection.
-
-You can change ``sql_mode`` permanently by using ``SET GLOBAL`` from an admin
-user on the server, plus changing your configuration files so the setting
-survives a server restart. For more information, see
-`Using System Variables system variables <https://dev.mysql.com/doc/refman/en/using-system-variables.html>`_
-in the MySQL documentation.
+This check has been removed since Django itself includes such a check,
+``mysql.W002``, since version 1.10. See `its documentation
+<https://docs.djangoproject.com/en/stable/ref/checks/#mysql-and-mariadb>`__.
 
 
 django_mysql.W002: InnoDB Strict Mode

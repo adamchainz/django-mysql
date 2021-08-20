@@ -27,16 +27,11 @@ def check_variables(app_configs, **kwargs):
 
         with connection.temporary_connection() as cursor:
             cursor.execute(
-                """SELECT @@sql_mode,
-                          @@innodb_strict_mode,
+                """SELECT @@innodb_strict_mode,
                           @@character_set_connection"""
             )
             variables = cursor.fetchone()
-            sql_mode, innodb_strict_mode, character_set_connection = variables
-
-        modes = set(sql_mode.split(","))
-        if not (modes & {"STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"}):
-            errors.append(strict_mode_warning(alias))
+            innodb_strict_mode, character_set_connection = variables
 
         if not innodb_strict_mode:
             errors.append(innodb_strict_mode_warning(alias))
@@ -45,19 +40,6 @@ def check_variables(app_configs, **kwargs):
             errors.append(utf8mb4_warning(alias))
 
     return errors
-
-
-def strict_mode_warning(alias):
-    return Warning(
-        f"MySQL Strict Mode is not set for database connection '{alias}'",
-        hint=(
-            "MySQL's Strict Mode fixes many data integrity problems in MySQL, "
-            + "such as data truncation upon insertion, by escalating warnings "
-            + "into errors. It is strongly recommended you activate it. See: "
-            + "https://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w001-strict-mode"  # noqa: B950
-        ),
-        id="django_mysql.W001",
-    )
 
 
 def innodb_strict_mode_warning(alias):
