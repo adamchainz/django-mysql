@@ -26,6 +26,7 @@ jobs:
         - mariadb:10.3
         - mariadb:10.4
         - mariadb:10.5
+        - mariadb:10.6
 
     services:
       database:
