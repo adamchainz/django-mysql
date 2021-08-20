@@ -31,7 +31,7 @@ def check_variables(app_configs, **kwargs):
                           @@character_set_connection"""
             )
             variables = cursor.fetchone()
-            sql_mode, innodb_strict_mode, character_set_connection = variables
+            innodb_strict_mode, character_set_connection = variables
 
         if not innodb_strict_mode:
             errors.append(innodb_strict_mode_warning(alias))
