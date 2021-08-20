@@ -277,15 +277,11 @@ class NullBit1Model(Model):
 
 if django.VERSION >= (3, 1):
     with connection._nodb_cursor() as cursor:
-        supports_json_field = (
-            not cursor.db.mysql_is_mariadb and cursor.db.mysql_version >= (5, 7)
-        )
+        supports_json_field = not cursor.db.mysql_is_mariadb
 else:
     nodb_conn = connection._nodb_connection
     try:
-        supports_json_field = not connection_is_mariadb(
-            nodb_conn
-        ) and nodb_conn.mysql_version >= (5, 7)
+        supports_json_field = not connection_is_mariadb(nodb_conn)
     finally:
         nodb_conn.close()
 

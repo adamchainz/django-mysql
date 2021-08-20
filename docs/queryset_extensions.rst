@@ -160,7 +160,7 @@ Once you’ve done this, the following methods will work.
     However this is a feature - by not including spaces around your string,
     you may use this injection to use `executable comments
     <https://mariadb.com/kb/en/mariadb/comment-syntax/>`_ to add hints that are
-    otherwise not supported, or to use the `new MySQL 5.7 optimizer hints
+    otherwise not supported, or to use `MySQL 5.7+ optimizer hints
     <https://www.percona.com/blog/2015/04/30/optimizer-hints-mysql-5-7-7-missed-manual/>`_.
 
 .. method:: straight_join()
@@ -655,7 +655,7 @@ Integration with pt-visual-explain
 ----------------------------------
 
 How does MySQL *really* execute a query? The ``EXPLAIN`` statement
-(docs: `MySQL <https://dev.mysql.com/doc/refman/5.6/en/explain.html>`__ /
+(docs: `MySQL <https://dev.mysql.com/doc/refman/8.0/en/explain.html>`__ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/explain/>`__),
 gives a description of the execution plan, and the ``pt-visual-explain``
 `tool <https://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
@@ -707,7 +707,7 @@ Handler
 MySQL's ``HANDLER`` commands give you simple NoSQL-style read access, faster
 than full SQL queries, with the ability to perform index lookups or paginated
 scans (docs:
-`MySQL <https://dev.mysql.com/doc/refman/5.6/en/handler.html>`__ /
+`MySQL <https://dev.mysql.com/doc/refman/8.0/en/handler.html>`__ /
 `MariaDB <https://mariadb.com/kb/en/mariadb/handler-commands/>`__).
 
 This extension adds an ORM-based API for handlers. You can instantiate them

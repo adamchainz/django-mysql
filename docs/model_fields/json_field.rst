@@ -13,7 +13,7 @@ JSONField
     you are on an earlier version of Django, use
     `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__.
 
-**MySQL 5.7** comes with a JSON data type that stores JSON in a way that is
+MySQL comes with a JSON data type that stores JSON in a way that is
 queryable and updatable in place. This is ideal for data that varies widely, or
 very sparse columns, or just for storing API responses that you don't have time
 to turn into the relational format.

@@ -43,7 +43,7 @@ The following can all be imported from ``django_mysql.status``.
         47
 
     To see the names of all the available variables, refer to the documentation:
-    `MySQL <https://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_. They vary
     based upon server version, plugins installed, etc.
 
@@ -106,7 +106,7 @@ The following can all be imported from ``django_mysql.status``.
     STATUS``, so *some* variables are restricted to the current connection
     only, rather than the whole server. For which, you should refer to the
     documentation:
-    `MySQL <https://dev.mysql.com/doc/refman/5.6/en/show-status.html>`_ /
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/show-status.html>`_ /
     `MariaDB <https://mariadb.com/kb/en/mariadb/show-status/>`_.
 
     Also it doesn't have the ``wait_until_load_low`` method, which only makes
