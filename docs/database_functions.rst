@@ -12,50 +12,6 @@ for the ORM.
 
 The following can be imported from ``django_mysql.models.functions``.
 
-Comparison Functions
---------------------
-
-
-.. class:: Greatest(*expressions)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Greatest` instead.
-
-    With two or more arguments, returns the largest (maximum-valued) argument.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/comparison-operators.html#function_greatest>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/greatest/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.filter(sales_eu=Greatest("sales_eu", "sales_us"))
-
-
-.. class:: Least(*expressions)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Least` instead.
-
-    With two or more arguments, returns the smallest (minimum-valued) argument.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/comparison-operators.html#function_least>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/least/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.filter(sales_eu=Least("sales_eu", "sales_us"))
-
-
 Control Flow Functions
 ----------------------
 
@@ -86,48 +42,6 @@ Control Flow Functions
 Numeric Functions
 -----------------
 
-
-.. class:: Abs(expression)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Abs` instead.
-
-    Returns the absolute (non-negative) value of ``expression```. If
-    ``expression`` is not a number, it is converted to a numeric type.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_abs>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/abs/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(abs_wealth=Abs("dollars"))
-
-
-.. class:: Ceiling(expression)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Ceil` instead.
-
-    Returns the smallest integer value not less than `expression`.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_ceiling>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/ceiling/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(years_ceiling=Ceiling("age"))
-
-
 .. class:: CRC32(expression)
 
     Computes a cyclic redundancy check value and returns a 32-bit unsigned
@@ -143,51 +57,6 @@ Numeric Functions
     .. code-block:: pycon
 
         >>> Author.objects.annotate(description_crc=CRC32("description"))
-
-
-.. class:: Floor(expression)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Floor` instead.
-
-    Returns the largest integer value not greater than ``expression``.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_floor>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/floor/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >> Author.objects.annotate(age_years=Floor('age'))
-
-
-.. class:: Round(expression, places=0)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Round` instead.
-
-    Rounds the argument ``expression`` to ``places`` decimal places. The
-    rounding algorithm depends on the data type of ``expression``. ``places``
-    defaults to 0 if not specified. ``places`` can be negative to cause
-    ``places`` digits left of the decimal point of the value ``expression`` to
-    become zero.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_round>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/round/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(kilo_sales=Round("sales", -3))
-
 
 .. class:: Sign(expression)
 

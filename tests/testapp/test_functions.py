@@ -13,16 +13,12 @@ from django_mysql.models.functions import (
     MD5,
     SHA1,
     SHA2,
-    Abs,
     AsType,
-    Ceiling,
     ColumnAdd,
     ColumnDelete,
     ColumnGet,
     ConcatWS,
     Field,
-    Floor,
-    Greatest,
     If,
     JSONArrayAppend,
     JSONExtract,
@@ -32,11 +28,9 @@ from django_mysql.models.functions import (
     JSONReplace,
     JSONSet,
     LastInsertId,
-    Least,
     RegexpInstr,
     RegexpReplace,
     RegexpSubstr,
-    Round,
     Sign,
     UpdateXML,
     XMLExtractValue,
@@ -45,36 +39,6 @@ from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
 from tests.testapp.test_jsonfield import JSONFieldTestCase
-
-
-class ComparisonFunctionTests(TestCase):
-    def test_greatest(self):
-        Alphabet.objects.create(d="A", e="B")
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            best = Greatest("d", "e")
-        ab = Alphabet.objects.annotate(best=best).first()
-
-        assert ab.best == "B"
-
-    def test_greatest_takes_no_kwargs(self):
-        with pytest.raises(TypeError), self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            Greatest("a", something="wrong")
-
-    def test_least(self):
-        Alphabet.objects.create(a=1, b=2, c=-1)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            worst = Least("a", "b", "c")
-        ab = Alphabet.objects.annotate(worst=worst).first()
-
-        assert ab.worst == -1
 
 
 class ControlFlowFunctionTests(TestCase):
@@ -142,28 +106,6 @@ class ControlFlowFunctionTests(TestCase):
 
 
 class NumericFunctionTests(TestCase):
-    def test_abs(self):
-        Alphabet.objects.create(a=-2)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            aaa = Abs("a")
-        ab = Alphabet.objects.annotate(aaa=aaa).first()
-
-        assert ab.aaa == 2
-
-    def test_ceiling(self):
-        Alphabet.objects.create(g=0.5)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            gceil = Ceiling("g")
-        ab = Alphabet.objects.annotate(gceil=gceil).first()
-
-        assert ab.gceil == 1
-
     def test_crc32(self):
         Alphabet.objects.create(d="AAAAAA")
         ab = Alphabet.objects.annotate(crc=CRC32("d")).first()
@@ -177,50 +119,6 @@ class NumericFunctionTests(TestCase):
 
         with pytest.raises(TypeError):
             CRC32("d", something="wrong")
-
-    def test_floor(self):
-        Alphabet.objects.create(g=1.5)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            gfloor = Floor("g")
-        ab = Alphabet.objects.annotate(gfloor=gfloor).first()
-
-        assert ab.gfloor == 1
-
-    def test_round(self):
-        Alphabet.objects.create(g=24.459)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            ground = Round("g")
-        ab = Alphabet.objects.annotate(ground=ground).get()
-
-        assert ab.ground == 24
-
-    def test_round_up(self):
-        Alphabet.objects.create(g=27.859)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            ground = Round("g")
-        ab = Alphabet.objects.annotate(ground=ground).get()
-
-        assert ab.ground == 28
-
-    def test_round_places(self):
-        Alphabet.objects.create(a=81731)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            around = Round("a", -2)
-        ab = Alphabet.objects.annotate(around=around).get()
-
-        assert ab.around == 81700
 
     def test_sign(self):
         Alphabet.objects.create(a=123, b=0, c=-999)

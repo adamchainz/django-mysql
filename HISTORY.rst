@@ -7,8 +7,12 @@ History
 * Drop ``fix_datetime_columns`` management command, which was useful when
   upgrading from MySQL < 5.6.
 
-* Dropped check for strict mode (``django_mysql.W001``) as this is now included
+* Drop check for strict mode (``django_mysql.W001``) as this is now included
   in Django itself since version 1.10.
+
+* Drop the ``Greatest``, ``Least``, ``Abs``, ``Ceiling``, ``Floor`` and
+  ``Round`` database functions as they exist in Django core now. Swap to
+  importing them from ``django.db.models.functions``.
 
 3.12.0 (2021-06-11)
 -------------------
