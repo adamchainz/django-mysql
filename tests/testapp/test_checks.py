@@ -44,22 +44,6 @@ class VariablesTests(TransactionTestCase):
         assert errors == []
 
     @skip_if_django_3_1_plus
-    @override_mysql_variables(sql_mode="")
-    def test_fails_if_no_strict_old_django(self):
-        errors = check_variables(app_configs=None)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.W001"
-        assert "MySQL Strict Mode" in errors[0].msg
-
-    @skip_if_django_before_3_1
-    @override_mysql_variables(sql_mode="")
-    def test_fails_if_no_strict(self):
-        errors = check_variables(app_configs=None, databases=["default", "other"])
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.W001"
-        assert "MySQL Strict Mode" in errors[0].msg
-
-    @skip_if_django_3_1_plus
     @override_mysql_variables(innodb_strict_mode=0)
     def test_fails_if_no_innodb_strict_old_django(self):
         errors = check_variables(app_configs=None)

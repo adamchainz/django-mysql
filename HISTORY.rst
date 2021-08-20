@@ -7,6 +7,9 @@ History
 * Drop ``fix_datetime_columns`` management command, which was useful when
   upgrading from MySQL < 5.6.
 
+* Dropped check for strict mode (``django_mysql.W001``) as this is now included
+  in Django itself since version 1.10.
+
 3.12.0 (2021-06-11)
 -------------------
 
