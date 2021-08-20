@@ -593,16 +593,6 @@ class TestCheck(JSONFieldTestCase):
         assert errors[1].id == "django_mysql.E016"
         assert "MySQL is required" in errors[1].msg
 
-    @mock_mysql_version(default=(5, 5, 3), other=(5, 5, 3))
-    def test_mysql_old_version(self):
-        class InvalidJSONModel4(TemporaryModel):
-            field = JSONField()
-
-        errors = InvalidJSONModel4.check(actually_check=True)
-        assert len(errors) == 2
-        assert errors[1].id == "django_mysql.E016"
-        assert "MySQL is required" in errors[1].msg
-
     @mock_mysql_version(default=(5, 5, 3), other=(5, 7, 1))
     def test_mysql_one_conn_old_version(self):
         class InvalidJSONModel5(TemporaryModel):
