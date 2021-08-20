@@ -8,7 +8,7 @@ from io import StringIO
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
-from django.db import IntegrityError, OperationalError, connection
+from django.db import IntegrityError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import FetchFromCacheMiddleware, UpdateCacheMiddleware
@@ -1005,13 +1005,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     def test_decr_range(self):
         cache.set("underwhelm", BIGINT_SIGNED_MIN + 1)
         cache.decr("underwhelm")
-        expected = (
-            # MySQL 5.7+ and MariaDB:
-            IntegrityError,
-            # MySQL 5.6:
-            OperationalError,
-        )
-        with pytest.raises(expected):
+        with pytest.raises(IntegrityError):
             cache.decr("underwhelm")
 
     def test_cant_incr_decimals(self):

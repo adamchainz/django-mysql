@@ -20,10 +20,7 @@ The following can be imported from ``django_mysql.locks``.
     similar to ``threading.Lock``. These call the MySQL functions ``GET_LOCK``,
     ``RELEASE_LOCK``, and ``IS_USED_LOCK`` to manage it.
 
-    The lock is only re-entrant (acquirable multiple times) on MariaDB 10.0+.
-
-    MySQL before 5.7, and MariaDB before 10.0, only allowed one lock per
-    connection. On those versions and later, you can hold multiple locks.
+    The lock is only re-entrant (acquirable multiple times) on MariaDB.
 
     Basic usage:
 
@@ -40,7 +37,7 @@ The following can be imported from ``django_mysql.locks``.
 
     For more information on user locks refer to the ``GET_LOCK`` documentation
     on `MySQL
-    <https://dev.mysql.com/doc/refman/5.6/en/miscellaneous-functions.html#function_get-lock>`__
+    <https://dev.mysql.com/doc/refman/5.7/en/locking-functions.html#function_get-lock>`__
     or `MariaDB <https://mariadb.com/kb/en/mariadb/get_lock/>`__.
 
     .. warning::
@@ -60,9 +57,9 @@ The following can be imported from ``django_mysql.locks``.
         a full stop, in case multiple apps are using different databases on the
         same server.
 
-        MySQL 5.7+ enforces a maximum length on the total name (including the
+        MySQL enforces a maximum length on the total name (including the
         DB prefix that Django-MySQL adds) of 64 characters. MariaDB doesn't
-        enforce any limit. The practical limit on MySQL <5.6 or MariaDB is
+        enforce any limit. The practical limit on MariaDB is
         maybe 1 million characters or more, so most sane uses should be fine.
 
     .. attribute:: acquire_timeout=10.0

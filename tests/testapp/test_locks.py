@@ -164,16 +164,6 @@ class LockTests(TestCase):
             pass
 
     def test_holding_more_than_one(self):
-        is_mariadb = connection_is_mariadb(connection)
-        supports_multiple_locks = (
-            is_mariadb and connection.mysql_version >= (10, 0, 2)
-        ) or (not is_mariadb and connection.mysql_version >= (5, 7))
-        if not supports_multiple_locks:
-            self.skipTest(
-                "Only MySQL 5.7+ and MariaDB 10.0.2+ have the ability to hold "
-                "more than one named lock"
-            )
-
         lock_a = Lock("a")
         lock_b = Lock("b")
         with lock_a, lock_b:

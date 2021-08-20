@@ -19,10 +19,8 @@ from tests.testapp.utils import mock_mysql_version
 class JSONFieldTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        if not (
-            not connection_is_mariadb(connection) and connection.mysql_version >= (5, 7)
-        ):
-            raise SkipTest("JSONField requires MySQL 5.7+")
+        if not (not connection_is_mariadb(connection)):
+            raise SkipTest("JSONField requires MySQL")
         super().setUpClass()
 
 
@@ -593,17 +591,7 @@ class TestCheck(JSONFieldTestCase):
         errors = InvalidJSONModel3.check(actually_check=True)
         assert len(errors) == 2
         assert errors[1].id == "django_mysql.E016"
-        assert "MySQL 5.7+ is required" in errors[1].msg
-
-    @mock_mysql_version(default=(5, 5, 3), other=(5, 5, 3))
-    def test_mysql_old_version(self):
-        class InvalidJSONModel4(TemporaryModel):
-            field = JSONField()
-
-        errors = InvalidJSONModel4.check(actually_check=True)
-        assert len(errors) == 2
-        assert errors[1].id == "django_mysql.E016"
-        assert "MySQL 5.7+ is required" in errors[1].msg
+        assert "MySQL is required" in errors[1].msg
 
     @mock_mysql_version(default=(5, 5, 3), other=(5, 7, 1))
     def test_mysql_one_conn_old_version(self):

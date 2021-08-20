@@ -402,7 +402,7 @@ Information Functions
 JSON Database Functions
 -----------------------
 
-These are for MySQL 5.7+ only, for use with JSON data stored in a
+These are for MySQL only, for use with JSON data stored in a
 ``CharField``, ``TextField``, or most importantly, a
 :class:`~django_mysql.models.JSONField` (with which the functions are much
 faster due to the JSON being stored in a binary representation).

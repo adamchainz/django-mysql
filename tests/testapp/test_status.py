@@ -149,7 +149,7 @@ class SessionStatusTests(TestCase):
     def test_as_dict(self):
         status_dict = session_status.as_dict()
 
-        assert "Compression" in status_dict  # status only variable (on 5.7+)
+        assert "Compression" in status_dict  # status only variable
 
         assert isinstance(status_dict["Threads_running"], int)
         assert status_dict["Threads_running"] >= 1
