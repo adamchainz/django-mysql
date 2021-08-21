@@ -112,13 +112,6 @@ class NumericFunctionTests(TestCase):
         # match - maybe sign issues?
         assert ab.crc == 2854018686
 
-    def test_crc32_only_takes_one_arg_no_kwargs(self):
-        with pytest.raises(TypeError):
-            CRC32("d", "c")
-
-        with pytest.raises(TypeError):
-            CRC32("d", something="wrong")
-
     def test_sign(self):
         Alphabet.objects.create(a=123, b=0, c=-999)
         ab = Alphabet.objects.annotate(
@@ -327,13 +320,6 @@ class JSONFunctionTests(TestCase):
                 "sub": {"document": "store"},
                 "arr": ["dee", "arr", "arr"],
             }
-        )
-
-    def test_json_extract_kwarg_bad(self):
-        with pytest.raises(TypeError) as excinfo:
-            JSONExtract("foo", "bar", foo=1)
-        assert (
-            str(excinfo.value) == "__init__() got an unexpected keyword argument 'foo'"
         )
 
     def test_json_extract_output_field_too_many_paths(self):

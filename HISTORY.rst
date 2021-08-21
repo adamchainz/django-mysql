@@ -4,6 +4,8 @@ History
 
 * Test with MariaDB 10.6.
 
+* Add type hints.
+
 * Drop support for MySQL 5.6 and MariaDB 10.1, as they are both end of life.
 
 * Drop ``fix_datetime_columns`` management command, which was useful when

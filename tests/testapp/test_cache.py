@@ -4,6 +4,7 @@ import time
 import types
 from decimal import Decimal
 from io import StringIO
+from typing import Any, Dict
 
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
@@ -92,7 +93,7 @@ def caches_setting_for_tests(options=None, **params):
     # base config for the tests.
     # This results in the following search order:
     # params -> _caches_setting_base -> base
-    setting = {k: {} for k in _caches_setting_base.keys()}
+    setting: Dict[str, Any] = {k: {} for k in _caches_setting_base.keys()}
     for key, cache_params in setting.items():
         cache_params.update(_caches_setting_base[key])
         cache_params.update(params)
@@ -244,7 +245,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def test_cache_read_for_model_instance(self):
         # Don't want fields with callable as default to be called on cache read
-        expensive_calculation.num_runs = 0
+        expensive_calculation.reset()
         Poll.objects.all().delete()
         my_poll = Poll.objects.create(question="Well?")
         assert Poll.objects.count() == 1
@@ -253,37 +254,37 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cached_poll = cache.get("question")
         assert cached_poll.pub_date == pub_date
         # We only want the default expensive calculation run once
-        assert expensive_calculation.num_runs == 1
+        assert expensive_calculation.call_count() == 1
 
     def test_cache_write_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache
         # write
-        expensive_calculation.num_runs = 0
+        expensive_calculation.reset()
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
-        assert expensive_calculation.num_runs == 1
+        assert expensive_calculation.call_count() == 1
         defer_qs = Poll.objects.all().defer("question")
         assert defer_qs.count() == 1
-        assert expensive_calculation.num_runs == 1
+        assert expensive_calculation.call_count() == 1
         cache.set("deferred_queryset", defer_qs)
         # cache set should not re-evaluate default functions
-        assert expensive_calculation.num_runs == 1
+        assert expensive_calculation.call_count() == 1
 
     def test_cache_read_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache read
-        expensive_calculation.num_runs = 0
+        expensive_calculation.reset()
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
-        assert expensive_calculation.num_runs == 1
+        assert expensive_calculation.call_count() == 1
         defer_qs = Poll.objects.all().defer("question")
         assert defer_qs.count() == 1
         cache.set("deferred_queryset", defer_qs)
-        assert expensive_calculation.num_runs == 1
-        runs_before_cache_read = expensive_calculation.num_runs
+        assert expensive_calculation.call_count() == 1
+        runs_before_cache_read = expensive_calculation.call_count()
         cache.get("deferred_queryset")
         # We only want the default expensive calculation run on creation and
         # set
-        assert expensive_calculation.num_runs == runs_before_cache_read
+        assert expensive_calculation.call_count() == runs_before_cache_read
 
     def test_unicode(self):
         # Unicode values can be cached
@@ -1305,7 +1306,7 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         migration_mod = types.ModuleType("0001_add_cache_tables")
         exec(output, migration_mod.__dict__)
         assert hasattr(migration_mod, "Migration")
-        migration = migration_mod.Migration
+        migration = migration_mod.Migration  # type: ignore [attr-defined]
         assert hasattr(migration, "dependencies")
         assert hasattr(migration, "operations")
 

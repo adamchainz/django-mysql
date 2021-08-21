@@ -284,9 +284,22 @@ class JSONModel(Model):
 # For cache tests
 
 
-def expensive_calculation():
-    expensive_calculation.num_runs += 1
-    return timezone.now()
+class ExpensiveCalculation:
+    def __init__(self) -> None:
+        self.num_calls = 0
+
+    def __call__(self) -> datetime:
+        self.num_calls += 1
+        return timezone.now()
+
+    def reset(self) -> None:
+        self.num_calls = 0
+
+    def call_count(self) -> int:
+        return self.num_calls
+
+
+expensive_calculation = ExpensiveCalculation()
 
 
 class Poll(VanillaModel):
