@@ -4,6 +4,7 @@ import zlib
 from random import random
 from textwrap import dedent
 from time import time
+from typing import Any, Callable, Optional, Tuple, Union, cast
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
 from django.db import connections, router
@@ -29,7 +30,7 @@ class Options:
     This allows cache operations to be controlled by the router
     """
 
-    def __init__(self, table):
+    def __init__(self, table: str) -> None:
         self.db_table = table
         self.app_label = "django_mysql"
         self.model_name = "cacheentry"
@@ -43,7 +44,7 @@ class Options:
 
 
 class BaseDatabaseCache(BaseCache):
-    def __init__(self, table, params):
+    def __init__(self, table: str, params) -> None:
         super().__init__(params)
         self._table = table
 
@@ -56,7 +57,7 @@ class BaseDatabaseCache(BaseCache):
 reverse_key_re = re.compile(r"^([^:]*):(\d+):(.*)")
 
 
-def default_reverse_key_func(full_key):
+def default_reverse_key_func(full_key: str) -> Tuple[str, str, int]:
     """
     Reverse of Django's default_key_func, i.e. undoing:
 
@@ -67,7 +68,9 @@ def default_reverse_key_func(full_key):
     return match.group(3), match.group(1), int(match.group(2))
 
 
-def get_reverse_key_func(reverse_key_func):
+def get_reverse_key_func(
+    reverse_key_func: Union[str, Callable[[str], Tuple[str, str, int]]]
+) -> Optional[Callable[[str], Tuple[str, str, int]]]:
     """
     Function to decide which reverse key function to use
 
@@ -79,7 +82,10 @@ def get_reverse_key_func(reverse_key_func):
         if callable(reverse_key_func):
             return reverse_key_func
         else:
-            return import_string(reverse_key_func)
+            return cast(
+                Callable[[str], Tuple[str, str, int]],
+                import_string(reverse_key_func),
+            )
     return None
 
 
@@ -104,11 +110,11 @@ class MySQLCache(BaseDatabaseCache):
     )
 
     @classmethod
-    def _now(cls):
+    def _now(cls) -> int:
         # Values in the expires column are milliseconds since unix epoch (UTC)
         return int(time() * 1000)
 
-    def __init__(self, table, params):
+    def __init__(self, table: str, params) -> None:
         super().__init__(table, params)
         options = params.get("OPTIONS", {})
         self._compress_min_length = options.get("COMPRESS_MIN_LENGTH", 5000)
@@ -130,7 +136,9 @@ class MySQLCache(BaseDatabaseCache):
 
     # Django API + helpers
 
-    def get(self, key, default=None, version=None):
+    def get(
+        self, key: str, default: Optional[Any] = None, version: Optional[int] = None
+    ) -> Any:
         key = self.make_key(key, version=version)
         self.validate_key(key)
         db = router.db_for_read(self.cache_model_class)
