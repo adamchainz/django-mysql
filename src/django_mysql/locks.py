@@ -99,8 +99,8 @@ class Lock:
 class TableLock:
     def __init__(
         self,
-        read: Optional[List[str]] = None,
-        write: Optional[List[str]] = None,
+        read: Optional[List[Union[str, Model]]] = None,
+        write: Optional[List[Union[str, Model]]] = None,
         using: Optional[str] = None,
     ) -> None:
         self.read: List[str] = self._process_names(read)
