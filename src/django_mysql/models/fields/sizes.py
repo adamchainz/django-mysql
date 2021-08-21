@@ -1,7 +1,9 @@
-from typing import Any, List
+from typing import Any, List, cast
 
 from django.core import checks
 from django.db.models import BinaryField, TextField
+
+from django_mysql.typing import DeconstructResult
 
 
 class SizedBinaryField(BinaryField):
@@ -22,8 +24,8 @@ class SizedBinaryField(BinaryField):
             )
         return errors
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.sizes.SizedBinaryField",
@@ -64,8 +66,8 @@ class SizedTextField(TextField):
             )
         return errors
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.sizes.SizedTextField",

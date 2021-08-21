@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.core import checks
 from django.db.models import CharField, IntegerField, TextField
 from django.utils.translation import gettext_lazy as _
@@ -5,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django_mysql.forms import SimpleSetField
 from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
+from django_mysql.typing import DeconstructResult
 from django_mysql.validators import SetMaxLengthValidator
 
 
@@ -64,8 +67,8 @@ class SetFieldMixin:
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.sets." + self.__class__.__name__,

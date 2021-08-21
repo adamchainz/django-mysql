@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, time
+from typing import cast
 
 from django.core import checks
 from django.db.models import (
@@ -16,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
+from django_mysql.typing import DeconstructResult
 from django_mysql.utils import connection_is_mariadb
 
 try:
@@ -216,8 +218,8 @@ class DynamicField(Field):
     def value_to_string(self, obj):
         return json.dumps(self.value_from_object(obj))
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.dynamic.DynamicField",

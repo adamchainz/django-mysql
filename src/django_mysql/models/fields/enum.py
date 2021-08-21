@@ -1,6 +1,10 @@
+from typing import cast
+
 from django.db.models import CharField
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+
+from django_mysql.typing import DeconstructResult
 
 
 class EnumField(CharField):
@@ -34,8 +38,8 @@ class EnumField(CharField):
 
         super().__init__(*args, **kwargs)
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.enum.EnumField",
