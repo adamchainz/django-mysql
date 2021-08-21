@@ -1,5 +1,6 @@
 import pickle
 import re
+from typing import List
 from unittest import mock, skipUnless
 
 import pytest
@@ -467,7 +468,7 @@ class SmartIteratorTests(TestCase):
         assert "non-integer primary key" in str(excinfo.value)
 
     def test_chunks(self):
-        seen = []
+        seen: List[int] = []
         for authors in Author.objects.iter_smart_chunks():
             seen.extend(author.id for author in authors)
 
@@ -527,17 +528,17 @@ class SmartIteratorTests(TestCase):
 
     def test_pk_range_race_condition(self):
         getitem = QuerySet.__getitem__
+        calls = 0
 
         def fail_second_slice(*args, **kwargs):
             # Simulate race condition by deleting all objects between first
             # call (min_qs[0]) and second call (max_qs[0]) to
             # QuerySet.__getitem__
-            fail_second_slice.calls += 1
-            if fail_second_slice.calls == 2:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
                 Author.objects.all().delete()
             return getitem(*args, **kwargs)
-
-        fail_second_slice.calls = 0
 
         path = "django.db.models.query.QuerySet.__getitem__"
 
@@ -626,7 +627,7 @@ class SmartIteratorTests(TestCase):
         assert seen == all_ids
 
     def test_iter_smart_pk_range_with_raw(self):
-        seen = []
+        seen: List[int] = []
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             authors = Author.objects.raw(
                 """
