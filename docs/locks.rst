@@ -37,7 +37,7 @@ The following can be imported from ``django_mysql.locks``.
 
     For more information on user locks refer to the ``GET_LOCK`` documentation
     on `MySQL
-    <https://dev.mysql.com/doc/refman/5.7/en/locking-functions.html#function_get-lock>`__
+    <https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html#function_get-lock>`__
     or `MariaDB <https://mariadb.com/kb/en/mariadb/get_lock/>`__.
 
     .. warning::

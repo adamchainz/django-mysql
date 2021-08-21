@@ -432,7 +432,7 @@ more information on their syntax, refer to the `MySQL documentation
     ``paths`` to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-extract>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract>`__.
 
     Usage examples:
 
@@ -462,7 +462,7 @@ more information on their syntax, refer to the `MySQL documentation
     field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-search-functions.html#function_json-keys>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys>`__.
 
     .. code-block:: pycon
 
@@ -497,7 +497,7 @@ more information on their syntax, refer to the `MySQL documentation
     field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-attribute-functions.html#function_json-length>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-length>`__.
 
     .. code-block:: pycon
 
@@ -522,7 +522,7 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-insert>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-insert>`__.
 
     .. code-block:: pycon
 
@@ -544,7 +544,7 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-replace>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-replace>`__.
 
     .. code-block:: pycon
 
@@ -566,7 +566,7 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-set>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-set>`__.
 
     .. code-block:: pycon
 
@@ -592,7 +592,7 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/5.7/en/json-modification-functions.html#function_json-array-append>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-array-append>`__.
 
     .. code-block:: pycon
 
