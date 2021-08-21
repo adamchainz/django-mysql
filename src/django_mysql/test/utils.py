@@ -1,5 +1,7 @@
 import uuid
 from functools import wraps
+from types import TracebackType
+from typing import Optional, Type, Union
 
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
@@ -18,15 +20,22 @@ class override_mysql_variables:
     are called before and after, respectively, the function/block is executed.
     """
 
-    def __init__(self, using=DEFAULT_DB_ALIAS, **kwargs):
+    def __init__(
+        self, using: str = DEFAULT_DB_ALIAS, **options: Union[str, int]
+    ) -> None:
         self.db = using
-        self.options = kwargs
-        self.prefix = uuid.uuid1().hex.replace("-", "")[:16]
+        self.options = options
+        self.prefix: str = uuid.uuid1().hex.replace("-", "")[:16]
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: Optional[TracebackType],
+    ) -> None:
         self.disable()
 
     def __call__(self, test_func):
@@ -53,8 +62,7 @@ class override_mysql_variables:
             return inner
 
     def wrap_class(self, klass):
-        kwargs = {"using": self.db}
-        kwargs.update(**self.options)
+        kwargs = {"using": self.db, **self.options}
 
         for name in dir(klass):
             if not name.startswith("test_"):
@@ -65,7 +73,7 @@ class override_mysql_variables:
             wrapped = self.__class__(**kwargs)(method)
             setattr(klass, name, wrapped)
 
-    def enable(self):
+    def enable(self) -> None:
         with connections[self.db].cursor() as cursor:
 
             for key, value in self.options.items():
@@ -78,7 +86,7 @@ class override_mysql_variables:
                     (value,),
                 )
 
-    def disable(self):
+    def disable(self) -> None:
         with connections[self.db].cursor() as cursor:
 
             for key in self.options:

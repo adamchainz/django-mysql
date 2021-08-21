@@ -520,7 +520,7 @@ class SmartChunkedIterator:
 
         self.old_report = report
 
-    def end_progress(self):
+    def end_progress(self) -> None:
         if not self.report_progress:
             return
 
@@ -534,7 +534,7 @@ class SmartChunkedIterator:
         )
 
     @cached_property
-    def model_name(self):
+    def model_name(self) -> str:
         return self.queryset.model.__name__
 
 

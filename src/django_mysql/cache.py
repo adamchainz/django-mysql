@@ -382,7 +382,7 @@ class MySQLCache(BaseDatabaseCache):
     """
     )
 
-    def clear(self):
+    def clear(self) -> None:
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
@@ -461,7 +461,7 @@ class MySQLCache(BaseDatabaseCache):
             f"Unknown value_type '{value_type}' read from the cache table."
         )
 
-    def _maybe_cull(self):
+    def _maybe_cull(self) -> None:
         # Roll the dice, if it says yes then cull
         if self._cull_probability and random() <= self._cull_probability:
             self.cull()

@@ -215,7 +215,7 @@ class PTFingerprintThread(Thread):
         self.out_queue = out_queue
         super().__init__(**kwargs)
 
-    def run(self):
+    def run(self) -> None:
         # pty is unix/linux only
         import pty  # noqa
 
@@ -255,7 +255,7 @@ class PTFingerprintThread(Thread):
         self.life_lock.release()
 
 
-def collapse_spaces(string):
+def collapse_spaces(string: str) -> str:
     bits = string.replace("\n", " ").split(" ")
     return " ".join(filter(None, bits))
 

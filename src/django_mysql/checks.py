@@ -4,7 +4,7 @@ from django.core.checks import Tags, Warning, register
 from django_mysql.utils import mysql_connections
 
 
-def register_checks():
+def register_checks() -> None:
     register(Tags.database)(check_variables)
 
 
