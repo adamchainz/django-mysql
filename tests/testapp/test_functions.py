@@ -539,11 +539,8 @@ class JSONFunctionTests(TestCase):
 class RegexpFunctionTests(TestCase):
     def setUp(self):
         super().setUp()
-        have_regex_functions = connection_is_mariadb(
-            connection
-        ) and connection.mysql_version >= (10, 0, 5)
-        if not have_regex_functions:
-            raise SkipTest("MariaDB 10.0.5+ is required")
+        if not connection_is_mariadb(connection):
+            raise SkipTest("MariaDB is required")
 
     def test_regex_instr(self):
         Alphabet.objects.create(d="ABC")

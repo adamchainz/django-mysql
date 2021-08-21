@@ -19,10 +19,8 @@ from tests.testapp.utils import mock_mysql_version
 class DynColTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        if not (
-            connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
-        ):
-            raise SkipTest("Dynamic Columns require MariaDB 10.0.1+")
+        if not (connection_is_mariadb(connection)):
+            raise SkipTest("Dynamic Columns require MariaDB")
         super().setUpClass()
 
 
@@ -296,15 +294,7 @@ class TestCheck(DynColTestCase):
         errors = ValidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E013"
-        assert "MariaDB 10.0.1+ is required" in errors[0].msg
-
-    @mock_mysql_version(default=(5, 5, 3), other=(10, 0, 1))
-    def test_mariadb_one_conn_old_version(self):
-        class ValidDynamicModel3(TemporaryModel):
-            field = DynamicField()
-
-        errors = ValidDynamicModel3.check(actually_check=True)
-        assert len(errors) == 0
+        assert "MariaDB is required" in errors[0].msg
 
     @mock.patch(DynamicField.__module__ + ".mariadb_dyncol", new=None)
     def test_mariadb_dyncol_missing(self):

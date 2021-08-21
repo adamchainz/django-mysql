@@ -27,9 +27,7 @@ class LockTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.supports_lock_info = connection_is_mariadb(
-            connection
-        ) and connection.mysql_version >= (10, 0, 7)
+        cls.supports_lock_info = connection_is_mariadb(connection)
         if cls.supports_lock_info:
             with connection.cursor() as cursor:
                 cursor.execute(

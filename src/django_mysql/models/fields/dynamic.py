@@ -61,20 +61,15 @@ class DynamicField(Field):
         errors = []
 
         any_conn_works = any(
-            (
-                hasattr(conn, "mysql_version")
-                and connection_is_mariadb(conn)
-                and conn.mysql_version >= (10, 0, 1)
-            )
+            (hasattr(conn, "mysql_version") and connection_is_mariadb(conn))
             for _alias, conn in mysql_connections()
         )
 
         if not any_conn_works:
             errors.append(
                 checks.Error(
-                    "MariaDB 10.0.1+ is required to use DynamicField",
-                    hint="At least one of your DB connections should be to "
-                    "MariaDB 10.0.1+",
+                    "MariaDB is required to use DynamicField",
+                    hint="At least one of your DB connections should be MariaDB.",
                     obj=self,
                     id="django_mysql.E013",
                 )
@@ -86,10 +81,8 @@ class DynamicField(Field):
 
         conn = None
         for _alias, check_conn in mysql_connections():
-            if (
-                hasattr(check_conn, "mysql_version")
-                and connection_is_mariadb(check_conn)
-                and check_conn.mysql_version >= (10, 0, 1)
+            if hasattr(check_conn, "mysql_version") and connection_is_mariadb(
+                check_conn
             ):
                 conn = check_conn
                 break

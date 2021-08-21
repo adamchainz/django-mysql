@@ -38,10 +38,7 @@ class PluginOperationTests(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        has_metadata_lock_plugin = connection_is_mariadb(
-            connection
-        ) and connection.mysql_version >= (10, 0, 7)
-        if not has_metadata_lock_plugin:
+        if not connection_is_mariadb(connection):
             raise SkipTest("The metadata_lock_info plugin is required")
 
     def test_install_plugin(self):

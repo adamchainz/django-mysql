@@ -137,9 +137,7 @@ class DynamicModel(Model):
     @classmethod
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
-        if not (
-            connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
-        ):
+        if not (connection_is_mariadb(connection)):
             return []
         return super().check(**kwargs)
 
@@ -153,9 +151,7 @@ class SpeclessDynamicModel(Model):
     @classmethod
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
-        if not (
-            connection_is_mariadb(connection) and connection.mysql_version >= (10, 0, 1)
-        ):
+        if not (connection_is_mariadb(connection)):
             return []
         return super().check(**kwargs)
 
