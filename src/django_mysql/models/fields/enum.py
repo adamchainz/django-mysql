@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, List, Tuple, Union, cast
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
@@ -11,16 +11,21 @@ from django_mysql.typing import DeconstructResult
 class EnumField(CharField):
     description = _("Enumeration")
 
-    def __init__(self, *args, **kwargs):
-        if "choices" not in kwargs or len(kwargs["choices"]) == 0:
+    def __init__(
+        self,
+        *args: Any,
+        choices: Union[List[str], List[Tuple[str, str]]],
+        **kwargs: Any,
+    ) -> None:
+        if len(kwargs["choices"]) == 0:
             raise ValueError('"choices" argument must be be a non-empty list')
 
-        choices = []
+        reformatted_choices: List[Tuple[str, str]] = []
         for choice in kwargs["choices"]:
             if isinstance(choice, tuple):
-                choices.append(choice)
+                reformatted_choices.append(choice)
             elif isinstance(choice, str):
-                choices.append((choice, choice))
+                reformatted_choices.append((choice, choice))
             else:
                 raise TypeError(
                     'Invalid choice "{choice}". '
@@ -29,7 +34,7 @@ class EnumField(CharField):
                     )
                 )
 
-        kwargs["choices"] = choices
+        kwargs["choices"] = reformatted_choices
 
         if "max_length" in kwargs:
             raise TypeError('"max_length" is not a valid argument')
