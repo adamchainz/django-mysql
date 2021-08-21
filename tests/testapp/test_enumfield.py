@@ -14,13 +14,9 @@ class TestEnumField(TestCase):
         with pytest.raises(ValueError):
             EnumField(choices=[])
 
-    def test_no_choices(self):
-        with pytest.raises(ValueError):
-            EnumField()
-
     def test_invalid_choices(self):
         with pytest.raises(TypeError) as exc_info:
-            EnumField(choices=["red", 10])
+            EnumField(choices=["red", 10])  # type: ignore [list-item]
         assert 'Invalid choice "10"' in str(exc_info.value)
 
     def test_invalid_max_length(self):
@@ -112,7 +108,7 @@ class TestDeconstruct(TestCase):
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.EnumField"
         assert "max_length" not in kwargs
-        EnumField(*args, **kwargs)
+        EnumField(*args, **kwargs)  # type: ignore [arg-type]
 
 
 class TestMigrations(TransactionTestCase):

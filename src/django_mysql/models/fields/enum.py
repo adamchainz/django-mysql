@@ -14,7 +14,7 @@ class EnumField(CharField):
     def __init__(
         self,
         *args: Any,
-        choices: Union[List[str], List[Tuple[str, str]]],
+        choices: List[Union[str, Tuple[str, str]]],
         **kwargs: Any,
     ) -> None:
         if len(kwargs["choices"]) == 0:

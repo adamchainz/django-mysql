@@ -26,7 +26,7 @@ class ConnectionIsMariaDBTests(TestCase):
         if django.VERSION >= (3, 0):
             raise SkipTest("Not needed on Django 3.0+")
         super().setUp()
-        _is_mariadb_cache.clear()
+        _is_mariadb_cache.clear()  # type: ignore [attr-defined]
 
     def test_connection_proxy(self):
         connection_is_mariadb(connection)

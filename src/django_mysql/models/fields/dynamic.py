@@ -1,6 +1,6 @@
 import json
 from datetime import date, datetime, time
-from typing import cast
+from typing import Dict, Type, Union, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -260,7 +260,7 @@ class KeyTransform(Transform):
 
     SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
 
-    TYPE_MAP = {
+    TYPE_MAP: Dict[str, Union[Type[Field], Field]] = {
         "BINARY": DynamicField,
         "CHAR": TextField(),
         "DATE": DateField(),

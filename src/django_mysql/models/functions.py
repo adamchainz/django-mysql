@@ -1,4 +1,5 @@
 import json
+from typing import Dict, Type, Union
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import CharField
@@ -391,7 +392,7 @@ class ColumnGet(Func):
         )
 
     @property
-    def TYPE_MAP(self):
+    def TYPE_MAP(self) -> Dict[str, Union[DjangoField, Type[DjangoField]]]:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         return KeyTransform.TYPE_MAP

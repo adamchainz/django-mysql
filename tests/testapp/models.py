@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, time
+from typing import Any
 
 from django.db import connection
 from django.db.models import (
@@ -262,12 +263,12 @@ class SizeFieldModel(Model):
 
 
 class Bit1Model(Model):
-    flag_a = Bit1BooleanField(default=True)
-    flag_b = Bit1BooleanField(default=False)
+    flag_a: Any = Bit1BooleanField(default=True)
+    flag_b: Any = Bit1BooleanField(default=False)
 
 
 class NullBit1Model(Model):
-    flag = NullBit1BooleanField()
+    flag: Any = NullBit1BooleanField()
 
 
 class JSONModel(Model):
