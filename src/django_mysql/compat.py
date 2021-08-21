@@ -23,5 +23,5 @@ else:
         from django_jsonfield_backport.models import JSONField  # noqa: F401
 
         HAVE_JSONFIELD = True
-    except ImportError:
+    except ImportError:  # pragma: no cover
         HAVE_JSONFIELD = False

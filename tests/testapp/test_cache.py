@@ -1086,7 +1086,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.keys_with_prefix("") == set()
         assert cache.keys_with_prefix("K") == set()
 
-        cache.set("A2", True)
+        cache.set("A1", True)
+        cache.set("A2")
         cache.set("K1", True)
         cache.set("K23", True, 1000)
         cache.set("K99", True, 0.1)
@@ -1096,6 +1097,15 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
         cache.delete("K1")
         assert cache.keys_with_prefix("K") == {"K23"}
+
+        cache.set("Y3", True, version=1)
+        cache.set("Y4", True, version=2)
+        assert cache.keys_with_prefix("Y", version=1) == {
+            "Y3",
+        }
+        assert cache.keys_with_prefix("Y", version=2) == {
+            "Y4",
+        }
 
         cache.clear()
         assert cache.keys_with_prefix("") == set()

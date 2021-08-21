@@ -41,35 +41,37 @@ class PluginOperationTests(TransactionTestCase):
         if not connection_is_mariadb(connection):
             raise SkipTest("The metadata_lock_info plugin is required")
 
-    def test_install_plugin(self):
-        """
-        Test we can load the example plugin that every version of MySQL ships
-        with.
-        """
-        assert not plugin_exists("metadata_lock_info")
-
-        state = ProjectState()
+    def test_install_plugin_describe(self):
         operation = InstallPlugin("metadata_lock_info", "metadata_lock_info.so")
         assert (
             operation.describe()
             == "Installs plugin metadata_lock_info from metadata_lock_info.so"
         )
-        new_state = state.clone()
-        with connection.schema_editor() as editor:
-            operation.database_forwards("testapp", editor, state, new_state)
 
-        assert plugin_exists("metadata_lock_info")
-
-        new_state = state.clone()
-        with connection.schema_editor() as editor:
-            operation.database_backwards("testapp", editor, new_state, state)
+    def test_install_plugin(self):
+        operation = InstallPlugin("metadata_lock_info", "metadata_lock_info.so")
+        state = ProjectState()
+        state2 = state.clone()
 
         assert not plugin_exists("metadata_lock_info")
 
+        with connection.schema_editor() as editor:
+            operation.database_forwards("testapp", editor, state, state2)
+        assert plugin_exists("metadata_lock_info")
+
+        with connection.schema_editor() as editor:
+            operation.database_forwards("testapp", editor, state, state2)
+        assert plugin_exists("metadata_lock_info")
+
+        with connection.schema_editor() as editor:
+            operation.database_backwards("testapp", editor, state2, state)
+        assert not plugin_exists("metadata_lock_info")
+
+        with connection.schema_editor() as editor:
+            operation.database_backwards("testapp", editor, state2, state)
+        assert not plugin_exists("metadata_lock_info")
+
     def test_install_soname(self):
-        """
-        Test we can load the 'metadata_lock_info' library.
-        """
         assert not plugin_exists("metadata_lock_info")
 
         state = ProjectState()
