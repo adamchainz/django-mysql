@@ -39,7 +39,14 @@ DATABASE_ROUTERS = ["tests.testapp.routers.NothingOnSQLiteRouter"]
 
 ALLOWED_HOSTS = []
 
-INSTALLED_APPS = ["django.contrib.contenttypes", "django_mysql", "tests.testapp"]
+INSTALLED_APPS = [
+    "tests.testapp",
+    "django_mysql",
+    "django.contrib.contenttypes",
+]
+
+if django.VERSION < (3, 1):
+    INSTALLED_APPS.append("django_jsonfield_backport")
 
 ROOT_URLCONF = "tests.urls"
 TIME_ZONE = "UTC"

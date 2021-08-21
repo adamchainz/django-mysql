@@ -16,6 +16,14 @@ History
   ``Round`` database functions as they exist in Django core now. Swap to
   importing them from ``django.db.models.functions``.
 
+* Drop ``JSONField`` model and form fields. Django 3.1 provides a ``JSONField``
+  implementation that works with all database backends, use that instead. If
+  you are on an earlier version of Django, use
+  `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__.
+
+* Make JSON database functions work with Django’s ``JSONField``, and the
+  backport. They remain MySQL only.
+
 3.12.0 (2021-06-11)
 -------------------
 
@@ -51,8 +59,8 @@ History
   ``Round`` database functions as they exist in Django core now. Using the
   Django-MySQL versions now triggers a ``DeprecationWarning``.
 * Deprecate ``JSONField``. Django 3.1 provides a ``JSONField`` implementation
-* that works with all database backends, use that instead. If you are on an
-* earlier version of Django, use
+  that works with all database backends, use that instead. If you are on an
+  earlier version of Django, use
   `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__.
 
 3.9.0 (2020-10-11)

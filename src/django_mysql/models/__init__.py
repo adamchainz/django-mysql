@@ -17,7 +17,6 @@ from django_mysql.models.fields import (  # noqa
     Bit1BooleanField,
     DynamicField,
     EnumField,
-    JSONField,
     ListCharField,
     ListTextField,
     NullBit1BooleanField,

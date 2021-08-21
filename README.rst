@@ -47,7 +47,6 @@ Includes:
 
 * Model fields:
 
-  * MySQL JSON Field
   * MariaDB Dynamic Columns for storing dictionaries
   * Comma-separated fields for storing lists and sets
   * 'Missing' fields: differently sized ``BinaryField``/``TextField`` classes,
