@@ -21,6 +21,8 @@ History
   you are on an earlier version of Django, use
   `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__.
 
+* Make JSON database functions work with Django’s ``JSONField``, and the
+  backport. They remain MySQL only.
 
 3.12.0 (2021-06-11)
 -------------------
