@@ -1,4 +1,8 @@
-from django.db.models import Aggregate, CharField
+from typing import Any, Optional, Tuple, Union
+
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.models import Aggregate, CharField, Expression
+from django.db.models.sql.compiler import SQLCompiler
 
 
 class BitAnd(Aggregate):
@@ -20,8 +24,13 @@ class GroupConcat(Aggregate):
     function = "GROUP_CONCAT"
 
     def __init__(
-        self, expression, distinct=False, separator=None, ordering=None, **extra
-    ):
+        self,
+        expression: Expression,
+        distinct: bool = False,
+        separator: Optional[str] = None,
+        ordering: Optional[str] = None,
+        **extra: Any,
+    ) -> None:
 
         if "output_field" not in extra:
             # This can/will be improved to SetTextField or ListTextField
@@ -36,7 +45,12 @@ class GroupConcat(Aggregate):
             raise ValueError("'ordering' must be one of 'asc', 'desc', or None")
         self.ordering = ordering
 
-    def as_sql(self, compiler, connection, function=None, template=None):
+    def as_sql(
+        self,
+        compiler: SQLCompiler,
+        connection: BaseDatabaseWrapper,
+        **extra_context: Any,
+    ) -> Tuple[str, Tuple[Union[Any], ...]]:
         connection.ops.check_expression_support(self)
         sql = ["GROUP_CONCAT("]
         if self.distinct:
