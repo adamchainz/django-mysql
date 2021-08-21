@@ -135,7 +135,7 @@ def settings_to_cmd_args(settings_dict):
         args += ["--user=%s" % user]
     if passwd:
         args += ["--password=%s" % passwd]
-    if host:
+    if host:  # pragma: no branch
         if "/" in host:
             args += ["--socket=%s" % host]
         else:
