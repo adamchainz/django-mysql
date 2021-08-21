@@ -5,6 +5,8 @@ from django.db.models import CharField
 from django.db.models import Field as DjangoField
 from django.db.models import Func, IntegerField, TextField, Value
 
+from django_mysql.compat import HAVE_JSONFIELD, JSONField
+
 
 class SingleArgFunc(Func):
 
@@ -179,107 +181,94 @@ class LastInsertId(Func):
 
 # JSON Functions
 
+if HAVE_JSONFIELD:
 
-class JSONExtract(Func):
-    function = "JSON_EXTRACT"
+    class JSONExtract(Func):
+        function = "JSON_EXTRACT"
 
-    def __init__(self, expression, *paths, output_field=None):
-        from django_mysql.models.fields import JSONField
+        def __init__(self, expression, *paths, output_field=None):
+            exprs = [expression]
+            for path in paths:
+                if not hasattr(path, "resolve_expression"):
+                    path = Value(path)
+                exprs.append(path)
 
-        exprs = [expression]
-        for path in paths:
-            if not hasattr(path, "resolve_expression"):
-                path = Value(path)
-            exprs.append(path)
+            if output_field is not None:
+                if len(paths) > 1:
+                    raise TypeError(
+                        "output_field won't work with more than one path, as a "
+                        "JSON Array will be returned"
+                    )
+            else:
+                output_field = JSONField()
 
-        if output_field is not None:
-            if len(paths) > 1:
-                raise TypeError(
-                    "output_field won't work with more than one path, as a "
-                    "JSON Array will be returned"
-                )
-        else:
-            output_field = JSONField()
+            super().__init__(*exprs, output_field=output_field)
 
-        super().__init__(*exprs, output_field=output_field)
+    class JSONKeys(Func):
+        function = "JSON_KEYS"
 
+        def __init__(self, expression, path=None):
+            exprs = [expression]
+            if path is not None:
+                if not hasattr(path, "resolve_expression"):
+                    path = Value(path)
+                exprs.append(path)
 
-class JSONKeys(Func):
-    function = "JSON_KEYS"
+            super().__init__(*exprs, output_field=JSONField())
 
-    def __init__(self, expression, path=None):
-        from django_mysql.models.fields import JSONField
+    class JSONLength(Func):
+        function = "JSON_LENGTH"
 
-        exprs = [expression]
-        if path is not None:
-            if not hasattr(path, "resolve_expression"):
-                path = Value(path)
-            exprs.append(path)
+        def __init__(self, expression, path=None, **extra):
+            output_field = extra.pop("output_field", IntegerField())
 
-        super().__init__(*exprs, output_field=JSONField())
+            exprs = [expression]
+            if path is not None:
+                if not hasattr(path, "resolve_expression"):
+                    path = Value(path)
+                exprs.append(path)
 
+            super().__init__(*exprs, output_field=output_field)
 
-class JSONLength(Func):
-    function = "JSON_LENGTH"
+    class JSONValue(Func):
+        function = "CAST"
+        template = "%(function)s(%(expressions)s AS JSON)"
 
-    def __init__(self, expression, path=None, **extra):
-        output_field = extra.pop("output_field", IntegerField())
+        def __init__(self, expression):
+            json_string = json.dumps(expression, allow_nan=False)
+            super().__init__(Value(json_string))
 
-        exprs = [expression]
-        if path is not None:
-            if not hasattr(path, "resolve_expression"):
-                path = Value(path)
-            exprs.append(path)
+    class BaseJSONModifyFunc(Func):
+        def __init__(self, expression, data):
+            if not data:
+                raise ValueError('"data" cannot be empty')
 
-        super().__init__(*exprs, output_field=output_field)
+            exprs = [expression]
 
+            for path, value in data.items():
+                if not hasattr(path, "resolve_expression"):
+                    path = Value(path)
 
-class JSONValue(Func):
-    function = "CAST"
-    template = "%(function)s(%(expressions)s AS JSON)"
+                exprs.append(path)
 
-    def __init__(self, expression):
-        json_string = json.dumps(expression, allow_nan=False)
-        super().__init__(Value(json_string))
+                if not hasattr(value, "resolve_expression"):
+                    value = JSONValue(value)
 
+                exprs.append(value)
 
-class BaseJSONModifyFunc(Func):
-    def __init__(self, expression, data):
-        from django_mysql.models.fields import JSONField
+            super().__init__(*exprs, output_field=JSONField())
 
-        if not data:
-            raise ValueError('"data" cannot be empty')
+    class JSONInsert(BaseJSONModifyFunc):
+        function = "JSON_INSERT"
 
-        exprs = [expression]
+    class JSONReplace(BaseJSONModifyFunc):
+        function = "JSON_REPLACE"
 
-        for path, value in data.items():
-            if not hasattr(path, "resolve_expression"):
-                path = Value(path)
+    class JSONSet(BaseJSONModifyFunc):
+        function = "JSON_SET"
 
-            exprs.append(path)
-
-            if not hasattr(value, "resolve_expression"):
-                value = JSONValue(value)
-
-            exprs.append(value)
-
-        super().__init__(*exprs, output_field=JSONField())
-
-
-class JSONInsert(BaseJSONModifyFunc):
-    function = "JSON_INSERT"
-
-
-class JSONReplace(BaseJSONModifyFunc):
-    function = "JSON_REPLACE"
-
-
-class JSONSet(BaseJSONModifyFunc):
-    function = "JSON_SET"
-
-
-class JSONArrayAppend(BaseJSONModifyFunc):
-    function = "JSON_ARRAY_APPEND"
+    class JSONArrayAppend(BaseJSONModifyFunc):
+        function = "JSON_ARRAY_APPEND"
 
 
 # MariaDB Regexp Functions

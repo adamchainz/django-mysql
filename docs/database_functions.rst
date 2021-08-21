@@ -402,13 +402,14 @@ Information Functions
 JSON Database Functions
 -----------------------
 
-These are for MySQL only, for use with JSON data stored in a
-``CharField``, ``TextField``, or most importantly, a
-:class:`~django_mysql.models.JSONField` (with which the functions are much
-faster due to the JSON being stored in a binary representation).
+These functions work with data stored in Django’s ``JSONField``. This is built in to Django 3.1+
+and can be installed on older Django versions with the
+`django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__
+package.
 
 These functions use JSON paths to address content inside JSON documents - for
-more information on their syntax, refer to the MySQL documentation.
+more information on their syntax, refer to the `MySQL documentation
+<https://dev.mysql.com/doc/refman/8.0/en/json.html#json-path-syntax>`__.
 
 
 .. class:: JSONExtract(expression, *paths, output_field=None)

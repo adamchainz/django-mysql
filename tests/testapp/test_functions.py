@@ -38,7 +38,6 @@ from django_mysql.models.functions import (
 from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
-from tests.testapp.test_jsonfield import JSONFieldTestCase
 
 
 class ControlFlowFunctionTests(TestCase):
@@ -312,7 +311,7 @@ class InformationFunctionTests(TestCase):
         assert ab.b == 717612
 
 
-class JSONFunctionTests(JSONFieldTestCase):
+class JSONFunctionTests(TestCase):
     def setUp(self):
         super().setUp()
         self.obj = JSONModel.objects.create(

@@ -1,5 +1,6 @@
 coverage
 django
+django-jsonfield-backport
 mariadb-dyncol
 mysqlclient
 parameterized

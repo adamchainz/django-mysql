@@ -15,11 +15,11 @@ from django.db.models import Model as VanillaModel
 from django.db.models import OneToOneField, TextField
 from django.utils import timezone
 
+from django_mysql.compat import JSONField
 from django_mysql.models import (
     Bit1BooleanField,
     DynamicField,
     EnumField,
-    JSONField,
     ListCharField,
     ListTextField,
     Model,

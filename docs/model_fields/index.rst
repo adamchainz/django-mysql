@@ -13,7 +13,6 @@ to the home of Django's native fields in ``django.db.models``.
 .. toctree::
    :maxdepth: 1
 
-   json_field
    dynamic_field
    list_fields
    set_fields
