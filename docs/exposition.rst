@@ -107,22 +107,6 @@ For interactive debugging of queries, this captures the query that the
 :ref:`Read more <pt-visual-explain>`
 
 
-MySQL ``HANDLER`` API
----------------------
-
-MySQL's ``HANDLER`` commands give simple NoSQL-style read access to rows faster
-than normal SQL queries, with the ability to perform index lookups or
-page-by-page scans. This extension adds an ORM-based API for handlers:
-
-.. code-block:: python
-
-    with Author.objects.handler() as handler:
-        for author in handler.iter(chunk_size=1000):
-            author.send_apology_email()
-
-:ref:`Read more <handler>`
-
-
 ------------
 Model Fields
 ------------

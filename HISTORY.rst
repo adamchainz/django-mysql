@@ -24,6 +24,9 @@ History
 * Make JSON database functions work with Django’s ``JSONField``, and the
   backport. They remain MySQL only.
 
+* Drop HANDLER functionality. This was not particularly robustly implemented
+  and is somewhat dangerous to use due to its potential for dirty reads.
+
 3.12.0 (2021-06-11)
 -------------------
 

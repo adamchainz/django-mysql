@@ -14,7 +14,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
 from django_mysql.compat import nullcontext
-from django_mysql.models.handler import Handler
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
@@ -243,9 +242,6 @@ class QuerySetMixin:
 
     def pt_visual_explain(self, display=True):
         return pt_visual_explain(self, display)
-
-    def handler(self):
-        return Handler(self)
 
 
 class QuerySet(QuerySetMixin, models.QuerySet):
