@@ -402,8 +402,9 @@ Information Functions
 JSON Database Functions
 -----------------------
 
-These functions work with data stored in Django’s ``JSONField``. This is built in to Django 3.1+
-and can be installed on older Django versions with the
+These functions work with data stored in Django’s ``JSONField`` on MYSQL only.
+``JSONField`` is built in to Django 3.1+ and can be installed on older Django
+versions with the
 `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__
 package.
 

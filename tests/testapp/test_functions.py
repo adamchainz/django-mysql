@@ -312,6 +312,12 @@ class InformationFunctionTests(TestCase):
 
 
 class JSONFunctionTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if connection_is_mariadb(connection):
+            raise SkipTest("JSONField requires MySQL")
+        super().setUpClass()
+
     def setUp(self):
         super().setUp()
         self.obj = JSONModel.objects.create(
