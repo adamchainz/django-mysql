@@ -143,7 +143,7 @@ class DynamicModel(Model):
             return []
         return super().check(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
 
 
@@ -159,7 +159,7 @@ class SpeclessDynamicModel(Model):
             return []
         return super().check(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
 
 
@@ -170,7 +170,7 @@ class Author(Model):
     birthday = DateTimeField(null=True)
     deathday = DateTimeField(null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return f"{self.id} {self.name}"
 
 
@@ -182,7 +182,7 @@ class Book(Model):
 class VanillaAuthor(VanillaModel):
     name = CharField(max_length=32)
 
-    def __unicode__(self):
+    def __str__(self):
         return f"{self.id} {self.name}"
 
 
@@ -194,7 +194,7 @@ class AuthorExtra(Model):
 class NameAuthor(Model):
     name = CharField(max_length=32, primary_key=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return f"{self.id} {self.name}"
 
 
@@ -209,7 +209,7 @@ class AuthorMultiIndex(Model):
     name = CharField(max_length=32, db_index=True)
     country = CharField(max_length=32)
 
-    def __unicode__(self):
+    def __str__(self):
         return f"{self.id} {self.name} in {self.country}"
 
 
@@ -281,7 +281,7 @@ class JSONModel(Model):
 
     name = CharField(max_length=3)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(json.dumps(self.attrs))
 
 
