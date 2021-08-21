@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from unittest import mock
 
 import django
 import pytest
@@ -87,13 +86,3 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
 def fetchall_dicts(cursor):
     columns = [x[0] for x in cursor.description]
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-
-@contextmanager
-def mock_mysql_version(*, default, other):
-    mock_default = mock.patch.object(
-        connections["default"], "mysql_version", new=default
-    )
-    mock_other = mock.patch.object(connections["other"], "mysql_version", new=other)
-    with mock_default, mock_other:
-        yield
