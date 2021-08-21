@@ -1,8 +1,9 @@
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import BooleanField, NullBooleanField
 
 
 class Bit1Mixin:
-    def db_type(self, connection):
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         return "bit(1)"
 
     def from_db_value(self, value, expression, connection):

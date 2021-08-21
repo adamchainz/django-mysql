@@ -1,5 +1,6 @@
 from typing import cast
 
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
@@ -53,7 +54,7 @@ class EnumField(CharField):
 
         return name, path, args, kwargs
 
-    def db_type(self, connection):
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         connection.ensure_connection()
         values = [connection.connection.escape_string(c) for c, _ in self.flatchoices]
         # Use force_str because MySQLdb escape_string() returns bytes, but

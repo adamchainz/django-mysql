@@ -3,6 +3,7 @@ from datetime import date, datetime, time
 from typing import cast
 
 from django.core import checks
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -155,7 +156,7 @@ class DynamicField(Field):
 
         return errors
 
-    def db_type(self, connection):
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         return "mediumblob"
 
     def get_transform(self, name):

@@ -1,6 +1,7 @@
 from typing import Any, List, cast
 
 from django.core import checks
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import BinaryField, TextField
 
 from django_mysql.typing import DeconstructResult
@@ -37,7 +38,7 @@ class SizedBinaryField(BinaryField):
         kwargs["size_class"] = self.size_class
         return name, path, args, kwargs
 
-    def db_type(self, connection) -> str:
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         if self.size_class == 1:
             return "tinyblob"
         elif self.size_class == 2:
@@ -79,7 +80,7 @@ class SizedTextField(TextField):
         kwargs["size_class"] = self.size_class
         return name, path, args, kwargs
 
-    def db_type(self, connection) -> str:
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         if self.size_class == 1:
             return "tinytext"
         elif self.size_class == 2:
