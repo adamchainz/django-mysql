@@ -8,6 +8,7 @@ import operator
 import re
 from collections import OrderedDict
 from functools import reduce
+from typing import List, Tuple
 
 # The rewrite comments contain a single quote mark that would need be escaped
 # if entered in a column name or something like that. We aren't too worried
@@ -37,10 +38,10 @@ index_rule_re = re.compile(
 )
 
 
-def rewrite_query(sql):
-    comments = []
-    hints = []
-    index_hints = []
+def rewrite_query(sql: str) -> str:
+    comments: List[str] = []
+    hints: List[str] = []
+    index_hints: List[Tuple[str, str, str, str]] = []
     for match in query_rewrite_re.findall(sql):
         if match in SELECT_HINT_TOKENS:
             hints.append(match)
@@ -114,7 +115,12 @@ query_start_re = re.compile(
 )
 
 
-def modify_sql(sql, add_comments, add_hints, add_index_hints):
+def modify_sql(
+    sql: str,
+    add_comments: List[str],
+    add_hints: List[str],
+    add_index_hints: List[Tuple[str, str, str, str]],
+) -> str:
     """
     Parse the start of the SQL, injecting each string in add_comments in
     individual SQL comments after the first keyword, and adding the named
@@ -176,7 +182,13 @@ replacement_template = (
 )
 
 
-def modify_sql_index_hints(sql, table_name, rule, index_names, for_what):
+def modify_sql_index_hints(
+    sql: str,
+    table_name: str,
+    rule: str,
+    index_names: str,
+    for_what: str,
+) -> str:
     table_spec_re = table_spec_re_template.format(table_name=table_name)
     if for_what:
         for_section = f"FOR {for_what} "
