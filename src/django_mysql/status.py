@@ -1,6 +1,8 @@
 import time
+from typing import Dict, Iterable, Optional, Union
 
 from django.db import connections
+from django.db.backends.utils import CursorWrapper
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils.functional import SimpleLazyObject
 
@@ -14,16 +16,16 @@ class BaseStatus:
 
     query = ""
 
-    def __init__(self, using=None):
+    def __init__(self, using: Optional[str] = None) -> None:
         if using is None:
             self.db = DEFAULT_DB_ALIAS
         else:
             self.db = using
 
-    def get_cursor(self):
+    def get_cursor(self) -> CursorWrapper:
         return connections[self.db].cursor()
 
-    def get(self, name):
+    def get(self, name: str) -> Union[int, float, bool, str]:
         if "%" in name:
             raise ValueError(
                 "get() is for fetching single variables, " "no % wildcards"
@@ -34,7 +36,7 @@ class BaseStatus:
                 raise KeyError(f"No such status variable '{name}'")
             return self._cast(cursor.fetchone()[1])
 
-    def get_many(self, names):
+    def get_many(self, names: Iterable[str]) -> Dict[str, Union[int, float, bool, str]]:
         if not names:
             return {}
 
@@ -57,7 +59,9 @@ class BaseStatus:
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
-    def as_dict(self, prefix=None):
+    def as_dict(
+        self, prefix: Optional[str] = None
+    ) -> Dict[str, Union[int, float, bool, str]]:
         with self.get_cursor() as cursor:
             if prefix is None:
                 cursor.execute(self.query)
@@ -66,14 +70,14 @@ class BaseStatus:
             rows = cursor.fetchall()
             return {name: self._cast(value) for name, value in rows}
 
-    def _cast(self, value):
+    def _cast(self, value: str) -> Union[int, float, bool, str]:
         # Many status variables are integers or floats but SHOW GLOBAL STATUS
         # returns them as strings
         try:
-            value = int(value)
+            return int(value)
         except ValueError:
             try:
-                value = float(value)
+                return float(value)
             except ValueError:
                 pass
 
@@ -88,7 +92,12 @@ class BaseStatus:
 class GlobalStatus(BaseStatus):
     query = "SHOW GLOBAL STATUS"
 
-    def wait_until_load_low(self, thresholds=None, timeout=60.0, sleep=0.1):
+    def wait_until_load_low(
+        self,
+        thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        timeout: float = 60.0,
+        sleep: float = 0.1,
+    ) -> None:
         if thresholds is None:
             thresholds = {"Threads_running": 10}
 
@@ -97,8 +106,12 @@ class GlobalStatus(BaseStatus):
 
         while True:
             current = self.get_many(names)
+            higher = []
+            for name, value in current.items():
+                assert isinstance(value, (int, float))
+                if value > thresholds[name]:
+                    higher.append(name)
 
-            higher = [name for name in names if current[name] > thresholds[name]]
             if not higher:
                 return
 
