@@ -13,7 +13,6 @@ from django.test import TestCase
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
-from tests.testapp.utils import mock_mysql_version
 
 
 class DynColTestCase(TestCase):
@@ -280,18 +279,6 @@ class TestCheck(DynColTestCase):
             field = DynamicField()
 
         errors = ValidDynamicModel1.check(actually_check=True)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.E013"
-        assert "MariaDB 10.0.1+ is required" in errors[0].msg
-
-    wrapper_path = "django.db.backends.mysql.base.DatabaseWrapper"
-
-    @mock_mysql_version(default=(5, 5, 3), other=(5, 5, 3))
-    def test_mariadb_old_version(self):
-        class ValidDynamicModel2(TemporaryModel):
-            field = DynamicField()
-
-        errors = ValidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E013"
         assert "MariaDB is required" in errors[0].msg
