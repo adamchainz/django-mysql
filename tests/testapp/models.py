@@ -1,7 +1,6 @@
 import json
 from datetime import date, datetime, time
 
-import django
 from django.db import connection
 from django.db.models import (
     CASCADE,
@@ -275,22 +274,10 @@ class NullBit1Model(Model):
     flag = NullBit1BooleanField()
 
 
-if django.VERSION >= (3, 1):
-    with connection._nodb_cursor() as cursor:
-        supports_json_field = not cursor.db.mysql_is_mariadb
-else:
-    nodb_conn = connection._nodb_connection
-    try:
-        supports_json_field = not connection_is_mariadb(nodb_conn)
-    finally:
-        nodb_conn.close()
-
-
 class JSONModel(Model):
     # Something really weird and funky - change the fields on this model at
     # import time 😱
-    if supports_json_field:
-        attrs = JSONField(null=True)
+    attrs = JSONField(null=True)
 
     name = CharField(max_length=3)
 
