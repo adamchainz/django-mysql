@@ -55,7 +55,6 @@ Includes:
 * ORM expressions for over 20 MySQL-specific functions
 * A new cache backend that makes use of MySQL's upsert statement and does
   compression
-* Handler API for quicker-than-SQL reads using the 'NoSQL' HANDLER commands
 * Status variable inspection and utility methods
 * Named locks for easy locking of e.g. external resources
 * Table lock manager for hard to pull off data migrations
