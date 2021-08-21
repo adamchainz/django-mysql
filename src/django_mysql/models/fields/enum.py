@@ -17,11 +17,11 @@ class EnumField(CharField):
         choices: List[Union[str, Tuple[str, str]]],
         **kwargs: Any,
     ) -> None:
-        if len(kwargs["choices"]) == 0:
+        if len(choices) == 0:
             raise ValueError('"choices" argument must be be a non-empty list')
 
         reformatted_choices: List[Tuple[str, str]] = []
-        for choice in kwargs["choices"]:
+        for choice in choices:
             if isinstance(choice, tuple):
                 reformatted_choices.append(choice)
             elif isinstance(choice, str):
@@ -34,15 +34,13 @@ class EnumField(CharField):
                     )
                 )
 
-        kwargs["choices"] = reformatted_choices
-
         if "max_length" in kwargs:
             raise TypeError('"max_length" is not a valid argument')
         # Massive to avoid problems with validation - let MySQL handle the
         # maximum string length
         kwargs["max_length"] = int(2 ** 32)
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, choices=reformatted_choices, **kwargs)
 
     def deconstruct(self) -> DeconstructResult:
         name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
