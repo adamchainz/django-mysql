@@ -1086,8 +1086,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.keys_with_prefix("") == set()
         assert cache.keys_with_prefix("K") == set()
 
-        cache.set("A1", True)
-        cache.set("A2")
+        cache.set("A2", True)
         cache.set("K1", True)
         cache.set("K23", True, 1000)
         cache.set("K99", True, 0.1)
