@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Tuple
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Aggregate, CharField, Expression
@@ -50,7 +50,7 @@ class GroupConcat(Aggregate):
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
         **extra_context: Any,
-    ) -> Tuple[str, Tuple[Union[Any], ...]]:
+    ) -> Tuple[str, Tuple[Any, ...]]:
         connection.ops.check_expression_support(self)
         sql = ["GROUP_CONCAT("]
         if self.distinct:
