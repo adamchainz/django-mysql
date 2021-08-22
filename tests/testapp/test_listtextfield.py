@@ -264,19 +264,19 @@ class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = ListTextField(models.IntegerField(), max_length=32)
         name, path, args, kwargs = field.deconstruct()
-        new = ListTextField(*args, **kwargs)
+        new = ListTextField(*args, **kwargs)  # type: ignore [arg-type]
         assert new.base_field.__class__ == field.base_field.__class__
 
     def test_deconstruct_with_size(self):
         field = ListTextField(models.IntegerField(), size=3, max_length=32)
         name, path, args, kwargs = field.deconstruct()
-        new = ListTextField(*args, **kwargs)
+        new = ListTextField(*args, **kwargs)  # type: ignore [arg-type]
         assert new.size == field.size
 
     def test_deconstruct_args(self):
         field = ListTextField(models.CharField(max_length=5), max_length=32)
         name, path, args, kwargs = field.deconstruct()
-        new = ListTextField(*args, **kwargs)
+        new = ListTextField(*args, **kwargs)  # type: ignore [arg-type]
         assert new.base_field.max_length == field.base_field.max_length
 
     def test_bad_import_deconstruct(self):

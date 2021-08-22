@@ -1,7 +1,10 @@
-from typing import cast
+from typing import Any, Callable, Iterable, List, Optional, Tuple, Type, Union, cast
 
 from django.core import checks
-from django.db.models import CharField, IntegerField, Lookup, TextField
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.models import CharField, Field, IntegerField, Lookup, Model, TextField
+from django.db.models.expressions import BaseExpression
+from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleListField
@@ -11,8 +14,10 @@ from django_mysql.typing import DeconstructResult
 from django_mysql.validators import ListMaxLengthValidator
 
 
-class ListFieldMixin:
-    def __init__(self, base_field, size=None, **kwargs):
+class ListFieldMixin(Field):
+    def __init__(
+        self, base_field: Field, size: Optional[int] = None, **kwargs: Any
+    ) -> None:
         self.base_field = base_field
         self.size = size
 
@@ -21,14 +26,14 @@ class ListFieldMixin:
         if self.size:
             self.validators.append(ListMaxLengthValidator(int(self.size)))
 
-    def get_default(self):
+    def get_default(self) -> Any:
         default = super().get_default()
         if default == "":
             return []
         else:
             return default
 
-    def check(self, **kwargs):
+    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
@@ -58,17 +63,18 @@ class ListFieldMixin:
         return errors
 
     @property
-    def description(self):
+    def description(self) -> Any:
         return _("List of %(base_description)s") % {
             "base_description": self.base_field.description
         }
 
-    def set_attributes_from_name(self, name):
+    def set_attributes_from_name(self, name: str) -> None:
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     def deconstruct(self) -> DeconstructResult:
         name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
+        args = list(args)
 
         bad_paths = (
             "django_mysql.models.fields.lists." + self.__class__.__name__,
@@ -81,7 +87,7 @@ class ListFieldMixin:
         kwargs["size"] = self.size
         return name, path, args, kwargs
 
-    def to_python(self, value):
+    def to_python(self, value: Any) -> Any:
         if isinstance(value, str):
             if not len(value):
                 value = []
@@ -89,7 +95,9 @@ class ListFieldMixin:
                 value = [self.base_field.to_python(v) for v in value.split(",")]
         return value
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(
+        self, value: Any, expression: BaseExpression, connection: BaseDatabaseWrapper
+    ) -> Any:
         if isinstance(value, str):
             if not len(value):
                 value = []
@@ -97,7 +105,7 @@ class ListFieldMixin:
                 value = [self.base_field.to_python(v) for v in value.split(",")]
         return value
 
-    def get_prep_value(self, value):
+    def get_prep_value(self, value: Any) -> Any:
         if isinstance(value, list):
             value = [str(self.base_field.get_prep_value(v)) for v in value]
             for v in value:
@@ -116,7 +124,9 @@ class ListFieldMixin:
             return ",".join(value)
         return value
 
-    def get_lookup(self, lookup_name):
+    def get_lookup(
+        self, lookup_name: str
+    ) -> Union[Type[Lookup], Callable[..., Lookup]]:
         lookup = super().get_lookup(lookup_name)
         if lookup:
             return lookup
@@ -131,11 +141,11 @@ class ListFieldMixin:
 
         return lookup
 
-    def value_to_string(self, obj):
+    def value_to_string(self, obj: Any) -> str:
         vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs: Any) -> FormField:
         defaults = {
             "form_class": SimpleListField,
             "base_field": self.base_field.formfield(),
@@ -144,7 +154,7 @@ class ListFieldMixin:
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls, name, **kwargs):
+    def contribute_to_class(self, cls: Type[Model], name: str, **kwargs: Any) -> None:
         super().contribute_to_class(cls, name, **kwargs)
         self.base_field.model = cls
 
@@ -154,7 +164,7 @@ class ListCharField(ListFieldMixin, CharField):
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
 
-    def check(self, **kwargs):
+    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
@@ -204,11 +214,13 @@ ListTextField.register_lookup(SetLength)
 
 
 class IndexLookup(Lookup):
-    def __init__(self, index, *args, **kwargs):
+    def __init__(self, index: int, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.index = index
 
-    def as_sql(self, qn, connection):
+    def as_sql(
+        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
@@ -217,8 +229,8 @@ class IndexLookup(Lookup):
 
 
 class IndexLookupFactory:
-    def __init__(self, index):
+    def __init__(self, index: int) -> None:
         self.index = index
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> IndexLookup:
         return IndexLookup(self.index, *args, **kwargs)
