@@ -1,7 +1,10 @@
-from typing import cast
+from typing import Any, List, Optional, Type, cast
 
 from django.core import checks
-from django.db.models import CharField, IntegerField, TextField
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.models import CharField, Field, IntegerField, Model, TextField
+from django.db.models.expressions import BaseExpression
+from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleSetField
@@ -11,8 +14,10 @@ from django_mysql.typing import DeconstructResult
 from django_mysql.validators import SetMaxLengthValidator
 
 
-class SetFieldMixin:
-    def __init__(self, base_field, size=None, **kwargs):
+class SetFieldMixin(Field):
+    def __init__(
+        self, base_field: Field, size: Optional[int] = None, **kwargs: Any
+    ) -> None:
         self.base_field = base_field
         self.size = size
 
@@ -21,14 +26,14 @@ class SetFieldMixin:
         if self.size:
             self.validators.append(SetMaxLengthValidator(int(self.size)))
 
-    def get_default(self):
+    def get_default(self) -> Any:
         default = super().get_default()
         if default == "":
             return set()
         else:
             return default
 
-    def check(self, **kwargs):
+    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
@@ -58,17 +63,18 @@ class SetFieldMixin:
         return errors
 
     @property
-    def description(self):
+    def description(self) -> Any:
         return _("Set of %(base_description)s") % {
             "base_description": self.base_field.description
         }
 
-    def set_attributes_from_name(self, name):
+    def set_attributes_from_name(self, name: str) -> None:
         super().set_attributes_from_name(name)
         self.base_field.set_attributes_from_name(name)
 
     def deconstruct(self) -> DeconstructResult:
         name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
+        args = list(args)
 
         bad_paths = (
             "django_mysql.models.fields.sets." + self.__class__.__name__,
@@ -81,7 +87,7 @@ class SetFieldMixin:
         kwargs["size"] = self.size
         return name, path, args, kwargs
 
-    def to_python(self, value):
+    def to_python(self, value: Any) -> Any:
         if isinstance(value, str):
             if not len(value):
                 value = set()
@@ -89,7 +95,9 @@ class SetFieldMixin:
                 value = {self.base_field.to_python(v) for v in value.split(",")}
         return value
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(
+        self, value: Any, expression: BaseExpression, connection: BaseDatabaseWrapper
+    ) -> Any:
         if isinstance(value, str):
             if not len(value):
                 value = set()
@@ -97,7 +105,7 @@ class SetFieldMixin:
                 value = {self.base_field.to_python(v) for v in value.split(",")}
         return value
 
-    def get_prep_value(self, value):
+    def get_prep_value(self, value: Any) -> Any:
         if isinstance(value, set):
             value = {str(self.base_field.get_prep_value(v)) for v in value}
             for v in value:
@@ -116,11 +124,11 @@ class SetFieldMixin:
             return ",".join(value)
         return value
 
-    def value_to_string(self, obj):
+    def value_to_string(self, obj: Any) -> str:
         vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs: Any) -> FormField:
         defaults = {
             "form_class": SimpleSetField,
             "base_field": self.base_field.formfield(),
@@ -129,7 +137,7 @@ class SetFieldMixin:
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls, name, **kwargs):
+    def contribute_to_class(self, cls: Type[Model], name: str, **kwargs: Any) -> None:
         super().contribute_to_class(cls, name, **kwargs)
         self.base_field.model = cls
 
@@ -139,7 +147,7 @@ class SetCharField(SetFieldMixin, CharField):
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
 
-    def check(self, **kwargs):
+    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
