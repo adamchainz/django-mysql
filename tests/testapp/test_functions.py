@@ -155,13 +155,6 @@ class StringFunctionTests(TestCase):
         ab = Alphabet.objects.annotate(de=concat).first()
         assert ab.de == "AAA1BBB"
 
-    def test_concat_ws_bad_arg(self):
-        with pytest.raises(ValueError) as excinfo:
-            ConcatWS("a", "b", separataaa=",")
-        assert "Invalid keyword arguments for ConcatWS: separataaa" in str(
-            excinfo.value
-        )
-
     def test_concat_ws_too_few_fields(self):
         with pytest.raises(ValueError) as excinfo:
             ConcatWS("a")
