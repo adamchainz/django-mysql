@@ -1,4 +1,8 @@
+from typing import Any, Iterable, Tuple
+
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import IntegerField, Transform
+from django.db.models.sql.compiler import SQLCompiler
 
 from django_mysql.utils import collapse_spaces
 
@@ -18,6 +22,8 @@ class SetLength(Transform):
     """
     )
 
-    def as_sql(self, compiler, connection):
+    def as_sql(
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
         return self.expr % (lhs, lhs, lhs), params
