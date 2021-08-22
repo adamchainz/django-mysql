@@ -1,3 +1,6 @@
+import argparse
+from typing import Any, List, Set
+
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
@@ -15,7 +18,7 @@ class Command(BaseCommand):
     """
     )
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "aliases",
             metavar="aliases",
@@ -23,11 +26,9 @@ class Command(BaseCommand):
             help="Specify the cache alias(es) to create migrations for.",
         )
 
-    def handle(self, *args, **options):
-        aliases = set(options["aliases"])
-
+    def handle(self, *args: Any, aliases: List[str], **options: Any) -> None:
         if not aliases:
-            aliases = settings.CACHES
+            aliases = list(settings.CACHES)
 
         tables = set()
         for alias in aliases:
@@ -48,7 +49,7 @@ class Command(BaseCommand):
         migration = self.render_migration(tables)
         self.stdout.write(migration)
 
-    def render_migration(self, tables):
+    def render_migration(self, tables: Set[str]) -> str:
         # This used to use a Django template, but we can't instantiate them
         # direct now, as the user may not have the django template engine
         # defined in TEMPLATES

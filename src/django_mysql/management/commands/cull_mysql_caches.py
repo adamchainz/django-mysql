@@ -1,3 +1,6 @@
+import argparse
+from typing import Any, List
+
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
@@ -16,7 +19,7 @@ class Command(BaseCommand):
     """
     )
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "aliases",
             metavar="aliases",
@@ -24,13 +27,11 @@ class Command(BaseCommand):
             help="Specify the cache alias(es) to cull.",
         )
 
-    def handle(self, *args, **options):
-        verbosity = options.get("verbosity")
-
-        aliases = set(options["aliases"])
-
+    def handle(
+        self, *args: Any, verbosity: int, aliases: List[str], **options: Any
+    ) -> None:
         if not aliases:
-            aliases = settings.CACHES
+            aliases = list(settings.CACHES)
 
         for alias in aliases:
             try:
