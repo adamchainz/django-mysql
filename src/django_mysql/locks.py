@@ -99,15 +99,17 @@ class Lock:
 class TableLock:
     def __init__(
         self,
-        read: Optional[List[Union[str, Model]]] = None,
-        write: Optional[List[Union[str, Model]]] = None,
+        read: Optional[List[Union[str, Type[Model]]]] = None,
+        write: Optional[List[Union[str, Type[Model]]]] = None,
         using: Optional[str] = None,
     ) -> None:
         self.read: List[str] = self._process_names(read)
         self.write: List[str] = self._process_names(write)
         self.db = DEFAULT_DB_ALIAS if using is None else using
 
-    def _process_names(self, names: Optional[List[Union[str, Model]]]) -> List[str]:
+    def _process_names(
+        self, names: Optional[List[Union[str, Type[Model]]]]
+    ) -> List[str]:
         """
         Convert a list of models/table names into a list of table names. Deals
         with cases of model inheritance, etc.
@@ -118,7 +120,7 @@ class TableLock:
         table_names = OrderedDict()  # Preserve order and ignore duplicates
         while len(names):
             name = names.pop(0)
-            if isinstance(name, Model):
+            if isinstance(name, type):
                 if name._meta.abstract:
                     raise ValueError(f"Can't lock abstract model {name.__name__}")
 
