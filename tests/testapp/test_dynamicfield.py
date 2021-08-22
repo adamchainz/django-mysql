@@ -306,7 +306,7 @@ class TestCheck(DynColTestCase):
 
     def test_spec_not_dict(self):
         class InvalidDynamicModel1(TemporaryModel):
-            field = DynamicField(spec=["woops", "a", "list"])
+            field = DynamicField(spec=["woops", "a", "list"])  # type: ignore [arg-type]
 
         errors = InvalidDynamicModel1.check(actually_check=True)
         assert len(errors) == 1
@@ -316,7 +316,7 @@ class TestCheck(DynColTestCase):
 
     def test_spec_key_not_valid(self):
         class InvalidDynamicModel2(TemporaryModel):
-            field = DynamicField(spec={2.0: str})
+            field = DynamicField(spec={2.0: str})  # type: ignore [dict-item]
 
         errors = InvalidDynamicModel2.check(actually_check=True)
         assert len(errors) == 1
@@ -327,7 +327,7 @@ class TestCheck(DynColTestCase):
 
     def test_spec_value_not_valid(self):
         class InvalidDynamicModel3(TemporaryModel):
-            field = DynamicField(spec={"bad": list})
+            field = DynamicField(spec={"bad": list})  # type: ignore [dict-item]
 
         errors = InvalidDynamicModel3.check(actually_check=True)
         assert len(errors) == 1
@@ -340,7 +340,9 @@ class TestCheck(DynColTestCase):
 
     def test_spec_nested_value_not_valid(self):
         class InvalidDynamicModel4(TemporaryModel):
-            field = DynamicField(spec={"l1": {"bad": tuple}})
+            field = DynamicField(
+                spec={"l1": {"bad": tuple}},  # type: ignore [dict-item]
+            )
 
         errors = InvalidDynamicModel4.check(actually_check=True)
         assert len(errors) == 1
@@ -381,13 +383,13 @@ class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = DynamicField()
         name, path, args, kwargs = field.deconstruct()
-        DynamicField(*args, **kwargs)
+        DynamicField(*args, **kwargs)  # type: ignore [arg-type]
 
     def test_deconstruct_spec(self):
         field = DynamicField(spec={"this": int, "that": float})
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.DynamicField"
-        DynamicField(*args, **kwargs)
+        DynamicField(*args, **kwargs)  # type: ignore [arg-type]
 
     def test_bad_import_deconstruct(self):
         from django_mysql.models.fields import DynamicField as DField
@@ -411,7 +413,7 @@ class TestDeconstruct(TestCase):
 
 class TestMigrations(DynColTestCase):
     def test_makemigrations(self):
-        field = DynamicField(spec={"a": "beta"})
+        field = DynamicField(spec={"a": int})
         statement, imports = MigrationWriter.serialize(field)
         # 'spec' should not appear since that would trigger needless ALTERs
         assert statement == "django_mysql.models.DynamicField()"
