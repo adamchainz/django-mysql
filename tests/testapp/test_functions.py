@@ -317,7 +317,7 @@ class JSONFunctionTests(TestCase):
 
     def test_json_extract_output_field_too_many_paths(self):
         with pytest.raises(TypeError) as excinfo:
-            JSONExtract("foo", "bar", "baz", output_field=1)
+            JSONExtract("foo", "bar", "baz", output_field=FloatField())
         assert "output_field won't work with more than one path" in str(excinfo.value)
 
     def test_json_extract_flote(self):

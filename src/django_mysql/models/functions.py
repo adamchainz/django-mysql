@@ -68,7 +68,9 @@ class ConcatWS(Func):
 
     function = "CONCAT_WS"
 
-    def __init__(self, *expressions: ExpressionArgument, separator: str = ",") -> None:
+    def __init__(
+        self, *expressions: ExpressionArgument, separator: Optional[str] = ","
+    ) -> None:
         if len(expressions) < 2:
             raise ValueError("ConcatWS must take at least two expressions")
 
@@ -210,7 +212,7 @@ if HAVE_JSONFIELD:
         def __init__(
             self,
             expression: ExpressionArgument,
-            *paths: List[ExpressionArgument],
+            *paths: ExpressionArgument,
             output_field: Optional[Type[DjangoField]] = None,
         ) -> None:
             exprs = [expression]
