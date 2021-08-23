@@ -333,7 +333,7 @@ class KeyTransform(Transform):
         key_name: str,
         data_type: str,
         *args: Any,
-        subspec: Optional[SpecDict],
+        subspec: Optional[SpecDict] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
