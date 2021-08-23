@@ -108,7 +108,7 @@ class TestDeconstruct(TestCase):
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.EnumField"
         assert "max_length" not in kwargs
-        EnumField(*args, **kwargs)  # type: ignore [arg-type]
+        EnumField(*args, **kwargs)
 
 
 class TestMigrations(TransactionTestCase):

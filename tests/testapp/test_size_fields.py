@@ -70,13 +70,13 @@ class SizedBinaryFieldTests(TestCase):
     def test_deconstruct_size_class_4(self):
         field = SizedBinaryField(size_class=4)
         name, path, args, kwargs = field.deconstruct()
-        new = SizedBinaryField(*args, **kwargs)  # type: ignore [arg-type]
+        new = SizedBinaryField(*args, **kwargs)
         assert new.size_class == field.size_class
 
     def test_deconstruct_size_class_2(self):
         field = SizedBinaryField(size_class=2)
         name, path, args, kwargs = field.deconstruct()
-        new = SizedBinaryField(*args, **kwargs)  # type: ignore [arg-type]
+        new = SizedBinaryField(*args, **kwargs)
         assert new.size_class == field.size_class
 
     def test_makemigrations(self):
@@ -171,13 +171,13 @@ class SizedTextFieldTests(TestCase):
     def test_deconstruct_size_class_4(self):
         field = SizedTextField(size_class=4)
         name, path, args, kwargs = field.deconstruct()
-        new = SizedTextField(*args, **kwargs)  # type: ignore [arg-type]
+        new = SizedTextField(*args, **kwargs)
         assert new.size_class == field.size_class
 
     def test_deconstruct_size_class_2(self):
         field = SizedTextField(size_class=2)
         name, path, args, kwargs = field.deconstruct()
-        new = SizedTextField(*args, **kwargs)  # type: ignore [arg-type]
+        new = SizedTextField(*args, **kwargs)
         assert new.size_class == field.size_class
 
     def test_makemigrations(self):

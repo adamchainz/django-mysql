@@ -1,12 +1,22 @@
 import os
 import subprocess
-import sys
 import time
 from collections import defaultdict
 from queue import Empty, Queue
 from threading import Lock, Thread
 from types import TracebackType
-from typing import Any, Dict, Generator, List, Mapping, Optional, Tuple, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 from weakref import WeakKeyDictionary
 
 import django
@@ -183,7 +193,7 @@ def pt_fingerprint(query: str) -> str:
     return thread.out_queue.get()
 
 
-if sys.version_info >= (3, 9):
+if TYPE_CHECKING:
     PTFingerPrintQueueType = Queue[str]
 else:
     PTFingerPrintQueueType = Queue

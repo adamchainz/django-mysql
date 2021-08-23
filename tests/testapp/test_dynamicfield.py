@@ -383,13 +383,13 @@ class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = DynamicField()
         name, path, args, kwargs = field.deconstruct()
-        DynamicField(*args, **kwargs)  # type: ignore [arg-type]
+        DynamicField(*args, **kwargs)
 
     def test_deconstruct_spec(self):
         field = DynamicField(spec={"this": int, "that": float})
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.DynamicField"
-        DynamicField(*args, **kwargs)  # type: ignore [arg-type]
+        DynamicField(*args, **kwargs)
 
     def test_bad_import_deconstruct(self):
         from django_mysql.models.fields import DynamicField as DField

@@ -47,15 +47,13 @@ if sys.version_info >= (3, 8):
         return_approx_int: bool
         min_size: int
 
-    _CountTriesApproxType = Union[Literal[False], _CountTriesApproxDict]
-
     _IndexHintForType = Optional[Literal["JOIN", "ORDER BY", "GROUP BY"]]
 
     _SmartObjectsDoneType = Union[int, Literal["???"]]
     _SmartPkRangeType = Union[None, Tuple[int, int], Literal["all"]]
     _SmartDirectionType = Literal[-1, 1]
 else:
-    _CountTriesApproxType = Union[bool, Dict[str, Union[bool, int]]]
+    _CountTriesApproxDict = Dict[str, Any]
     _IndexHintForType = Optional[str]
     _SmartObjectsDoneType = Union[int, str]
     _SmartPkRangeType = Union[None, Tuple[int, int], str]
@@ -76,16 +74,16 @@ def requires_query_rewrite(func: QueryRewriteFunc) -> QueryRewriteFunc:
 
 
 class QuerySetMixin(models.QuerySet):
-    _count_tries_approx: _CountTriesApproxType
+    _count_tries_approx: Optional[_CountTriesApproxDict]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._count_tries_approx = False
+        self._count_tries_approx = None
 
     def _clone(self: _Q, *args: Any, **kwargs: Any) -> _Q:
         clone = super()._clone(*args, **kwargs)
 
-        clone._count_tries_approx = copy(getattr(self, "_count_tries_approx", False))
+        clone._count_tries_approx = copy(getattr(self, "_count_tries_approx", None))
 
         if hasattr(self, "_found_rows"):
             # If it's a number, don't copy it - the clone has a fresh result
@@ -96,7 +94,7 @@ class QuerySetMixin(models.QuerySet):
     # approx_count features
 
     def count(self) -> int:
-        if self._count_tries_approx:
+        if self._count_tries_approx is not None:
             return self.approx_count(**self._count_tries_approx)
         return super().count()
 
@@ -116,7 +114,7 @@ class QuerySetMixin(models.QuerySet):
                 "min_size": min_size,
             }
         else:
-            clone._count_tries_approx = False
+            clone._count_tries_approx = None
 
         return clone
 
@@ -593,6 +591,7 @@ class SmartChunkedIterator:
         if chunk is not None:
             self.chunks_done += 1
             if self.objects_done != "???":
+                assert isinstance(self.objects_done, int)
                 # If the queryset is not being fetched as-is, e.g. its
                 # .delete() is called, we can't know how many objects were
                 # affected, so we just bum out and write "???".
@@ -604,6 +603,7 @@ class SmartChunkedIterator:
         if self.objects_done == "???":
             percent_complete = 0.0
         else:
+            assert isinstance(self.objects_done, int)
             assert self.total is not None
             try:
                 percent_complete = 100 * (self.objects_done / self.total)
@@ -625,6 +625,7 @@ class SmartChunkedIterator:
             )
 
             if self.objects_done != "???" and self.rate.avg_rate:
+                assert isinstance(self.objects_done, int)
                 assert self.total is not None
                 n_remaining = self.total - self.objects_done
                 s_remaining = max(0, int(n_remaining // self.rate.avg_rate))
