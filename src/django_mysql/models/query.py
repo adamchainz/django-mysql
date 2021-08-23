@@ -4,6 +4,18 @@ import sys
 import time
 from copy import copy
 from functools import wraps
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from django.conf import settings
 from django.db import connections, models
@@ -24,10 +36,35 @@ from django_mysql.utils import (
     settings_to_cmd_args,
 )
 
+_Q = TypeVar("_Q", bound="QuerySetMixin")
+QueryRewriteFunc = TypeVar("QueryRewriteFunc", bound=Callable[..., Any])
 
-def requires_query_rewrite(func):
+if sys.version_info >= (3, 8):
+    from typing import Literal, TypedDict
+
+    class _CountTriesApproxDict(TypedDict):
+        fall_back: bool
+        return_approx_int: bool
+        min_size: int
+
+    _CountTriesApproxType = Union[Literal[False], _CountTriesApproxDict]
+
+    _IndexHintForType = Optional[Literal["JOIN", "ORDER BY", "GROUP BY"]]
+
+    _SmartObjectsDoneType = Union[int, Literal["???"]]
+    _SmartPkRangeType = Union[None, Tuple[int, int], Literal["all"]]
+    _SmartDirectionType = Literal[-1, 1]
+else:
+    _CountTriesApproxType = Union[bool, Dict[str, Union[bool, int]]]
+    _IndexHintForType = Optional[str]
+    _SmartObjectsDoneType = Union[int, str]
+    _SmartPkRangeType = Union[None, Tuple[int, int], str]
+    _SmartDirectionType = int
+
+
+def requires_query_rewrite(func: QueryRewriteFunc) -> QueryRewriteFunc:
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         if not settings.DJANGO_MYSQL_REWRITE_QUERIES:
             raise RuntimeError(
                 "You need to set DJANGO_MYSQL_REWRITE_QUERIES = True in your "
@@ -35,15 +72,17 @@ def requires_query_rewrite(func):
             )
         return func(*args, **kwargs)
 
-    return wrapper
+    return cast(QueryRewriteFunc, wrapper)
 
 
-class QuerySetMixin:
-    def __init__(self, *args, **kwargs):
+class QuerySetMixin(models.QuerySet):
+    _count_tries_approx: _CountTriesApproxType
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._count_tries_approx = False
 
-    def _clone(self, *args, **kwargs):
+    def _clone(self: _Q, *args: Any, **kwargs: Any) -> _Q:
         clone = super()._clone(*args, **kwargs)
 
         clone._count_tries_approx = copy(getattr(self, "_count_tries_approx", False))
@@ -56,14 +95,18 @@ class QuerySetMixin:
 
     # approx_count features
 
-    def count(self):
+    def count(self) -> int:
         if self._count_tries_approx:
             return self.approx_count(**self._count_tries_approx)
         return super().count()
 
     def count_tries_approx(
-        self, activate=True, fall_back=True, return_approx_int=True, min_size=1000
-    ):
+        self: _Q,
+        activate: bool = True,
+        fall_back: bool = True,
+        return_approx_int: bool = True,
+        min_size: int = 1000,
+    ) -> _Q:
         clone = self._clone()
 
         if activate:
@@ -77,7 +120,12 @@ class QuerySetMixin:
 
         return clone
 
-    def approx_count(self, fall_back=True, return_approx_int=True, min_size=1000):
+    def approx_count(
+        self,
+        fall_back: bool = True,
+        return_approx_int: bool = True,
+        min_size: int = 1000,
+    ) -> int:
         try:
             num = approx_count(self)
         except ValueError:  # Cannot be approx-counted
@@ -100,7 +148,7 @@ class QuerySetMixin:
     # into actual hints
 
     @requires_query_rewrite
-    def label(self, string):
+    def label(self, string: str) -> "QuerySetMixin":
         """
         Adds an arbitrary user-defined comment that will appear after
         SELECT/UPDATE/DELETE which can be used to identify where the query was
@@ -111,37 +159,37 @@ class QuerySetMixin:
         return self.extra(where=[f"/*QueryRewrite':label={string}*/1"])
 
     @requires_query_rewrite
-    def straight_join(self):
+    def straight_join(self: _Q) -> _Q:
         return self.extra(where=["/*QueryRewrite':STRAIGHT_JOIN*/1"])
 
     @requires_query_rewrite
-    def sql_small_result(self):
+    def sql_small_result(self: _Q) -> _Q:
         return self.extra(where=["/*QueryRewrite':SQL_SMALL_RESULT*/1"])
 
     @requires_query_rewrite
-    def sql_big_result(self):
+    def sql_big_result(self: _Q) -> _Q:
         return self.extra(where=["/*QueryRewrite':SQL_BIG_RESULT*/1"])
 
     @requires_query_rewrite
-    def sql_buffer_result(self):
+    def sql_buffer_result(self: _Q) -> _Q:
         return self.extra(where=["/*QueryRewrite':SQL_BUFFER_RESULT*/1"])
 
     @requires_query_rewrite
-    def sql_cache(self):
+    def sql_cache(self: _Q) -> _Q:
         return self.extra(where=["/*QueryRewrite':SQL_CACHE*/1"])
 
     @requires_query_rewrite
-    def sql_no_cache(self):
+    def sql_no_cache(self: _Q) -> _Q:
         return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
 
     @requires_query_rewrite
-    def sql_calc_found_rows(self):
+    def sql_calc_found_rows(self: _Q) -> _Q:
         qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
         qs._found_rows = None
         return qs
 
     @property
-    def found_rows(self):
+    def found_rows(self) -> int:
         if not hasattr(self, "_found_rows"):
             raise ValueError(
                 "found_rows can only be used if you call " "sql_calc_found_rows()"
@@ -153,48 +201,49 @@ class QuerySetMixin:
             )
         return self._found_rows
 
-    def iterator(self, *args, **kwargs):
+    def iterator(self, *args: Any, **kwargs: Any) -> Any:
         if getattr(self, "_found_rows", 0) is None:
             raise ValueError("sql_calc_found_rows() doesn't work with iterator()")
         return super().iterator(*args, **kwargs)
 
     @property
-    def _result_cache(self):
+    def _result_cache(self) -> Any:
         # This is a bit of a hack so that we can listen to when _result_cache
         # gets set and calculate _found_rows then
         return self.__dict__["_result_cache"]
 
     @_result_cache.setter
-    def _result_cache(self, value):
+    def _result_cache(self, value: Any) -> None:
         self.__dict__["_result_cache"] = value
         if getattr(self, "_found_rows", 0) is None:
             with connections[self.db].cursor() as cursor:
                 cursor.execute("SELECT FOUND_ROWS()")
                 self._found_rows = cursor.fetchone()[0]
 
-    def use_index(self, *index_names, **kwargs):
-        kwargs["hint"] = "USE"
-        return self._index_hint(*index_names, **kwargs)
+    def use_index(
+        self: _Q,
+        *index_names: str,
+        for_: _IndexHintForType = None,
+        table_name: Optional[str] = None,
+    ) -> _Q:
+        return self._index_hint(
+            *index_names, hint="USE", for_=for_, table_name=table_name
+        )
 
-    def force_index(self, *index_names, **kwargs):
-        kwargs["hint"] = "FORCE"
-        return self._index_hint(*index_names, **kwargs)
+    def force_index(self: _Q, *index_names: str, for_: _IndexHintForType = None) -> _Q:
+        return self._index_hint(*index_names, hint="FORCE", for_=for_)
 
-    def ignore_index(self, *index_names, **kwargs):
-        kwargs["hint"] = "IGNORE"
-        return self._index_hint(*index_names, **kwargs)
+    def ignore_index(self: _Q, *index_names: str, for_: _IndexHintForType = None) -> _Q:
+        return self._index_hint(*index_names, hint="IGNORE", for_=for_)
 
     @requires_query_rewrite
-    def _index_hint(self, *index_names, **kwargs):
-        hint = kwargs.pop("hint")
-        table_name = kwargs.pop("table_name", None)
-        for_ = kwargs.pop("for_", None)
-        if kwargs:
-            raise ValueError(
-                "{}_index accepts only 'for_' and 'table_name' as keyword "
-                "arguments".format(hint.lower())
-            )
-
+    def _index_hint(
+        self: _Q,
+        *index_names: str,
+        hint: str,
+        table_name: Optional[str] = None,
+        for_: _IndexHintForType = None,
+    ) -> _Q:
         if hint != "USE" and not len(index_names):
             raise ValueError(f"{hint.lower()}_index requires at least one index name")
 
@@ -222,25 +271,85 @@ class QuerySetMixin:
 
     # Features handled by extra classes/functions
 
-    def iter_smart(self, **kwargs):
-        assert (
-            "queryset" not in kwargs
-        ), "You can't pass another queryset in through iter_smart!"
-        return SmartIterator(queryset=self, **kwargs)
+    def iter_smart(
+        self,
+        *,
+        atomically: bool = True,
+        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        pk_range: _SmartPkRangeType = None,
+        chunk_time: float = 0.5,
+        chunk_size: int = 2,
+        chunk_min: int = 1,
+        chunk_max: int = 10000,
+        report_progress: bool = False,
+        total: Optional[int] = None,
+    ) -> "SmartIterator":
+        return SmartIterator(
+            queryset=self,
+            atomically=atomically,
+            status_thresholds=status_thresholds,
+            pk_range=pk_range,
+            chunk_time=chunk_time,
+            chunk_size=chunk_size,
+            chunk_min=chunk_min,
+            chunk_max=chunk_max,
+            report_progress=report_progress,
+            total=total,
+        )
 
-    def iter_smart_chunks(self, **kwargs):
-        assert (
-            "queryset" not in kwargs
-        ), "You can't pass another queryset in through iter_smart_chunks!"
-        return SmartChunkedIterator(queryset=self, **kwargs)
+    def iter_smart_chunks(
+        self,
+        *,
+        atomically: bool = True,
+        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        pk_range: _SmartPkRangeType = None,
+        chunk_time: float = 0.5,
+        chunk_size: int = 2,
+        chunk_min: int = 1,
+        chunk_max: int = 10000,
+        report_progress: bool = False,
+        total: Optional[int] = None,
+    ) -> "SmartChunkedIterator":
+        return SmartChunkedIterator(
+            queryset=self,
+            atomically=atomically,
+            status_thresholds=status_thresholds,
+            pk_range=pk_range,
+            chunk_time=chunk_time,
+            chunk_size=chunk_size,
+            chunk_min=chunk_min,
+            chunk_max=chunk_max,
+            report_progress=report_progress,
+            total=total,
+        )
 
-    def iter_smart_pk_ranges(self, **kwargs):
-        assert (
-            "queryset" not in kwargs
-        ), "You can't pass another queryset in through iter_smart_pk_ranges!"
-        return SmartPKRangeIterator(queryset=self, **kwargs)
+    def iter_smart_pk_ranges(
+        self,
+        *,
+        atomically: bool = True,
+        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        pk_range: _SmartPkRangeType = None,
+        chunk_time: float = 0.5,
+        chunk_size: int = 2,
+        chunk_min: int = 1,
+        chunk_max: int = 10000,
+        report_progress: bool = False,
+        total: Optional[int] = None,
+    ) -> "SmartPKRangeIterator":
+        return SmartPKRangeIterator(
+            queryset=self,
+            atomically=atomically,
+            status_thresholds=status_thresholds,
+            pk_range=pk_range,
+            chunk_time=chunk_time,
+            chunk_size=chunk_size,
+            chunk_min=chunk_min,
+            chunk_max=chunk_max,
+            report_progress=report_progress,
+            total=total,
+        )
 
-    def pt_visual_explain(self, display=True):
+    def pt_visual_explain(self, display: bool = True) -> str:
         return pt_visual_explain(self, display)
 
 
@@ -248,7 +357,7 @@ class QuerySet(QuerySetMixin, models.QuerySet):
     pass
 
 
-def add_QuerySetMixin(queryset):
+def add_QuerySetMixin(queryset: models.QuerySet) -> models.QuerySet:
     queryset2 = queryset._clone()
     queryset2.__class__ = _make_mixin_class(queryset.__class__)
     return queryset2
@@ -257,12 +366,12 @@ def add_QuerySetMixin(queryset):
 _mixin_classes = {}
 
 
-def _make_mixin_class(klass):
+def _make_mixin_class(klass: Type[models.QuerySet]) -> Type[QuerySetMixin]:
     global _mixin_classes
 
     if klass not in _mixin_classes:
 
-        class MixedInQuerySet(QuerySetMixin, klass):
+        class MixedInQuerySet(QuerySetMixin, klass):  # type: ignore [valid-type,misc]
             pass
 
         MixedInQuerySet.__name__ = "MySQL" + klass.__name__
@@ -276,23 +385,26 @@ class ApproximateInt(int):
     approximate value, for in e.g. the admin
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _("Approximately %(number)s") % {"number": super().__str__()}
 
 
 class SmartChunkedIterator:
+    objects_done: _SmartObjectsDoneType
+
     def __init__(
         self,
-        queryset,
-        atomically=True,
-        status_thresholds=None,
-        pk_range=None,
-        chunk_time=0.5,
-        chunk_size=2,
-        chunk_min=1,
-        chunk_max=10000,
-        report_progress=False,
-        total=None,
+        queryset: models.QuerySet,
+        *,
+        atomically: bool = True,
+        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        pk_range: _SmartPkRangeType = None,
+        chunk_time: float = 0.5,
+        chunk_size: int = 2,
+        chunk_min: int = 1,
+        chunk_max: int = 10000,
+        report_progress: bool = False,
+        total: Optional[int] = None,
     ):
         self.queryset = self.sanitize_queryset(queryset)
 
@@ -317,8 +429,9 @@ class SmartChunkedIterator:
         self.report_progress = report_progress
         self.total = total
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[QuerySet, None, None]:
         first_pk, last_pk = self.get_first_and_last()
+        direction: _SmartDirectionType
         if first_pk <= last_pk:
             comp = operator.le  # <=
             direction = 1
@@ -356,7 +469,7 @@ class SmartChunkedIterator:
 
         self.end_progress()
 
-    def sanitize_queryset(self, queryset):
+    def sanitize_queryset(self, queryset: models.QuerySet) -> models.QuerySet:
         if queryset.ordered:
             raise ValueError(
                 "You can't use %s on a QuerySet with an ordering."
@@ -388,7 +501,7 @@ class SmartChunkedIterator:
         models.AutoField,  # Is an integer field but doesn't subclass it :(
     )
 
-    def get_first_and_last(self):
+    def get_first_and_last(self) -> Tuple[int, int]:
         if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
             should_be_reversed = (
                 self.pk_range[1] < self.pk_range[0]
@@ -428,10 +541,10 @@ class SmartChunkedIterator:
         else:
             return (max_pk, min_pk)
 
-    def constrain_size(self, chunk_size):
+    def constrain_size(self, chunk_size: int) -> int:
         return max(min(chunk_size, self.chunk_max), self.chunk_min)
 
-    def adjust_chunk_size(self, chunk, chunk_time):
+    def adjust_chunk_size(self, chunk: models.QuerySet, chunk_time: float) -> None:
         # If the queryset is not being fetched as-is, e.g. its .delete() is
         # called, we can't know how many objects were affected, so we just
         # assume they all exist/existed
@@ -450,7 +563,7 @@ class SmartChunkedIterator:
 
         self.chunk_size = self.constrain_size(new_chunk_size)
 
-    def init_progress(self, direction):
+    def init_progress(self, direction: _SmartDirectionType) -> None:
         if not self.report_progress:
             return
 
@@ -468,7 +581,12 @@ class SmartChunkedIterator:
 
         self.update_progress(direction)
 
-    def update_progress(self, direction, chunk=None, end_pk=None):
+    def update_progress(
+        self,
+        direction: _SmartDirectionType,
+        chunk: Optional[models.QuerySet] = None,
+        end_pk: Optional[int] = None,
+    ) -> None:
         if not self.report_progress:
             return
 
@@ -483,10 +601,14 @@ class SmartChunkedIterator:
                 else:
                     self.objects_done += len(chunk)
 
-        try:
-            percent_complete = 100 * (float(self.objects_done) / self.total)
-        except (ZeroDivisionError, ValueError):
+        if self.objects_done == "???":
             percent_complete = 0.0
+        else:
+            assert self.total is not None
+            try:
+                percent_complete = 100 * (self.objects_done / self.total)
+            except ZeroDivisionError:
+                percent_complete = 0.0
 
         report = "{} {} processed {}/{} objects ({:.2f}%) in {} chunks".format(
             self.model_name,
@@ -503,6 +625,7 @@ class SmartChunkedIterator:
             )
 
             if self.objects_done != "???" and self.rate.avg_rate:
+                assert self.total is not None
                 n_remaining = self.total - self.objects_done
                 s_remaining = max(0, int(n_remaining // self.rate.avg_rate))
                 report += f", {format_duration(s_remaining)} remaining"
@@ -543,19 +666,21 @@ class SmartIterator(SmartChunkedIterator):
     Subclass of SmartChunkedIterator that unpacks the chunks
     """
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[models.Model, None, None]:
         for chunk in super().__iter__():
             yield from chunk
 
 
 class SmartPKRangeIterator(SmartChunkedIterator):
-    def __iter__(self):
+    def __iter__(  # type: ignore [override]
+        self,
+    ) -> Generator[Tuple[int, int], None, None]:
         for chunk in super().__iter__():
             start_pk, end_pk = chunk._smart_iterator_pks
             yield start_pk, end_pk
 
 
-def approx_count(queryset):
+def approx_count(queryset: models.QuerySet) -> int:
     # Returns the approximate count or raises a ValueError if this queryset
     # cannot be approximately counted
     if not can_approx_count(queryset):
@@ -578,7 +703,7 @@ def approx_count(queryset):
         return approx_count
 
 
-def can_approx_count(queryset):
+def can_approx_count(queryset: QuerySetMixin) -> bool:
     query = queryset.query
 
     if query.select or query.group_by or query.distinct:
@@ -596,7 +721,7 @@ def can_approx_count(queryset):
     return True
 
 
-def pt_visual_explain(queryset, display=True):
+def pt_visual_explain(queryset: models.QuerySet, display: bool = True) -> str:
     if not have_program("pt-visual-explain"):  # pragma: no cover
         raise OSError("pt-visual-explain doesn't appear to be installed")
 
@@ -620,9 +745,9 @@ def pt_visual_explain(queryset, display=True):
     visual_explain = subprocess.Popen(
         ["pt-visual-explain", "-"], stdin=mysql.stdout, stdout=subprocess.PIPE
     )
+    assert mysql.stdout is not None
     mysql.stdout.close()
     explanation = visual_explain.communicate()[0].decode(encoding="utf-8")
     if display:
         print(explanation)
-    else:
-        return explanation
+    return explanation

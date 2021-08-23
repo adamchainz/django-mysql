@@ -323,14 +323,6 @@ class QueryHintTests(TestCase):
             Author.objects.force_index("a", for_="INVALID")
         assert "for_ must be one of" in str(excinfo.value)
 
-    def test_force_index_invalid_kwarg(self):
-        with pytest.raises(ValueError) as excinfo:
-            Author.objects.force_index("a", nonexistent=True)
-        assert (
-            "force_index accepts only 'for_' and 'table_name' as keyword arguments"
-            in str(excinfo.value)
-        )
-
     def test_index_hint_force_order_by(self):
         name_idx = index_name(Author, "name")
         with CaptureLastQuery() as cap:
