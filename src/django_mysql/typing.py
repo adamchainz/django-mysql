@@ -1,3 +1,3 @@
-from collections.abc import Iterable
+from typing import Any, Dict, Iterable, Tuple
 
-DeconstructResult = tuple[str, str, Iterable[object], dict[str, object]]
+DeconstructResult = Tuple[str, str, Iterable[Any], Dict[str, Any]]
