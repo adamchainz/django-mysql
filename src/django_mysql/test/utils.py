@@ -1,7 +1,7 @@
 import uuid
 from functools import wraps
 from types import TracebackType
-from typing import Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
@@ -38,7 +38,7 @@ class override_mysql_variables:
     ) -> None:
         self.disable()
 
-    def __call__(self, test_func):
+    def __call__(self, test_func: Any) -> Any:
         from unittest import TestCase
 
         if isinstance(test_func, type):
@@ -55,14 +55,14 @@ class override_mysql_variables:
         else:
 
             @wraps(test_func)
-            def inner(*args, **kwargs):
+            def inner(*args: Any, **kwargs: Any) -> Any:
                 with self:
                     return test_func(*args, **kwargs)
 
             return inner
 
-    def wrap_class(self, klass):
-        kwargs = {"using": self.db, **self.options}
+    def wrap_class(self, klass: Type[Any]) -> None:
+        kwargs: Dict[str, Any] = {"using": self.db, **self.options}
 
         for name in dir(klass):
             if not name.startswith("test_"):
