@@ -228,11 +228,25 @@ class QuerySetMixin(models.QuerySet):
             *index_names, hint="USE", for_=for_, table_name=table_name
         )
 
-    def force_index(self: _Q, *index_names: str, for_: _IndexHintForType = None) -> _Q:
-        return self._index_hint(*index_names, hint="FORCE", for_=for_)
+    def force_index(
+        self: _Q,
+        *index_names: str,
+        for_: _IndexHintForType = None,
+        table_name: Optional[str] = None,
+    ) -> _Q:
+        return self._index_hint(
+            *index_names, hint="FORCE", for_=for_, table_name=table_name
+        )
 
-    def ignore_index(self: _Q, *index_names: str, for_: _IndexHintForType = None) -> _Q:
-        return self._index_hint(*index_names, hint="IGNORE", for_=for_)
+    def ignore_index(
+        self: _Q,
+        *index_names: str,
+        for_: _IndexHintForType = None,
+        table_name: Optional[str] = None,
+    ) -> _Q:
+        return self._index_hint(
+            *index_names, hint="IGNORE", for_=for_, table_name=table_name
+        )
 
     @requires_query_rewrite
     def _index_hint(
