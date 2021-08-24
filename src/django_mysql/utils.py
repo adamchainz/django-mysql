@@ -26,6 +26,8 @@ from django.db import connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Model
 
+from django_mysql.compat import cache
+
 
 class WeightedAverageRate:
     """
@@ -169,16 +171,10 @@ def settings_to_cmd_args(settings_dict: Dict[str, Any]) -> List[str]:
     return args
 
 
-programs_memo: Dict[str, bool] = {}
-
-
+@cache
 def have_program(program_name: str) -> bool:
-    global programs_memo
-    if program_name not in programs_memo:
-        status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
-        programs_memo[program_name] = status == 0
-
-    return programs_memo[program_name]
+    status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
+    return status == 0
 
 
 def pt_fingerprint(query: str) -> str:

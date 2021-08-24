@@ -25,7 +25,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
-from django_mysql.compat import nullcontext
+from django_mysql.compat import cache, nullcontext
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
@@ -375,20 +375,14 @@ def add_QuerySetMixin(queryset: models.QuerySet) -> models.QuerySet:
     return queryset2
 
 
-_mixin_classes = {}
-
-
+@cache
 def _make_mixin_class(klass: Type[models.QuerySet]) -> Type[QuerySetMixin]:
-    global _mixin_classes
+    class MixedInQuerySet(QuerySetMixin, klass):  # type: ignore [valid-type,misc]
+        pass
 
-    if klass not in _mixin_classes:
+    MixedInQuerySet.__name__ = "MySQL" + klass.__name__
 
-        class MixedInQuerySet(QuerySetMixin, klass):  # type: ignore [valid-type,misc]
-            pass
-
-        MixedInQuerySet.__name__ = "MySQL" + klass.__name__
-        _mixin_classes[klass] = MixedInQuerySet
-    return _mixin_classes[klass]
+    return MixedInQuerySet
 
 
 class ApproximateInt(int):

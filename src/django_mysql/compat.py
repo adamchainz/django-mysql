@@ -21,6 +21,13 @@ else:
             pass
 
 
+if sys.version_info >= (3, 9):
+    from functools import cache
+else:
+    from functools import lru_cache, partial
+
+    cache = partial(lru_cache, maxsize=None)
+
 if django.VERSION >= (3, 1):
     from django.db.models import JSONField
 
