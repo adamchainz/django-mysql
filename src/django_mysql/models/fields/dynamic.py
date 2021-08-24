@@ -84,7 +84,7 @@ class DynamicField(Field):
             self.spec = {}
         else:
             self.spec = spec
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, default=default, blank=blank, **kwargs)
 
     def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
