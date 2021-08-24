@@ -2,6 +2,9 @@
 History
 =======
 
+4.0.0 (2021-08-24)
+------------------
+
 * Test with MariaDB 10.6.
 
 * Add type hints.
