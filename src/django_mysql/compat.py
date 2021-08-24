@@ -1,6 +1,6 @@
 import sys
 from types import TracebackType
-from typing import Any, Callable, Optional, Type, TypeVar
+from typing import Any, Callable, Optional, Type, TypeVar, cast
 
 import django
 
@@ -29,7 +29,7 @@ else:
     _F = TypeVar("_F", bound=Callable[..., Any])
 
     def cache(func: _F) -> _F:
-        return lru_cache(maxsize=None)(func)
+        return cast(_F, lru_cache(maxsize=None)(func))
 
 
 if django.VERSION >= (3, 1):
