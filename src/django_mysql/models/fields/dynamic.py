@@ -1,5 +1,5 @@
+import datetime as dt
 import json
-from datetime import date, datetime, time
 from typing import (
     Any,
     Callable,
@@ -46,21 +46,21 @@ except ImportError:  # pragma: no cover
 SpecDict = Dict[
     str,
     Union[
-        Type[date],
-        Type[datetime],
+        Type[dt.date],
+        Type[dt.datetime],
         Type[float],
         Type[int],
         Type[str],
-        Type[time],
+        Type[dt.time],
         Dict[
             str,
             Union[
-                Type[date],
-                Type[datetime],
+                Type[dt.date],
+                Type[dt.datetime],
                 Type[float],
                 Type[int],
                 Type[str],
-                Type[time],
+                Type[dt.time],
                 Dict[str, Any],
             ],
         ],
@@ -307,12 +307,12 @@ DynamicField.register_lookup(DynColHasKey)
 class KeyTransform(Transform):
 
     SPEC_MAP = {
-        date: "DATE",
-        datetime: "DATETIME",
+        dt.date: "DATE",
+        dt.datetime: "DATETIME",
         float: "DOUBLE",
         int: "INTEGER",
         str: "CHAR",
-        time: "TIME",
+        dt.time: "TIME",
         dict: "BINARY",
     }
 

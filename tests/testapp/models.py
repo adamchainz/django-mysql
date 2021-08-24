@@ -1,5 +1,5 @@
+import datetime as dt
 import json
-from datetime import date, datetime, time
 from typing import Any
 
 from django.db import connection
@@ -125,12 +125,12 @@ class BigIntListModel(Model):
 class DynamicModel(Model):
     attrs = DynamicField(
         spec={
-            "datetimey": datetime,
-            "datey": date,
+            "datetimey": dt.datetime,
+            "datey": dt.date,
             "floaty": float,
             "inty": int,
             "stry": str,
-            "timey": time,
+            "timey": dt.time,
             "nesty": {"level2": str},
         }
     )
@@ -289,7 +289,7 @@ class ExpensiveCalculation:
     def __init__(self) -> None:
         self.num_calls = 0
 
-    def __call__(self) -> datetime:
+    def __call__(self) -> dt.datetime:
         self.num_calls += 1
         return timezone.now()
 
