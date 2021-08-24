@@ -13,6 +13,7 @@
 
 import os
 import sys
+from typing import Dict
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -71,7 +72,7 @@ copyright = "2017-2020 Adam Johnson"
 # The short X.Y version.
 
 
-def _get_version():
+def _get_version() -> str:
     with open(os.path.join(project_root, "setup.cfg")) as setup_fp:
         version_lines = [
             line.strip() for line in setup_fp if line.startswith("version = ")
@@ -220,7 +221,7 @@ htmlhelp_basename = "django-mysqldoc"
 
 # -- Options for LaTeX output ------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
     # The font size ('10pt', '11pt' or '12pt').

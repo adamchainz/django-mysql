@@ -1,5 +1,6 @@
 import queue
 from threading import Thread
+from typing import TYPE_CHECKING
 
 import pytest
 from django.db import OperationalError, connection, connections
@@ -86,6 +87,10 @@ class LockTests(TestCase):
         assert not import_time_lock.is_held()
 
     def test_timeout_with_threads(self):
+        if TYPE_CHECKING:
+            to_me: queue.Queue[str]
+            to_you: queue.Queue[str]
+
         to_me = queue.Queue()
         to_you = queue.Queue()
 
@@ -127,6 +132,10 @@ class LockTests(TestCase):
         Test that the same lock object can be used in multiple threads, allows
         the definition of a lock upfront in a module.
         """
+        if TYPE_CHECKING:
+            to_me: queue.Queue[str]
+            to_you: queue.Queue[str]
+
         to_me = queue.Queue()
         to_you = queue.Queue()
         the_lock = Lock("THElock", 0.05)

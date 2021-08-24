@@ -1,21 +1,31 @@
+from typing import Any, List, Tuple, Union, cast
+
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+
+from django_mysql.typing import DeconstructResult
 
 
 class EnumField(CharField):
     description = _("Enumeration")
 
-    def __init__(self, *args, **kwargs):
-        if "choices" not in kwargs or len(kwargs["choices"]) == 0:
+    def __init__(
+        self,
+        *args: Any,
+        choices: List[Union[str, Tuple[str, str]]],
+        **kwargs: Any,
+    ) -> None:
+        if len(choices) == 0:
             raise ValueError('"choices" argument must be be a non-empty list')
 
-        choices = []
-        for choice in kwargs["choices"]:
+        reformatted_choices: List[Tuple[str, str]] = []
+        for choice in choices:
             if isinstance(choice, tuple):
-                choices.append(choice)
+                reformatted_choices.append(choice)
             elif isinstance(choice, str):
-                choices.append((choice, choice))
+                reformatted_choices.append((choice, choice))
             else:
                 raise TypeError(
                     'Invalid choice "{choice}". '
@@ -24,18 +34,16 @@ class EnumField(CharField):
                     )
                 )
 
-        kwargs["choices"] = choices
-
         if "max_length" in kwargs:
             raise TypeError('"max_length" is not a valid argument')
         # Massive to avoid problems with validation - let MySQL handle the
         # maximum string length
         kwargs["max_length"] = int(2 ** 32)
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, choices=reformatted_choices, **kwargs)
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.enum.EnumField",
@@ -49,7 +57,7 @@ class EnumField(CharField):
 
         return name, path, args, kwargs
 
-    def db_type(self, connection):
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         connection.ensure_connection()
         values = [connection.connection.escape_string(c) for c, _ in self.flatchoices]
         # Use force_str because MySQLdb escape_string() returns bytes, but

@@ -1,21 +1,23 @@
+from typing import Any, List
+
 import django
-from django.core.checks import Tags, Warning, register
+from django.core import checks
 
 from django_mysql.utils import mysql_connections
 
 
-def register_checks():
-    register(Tags.database)(check_variables)
+def register_checks() -> None:
+    checks.register(checks.Tags.database)(check_variables)
 
 
-def check_variables(app_configs, **kwargs):
+def check_variables(**kwargs: Any) -> List[checks.CheckMessage]:
     if django.VERSION >= (3, 1):
         # when moving to Django 3.1+ only support, make this a real argument
         databases = kwargs["databases"]
     else:
         databases = {alias for alias, connection in mysql_connections()}
 
-    errors = []
+    errors: List[checks.CheckMessage] = []
 
     if databases is None:
         return errors
@@ -42,8 +44,8 @@ def check_variables(app_configs, **kwargs):
     return errors
 
 
-def innodb_strict_mode_warning(alias):
-    return Warning(
+def innodb_strict_mode_warning(alias: str) -> checks.Warning:
+    return checks.Warning(
         f"InnoDB Strict Mode is not set for database connection '{alias}'",
         hint=(
             "InnoDB Strict Mode escalates several warnings around "
@@ -56,8 +58,8 @@ def innodb_strict_mode_warning(alias):
     )
 
 
-def utf8mb4_warning(alias):
-    return Warning(
+def utf8mb4_warning(alias: str) -> checks.Warning:
+    return checks.Warning(
         f"The character set is not utf8mb4 for database connection '{alias}'",
         hint=(
             "The default 'utf8' character set does not include support for "

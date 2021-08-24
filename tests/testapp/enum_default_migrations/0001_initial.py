@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from django.db import migrations, models
 
 from django_mysql.models import EnumField
@@ -5,7 +7,7 @@ from django_mysql.models import EnumField
 
 class Migration(migrations.Migration):
 
-    dependencies = []
+    dependencies: List[Tuple[str, str]] = []
 
     operations = [
         migrations.CreateModel(

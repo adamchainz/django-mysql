@@ -1,6 +1,10 @@
 from collections import OrderedDict
+from types import TracebackType
+from typing import Dict, List, Optional, Type, Union
 
 from django.db import connections
+from django.db.backends.utils import CursorWrapper
+from django.db.models import Model
 from django.db.transaction import TransactionManagementError, atomic
 from django.db.utils import DEFAULT_DB_ALIAS
 
@@ -8,11 +12,13 @@ from django_mysql.exceptions import TimeoutError
 
 
 class Lock:
-    def __init__(self, name, acquire_timeout=10.0, using=None):
+    def __init__(
+        self, name: str, acquire_timeout: float = 10.0, using: Optional[str] = None
+    ) -> None:
         self.acquire_timeout = acquire_timeout
 
         if using is None:
-            self.db = DEFAULT_DB_ALIAS
+            self.db: str = DEFAULT_DB_ALIAS
         else:
             self.db = using
 
@@ -21,25 +27,30 @@ class Lock:
         self.name = self.make_name(self.db, name)
 
     @classmethod
-    def make_name(cls, db, name):
+    def make_name(cls, db: str, name: str) -> str:
         return ".".join((connections[db].settings_dict["NAME"], name))
 
     @classmethod
-    def unmake_name(cls, db, name):
+    def unmake_name(cls, db: str, name: str) -> str:
         # Cut off the 'dbname.' prefix
         db_name = connections[db].settings_dict["NAME"]
         return name[len(db_name) + 1 :]
 
-    def get_cursor(self):
+    def get_cursor(self) -> CursorWrapper:
         return connections[self.db].cursor()
 
-    def __enter__(self):
+    def __enter__(self) -> "Lock":
         return self.acquire()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: Optional[TracebackType],
+    ) -> None:
         self.release()
 
-    def acquire(self):
+    def acquire(self) -> "Lock":
         with self.get_cursor() as cursor:
             cursor.execute("SELECT GET_LOCK(%s, %s)", (self.name, self.acquire_timeout))
             result = cursor.fetchone()[0]
@@ -50,7 +61,7 @@ class Lock:
                     f"Waited >{self.acquire_timeout} seconds to gain lock"
                 )
 
-    def release(self):
+    def release(self) -> None:
         with self.get_cursor() as cursor:
             cursor.execute("SELECT RELEASE_LOCK(%s)", (self.name,))
             result = cursor.fetchone()[0]
@@ -58,16 +69,18 @@ class Lock:
             if result is None or result == 0:
                 raise ValueError("Tried to release an unheld lock.")
 
-    def is_held(self):
+    def is_held(self) -> bool:
         return self.holding_connection_id() is not None
 
-    def holding_connection_id(self):
+    def holding_connection_id(self) -> Optional[int]:
         with self.get_cursor() as cursor:
             cursor.execute("SELECT IS_USED_LOCK(%s)", (self.name,))
             return cursor.fetchone()[0]
 
     @classmethod
-    def held_with_prefix(cls, prefix, using=DEFAULT_DB_ALIAS):
+    def held_with_prefix(
+        cls, prefix: str, using: str = DEFAULT_DB_ALIAS
+    ) -> Dict[str, int]:
         # Use the METADATA_LOCK_INFO table from the MariaDB plugin to show
         # which locks of a given prefix are held
         prefix = cls.make_name(using, prefix)
@@ -84,12 +97,19 @@ class Lock:
 
 
 class TableLock:
-    def __init__(self, read=None, write=None, using=None):
-        self.read = self._process_names(read)
-        self.write = self._process_names(write)
+    def __init__(
+        self,
+        read: Optional[List[Union[str, Type[Model]]]] = None,
+        write: Optional[List[Union[str, Type[Model]]]] = None,
+        using: Optional[str] = None,
+    ) -> None:
+        self.read: List[str] = self._process_names(read)
+        self.write: List[str] = self._process_names(write)
         self.db = DEFAULT_DB_ALIAS if using is None else using
 
-    def _process_names(self, names):
+    def _process_names(
+        self, names: Optional[List[Union[str, Type[Model]]]]
+    ) -> List[str]:
         """
         Convert a list of models/table names into a list of table names. Deals
         with cases of model inheritance, etc.
@@ -100,7 +120,7 @@ class TableLock:
         table_names = OrderedDict()  # Preserve order and ignore duplicates
         while len(names):
             name = names.pop(0)
-            if hasattr(name, "_meta"):
+            if isinstance(name, type):
                 if name._meta.abstract:
                     raise ValueError(f"Can't lock abstract model {name.__name__}")
 
@@ -110,15 +130,20 @@ class TableLock:
                     names.extend(name._meta.parents.keys())
             else:
                 table_names[name] = True
-        return table_names.keys()
+        return list(table_names.keys())
 
-    def __enter__(self):
-        return self.acquire()
+    def __enter__(self) -> None:
+        self.acquire()
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.release(exc_type, exc_value, traceback)
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: Optional[TracebackType],
+    ) -> None:
+        self.release(exc_type, exc_value, exc_traceback)
 
-    def acquire(self):
+    def acquire(self) -> None:
         connection = connections[self.db]
         qn = connection.ops.quote_name
         with connection.cursor() as cursor:
@@ -137,9 +162,14 @@ class TableLock:
                 locks.append(f"{qn(name)} WRITE")
             cursor.execute("LOCK TABLES {}".format(", ".join(locks)))
 
-    def release(self, exc_type=None, exc_value=None, traceback=None):
+    def release(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        exc_traceback: Optional[TracebackType] = None,
+    ) -> None:
         connection = connections[self.db]
         with connection.cursor() as cursor:
-            self._atomic.__exit__(exc_type, exc_value, traceback)
+            self._atomic.__exit__(exc_type, exc_value, exc_traceback)
             self._atomic = None
             cursor.execute("UNLOCK TABLES")

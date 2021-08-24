@@ -92,10 +92,13 @@ class PluginOperationTests(TransactionTestCase):
 class AlterStorageEngineTests(TransactionTestCase):
     def test_no_from_means_unreversible(self):
         operation = AlterStorageEngine("mymodel", to_engine="InnoDB")
+        state = ProjectState()
+        new_state = state.clone()
         assert not operation.reversible
 
-        with pytest.raises(NotImplementedError) as excinfo:
-            operation.database_backwards(None, None, None, None)
+        with connection.schema_editor() as editor:
+            with pytest.raises(NotImplementedError) as excinfo:
+                operation.database_backwards("testapp", editor, state, new_state)
 
         assert str(excinfo.value) == "You cannot reverse this operation"
 

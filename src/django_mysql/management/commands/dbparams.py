@@ -1,3 +1,6 @@
+import argparse
+from typing import Any, Dict, List, Union
+
 import django
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -16,12 +19,13 @@ class Command(BaseCommand):
         "'{default}'."
     ).format(default=DEFAULT_DB_ALIAS)
 
+    requires_system_checks: Union[List[str], bool]
     if django.VERSION >= (3, 2):
         requires_system_checks = []
     else:
         requires_system_checks = False
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "alias",
             metavar="alias",
@@ -33,7 +37,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--mysql",
             action="store_true",
-            dest="mysql",
+            dest="show_mysql",
             default=False,
             help="Outputs flags for tools that take parameters in the "
             "same format as the mysql client, e.g. mysql "
@@ -42,42 +46,40 @@ class Command(BaseCommand):
         parser.add_argument(
             "--dsn",
             action="store_true",
-            dest="dsn",
+            dest="show_dsn",
             default=False,
             help="Output a DSN for e.g. percona tools, e.g. "
             "pt-online-schema-change $(./manage.py dbparams --dsn)",
         )
 
-    def handle(self, *args, **options):
-        alias = options["alias"]
-
+    def handle(
+        self, *args: Any, alias: str, show_mysql: bool, show_dsn: bool, **options: Any
+    ) -> None:
         try:
-            settings_dict = connections[alias].settings_dict
+            connection = connections[alias]
         except ConnectionDoesNotExist:
             raise CommandError(f"Connection '{alias}' does not exist")
-
-        connection = connections[alias]
         if connection.vendor != "mysql":
             raise CommandError(f"{alias} is not a MySQL database connection")
 
-        show_mysql = options["mysql"]
-        show_dsn = options["dsn"]
         if show_mysql and show_dsn:
             raise CommandError("Pass only one of --mysql and --dsn")
         elif not show_mysql and not show_dsn:
             show_mysql = True
+
+        settings_dict: Dict[str, Any] = connection.settings_dict
 
         if show_mysql:
             self.output_for_mysql(settings_dict)
         elif show_dsn:
             self.output_for_dsn(settings_dict)
 
-    def output_for_mysql(self, settings_dict):
+    def output_for_mysql(self, settings_dict: Dict[str, Any]) -> None:
         args = settings_to_cmd_args(settings_dict)
         args = args[1:]  # Delete the 'mysql' at the start
         self.stdout.write(" ".join(args), ending="")
 
-    def output_for_dsn(self, settings_dict):
+    def output_for_dsn(self, settings_dict: Dict[str, Any]) -> None:
         cert = settings_dict["OPTIONS"].get("ssl", {}).get("ca")
         if cert:
             self.stderr.write(

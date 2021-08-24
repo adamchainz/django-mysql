@@ -24,7 +24,7 @@ Docs:
 `MariaDB <https://mariadb.com/kb/en/mariadb/data-type-storage-requirements/>`_.
 
 
-.. class:: SizedTextField(size_class, **kwargs)
+.. class:: SizedTextField(size_class: int, **kwargs)
 
     A subclass of Django's :class:`~django.db.models.TextField` that allows you
     to use the other sizes of ``TEXT`` data type. Set ``size_class`` to:

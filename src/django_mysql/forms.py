@@ -1,3 +1,5 @@
+from typing import Any, List, Optional, Set
+
 from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -19,7 +21,14 @@ class SimpleListField(forms.CharField):
         "no_double_commas": _("No leading, trailing, or double commas."),
     }
 
-    def __init__(self, base_field, max_length=None, min_length=None, *args, **kwargs):
+    def __init__(
+        self,
+        base_field: forms.Field,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         self.base_field = base_field
         super().__init__(*args, **kwargs)
         if max_length is not None:
@@ -29,12 +38,12 @@ class SimpleListField(forms.CharField):
             self.min_length = min_length
             self.validators.append(ListMinLengthValidator(int(min_length)))
 
-    def prepare_value(self, value):
+    def prepare_value(self, value: Any) -> Any:
         if isinstance(value, list):
             return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
-    def to_python(self, value):
+    def to_python(self, value: str) -> List[Any]:
         if value and len(value):
             items = value.split(",")
         else:
@@ -74,7 +83,7 @@ class SimpleListField(forms.CharField):
 
         return values
 
-    def validate(self, value):
+    def validate(self, value: Any) -> None:
         super().validate(value)
         errors = []
         for i, item in enumerate(value, start=1):
@@ -97,7 +106,7 @@ class SimpleListField(forms.CharField):
         if errors:
             raise ValidationError(errors)
 
-    def run_validators(self, value):
+    def run_validators(self, value: Any) -> None:
         super().run_validators(value)
         errors = []
         for i, item in enumerate(value, start=1):
@@ -133,7 +142,14 @@ class SimpleSetField(forms.CharField):
         ),
     }
 
-    def __init__(self, base_field, max_length=None, min_length=None, *args, **kwargs):
+    def __init__(
+        self,
+        base_field: forms.Field,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         self.base_field = base_field
         super().__init__(*args, **kwargs)
         if max_length is not None:
@@ -143,12 +159,12 @@ class SimpleSetField(forms.CharField):
             self.min_length = min_length
             self.validators.append(SetMinLengthValidator(int(min_length)))
 
-    def prepare_value(self, value):
+    def prepare_value(self, value: Any) -> Any:
         if isinstance(value, set):
             return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
-    def to_python(self, value):
+    def to_python(self, value: str) -> Set[Any]:
         if value and len(value):
             items = value.split(",")
         else:
@@ -197,7 +213,7 @@ class SimpleSetField(forms.CharField):
 
         return values
 
-    def validate(self, value):
+    def validate(self, value: Any) -> None:
         super().validate(value)
         errors = []
         for item in value:
@@ -218,7 +234,7 @@ class SimpleSetField(forms.CharField):
         if errors:
             raise ValidationError(errors)
 
-    def run_validators(self, value):
+    def run_validators(self, value: Any) -> None:
         super().run_validators(value)
         errors = []
         for item in value:

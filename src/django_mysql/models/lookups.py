@@ -1,18 +1,26 @@
+from typing import Any, Callable, Iterable, Tuple
+
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField, Lookup, Transform
 from django.db.models.lookups import BuiltinLookup
+from django.db.models.sql.compiler import SQLCompiler
 
 
 class CaseSensitiveExact(BuiltinLookup):
     lookup_name = "case_exact"
 
-    def get_rhs_op(self, connection, rhs):
+    def get_rhs_op(self, connection: BaseDatabaseWrapper, rhs: str) -> str:
         return "= BINARY %s" % rhs
 
 
 class SoundsLike(Lookup):
     lookup_name = "sounds_like"
 
-    def as_sql(self, qn, connection):
+    def as_sql(
+        self,
+        qn: Callable[[str], str],
+        connection: BaseDatabaseWrapper,
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
@@ -23,7 +31,9 @@ class Soundex(Transform):
     lookup_name = "soundex"
     output_field = CharField()
 
-    def as_sql(self, compiler, connection):
+    def as_sql(
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
         return "SOUNDEX(%s)" % lhs, params
 
@@ -37,7 +47,7 @@ class Soundex(Transform):
 class SetContains(Lookup):
     lookup_name = "contains"
 
-    def get_prep_lookup(self):
+    def get_prep_lookup(self) -> Any:
         if isinstance(self.rhs, (list, set, tuple)):
             # Can't do multiple contains without massive ORM hackery
             # (ANDing all the FIND_IN_SET calls), so just reject them
@@ -49,7 +59,9 @@ class SetContains(Lookup):
             )
         return super().get_prep_lookup()
 
-    def as_sql(self, qn, connection):
+    def as_sql(
+        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
@@ -67,7 +79,9 @@ class SetIContains(SetContains):
 class DynColHasKey(Lookup):
     lookup_name = "has_key"
 
-    def as_sql(self, qn, connection):
+    def as_sql(
+        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)

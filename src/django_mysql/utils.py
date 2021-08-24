@@ -4,12 +4,27 @@ import time
 from collections import defaultdict
 from queue import Empty, Queue
 from threading import Lock, Thread
+from types import TracebackType
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 from weakref import WeakKeyDictionary
 
 import django
 from django.db import DEFAULT_DB_ALIAS
 from django.db import connection as default_connection
 from django.db import connections
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.models import Model
 
 
 class WeightedAverageRate:
@@ -18,7 +33,7 @@ class WeightedAverageRate:
     at a certain rate of activity (row iterations etc.).
     """
 
-    def __init__(self, target_t, weight=0.75):
+    def __init__(self, target_t: float, weight: float = 0.75) -> None:
         """
         target_t - Target time for t in update()
         weight - Weight of previous n/t values
@@ -28,7 +43,7 @@ class WeightedAverageRate:
         self.avg_t = 0.0
         self.weight = weight
 
-    def update(self, n, t):
+    def update(self, n: int, t: float) -> int:
         """
         Update weighted average rate.  Param n is generic; it's how many of
         whatever the caller is doing (rows, checksums, etc.).  Param s is how
@@ -51,7 +66,7 @@ class WeightedAverageRate:
         return int(self.avg_rate * self.target_t)
 
     @property
-    def avg_rate(self):
+    def avg_rate(self) -> float:
         try:
             return self.avg_n / self.avg_t
         except ZeroDivisionError:
@@ -64,16 +79,21 @@ class StopWatch:
     Context manager for timing a block
     """
 
-    def __enter__(self):
+    def __enter__(self) -> "StopWatch":
         self.start_time = time.time()
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: Optional[TracebackType],
+    ) -> None:
         self.end_time = time.time()
         self.total_time = self.end_time - self.start_time
 
 
-def format_duration(total_seconds):
+def format_duration(total_seconds: int) -> str:
     hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
     seconds = total_seconds % 60
@@ -89,15 +109,15 @@ def format_duration(total_seconds):
 
 if django.VERSION >= (3, 0):
 
-    def connection_is_mariadb(connection):
+    def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
         return connection.vendor == "mysql" and connection.mysql_is_mariadb
 
 
 else:
 
-    _is_mariadb_cache = WeakKeyDictionary()
+    _is_mariadb_cache: Mapping[BaseDatabaseWrapper, bool] = WeakKeyDictionary()
 
-    def connection_is_mariadb(connection):
+    def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
         if connection.vendor != "mysql":
             return False
 
@@ -108,13 +128,13 @@ else:
             return _is_mariadb_cache[connection]
         except KeyError:
             with connection.temporary_connection():
-                server_info = connection.connection.get_server_info()
+                server_info: str = connection.connection.get_server_info()
             is_mariadb = "MariaDB" in server_info
-            _is_mariadb_cache[connection] = is_mariadb
+            _is_mariadb_cache[connection] = is_mariadb  # type: ignore [index]
             return is_mariadb
 
 
-def settings_to_cmd_args(settings_dict):
+def settings_to_cmd_args(settings_dict: Dict[str, Any]) -> List[str]:
     """
     Copied from django 1.8 MySQL backend DatabaseClient - where the runshell
     commandline creation has been extracted and made callable like so.
@@ -149,10 +169,10 @@ def settings_to_cmd_args(settings_dict):
     return args
 
 
-programs_memo = {}
+programs_memo: Dict[str, bool] = {}
 
 
-def have_program(program_name):
+def have_program(program_name: str) -> bool:
     global programs_memo
     if program_name not in programs_memo:
         status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
@@ -161,7 +181,7 @@ def have_program(program_name):
     return programs_memo[program_name]
 
 
-def pt_fingerprint(query):
+def pt_fingerprint(query: str) -> str:
     """
     Takes a query (in a string) and returns its 'fingerprint'
     """
@@ -171,6 +191,12 @@ def pt_fingerprint(query):
     thread = PTFingerprintThread.get_thread()
     thread.in_queue.put(query)
     return thread.out_queue.get()
+
+
+if TYPE_CHECKING:
+    PTFingerPrintQueueType = Queue[str]
+else:
+    PTFingerPrintQueueType = Queue
 
 
 class PTFingerprintThread(Thread):
@@ -190,17 +216,17 @@ class PTFingerprintThread(Thread):
     around.
     """
 
-    the_thread = None
+    the_thread: Optional["PTFingerprintThread"] = None
     life_lock = Lock()
 
     PROCESS_LIFETIME = 60.0  # seconds
 
     @classmethod
-    def get_thread(cls):
+    def get_thread(cls) -> "PTFingerprintThread":
         with cls.life_lock:
             if cls.the_thread is None:
-                in_queue = Queue()
-                out_queue = Queue()
+                in_queue: PTFingerPrintQueueType = Queue()
+                out_queue: PTFingerPrintQueueType = Queue()
                 thread = cls(in_queue, out_queue)
                 thread.daemon = True
                 thread.in_queue = in_queue
@@ -210,12 +236,17 @@ class PTFingerprintThread(Thread):
 
         return cls.the_thread
 
-    def __init__(self, in_queue, out_queue, **kwargs):
+    def __init__(
+        self,
+        in_queue: PTFingerPrintQueueType,
+        out_queue: PTFingerPrintQueueType,
+        **kwargs: Any,
+    ) -> None:
         self.in_queue = in_queue
         self.out_queue = out_queue
         super().__init__(**kwargs)
 
-    def run(self):
+    def run(self) -> None:
         # pty is unix/linux only
         import pty  # noqa
 
@@ -225,6 +256,7 @@ class PTFingerprintThread(Thread):
             ["pt-fingerprint"], stdin=subprocess.PIPE, stdout=slave, close_fds=True
         )
         stdin = proc.stdin
+        assert stdin is not None
         stdout = os.fdopen(master)
 
         while True:
@@ -255,21 +287,18 @@ class PTFingerprintThread(Thread):
         self.life_lock.release()
 
 
-def collapse_spaces(string):
+def collapse_spaces(string: str) -> str:
     bits = string.replace("\n", " ").split(" ")
     return " ".join(filter(None, bits))
 
 
-def index_name(model, *field_names, **kwargs):
+def index_name(model: Model, *field_names: str, using: str = DEFAULT_DB_ALIAS) -> str:
     """
     Returns the name of the index existing on field_names, or raises KeyError
     if no such index exists.
     """
     if not len(field_names):
         raise ValueError("At least one field name required")
-    using = kwargs.pop("using", DEFAULT_DB_ALIAS)
-    if len(kwargs):
-        raise ValueError("The only supported keyword argument is 'using'")
 
     existing_fields = {field.name: field for field in model._meta.fields}
     fields = [existing_fields[name] for name in field_names if name in existing_fields]
@@ -304,11 +333,11 @@ def index_name(model, *field_names, **kwargs):
         raise KeyError("There is no index on (" + ",".join(field_names) + ")")
 
 
-def get_list_sql(sequence):
+def get_list_sql(sequence: Union[List[str], Tuple[str, ...]]) -> str:
     return "({})".format(",".join("%s" for x in sequence))
 
 
-def mysql_connections():
+def mysql_connections() -> Generator[BaseDatabaseWrapper, None, None]:
     conn_names = [DEFAULT_DB_ALIAS] + list(set(connections) - {DEFAULT_DB_ALIAS})
     for alias in conn_names:
         connection = connections[alias]

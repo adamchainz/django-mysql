@@ -112,13 +112,6 @@ class NumericFunctionTests(TestCase):
         # match - maybe sign issues?
         assert ab.crc == 2854018686
 
-    def test_crc32_only_takes_one_arg_no_kwargs(self):
-        with pytest.raises(TypeError):
-            CRC32("d", "c")
-
-        with pytest.raises(TypeError):
-            CRC32("d", something="wrong")
-
     def test_sign(self):
         Alphabet.objects.create(a=123, b=0, c=-999)
         ab = Alphabet.objects.annotate(
@@ -161,13 +154,6 @@ class StringFunctionTests(TestCase):
         concat = ConcatWS("d", "e", separator=F("a"))
         ab = Alphabet.objects.annotate(de=concat).first()
         assert ab.de == "AAA1BBB"
-
-    def test_concat_ws_bad_arg(self):
-        with pytest.raises(ValueError) as excinfo:
-            ConcatWS("a", "b", separataaa=",")
-        assert "Invalid keyword arguments for ConcatWS: separataaa" in str(
-            excinfo.value
-        )
 
     def test_concat_ws_too_few_fields(self):
         with pytest.raises(ValueError) as excinfo:
@@ -329,16 +315,9 @@ class JSONFunctionTests(TestCase):
             }
         )
 
-    def test_json_extract_kwarg_bad(self):
-        with pytest.raises(TypeError) as excinfo:
-            JSONExtract("foo", "bar", foo=1)
-        assert (
-            str(excinfo.value) == "__init__() got an unexpected keyword argument 'foo'"
-        )
-
     def test_json_extract_output_field_too_many_paths(self):
         with pytest.raises(TypeError) as excinfo:
-            JSONExtract("foo", "bar", "baz", output_field=1)
+            JSONExtract("foo", "bar", "baz", output_field=FloatField())
         assert "output_field won't work with more than one path" in str(excinfo.value)
 
     def test_json_extract_flote(self):

@@ -1,18 +1,25 @@
+import datetime as dt
 import json
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.models import CharField
+from django.db.models import CharField, Expression
 from django.db.models import Field as DjangoField
 from django.db.models import Func, IntegerField, TextField, Value
 
 from django_mysql.compat import HAVE_JSONFIELD, JSONField
 
+ExpressionArgument = Union[
+    Expression,
+    str,  # column reference handled by Django
+]
+
 
 class SingleArgFunc(Func):
 
-    output_field_class = None
+    output_field_class: Optional[Type[DjangoField]] = None
 
-    def __init__(self, expression):
+    def __init__(self, expression: ExpressionArgument) -> None:
         super().__init__(expression)
         if self.output_field_class is not None:
             self.output_field = self.output_field_class()
@@ -24,7 +31,13 @@ class SingleArgFunc(Func):
 class If(Func):
     function = "IF"
 
-    def __init__(self, condition, true, false=None, output_field=None):
+    def __init__(
+        self,
+        condition: ExpressionArgument,
+        true: ExpressionArgument,
+        false: Optional[ExpressionArgument] = None,
+        output_field: Optional[DjangoField] = None,
+    ) -> None:
         if output_field is None:
             # Workaround for some ORM weirdness
             output_field = DjangoField()
@@ -55,15 +68,9 @@ class ConcatWS(Func):
 
     function = "CONCAT_WS"
 
-    def __init__(self, *expressions, **kwargs):
-        separator = kwargs.pop("separator", ",")
-        if len(kwargs) > 0:
-            raise ValueError(
-                "Invalid keyword arguments for ConcatWS: {}".format(
-                    ",".join(kwargs.keys())
-                )
-            )
-
+    def __init__(
+        self, *expressions: ExpressionArgument, separator: Optional[str] = ","
+    ) -> None:
         if len(expressions) < 2:
             raise ValueError("ConcatWS must take at least two expressions")
 
@@ -78,7 +85,11 @@ class ConcatWS(Func):
 class ELT(Func):
     function = "ELT"
 
-    def __init__(self, num, expressions):
+    def __init__(
+        self,
+        num: ExpressionArgument,
+        expressions: Union[List[ExpressionArgument], Tuple[ExpressionArgument]],
+    ) -> None:
         value_exprs = []
         for v in expressions:
             if not hasattr(v, "resolve_expression"):
@@ -91,7 +102,12 @@ class ELT(Func):
 class Field(Func):
     function = "FIELD"
 
-    def __init__(self, field, values, **kwargs):
+    def __init__(
+        self,
+        field: ExpressionArgument,
+        values: Union[List[ExpressionArgument], Tuple[ExpressionArgument]],
+        **kwargs: Any,
+    ) -> None:
         values_exprs = []
         for v in values:
             if not hasattr(v, "resolve_expression"):
@@ -107,7 +123,12 @@ class Field(Func):
 class UpdateXML(Func):
     function = "UPDATEXML"
 
-    def __init__(self, xml_target, xpath_expr, new_xml):
+    def __init__(
+        self,
+        xml_target: ExpressionArgument,
+        xpath_expr: ExpressionArgument,
+        new_xml: ExpressionArgument,
+    ) -> None:
         if not hasattr(xpath_expr, "resolve_expression"):
             xpath_expr = Value(xpath_expr)
         if not hasattr(new_xml, "resolve_expression"):
@@ -121,7 +142,9 @@ class UpdateXML(Func):
 class XMLExtractValue(Func):
     function = "EXTRACTVALUE"
 
-    def __init__(self, xml_frag, xpath_expr):
+    def __init__(
+        self, xml_frag: ExpressionArgument, xpath_expr: ExpressionArgument
+    ) -> None:
         if not hasattr(xpath_expr, "resolve_expression"):
             xpath_expr = Value(xpath_expr)
 
@@ -145,7 +168,7 @@ class SHA2(Func):
     function = "SHA2"
     hash_lens = (224, 256, 384, 512)
 
-    def __init__(self, expression, hash_len=512):
+    def __init__(self, expression: ExpressionArgument, hash_len: int = 512) -> None:
         if hash_len not in self.hash_lens:
             raise ValueError(
                 "hash_len must be one of {}".format(
@@ -161,7 +184,7 @@ class SHA2(Func):
 class LastInsertId(Func):
     function = "LAST_INSERT_ID"
 
-    def __init__(self, expression=None):
+    def __init__(self, expression: Optional[ExpressionArgument] = None) -> None:
         if expression is not None:
             super().__init__(expression)
         else:
@@ -170,7 +193,7 @@ class LastInsertId(Func):
         self.output_field = IntegerField()
 
     @classmethod
-    def get(cls, using=DEFAULT_DB_ALIAS):
+    def get(cls, using: str = DEFAULT_DB_ALIAS) -> int:
         # N.B. did try getting it from connection.connection.insert_id() (The
         # MySQLdb query-free method) but it did not work with non-default
         # database connections in Django, and the reason was not clear
@@ -186,7 +209,12 @@ if HAVE_JSONFIELD:
     class JSONExtract(Func):
         function = "JSON_EXTRACT"
 
-        def __init__(self, expression, *paths, output_field=None):
+        def __init__(
+            self,
+            expression: ExpressionArgument,
+            *paths: ExpressionArgument,
+            output_field: Optional[Type[DjangoField]] = None,
+        ) -> None:
             exprs = [expression]
             for path in paths:
                 if not hasattr(path, "resolve_expression"):
@@ -207,7 +235,11 @@ if HAVE_JSONFIELD:
     class JSONKeys(Func):
         function = "JSON_KEYS"
 
-        def __init__(self, expression, path=None):
+        def __init__(
+            self,
+            expression: ExpressionArgument,
+            path: Optional[ExpressionArgument] = None,
+        ) -> None:
             exprs = [expression]
             if path is not None:
                 if not hasattr(path, "resolve_expression"):
@@ -219,8 +251,16 @@ if HAVE_JSONFIELD:
     class JSONLength(Func):
         function = "JSON_LENGTH"
 
-        def __init__(self, expression, path=None, **extra):
-            output_field = extra.pop("output_field", IntegerField())
+        def __init__(
+            self,
+            expression: ExpressionArgument,
+            path: Optional[ExpressionArgument] = None,
+            *,
+            output_field: Optional[DjangoField] = None,
+            **extra: Any,
+        ) -> None:
+            if output_field is None:
+                output_field = IntegerField()
 
             exprs = [expression]
             if path is not None:
@@ -234,12 +274,23 @@ if HAVE_JSONFIELD:
         function = "CAST"
         template = "%(function)s(%(expressions)s AS JSON)"
 
-        def __init__(self, expression):
+        def __init__(
+            self, expression: Union[None, int, float, str, List[Any], Dict[str, Any]]
+        ) -> None:
             json_string = json.dumps(expression, allow_nan=False)
             super().__init__(Value(json_string))
 
     class BaseJSONModifyFunc(Func):
-        def __init__(self, expression, data):
+        def __init__(
+            self,
+            expression: ExpressionArgument,
+            data: Dict[
+                str,
+                Union[
+                    ExpressionArgument, None, int, float, str, List[Any], Dict[str, Any]
+                ],
+            ],
+        ) -> None:
             if not data:
                 raise ValueError('"data" cannot be empty')
 
@@ -277,7 +328,9 @@ if HAVE_JSONFIELD:
 class RegexpInstr(Func):
     function = "REGEXP_INSTR"
 
-    def __init__(self, expression, regex):
+    def __init__(
+        self, expression: ExpressionArgument, regex: ExpressionArgument
+    ) -> None:
         if not hasattr(regex, "resolve_expression"):
             regex = Value(regex)
 
@@ -287,7 +340,12 @@ class RegexpInstr(Func):
 class RegexpReplace(Func):
     function = "REGEXP_REPLACE"
 
-    def __init__(self, expression, regex, replace):
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        regex: ExpressionArgument,
+        replace: ExpressionArgument,
+    ) -> None:
         if not hasattr(regex, "resolve_expression"):
             regex = Value(regex)
 
@@ -300,7 +358,9 @@ class RegexpReplace(Func):
 class RegexpSubstr(Func):
     function = "REGEXP_SUBSTR"
 
-    def __init__(self, expression, regex):
+    def __init__(
+        self, expression: ExpressionArgument, regex: ExpressionArgument
+    ) -> None:
         if not hasattr(regex, "resolve_expression"):
             regex = Value(regex)
 
@@ -318,7 +378,7 @@ class AsType(Func):
     function = ""
     template = "%(expressions)s AS %(data_type)s"
 
-    def __init__(self, expression, data_type):
+    def __init__(self, expression: ExpressionArgument, data_type: str) -> None:
         if not hasattr(expression, "resolve_expression"):
             expression = Value(expression)
 
@@ -328,7 +388,7 @@ class AsType(Func):
         super().__init__(expression, data_type=data_type)
 
     @property
-    def TYPE_MAP(self):
+    def TYPE_MAP(self) -> Dict[str, Union[Type[DjangoField], DjangoField]]:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         return KeyTransform.TYPE_MAP
@@ -337,7 +397,13 @@ class AsType(Func):
 class ColumnAdd(Func):
     function = "COLUMN_ADD"
 
-    def __init__(self, expression, to_add):
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        to_add: Dict[
+            str, Union[ExpressionArgument, float, int, dt.date, dt.time, dt.datetime]
+        ],
+    ) -> None:
         from django_mysql.models.fields import DynamicField
 
         expressions = [expression]
@@ -358,7 +424,9 @@ class ColumnAdd(Func):
 class ColumnDelete(Func):
     function = "COLUMN_DELETE"
 
-    def __init__(self, expression, *to_delete):
+    def __init__(
+        self, expression: ExpressionArgument, *to_delete: ExpressionArgument
+    ) -> None:
         from django_mysql.models.fields import DynamicField
 
         expressions = [expression]
@@ -374,7 +442,12 @@ class ColumnGet(Func):
     function = "COLUMN_GET"
     template = "COLUMN_GET(%(expressions)s AS %(data_type)s)"
 
-    def __init__(self, expression, column_name, data_type):
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        column_name: ExpressionArgument,
+        data_type: ExpressionArgument,
+    ):
         if not hasattr(column_name, "resolve_expression"):
             column_name = Value(column_name)
 
@@ -391,7 +464,7 @@ class ColumnGet(Func):
         )
 
     @property
-    def TYPE_MAP(self):
+    def TYPE_MAP(self) -> Dict[str, Union[DjangoField, Type[DjangoField]]]:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         return KeyTransform.TYPE_MAP

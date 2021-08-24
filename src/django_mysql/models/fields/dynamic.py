@@ -1,10 +1,24 @@
 import json
 from datetime import date, datetime, time
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from django.core import checks
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import (
     DateField,
     DateTimeField,
+    Expression,
     Field,
     FloatField,
     IntegerField,
@@ -12,10 +26,13 @@ from django.db.models import (
     TimeField,
     Transform,
 )
+from django.db.models.sql.compiler import SQLCompiler
+from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
+from django_mysql.typing import DeconstructResult
 from django_mysql.utils import connection_is_mariadb
 
 try:
@@ -24,19 +41,52 @@ except ImportError:  # pragma: no cover
     mariadb_dyncol = None
 
 
+# Mypy doesn't support recursive types at time of writing, but we can at least
+# define this type to two levels deep.
+SpecDict = Dict[
+    str,
+    Union[
+        Type[date],
+        Type[datetime],
+        Type[float],
+        Type[int],
+        Type[str],
+        Type[time],
+        Dict[
+            str,
+            Union[
+                Type[date],
+                Type[datetime],
+                Type[float],
+                Type[int],
+                Type[str],
+                Type[time],
+                Dict[str, Any],
+            ],
+        ],
+    ],
+]
+
+
 class DynamicField(Field):
     empty_strings_allowed = False
     description = _("Mapping")
 
-    def __init__(self, *args, **kwargs):
-        if "default" not in kwargs:
-            kwargs["default"] = dict
-        if "blank" not in kwargs:
-            kwargs["blank"] = True
-        self.spec = kwargs.pop("spec", {})
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        *args: Any,
+        default: Any = dict,
+        blank: bool = True,
+        spec: Optional[SpecDict] = None,
+        **kwargs: Any,
+    ) -> None:
+        if spec is None:
+            self.spec = {}
+        else:
+            self.spec = spec
+        super().__init__(*args, default=default, blank=blank, **kwargs)
 
-    def check(self, **kwargs):
+    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
         errors = super().check(**kwargs)
         errors.extend(self._check_mariadb_dyncol())
         errors.extend(self._check_mariadb_version())
@@ -44,7 +94,7 @@ class DynamicField(Field):
         errors.extend(self._check_spec_recursively(self.spec))
         return errors
 
-    def _check_mariadb_dyncol(self):
+    def _check_mariadb_dyncol(self) -> List[checks.CheckMessage]:
         errors = []
         if mariadb_dyncol is None:
             errors.append(
@@ -57,7 +107,7 @@ class DynamicField(Field):
             )
         return errors
 
-    def _check_mariadb_version(self):
+    def _check_mariadb_version(self) -> List[checks.CheckMessage]:
         errors = []
 
         any_conn_works = any(
@@ -76,7 +126,7 @@ class DynamicField(Field):
             )
         return errors
 
-    def _check_character_set(self):
+    def _check_character_set(self) -> List[checks.CheckMessage]:
         errors = []
 
         conn = None
@@ -90,7 +140,7 @@ class DynamicField(Field):
         if conn is not None:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT @@character_set_client")
-                charset = cursor.fetchone()[0]
+                charset: str = cursor.fetchone()[0]
 
             if charset not in ("utf8", "utf8mb4"):
                 errors.append(
@@ -108,7 +158,9 @@ class DynamicField(Field):
 
         return errors
 
-    def _check_spec_recursively(self, spec, path=""):
+    def _check_spec_recursively(
+        self, spec: Any, path: str = ""
+    ) -> List[checks.CheckMessage]:
         errors = []
 
         if not isinstance(spec, dict):
@@ -153,13 +205,16 @@ class DynamicField(Field):
 
         return errors
 
-    def db_type(self, connection):
+    def db_type(self, connection: BaseDatabaseWrapper) -> str:
         return "mediumblob"
 
-    def get_transform(self, name):
-        transform = super().get_transform(name)
-        if transform:
+    def get_transform(
+        self, name: str
+    ) -> Optional[Union[Type[Transform], Callable[..., Transform]]]:
+        transform: Optional[Type[Transform]] = super().get_transform(name)
+        if transform is not None:
             return transform
+
         if name in self.spec:
             type_ = self.spec[name]
             if isinstance(type_, dict):
@@ -176,18 +231,22 @@ class DynamicField(Field):
                 key_name=name[: -len(end) - 1], data_type=end  # '_' + data_type
             )
 
-    def to_python(self, value):
+        return None
+
+    def to_python(self, value: Any) -> Any:
         if isinstance(value, bytes):
             return mariadb_dyncol.unpack(value)
         elif isinstance(value, str):
             return json.loads(value)  # serialization framework
         return value
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(
+        self, value: Any, expression: Expression, connection: BaseDatabaseWrapper
+    ) -> Any:
         # Used to always convert a value from the database
         return self.to_python(value)
 
-    def get_prep_value(self, value):
+    def get_prep_value(self, value: Any) -> Any:
         value = super().get_prep_value(value)
         if isinstance(value, dict):
             self.validate_spec(self.spec, value)
@@ -195,7 +254,9 @@ class DynamicField(Field):
         return value
 
     @classmethod
-    def validate_spec(cls, spec, value, prefix=""):
+    def validate_spec(
+        cls, spec: Dict[str, Any], value: Dict[str, Any], prefix: str = ""
+    ) -> None:
         for key, subspec in spec.items():
             if key in value:
 
@@ -210,14 +271,14 @@ class DynamicField(Field):
                 if isinstance(subspec, dict):
                     cls.validate_spec(subspec, value[key], prefix + key + ".")
 
-    def get_internal_type(self):
+    def get_internal_type(self) -> str:
         return "BinaryField"
 
-    def value_to_string(self, obj):
+    def value_to_string(self, obj: Any) -> str:
         return json.dumps(self.value_from_object(obj))
 
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
+    def deconstruct(self) -> DeconstructResult:
+        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
 
         bad_paths = (
             "django_mysql.models.fields.dynamic.DynamicField",
@@ -233,7 +294,7 @@ class DynamicField(Field):
             del kwargs["blank"]
         return name, path, args, kwargs
 
-    def formfield(self, *args, **kwargs):
+    def formfield(self, *args: Any, **kwargs: Any) -> Optional[FormField]:
         """
         Disabled in forms - there is no sensible way of editing this
         """
@@ -257,7 +318,7 @@ class KeyTransform(Transform):
 
     SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
 
-    TYPE_MAP = {
+    TYPE_MAP: Dict[str, Union[Type[Field], Field]] = {
         "BINARY": DynamicField,
         "CHAR": TextField(),
         "DATE": DateField(),
@@ -267,8 +328,14 @@ class KeyTransform(Transform):
         "TIME": TimeField(),
     }
 
-    def __init__(self, key_name, data_type, *args, **kwargs):
-        subspec = kwargs.pop("subspec", None)
+    def __init__(
+        self,
+        key_name: str,
+        data_type: str,
+        *args: Any,
+        subspec: Optional[SpecDict] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.key_name = key_name
         self.data_type = data_type
@@ -283,7 +350,9 @@ class KeyTransform(Transform):
         else:
             self.output_field = output_field
 
-    def as_sql(self, compiler, connection):
+    def as_sql(
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+    ) -> Tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
         return (
             f"COLUMN_GET({lhs}, %s AS {self.data_type})",
@@ -292,12 +361,14 @@ class KeyTransform(Transform):
 
 
 class KeyTransformFactory:
-    def __init__(self, key_name, data_type, subspec=None):
+    def __init__(
+        self, key_name: str, data_type: str, subspec: Optional[SpecDict] = None
+    ) -> None:
         self.key_name = key_name
         self.data_type = data_type
         self.subspec = subspec
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> Transform:
         if self.subspec is not None:
             kwargs["subspec"] = self.subspec
         return KeyTransform(self.key_name, self.data_type, *args, **kwargs)
