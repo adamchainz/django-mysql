@@ -6,6 +6,15 @@ List Fields
 
 .. currentmodule:: django_mysql.models
 
+.. admonition::
+
+    These field classes are only maintained for legacy purposes. They aren’t
+    recommended as comma separation is a fragile serialization format.
+
+    For new uses, you’re better off using Django 3.1’s ``JSONField`` that works
+    with all database backends. On earlier versions of Django, you can use
+    `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__.
+
 Two fields that store lists of data, grown-up versions of Django's
 :class:`~django.db.models.CommaSeparatedIntegerField`, cousins of
 ``django.contrib.postgres``'s
