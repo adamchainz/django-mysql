@@ -1,5 +1,5 @@
+import datetime as dt
 import json
-from datetime import date, datetime, time
 from unittest import SkipTest, mock
 
 import mariadb_dyncol
@@ -123,13 +123,13 @@ class QueryTests(DynColTestCase):
             DynamicModel(attrs={}),
             DynamicModel(
                 attrs={
-                    "datetimey": datetime(2001, 1, 4, 14, 15, 16),
-                    "datey": date(2001, 1, 4),
+                    "datetimey": dt.datetime(2001, 1, 4, 14, 15, 16),
+                    "datey": dt.date(2001, 1, 4),
                     "floaty": 128.5,
                     "inty": 9001,
                     "stry": "strvalue",
                     "str_underscorey": "strvalue2",
-                    "timey": time(14, 15, 16),
+                    "timey": dt.time(14, 15, 16),
                     "nesty": {"level2": "chirp"},
                 }
             ),
@@ -152,19 +152,19 @@ class QueryTests(DynColTestCase):
         assert list(DynamicModel.objects.filter(attrs__has_key="c")) == self.objs[1:3]
 
     def test_key_transform_datey(self):
-        assert list(DynamicModel.objects.filter(attrs__datey=date(2001, 1, 4))) == [
+        assert list(DynamicModel.objects.filter(attrs__datey=dt.date(2001, 1, 4))) == [
             self.objs[4]
         ]
 
     def test_key_transform_datey_DATE(self):
         assert list(
-            DynamicModel.objects.filter(attrs__datey_DATE=date(2001, 1, 4))
+            DynamicModel.objects.filter(attrs__datey_DATE=dt.date(2001, 1, 4))
         ) == [self.objs[4]]
 
     def test_key_transform_datetimey(self):
         assert list(
             DynamicModel.objects.filter(
-                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16)
+                attrs__datetimey=dt.datetime(2001, 1, 4, 14, 15, 16)
             )
         ) == [self.objs[4]]
 
@@ -176,7 +176,7 @@ class QueryTests(DynColTestCase):
     def test_key_transform_datetimey_DATETIME(self):
         assert list(
             DynamicModel.objects.filter(
-                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16)
+                attrs__datetimey_DATETIME=dt.datetime(2001, 1, 4, 14, 15, 16)
             )
         ) == [self.objs[4]]
 
@@ -231,13 +231,13 @@ class QueryTests(DynColTestCase):
         ) == [self.objs[4]]
 
     def test_key_transform_timey(self):
-        assert list(DynamicModel.objects.filter(attrs__timey=time(14, 15, 16))) == [
+        assert list(DynamicModel.objects.filter(attrs__timey=dt.time(14, 15, 16))) == [
             self.objs[4]
         ]
 
     def test_key_transform_timey_TIME(self):
         assert list(
-            DynamicModel.objects.filter(attrs__timey_TIME=time(14, 15, 16))
+            DynamicModel.objects.filter(attrs__timey_TIME=dt.time(14, 15, 16))
         ) == [self.objs[4]]
 
     def test_key_transform_nesty__level2(self):
