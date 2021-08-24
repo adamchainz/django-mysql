@@ -111,7 +111,7 @@ For interactive debugging of queries, this captures the query that the
 Model Fields
 ------------
 
-Fields that use MySQL-specific features!
+Fields that use MariaDB/MySQL-specific features!
 
 Dynamic Columns Field
 ---------------------
@@ -134,45 +134,6 @@ values:
 
 :ref:`Read more <dynamic-columns-field>`
 
-List Fields
------------
-
-Two field classes that allow you to store lists of items in a comma-separated
-string:
-
-.. code-block:: python
-
-    class Person(Model):
-        name = CharField(max_length=32)
-        post_nominals = ListTextField(base_field=CharField(max_length=32))
-
-.. code-block:: pycon
-
-    >>> Person.objects.filter(post_nominals__contains="PhD")
-    [<Person: Horatio>, <Person: Severus>]
-
-:ref:`Read more <list-fields>`
-
-
-Set Fields
-----------
-
-Two field classes that allow you to store sets of items in a comma-separated
-string:
-
-.. code-block:: python
-
-    class Post(Model):
-        name = CharField(max_length=32)
-        tags = SetTextField(base_field=CharField(max_length=10))
-
-.. code-block:: pycon
-
-    >>> Post.objects.create(name="First post", tags={"thoughts", "django"})
-    >>> Post.objects.filter(tags__contains="django")
-    [<Post: First post>]
-
-:ref:`Read more <set-fields>`
 
 EnumField
 ---------
