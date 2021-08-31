@@ -6,7 +6,7 @@ List Fields
 
 .. currentmodule:: django_mysql.models
 
-.. admonition::
+.. admonition:: Legacy
 
     These field classes are only maintained for legacy purposes. They aren’t
     recommended as comma separation is a fragile serialization format.
