@@ -59,7 +59,7 @@ History
   ``check`` command, for example ``python manage.py check --database default``.
 
 3.10.0 (2020-12-09)
-------------------
+-------------------
 
 * Drop Python 3.5 support.
 * Support Python 3.9.
