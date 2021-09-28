@@ -2,6 +2,7 @@ import datetime as dt
 import json
 from typing import Any
 
+import django
 from django.db import connection
 from django.db.models import (
     CASCADE,
@@ -267,8 +268,10 @@ class Bit1Model(Model):
     flag_b: Any = Bit1BooleanField(default=False)
 
 
-class NullBit1Model(Model):
-    flag: Any = NullBit1BooleanField()
+if django.VERSION < (4, 0):
+
+    class NullBit1Model(Model):
+        flag: Any = NullBit1BooleanField()
 
 
 class JSONModel(Model):
