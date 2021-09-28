@@ -23,5 +23,11 @@ that will help when connecting to a legacy database. If you are using
 
 .. class:: NullBit1BooleanField()
 
+    .. note::
+
+        Django deprecated ``NullBooleanField`` in version 3.1 and retains it
+        only for use in old migrations. ``NullBit1BooleanField`` is similarly
+        deprecated.
+
     A subclass of Django's :class:`~django.db.models.NullBooleanField` that
     uses the ``BIT(1)`` column type instead of ``bool``.
