@@ -164,7 +164,9 @@ class QueryTests(DynColTestCase):
     def test_key_transform_datetimey(self):
         assert list(
             DynamicModel.objects.filter(
-                attrs__datetimey=dt.datetime(2001, 1, 4, 14, 15, 16)
+                attrs__datetimey=dt.datetime(
+                    2001, 1, 4, 14, 15, 16, tzinfo=dt.timezone.utc
+                )
             )
         ) == [self.objs[4]]
 
@@ -176,7 +178,9 @@ class QueryTests(DynColTestCase):
     def test_key_transform_datetimey_DATETIME(self):
         assert list(
             DynamicModel.objects.filter(
-                attrs__datetimey_DATETIME=dt.datetime(2001, 1, 4, 14, 15, 16)
+                attrs__datetimey_DATETIME=dt.datetime(
+                    2001, 1, 4, 14, 15, 16, tzinfo=dt.timezone.utc
+                )
             )
         ) == [self.objs[4]]
 

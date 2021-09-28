@@ -52,6 +52,7 @@ if django.VERSION < (3, 1):
 ROOT_URLCONF = "tests.urls"
 TIME_ZONE = "UTC"
 USE_I18N = True
+USE_TZ = True
 
 TEMPLATES = [
     {
