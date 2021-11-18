@@ -10,6 +10,6 @@ include README.rst
 include src/django_mysql/py.typed
 exclude .editorconfig
 exclude .pre-commit-config.yaml
-exclude .readthedocs.yml
+exclude .readthedocs.yaml
 include pyproject.toml
 exclude tox.ini
