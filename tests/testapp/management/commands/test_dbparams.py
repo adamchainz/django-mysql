@@ -33,6 +33,8 @@ socket_db = ConnectionHandler(
     {"default": {"ENGINE": "django.db.backends.mysql", "HOST": "/etc/mydb.sock"}}
 )
 
+empty_db = ConnectionHandler({"default": {"ENGINE": "django.db.backends.mysql"}})
+
 
 class DBParamsTests(SimpleTestCase):
     def test_invalid_database(self):
@@ -90,6 +92,18 @@ class DBParamsTests(SimpleTestCase):
 
         output = out.getvalue()
         assert output == "S=/etc/mydb.sock"
+
+        errors = err.getvalue()
+        assert errors == ""
+
+    @mock.patch(command_connections, empty_db)
+    def test_dsn_empty(self):
+        out = StringIO()
+        err = StringIO()
+        call_command("dbparams", dsn=True, stdout=out, stderr=err)
+
+        output = out.getvalue()
+        assert output == ""
 
         errors = err.getvalue()
         assert errors == ""
