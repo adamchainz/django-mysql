@@ -569,10 +569,8 @@ class MySQLCache(BaseDatabaseCache):
             keys = {}
             for full_key in full_keys:
                 key, key_prefix, key_version = self.reverse_key_func(full_key)
-
-                if key_version == version:
-                    keys[key] = key_version
-            return set(keys.keys())
+                keys[key] = key_version
+            return set(keys)
 
     def get_with_prefix(
         self, prefix: str, version: Optional[int] = None
