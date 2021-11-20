@@ -5,6 +5,7 @@ from unittest import SkipTest, mock
 import mariadb_dyncol
 import pytest
 from django.core import serializers
+from django.core.exceptions import FieldError
 from django.db import connection
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
@@ -147,6 +148,10 @@ class QueryTests(DynColTestCase):
 
     def test_preexisting_transforms_work_fine(self):
         assert list(DynamicModel.objects.filter(attrs__dumb="notdumb")) == []
+
+    def test_non_existent_transform(self):
+        with pytest.raises(FieldError):
+            DynamicModel.objects.filter(attrs__nonexistent="notdumb")
 
     def test_has_key(self):
         assert list(DynamicModel.objects.filter(attrs__has_key="c")) == self.objs[1:3]
