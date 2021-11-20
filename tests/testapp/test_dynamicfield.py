@@ -382,6 +382,13 @@ class TestToPython(TestCase):
         assert result == {"foo": "bar"}
 
 
+def make_default():  # pragma: no cover
+    """
+    Use for below, alternative default function.
+    """
+    return {}
+
+
 class SubDynamicField(DynamicField):
     """
     Used below, has a different path for deconstruct()
@@ -392,6 +399,18 @@ class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = DynamicField()
         name, path, args, kwargs = field.deconstruct()
+        DynamicField(*args, **kwargs)
+
+    def test_deconstruct_default(self):
+        field = DynamicField(default=make_default)
+        name, path, args, kwargs = field.deconstruct()
+        assert kwargs["default"] is make_default
+        DynamicField(*args, **kwargs)
+
+    def test_deconstruct_blank(self):
+        field = DynamicField(blank=False)
+        name, path, args, kwargs = field.deconstruct()
+        assert kwargs["blank"] is False
         DynamicField(*args, **kwargs)
 
     def test_deconstruct_spec(self):

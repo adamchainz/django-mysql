@@ -2,6 +2,8 @@
 History
 =======
 
+* Fix ``DynamicField.deconstruct()`` to correctly handle ``blank``.
+
 4.2.0 (2021-10-05)
 ------------------
 

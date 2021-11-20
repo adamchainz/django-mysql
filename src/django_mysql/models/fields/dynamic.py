@@ -290,8 +290,10 @@ class DynamicField(Field):
         # Remove defaults
         if "default" in kwargs and kwargs["default"] is dict:
             del kwargs["default"]
-        if "blank" in kwargs and kwargs["blank"]:
-            del kwargs["blank"]
+        if self.blank:
+            kwargs.pop("blank")
+        else:
+            kwargs["blank"] = False
         return name, path, args, kwargs
 
     def formfield(self, *args: Any, **kwargs: Any) -> Optional[FormField]:
