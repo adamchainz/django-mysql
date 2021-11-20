@@ -108,4 +108,4 @@ jobs:
           path: htmlcov
 
       - name: Terminal report
-        run: python -m coverage report --fail-under=100
+        run: python -m coverage report
