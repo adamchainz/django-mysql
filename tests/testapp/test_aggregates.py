@@ -1,5 +1,5 @@
 import pytest
-from django.db.models import F
+from django.db.models import F, TextField
 from django.test import TestCase
 
 from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
@@ -74,6 +74,13 @@ class GroupConcatTests(TestCase):
 
     def test_basic_aggregate_ids(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id"))
+        concatted_ids = ",".join(self.str_tutee_ids)
+        assert out == {"tids": concatted_ids}
+
+    def test_basic_aggregate_ids_output_field(self):
+        out = self.shakes.tutees.aggregate(
+            tids=GroupConcat("id", output_field=TextField())
+        )
         concatted_ids = ",".join(self.str_tutee_ids)
         assert out == {"tids": concatted_ids}
 
