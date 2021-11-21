@@ -203,7 +203,7 @@ class LastInsertId(Func):
 
 # JSON Functions
 
-if HAVE_JSONFIELD:
+if HAVE_JSONFIELD:  # pragma: no branch
 
     class JSONExtract(Func):
         function = "JSON_EXTRACT"
