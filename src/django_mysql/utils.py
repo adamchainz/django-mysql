@@ -189,7 +189,7 @@ def pt_fingerprint(query: str) -> str:
     return thread.out_queue.get()
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     PTFingerPrintQueueType = Queue[str]
 else:
     PTFingerPrintQueueType = Queue

@@ -87,7 +87,7 @@ class LockTests(TestCase):
         assert not import_time_lock.is_held()
 
     def test_timeout_with_threads(self):
-        if TYPE_CHECKING:
+        if TYPE_CHECKING:  # pragma: no cover
             to_me: queue.Queue[str]
             to_you: queue.Queue[str]
 
@@ -132,7 +132,7 @@ class LockTests(TestCase):
         Test that the same lock object can be used in multiple threads, allows
         the definition of a lock upfront in a module.
         """
-        if TYPE_CHECKING:
+        if TYPE_CHECKING:  # pragma: no branch
             to_me: queue.Queue[str]
             to_you: queue.Queue[str]
 
