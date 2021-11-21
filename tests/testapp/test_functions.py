@@ -3,7 +3,7 @@ from unittest import SkipTest
 
 import pytest
 from django.db import connection
-from django.db.models import F, FloatField, Q, Value
+from django.db.models import F, FloatField, IntegerField, Q, Value
 from django.db.models.functions import Length, Lower, Upper
 from django.test import TestCase
 
@@ -53,6 +53,25 @@ class ControlFlowFunctionTests(TestCase):
             .values_list("has_d", flat=True)
         )
         assert results == [True, False, True, False]
+
+    def test_if_output_field(self):
+        Alphabet.objects.create(a=0, d="Aaa")
+        Alphabet.objects.create(a=1, d="Bb")
+        Alphabet.objects.create(a=2, d="Ccc")
+
+        results = list(
+            Alphabet.objects.annotate(
+                d_length=If(
+                    "a",
+                    Length("d"),
+                    Value(0),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("id")
+            .values_list("d_length", flat=True)
+        )
+        assert results == [0, 2, 3]
 
     def test_if_with_Q(self):
         Alphabet.objects.create(a=12, b=17)
