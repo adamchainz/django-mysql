@@ -619,6 +619,16 @@ class RegexpFunctionTests(TestCase):
         assert ab.d == "ABBC"
         assert ab.d_double_pos == 2
 
+    def test_regex_instr_expression(self):
+        Alphabet.objects.create(d="ABBC")
+        ab = (
+            Alphabet.objects.annotate(d_double_pos=RegexpInstr("d", Value(r"[b]{2}")))
+            .filter(d_double_pos__gt=0)
+            .get()
+        )
+        assert ab.d == "ABBC"
+        assert ab.d_double_pos == 2
+
     def test_regex_instr_update(self):
         Alphabet.objects.create(d="A string to search")
         Alphabet.objects.create(d="Something to query")
@@ -632,6 +642,15 @@ class RegexpFunctionTests(TestCase):
     def test_regex_replace_update(self):
         Alphabet.objects.create(d="I'm feeling sad")
         n = Alphabet.objects.update(d=RegexpReplace("d", r"\bsad\b", "happy"))
+        assert n == 1
+        ab = Alphabet.objects.get()
+        assert ab.d == "I'm feeling happy"
+
+    def test_regex_replace_update_expressions(self):
+        Alphabet.objects.create(d="I'm feeling sad")
+        n = Alphabet.objects.update(
+            d=RegexpReplace("d", Value(r"\bsad\b"), Value("happy"))
+        )
         assert n == 1
         ab = Alphabet.objects.get()
         assert ab.d == "I'm feeling happy"
@@ -692,6 +711,15 @@ class DynamicColumnsFunctionTests(DynColTestCase):
         results = list(
             DynamicModel.objects.annotate(
                 x=ColumnGet("attrs", "flote", "DOUBLE")
+            ).values_list("x", flat=True)
+        )
+        assert results == [1.0]
+        assert isinstance(results[0], float)
+
+    def test_get_float_expression(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                x=ColumnGet("attrs", Value("flote"), "DOUBLE")
             ).values_list("x", flat=True)
         )
         assert results == [1.0]
@@ -759,6 +787,14 @@ class DynamicColumnsFunctionTests(DynColTestCase):
     def test_add_update_typed(self):
         DynamicModel.objects.update(
             attrs=ColumnAdd("attrs", {"over": AsType(9000, "DOUBLE")})
+        )
+        m = DynamicModel.objects.get()
+        assert isinstance(m.attrs["over"], float)
+        assert m.attrs["over"] == 9000.0
+
+    def test_add_update_typed_expressions(self):
+        DynamicModel.objects.update(
+            attrs=ColumnAdd("attrs", {Value("over"): AsType(Value(9000), "DOUBLE")})
         )
         m = DynamicModel.objects.get()
         assert isinstance(m.attrs["over"], float)
