@@ -135,9 +135,9 @@ class AlterStorageEngine(Operation):
 
         qn = schema_editor.connection.ops.quote_name
 
-        if self.allow_migrate_model(
+        if self.allow_migrate_model(  # pragma: no branch
             schema_editor.connection.alias, new_model
-        ):  # pragma: no branch
+        ):
             with schema_editor.connection.cursor() as cursor:
                 cursor.execute(
                     """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
