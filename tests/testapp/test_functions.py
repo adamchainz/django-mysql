@@ -196,6 +196,13 @@ class StringFunctionTests(TestCase):
         ab = Alphabet.objects.annotate(elt=ELT("a", ["apple"])).get()
         assert ab.elt is None
 
+    def test_elt_expression(self):
+        Alphabet.objects.create(a=1)
+        ab = Alphabet.objects.annotate(
+            elt=ELT("a", [Value("apple"), Value("orange")])
+        ).get()
+        assert ab.elt == "apple"
+
     def test_field_simple(self):
         Alphabet.objects.create(d="a")
         ab = Alphabet.objects.annotate(dp=Field("d", ["a", "b"])).first()
@@ -204,6 +211,11 @@ class StringFunctionTests(TestCase):
         assert ab.dp == 2
         ab = Alphabet.objects.annotate(dp=Field("d", ["c", "d"])).first()
         assert ab.dp == 0
+
+    def test_field_expression(self):
+        Alphabet.objects.create(d="b")
+        ab = Alphabet.objects.annotate(dp=Field("d", [Value("a"), Value("b")])).first()
+        assert ab.dp == 2
 
     def test_order_by(self):
         Alphabet.objects.create(a=1, d="AAA")
@@ -222,6 +234,14 @@ class XMLFunctionTests(TestCase):
     def test_updatexml_simple(self):
         Alphabet.objects.create(d="<value>123</value>")
         Alphabet.objects.update(d=UpdateXML("d", "/value", "<value>456</value>"))
+        d = Alphabet.objects.get().d
+        assert d == "<value>456</value>"
+
+    def test_updatexml_expressions(self):
+        Alphabet.objects.create(d="<value>123</value>")
+        Alphabet.objects.update(
+            d=UpdateXML("d", Value("/value"), Value("<value>456</value>"))
+        )
         d = Alphabet.objects.get().d
         assert d == "<value>456</value>"
 
@@ -244,6 +264,15 @@ class XMLFunctionTests(TestCase):
             ).values_list("ev", flat=True)
         )
         assert evs == ["1", "0", "2"]
+
+    def test_xmlextractvalue_expression(self):
+        Alphabet.objects.create(d="<some><xml /></some>")
+        evs = list(
+            Alphabet.objects.annotate(
+                ev=XMLExtractValue("d", Value("count(/some)"))
+            ).values_list("ev", flat=True)
+        )
+        assert evs == ["1"]
 
     def test_xmlextractvalue_invalid_xml(self):
         Alphabet.objects.create(d='{"this": "isNotXML"}')
