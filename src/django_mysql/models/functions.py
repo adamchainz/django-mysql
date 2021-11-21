@@ -17,12 +17,11 @@ ExpressionArgument = Union[
 
 class SingleArgFunc(Func):
 
-    output_field_class: Optional[Type[DjangoField]] = None
+    output_field_class: Type[DjangoField]
 
     def __init__(self, expression: ExpressionArgument) -> None:
         super().__init__(expression)
-        if self.output_field_class is not None:
-            self.output_field = self.output_field_class()
+        self.output_field = self.output_field_class()
 
 
 # Control Flow Functions
