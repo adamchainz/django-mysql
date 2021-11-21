@@ -7,7 +7,7 @@ from django.core import exceptions, serializers
 from django.core.management import call_command
 from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
-from django.db.models import Q
+from django.db.models import Q, Value
 from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 
 from django_mysql.forms import SimpleSetField
@@ -231,6 +231,12 @@ class TestSetF(TestCase):
         model = CharSetModel.objects.get()
         assert model.field == {"nice"}
 
+    def test_add_expression(self):
+        CharSetModel.objects.create(field={"a"})
+        CharSetModel.objects.update(field=SetF("field").add(Value("b")))
+        model = CharSetModel.objects.get()
+        assert model.field == {"a", "b"}
+
     @override_mysql_variables(SQL_MODE="ANSI")
     def test_add_works_in_ansi_mode(self):
         CharSetModel.objects.create()
@@ -290,6 +296,12 @@ class TestSetF(TestCase):
         CharSetModel.objects.update(field=SetF("field").remove("naughty"))
         model = CharSetModel.objects.get()
         assert model.field == {"nice"}
+
+    def test_remove_expression(self):
+        CharSetModel.objects.create(field={"a"})
+        CharSetModel.objects.update(field=SetF("field").remove(Value("a")))
+        model = CharSetModel.objects.get()
+        assert model.field == set()
 
     def test_remove_from_multiple_objects(self):
         CharSetModel.objects.create(field={"mouse", "chair"})

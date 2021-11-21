@@ -5,6 +5,7 @@ from unittest import SkipTest, mock
 import mariadb_dyncol
 import pytest
 from django.core import serializers
+from django.core.exceptions import FieldError
 from django.db import connection
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
@@ -147,6 +148,10 @@ class QueryTests(DynColTestCase):
 
     def test_preexisting_transforms_work_fine(self):
         assert list(DynamicModel.objects.filter(attrs__dumb="notdumb")) == []
+
+    def test_non_existent_transform(self):
+        with pytest.raises(FieldError):
+            DynamicModel.objects.filter(attrs__nonexistent="notdumb")
 
     def test_has_key(self):
         assert list(DynamicModel.objects.filter(attrs__has_key="c")) == self.objs[1:3]
@@ -377,6 +382,13 @@ class TestToPython(TestCase):
         assert result == {"foo": "bar"}
 
 
+def make_default():  # pragma: no cover
+    """
+    Use for below, alternative default function.
+    """
+    return {}
+
+
 class SubDynamicField(DynamicField):
     """
     Used below, has a different path for deconstruct()
@@ -387,6 +399,18 @@ class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = DynamicField()
         name, path, args, kwargs = field.deconstruct()
+        DynamicField(*args, **kwargs)
+
+    def test_deconstruct_default(self):
+        field = DynamicField(default=make_default)
+        name, path, args, kwargs = field.deconstruct()
+        assert kwargs["default"] is make_default
+        DynamicField(*args, **kwargs)
+
+    def test_deconstruct_blank(self):
+        field = DynamicField(blank=False)
+        name, path, args, kwargs = field.deconstruct()
+        assert kwargs["blank"] is False
         DynamicField(*args, **kwargs)
 
     def test_deconstruct_spec(self):

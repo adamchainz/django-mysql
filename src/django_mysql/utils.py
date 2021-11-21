@@ -129,7 +129,7 @@ else:
         try:
             return _is_mariadb_cache[connection]
         except KeyError:
-            with connection.temporary_connection():
+            with connection.temporary_connection():  # pragma: no branch
                 server_info: str = connection.connection.get_server_info()
             is_mariadb = "MariaDB" in server_info
             _is_mariadb_cache[connection] = is_mariadb  # type: ignore [index]
@@ -189,7 +189,7 @@ def pt_fingerprint(query: str) -> str:
     return thread.out_queue.get()
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     PTFingerPrintQueueType = Queue[str]
 else:
     PTFingerPrintQueueType = Queue

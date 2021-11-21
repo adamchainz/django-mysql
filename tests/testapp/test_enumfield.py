@@ -102,13 +102,25 @@ class TestCheck(TestCase):
         assert errors == []
 
 
+class SubEnumField(EnumField):
+    """
+    Used below, has a different path for deconstruct()
+    """
+
+
 class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = EnumField(choices=["a", "b"])
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.EnumField"
+        assert kwargs["choices"] == [("a", "a"), ("b", "b")]
         assert "max_length" not in kwargs
         EnumField(*args, **kwargs)
+
+    def test_subclass_deconstruct(self):
+        field = SubEnumField(choices=["a"])
+        name, path, args, kwargs = field.deconstruct()
+        assert path == "tests.testapp.test_enumfield.SubEnumField"
 
 
 class TestMigrations(TransactionTestCase):

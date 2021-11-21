@@ -3,7 +3,7 @@ from unittest import SkipTest
 
 import pytest
 from django.db import connection
-from django.db.models import F, FloatField, Q, Value
+from django.db.models import F, FloatField, IntegerField, Q, Value
 from django.db.models.functions import Length, Lower, Upper
 from django.test import TestCase
 
@@ -53,6 +53,25 @@ class ControlFlowFunctionTests(TestCase):
             .values_list("has_d", flat=True)
         )
         assert results == [True, False, True, False]
+
+    def test_if_output_field(self):
+        Alphabet.objects.create(a=0, d="Aaa")
+        Alphabet.objects.create(a=1, d="Bb")
+        Alphabet.objects.create(a=2, d="Ccc")
+
+        results = list(
+            Alphabet.objects.annotate(
+                d_length=If(
+                    "a",
+                    Length("d"),
+                    Value(0),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("id")
+            .values_list("d_length", flat=True)
+        )
+        assert results == [0, 2, 3]
 
     def test_if_with_Q(self):
         Alphabet.objects.create(a=12, b=17)
@@ -177,6 +196,13 @@ class StringFunctionTests(TestCase):
         ab = Alphabet.objects.annotate(elt=ELT("a", ["apple"])).get()
         assert ab.elt is None
 
+    def test_elt_expression(self):
+        Alphabet.objects.create(a=1)
+        ab = Alphabet.objects.annotate(
+            elt=ELT("a", [Value("apple"), Value("orange")])
+        ).get()
+        assert ab.elt == "apple"
+
     def test_field_simple(self):
         Alphabet.objects.create(d="a")
         ab = Alphabet.objects.annotate(dp=Field("d", ["a", "b"])).first()
@@ -185,6 +211,11 @@ class StringFunctionTests(TestCase):
         assert ab.dp == 2
         ab = Alphabet.objects.annotate(dp=Field("d", ["c", "d"])).first()
         assert ab.dp == 0
+
+    def test_field_expression(self):
+        Alphabet.objects.create(d="b")
+        ab = Alphabet.objects.annotate(dp=Field("d", [Value("a"), Value("b")])).first()
+        assert ab.dp == 2
 
     def test_order_by(self):
         Alphabet.objects.create(a=1, d="AAA")
@@ -203,6 +234,14 @@ class XMLFunctionTests(TestCase):
     def test_updatexml_simple(self):
         Alphabet.objects.create(d="<value>123</value>")
         Alphabet.objects.update(d=UpdateXML("d", "/value", "<value>456</value>"))
+        d = Alphabet.objects.get().d
+        assert d == "<value>456</value>"
+
+    def test_updatexml_expressions(self):
+        Alphabet.objects.create(d="<value>123</value>")
+        Alphabet.objects.update(
+            d=UpdateXML("d", Value("/value"), Value("<value>456</value>"))
+        )
         d = Alphabet.objects.get().d
         assert d == "<value>456</value>"
 
@@ -225,6 +264,15 @@ class XMLFunctionTests(TestCase):
             ).values_list("ev", flat=True)
         )
         assert evs == ["1", "0", "2"]
+
+    def test_xmlextractvalue_expression(self):
+        Alphabet.objects.create(d="<some><xml /></some>")
+        evs = list(
+            Alphabet.objects.annotate(
+                ev=XMLExtractValue("d", Value("count(/some)"))
+            ).values_list("ev", flat=True)
+        )
+        assert evs == ["1"]
 
     def test_xmlextractvalue_invalid_xml(self):
         Alphabet.objects.create(d='{"this": "isNotXML"}')
@@ -329,6 +377,15 @@ class JSONFunctionTests(TestCase):
         assert results == [1.5]
         assert isinstance(results[0], float)
 
+    def test_json_extract_flote_expression(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONExtract("attrs", Value("$.flote"))
+            ).values_list("x", flat=True)
+        )
+        assert results == [1.5]
+        assert isinstance(results[0], float)
+
     def test_json_extract_flote_as_float(self):
         results = list(
             JSONModel.objects.annotate(
@@ -372,6 +429,14 @@ class JSONFunctionTests(TestCase):
         )
         assert set(results[0]) == set(self.obj.attrs["sub"].keys())
 
+    def test_json_keys_path_expression(self):
+        results = list(
+            JSONModel.objects.annotate(x=JSONKeys("attrs", Value("$.sub"))).values_list(
+                "x", flat=True
+            )
+        )
+        assert set(results[0]) == set(self.obj.attrs["sub"].keys())
+
     def test_json_length(self):
         results = list(
             JSONModel.objects.annotate(x=JSONLength("attrs")).values_list(
@@ -380,11 +445,27 @@ class JSONFunctionTests(TestCase):
         )
         assert results == [len(self.obj.attrs)]
 
+    def test_json_length_output_field(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength("attrs", output_field=IntegerField())
+            ).values_list("x", flat=True)
+        )
+        assert results == [len(self.obj.attrs)]
+
     def test_json_length_path(self):
         results = list(
             JSONModel.objects.annotate(x=JSONLength("attrs", "$.sub")).values_list(
                 "x", flat=True
             )
+        )
+        assert results == [len(self.obj.attrs["sub"])]
+
+    def test_json_length_path_expression(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength("attrs", Value("$.sub"))
+            ).values_list("x", flat=True)
         )
         assert results == [len(self.obj.attrs["sub"])]
 
@@ -400,6 +481,12 @@ class JSONFunctionTests(TestCase):
         self.obj.refresh_from_db()
         assert self.obj.attrs["int"] == 88
         assert self.obj.attrs["int2"] == 102
+
+    def test_json_insert_expression(self):
+        self.obj.attrs = JSONInsert("attrs", {Value("$.int"): Value(99)})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs["int"] == 88
 
     def test_json_insert_dict(self):
         self.obj.attrs = JSONInsert(
@@ -532,6 +619,16 @@ class RegexpFunctionTests(TestCase):
         assert ab.d == "ABBC"
         assert ab.d_double_pos == 2
 
+    def test_regex_instr_expression(self):
+        Alphabet.objects.create(d="ABBC")
+        ab = (
+            Alphabet.objects.annotate(d_double_pos=RegexpInstr("d", Value(r"[b]{2}")))
+            .filter(d_double_pos__gt=0)
+            .get()
+        )
+        assert ab.d == "ABBC"
+        assert ab.d_double_pos == 2
+
     def test_regex_instr_update(self):
         Alphabet.objects.create(d="A string to search")
         Alphabet.objects.create(d="Something to query")
@@ -545,6 +642,15 @@ class RegexpFunctionTests(TestCase):
     def test_regex_replace_update(self):
         Alphabet.objects.create(d="I'm feeling sad")
         n = Alphabet.objects.update(d=RegexpReplace("d", r"\bsad\b", "happy"))
+        assert n == 1
+        ab = Alphabet.objects.get()
+        assert ab.d == "I'm feeling happy"
+
+    def test_regex_replace_update_expressions(self):
+        Alphabet.objects.create(d="I'm feeling sad")
+        n = Alphabet.objects.update(
+            d=RegexpReplace("d", Value(r"\bsad\b"), Value("happy"))
+        )
         assert n == 1
         ab = Alphabet.objects.get()
         assert ab.d == "I'm feeling happy"
@@ -605,6 +711,15 @@ class DynamicColumnsFunctionTests(DynColTestCase):
         results = list(
             DynamicModel.objects.annotate(
                 x=ColumnGet("attrs", "flote", "DOUBLE")
+            ).values_list("x", flat=True)
+        )
+        assert results == [1.0]
+        assert isinstance(results[0], float)
+
+    def test_get_float_expression(self):
+        results = list(
+            DynamicModel.objects.annotate(
+                x=ColumnGet("attrs", Value("flote"), "DOUBLE")
             ).values_list("x", flat=True)
         )
         assert results == [1.0]
@@ -672,6 +787,14 @@ class DynamicColumnsFunctionTests(DynColTestCase):
     def test_add_update_typed(self):
         DynamicModel.objects.update(
             attrs=ColumnAdd("attrs", {"over": AsType(9000, "DOUBLE")})
+        )
+        m = DynamicModel.objects.get()
+        assert isinstance(m.attrs["over"], float)
+        assert m.attrs["over"] == 9000.0
+
+    def test_add_update_typed_expressions(self):
+        DynamicModel.objects.update(
+            attrs=ColumnAdd("attrs", {Value("over"): AsType(Value(9000), "DOUBLE")})
         )
         m = DynamicModel.objects.get()
         assert isinstance(m.attrs["over"], float)

@@ -73,6 +73,8 @@ class Command(BaseCommand):
             self.output_for_mysql(settings_dict)
         elif show_dsn:
             self.output_for_dsn(settings_dict)
+        else:  # pragma: no cover
+            raise AssertionError("Impossible")
 
     def output_for_mysql(self, settings_dict: Dict[str, Any]) -> None:
         args = settings_to_cmd_args(settings_dict)

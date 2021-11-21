@@ -580,7 +580,7 @@ class SmartChunkedIterator:
         if self.total is None:  # User didn't pass in a total
             try:
                 self.total = approx_count(self.queryset)
-                if self.total < 1000:
+                if self.total < 1000:  # pragma: no branch
                     self.total = self.queryset.count()
             except ValueError:  # Cannot be approximately counted
                 self.total = self.queryset.count()  # Fallback - will be slow
@@ -598,7 +598,7 @@ class SmartChunkedIterator:
 
         if chunk is not None:
             self.chunks_done += 1
-            if self.objects_done != "???":
+            if self.objects_done != "???":  # pragma: no branch
                 assert isinstance(self.objects_done, int)
                 # If the queryset is not being fetched as-is, e.g. its
                 # .delete() is called, we can't know how many objects were
@@ -615,7 +615,7 @@ class SmartChunkedIterator:
             assert self.total is not None
             try:
                 percent_complete = 100 * (self.objects_done / self.total)
-            except ZeroDivisionError:
+            except ZeroDivisionError:  # pragma: no cover
                 percent_complete = 0.0
 
         report = "{} {} processed {}/{} objects ({:.2f}%) in {} chunks".format(

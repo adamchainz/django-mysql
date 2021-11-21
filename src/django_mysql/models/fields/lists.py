@@ -98,7 +98,7 @@ class ListFieldMixin(Field):
     def from_db_value(
         self, value: Any, expression: BaseExpression, connection: BaseDatabaseWrapper
     ) -> Any:
-        if isinstance(value, str):
+        if isinstance(value, str):  # pragma: no branch
             if not len(value):
                 value = []
             else:

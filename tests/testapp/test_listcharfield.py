@@ -7,7 +7,7 @@ from django.core import exceptions, serializers
 from django.core.management import call_command
 from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
-from django.db.models import Q
+from django.db.models import Q, Value
 from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 
 from django_mysql.forms import SimpleListField
@@ -278,6 +278,12 @@ class TestListF(TestCase):
         model = CharListModel.objects.get()
         assert model.field == ["nice", "nice"]
 
+    def test_append_with_expression(self):
+        CharListModel.objects.create(field=["a"])
+        CharListModel.objects.update(field=ListF("field").append(Value("b")))
+        model = CharListModel.objects.get()
+        assert model.field == ["a", "b"]
+
     @override_mysql_variables(SQL_MODE="ANSI")
     def test_append_works_in_ansi_mode(self):
         CharListModel.objects.create()
@@ -324,6 +330,12 @@ class TestListF(TestCase):
         CharListModel.objects.update(field=ListF("field").appendleft("nice"))
         model = CharListModel.objects.get()
         assert model.field == ["nice", "nice"]
+
+    def test_appendleft_expression(self):
+        CharListModel.objects.create(field=["a"])
+        CharListModel.objects.update(field=ListF("field").appendleft(Value("b")))
+        model = CharListModel.objects.get()
+        assert model.field == ["b", "a"]
 
     @override_mysql_variables(SQL_MODE="ANSI")
     def test_appendleft_works_in_ansi_mode(self):
