@@ -377,6 +377,15 @@ class JSONFunctionTests(TestCase):
         assert results == [1.5]
         assert isinstance(results[0], float)
 
+    def test_json_extract_flote_expression(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONExtract("attrs", Value("$.flote"))
+            ).values_list("x", flat=True)
+        )
+        assert results == [1.5]
+        assert isinstance(results[0], float)
+
     def test_json_extract_flote_as_float(self):
         results = list(
             JSONModel.objects.annotate(
@@ -420,6 +429,14 @@ class JSONFunctionTests(TestCase):
         )
         assert set(results[0]) == set(self.obj.attrs["sub"].keys())
 
+    def test_json_keys_path_expression(self):
+        results = list(
+            JSONModel.objects.annotate(x=JSONKeys("attrs", Value("$.sub"))).values_list(
+                "x", flat=True
+            )
+        )
+        assert set(results[0]) == set(self.obj.attrs["sub"].keys())
+
     def test_json_length(self):
         results = list(
             JSONModel.objects.annotate(x=JSONLength("attrs")).values_list(
@@ -428,11 +445,27 @@ class JSONFunctionTests(TestCase):
         )
         assert results == [len(self.obj.attrs)]
 
+    def test_json_length_output_field(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength("attrs", output_field=IntegerField())
+            ).values_list("x", flat=True)
+        )
+        assert results == [len(self.obj.attrs)]
+
     def test_json_length_path(self):
         results = list(
             JSONModel.objects.annotate(x=JSONLength("attrs", "$.sub")).values_list(
                 "x", flat=True
             )
+        )
+        assert results == [len(self.obj.attrs["sub"])]
+
+    def test_json_length_path_expression(self):
+        results = list(
+            JSONModel.objects.annotate(
+                x=JSONLength("attrs", Value("$.sub"))
+            ).values_list("x", flat=True)
         )
         assert results == [len(self.obj.attrs["sub"])]
 
@@ -448,6 +481,12 @@ class JSONFunctionTests(TestCase):
         self.obj.refresh_from_db()
         assert self.obj.attrs["int"] == 88
         assert self.obj.attrs["int2"] == 102
+
+    def test_json_insert_expression(self):
+        self.obj.attrs = JSONInsert("attrs", {Value("$.int"): Value(99)})
+        self.obj.save()
+        self.obj.refresh_from_db()
+        assert self.obj.attrs["int"] == 88
 
     def test_json_insert_dict(self):
         self.obj.attrs = JSONInsert(
