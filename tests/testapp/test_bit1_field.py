@@ -176,7 +176,6 @@ if django.VERSION < (4, 0):
             instance = objs[0].object
             assert instance.flag is None
 
-
 else:
 
     if django.VERSION < (4, 0):

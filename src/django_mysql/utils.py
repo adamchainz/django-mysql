@@ -114,7 +114,6 @@ if django.VERSION >= (3, 0):
     def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
         return connection.vendor == "mysql" and connection.mysql_is_mariadb
 
-
 else:
 
     _is_mariadb_cache: Mapping[BaseDatabaseWrapper, bool] = WeakKeyDictionary()
