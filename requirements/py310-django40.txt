@@ -67,9 +67,14 @@ django==4.0rc1 \
     # via
     #   -r requirements.in
     #   django-jsonfield-backport
+    #   django-testdata
 django-jsonfield-backport==1.0.4 \
     --hash=sha256:73998c6aa2e0ab1a4f9da4ce62f01576e019147678c881401b02846712069786 \
     --hash=sha256:ccb0c47bad0dad400940c9897baa6de956b487299e351821a7a59cc18e7b0f69
+    # via -r requirements.in
+django-testdata==1.0.3 \
+    --hash=sha256:2e782d999eff3118e07353a2d9f8d0a39b58c8f365c3efa1efe0043330731eb9 \
+    --hash=sha256:5e1713fabd89e4c0b4ed10f79870b17118f4f343dc9c5d233f86b97f38419db0
     # via -r requirements.in
 flake8==4.0.1 \
     --hash=sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d \

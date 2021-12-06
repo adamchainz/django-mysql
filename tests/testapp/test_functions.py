@@ -36,6 +36,7 @@ from django_mysql.models.functions import (
     XMLExtractValue,
 )
 from django_mysql.utils import connection_is_mariadb
+from tests.compat import wrap_testdata
 from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
 
@@ -352,9 +353,11 @@ class JSONFunctionTests(TestCase):
             raise SkipTest("JSONField requires MySQL")
         super().setUpClass()
 
-    def setUp(self):
-        super().setUp()
-        self.obj = JSONModel.objects.create(
+    @classmethod
+    @wrap_testdata
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = JSONModel.objects.create(
             attrs={
                 "int": 88,
                 "flote": 1.5,
@@ -703,8 +706,10 @@ class RegexpFunctionTests(TestCase):
 
 
 class DynamicColumnsFunctionTests(DynColTestCase):
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    @wrap_testdata
+    def setUpTestData(cls):
+        super().setUpTestData()
         DynamicModel.objects.create(attrs={"flote": 1.0, "sub": {"document": "store"}})
 
     def test_get_float(self):

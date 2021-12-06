@@ -13,6 +13,7 @@ from django.test import TestCase
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
+from tests.compat import wrap_testdata
 from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
 
 
@@ -66,7 +67,7 @@ class TestSaveLoad(DynColTestCase):
         DynamicModel.objects.bulk_create(
             [DynamicModel(attrs={"a": "value"}), DynamicModel(attrs={"b": "value2"})]
         )
-        dm1, dm2 = DynamicModel.objects.all().order_by("id")
+        dm1, dm2 = DynamicModel.objects.order_by("id")
         assert dm1.attrs == {"a": "value"}
         assert dm2.attrs == {"b": "value2"}
 
@@ -115,9 +116,11 @@ DynamicField.register_lookup(DumbTransform)
 
 
 class QueryTests(DynColTestCase):
-    def setUp(self):
-        super().setUp()
-        self.objs = [
+    @classmethod
+    @wrap_testdata
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.objs = [
             DynamicModel(attrs={"a": "b"}),
             DynamicModel(attrs={"a": "b", "c": "d"}),
             DynamicModel(attrs={"c": "d"}),
@@ -135,8 +138,8 @@ class QueryTests(DynColTestCase):
                 }
             ),
         ]
-        DynamicModel.objects.bulk_create(self.objs)
-        self.objs = list(DynamicModel.objects.all().order_by("id"))
+        DynamicModel.objects.bulk_create(cls.objs)
+        cls.objs = list(DynamicModel.objects.order_by("id"))
 
     def test_equal(self):
         assert list(DynamicModel.objects.filter(attrs={"a": "b"})) == self.objs[:1]
@@ -261,14 +264,16 @@ class QueryTests(DynColTestCase):
 
 
 class SpeclessQueryTests(DynColTestCase):
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    @wrap_testdata
+    def setUpTestData(cls):
+        super().setUpTestData()
         objs = [
             SpeclessDynamicModel(attrs={"a": "b"}),
             SpeclessDynamicModel(attrs={"a": "c"}),
         ]
         SpeclessDynamicModel.objects.bulk_create(objs)
-        self.objs = list(SpeclessDynamicModel.objects.all().order_by("id"))
+        cls.objs = list(SpeclessDynamicModel.objects.order_by("id"))
 
     def test_simple(self):
         assert list(SpeclessDynamicModel.objects.filter(attrs__a_CHAR="b")) == [

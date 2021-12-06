@@ -1,5 +1,6 @@
 coverage
 django
+django-testdata
 django-jsonfield-backport
 mariadb-dyncol
 mysqlclient
