@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
 from django_mysql.test.utils import override_mysql_variables
+from tests.compat import wrap_testdata
 from tests.testapp.models import Alphabet, Author
 
 
@@ -64,13 +65,15 @@ class BitXorTests(TestCase):
 
 
 class GroupConcatTests(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.shakes = Author.objects.create(name="William Shakespeare")
-        self.jk = Author.objects.create(name="JK Rowling", tutor=self.shakes)
-        self.grisham = Author.objects.create(name="Grisham", tutor=self.shakes)
+    @classmethod
+    @wrap_testdata
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.shakes = Author.objects.create(name="William Shakespeare")
+        cls.jk = Author.objects.create(name="JK Rowling", tutor=cls.shakes)
+        cls.grisham = Author.objects.create(name="Grisham", tutor=cls.shakes)
 
-        self.str_tutee_ids = [str(self.jk.id), str(self.grisham.id)]
+        cls.str_tutee_ids = [str(cls.jk.id), str(cls.grisham.id)]
 
     def test_basic_aggregate_ids(self):
         out = self.shakes.tutees.aggregate(tids=GroupConcat("id"))
