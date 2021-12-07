@@ -283,7 +283,7 @@ if HAVE_JSONFIELD:  # pragma: no branch
             compiler: SQLCompiler,
             connection: BaseDatabaseWrapper,
         ) -> Tuple[str, Tuple[Any, ...]]:
-            if connection.vendor != "mysql":
+            if connection.vendor != "mysql":  # pragma: no cover
                 raise AssertionError("JSONValue only supports MySQL/MariaDB")
             json_string = json.dumps(self._data, allow_nan=False)
             if connection_is_mariadb(connection):
