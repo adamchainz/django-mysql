@@ -272,6 +272,8 @@ if HAVE_JSONFIELD:  # pragma: no branch
 
             super().__init__(*exprs, output_field=output_field)
 
+    # When only Django 3.1+ is supported, JSONValue can be replaced with
+    # Cast(..., output_field=JSONField())
     class JSONValue(Expression):
         def __init__(
             self, data: Union[None, int, float, str, List[Any], Dict[str, Any]]
@@ -287,21 +289,9 @@ if HAVE_JSONFIELD:  # pragma: no branch
                 raise AssertionError("JSONValue only supports MySQL/MariaDB")
             json_string = json.dumps(self._data, allow_nan=False)
             if connection_is_mariadb(connection):
-                # Detect JSON type from serialized form, in order to support
-                # custom encoders.
-                if json_string.startswith(("[", "{")):
-                    # Complex objects - MariaDB needs these as text, which is
-                    # how it stores JSON... apart from, it appears that there
-                    # is some kind of “JSON data type” that it operates with
-                    # internally, and we need to “convert” to that by passing
-                    # the value through a JSON function.
-                    return "JSON_QUERY(%s, '$')", (json_string,)
-                else:
-                    # Scalar values: MariaDB needs these as SQL scalars.
-                    # Luckily they manage to map 1 to 1...
-                    return json_string, ()
+                # MariaDB doesn't support explicit cast to JSON.
+                return "JSON_EXTRACT(%s, '$')", (json_string,)
             else:
-                # MySQL has a real, explicit JSON data type
                 return "CAST(%s AS JSON)", (json_string,)
 
     class BaseJSONModifyFunc(Func):
