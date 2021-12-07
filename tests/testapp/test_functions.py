@@ -39,6 +39,7 @@ from django_mysql.utils import connection_is_mariadb
 from tests.compat import wrap_testdata
 from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
+from tests.testapp.utils import print_all_queries
 
 
 class ControlFlowFunctionTests(TestCase):
@@ -348,12 +349,6 @@ class InformationFunctionTests(TestCase):
 
 class JSONFunctionTests(TestCase):
     @classmethod
-    def setUpClass(cls):
-        if connection_is_mariadb(connection):
-            raise SkipTest("JSONField requires MySQL")
-        super().setUpClass()
-
-    @classmethod
     @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
@@ -547,11 +542,12 @@ class JSONFunctionTests(TestCase):
         assert '"data" cannot be empty' in str(excinfo.value)
 
     def test_json_set_pairs(self):
-        self.obj.attrs = JSONSet("attrs", {"$.int": 101, "$.int2": 102})
-        self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["int"] == 101
-        assert self.obj.attrs["int2"] == 102
+        with print_all_queries():
+            self.obj.attrs = JSONSet("attrs", {"$.int": 101, "$.int2": 102})
+            self.obj.save()
+            self.obj.refresh_from_db()
+            assert self.obj.attrs["int"] == 101
+            assert self.obj.attrs["int2"] == 102
 
     def test_json_set_dict(self):
         self.obj.attrs = JSONSet(

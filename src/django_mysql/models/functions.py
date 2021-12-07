@@ -3,11 +3,14 @@ import json
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField, Expression
 from django.db.models import Field as DjangoField
 from django.db.models import Func, IntegerField, TextField, Value
+from django.db.models.sql.compiler import SQLCompiler
 
 from django_mysql.compat import HAVE_JSONFIELD, JSONField
+from django_mysql.utils import connection_is_mariadb
 
 ExpressionArgument = Union[
     Expression,
@@ -269,15 +272,37 @@ if HAVE_JSONFIELD:  # pragma: no branch
 
             super().__init__(*exprs, output_field=output_field)
 
-    class JSONValue(Func):
-        function = "CAST"
-        template = "%(function)s(%(expressions)s AS JSON)"
-
+    class JSONValue(Expression):
         def __init__(
-            self, expression: Union[None, int, float, str, List[Any], Dict[str, Any]]
+            self, data: Union[None, int, float, str, List[Any], Dict[str, Any]]
         ) -> None:
-            json_string = json.dumps(expression, allow_nan=False)
-            super().__init__(Value(json_string))
+            self._data = data
+
+        def as_sql(
+            self,
+            compiler: SQLCompiler,
+            connection: BaseDatabaseWrapper,
+        ) -> Tuple[str, Tuple[Any, ...]]:
+            if connection.vendor != "mysql":  # pragma: no cover
+                raise AssertionError("JSONValue only supports MySQL/MariaDB")
+            json_string = json.dumps(self._data, allow_nan=False)
+            if connection_is_mariadb(connection):
+                # Detect JSON type from serialized form, in order to support
+                # custom encoders.
+                if json_string.startswith(("[", "{")):
+                    # Complex objects - MariaDB needs these as text, which is
+                    # how it stores JSON... apart from, it appears that there
+                    # is some kind of “JSON data type” that it operates with
+                    # internally, and we need to “convert” to that by passing
+                    # the value through a JSON function.
+                    return "JSON_QUERY(%s, '$')", (json_string,)
+                else:
+                    # Scalar values: MariaDB needs these as SQL scalars.
+                    # Luckily they manage to map 1 to 1...
+                    return json_string, ()
+            else:
+                # MySQL has a real, explicit JSON data type
+                return "CAST(%s AS JSON)", (json_string,)
 
     class BaseJSONModifyFunc(Func):
         def __init__(

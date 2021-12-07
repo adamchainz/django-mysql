@@ -6,7 +6,7 @@ Database Functions
 
 .. currentmodule:: django_mysql.models.functions
 
-MySQL-specific `database functions
+MySQL/MariaDB-specific `database functions
 <https://docs.djangoproject.com/en/3.0/ref/models/database-functions/>`_
 for the ORM.
 
@@ -402,15 +402,16 @@ Information Functions
 JSON Database Functions
 -----------------------
 
-These functions work with data stored in Django’s ``JSONField`` on MYSQL only.
-``JSONField`` is built in to Django 3.1+ and can be installed on older Django
-versions with the
+These functions work with data stored in Django’s ``JSONField`` on MySQL and
+MariaDB only. ``JSONField`` is built in to Django 3.1+ and can be installed on
+older Django versions with the
 `django-jsonfield-backport <https://pypi.org/project/django-jsonfield-backport/>`__
 package.
 
 These functions use JSON paths to address content inside JSON documents - for
-more information on their syntax, refer to the `MySQL documentation
-<https://dev.mysql.com/doc/refman/8.0/en/json.html#json-path-syntax>`__.
+more information on their syntax, refer to the docs:
+`MySQL <https://dev.mysql.com/doc/refman/8.0/en/json.html#json-path-syntax>`__ /
+`MariaDB <https://mariadb.com/kb/en/jsonpath-expressions/>`__.
 
 
 .. class:: JSONExtract(expression, *paths, output_field=None)
@@ -432,7 +433,8 @@ more information on their syntax, refer to the `MySQL documentation
     ``paths`` to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_extract/>`.
 
     Usage examples:
 
@@ -462,7 +464,8 @@ more information on their syntax, refer to the `MySQL documentation
     field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_keys/>`__.
 
     .. code-block:: pycon
 
@@ -497,7 +500,8 @@ more information on their syntax, refer to the `MySQL documentation
     field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-length>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-length>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_length/>`__.
 
     .. code-block:: pycon
 
@@ -522,7 +526,8 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-insert>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-insert>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_insert/>`__.
 
     .. code-block:: pycon
 
@@ -544,7 +549,8 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-replace>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-replace>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_replace/>`__.
 
     .. code-block:: pycon
 
@@ -566,7 +572,8 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-set>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-set>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_set/>`__.
 
     .. code-block:: pycon
 
@@ -592,7 +599,8 @@ more information on their syntax, refer to the `MySQL documentation
     want a key or value to refer to a field, use Django's ``F()`` class.
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-array-append>`__.
+    `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-array-append>`__ /
+    `MariaDB <https://mariadb.com/kb/en/json_array_append/>`__.
 
     .. code-block:: pycon
 
