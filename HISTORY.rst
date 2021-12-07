@@ -2,6 +2,9 @@
 History
 =======
 
+4.3.0 (2021-12-07)
+------------------
+
 * Fix ``DynamicField.deconstruct()`` to correctly handle ``blank``.
 
 * Make JSON database functions work on MariaDB.
