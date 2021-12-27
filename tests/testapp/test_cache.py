@@ -1306,7 +1306,7 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         migration_mod = types.ModuleType("0001_add_cache_tables")
         exec(output, migration_mod.__dict__)
         assert hasattr(migration_mod, "Migration")
-        migration = migration_mod.Migration  # type: ignore [attr-defined]
+        migration = migration_mod.Migration
         assert hasattr(migration, "dependencies")
         assert hasattr(migration, "operations")
 
