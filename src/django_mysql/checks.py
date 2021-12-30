@@ -52,7 +52,8 @@ def innodb_strict_mode_warning(alias: str) -> checks.Warning:
             + "InnoDB-specific statements into errors. It's recommended you "
             + "activate this, but it's not very likely to affect you if you "
             + "don't. See: "
-            + "https://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w002-innodb-strict-mode"  # noqa: B950
+            + "https://django-mysql.readthedocs.io/en/latest/checks.html"
+            + "#django-mysql-w002-innodb-strict-mode"
         ),
         id="django_mysql.W002",
     )
@@ -65,7 +66,8 @@ def utf8mb4_warning(alias: str) -> checks.Warning:
             "The default 'utf8' character set does not include support for "
             + "all Unicode characters. It's strongly recommended you move to "
             + "use 'utf8mb4'. See: "
-            + "https://django-mysql.readthedocs.io/en/latest/checks.html#django-mysql-w003-utf8mb4"  # noqa: B950
+            + "https://django-mysql.readthedocs.io/en/latest/checks.html"
+            + "#django-mysql-w003-utf8mb4"  # noqa: B950
         ),
         id="django_mysql.W003",
     )
