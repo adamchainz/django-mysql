@@ -183,7 +183,7 @@ else:
             class NullBit1Model(TemporaryModel):
                 nb = NullBit1BooleanField()
 
-            model = NullBit1Model()
+            model = NullBit1Model(actually_check=True)
 
             assert model.check() == [
                 checks.Error(
