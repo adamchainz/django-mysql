@@ -1,25 +1,7 @@
 import sys
-from types import TracebackType
-from typing import Any, Callable, Optional, Type, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 import django
-
-if sys.version_info >= (3, 7):
-    from contextlib import nullcontext
-else:
-
-    class nullcontext:
-        def __enter__(self) -> None:
-            pass
-
-        def __exit__(
-            self,
-            exc_type: Optional[Type[BaseException]],
-            exc_value: Optional[BaseException],
-            exc_traceback: Optional[TracebackType],
-        ) -> None:
-            pass
-
 
 if sys.version_info >= (3, 9):
     from functools import cache

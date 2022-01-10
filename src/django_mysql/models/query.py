@@ -2,6 +2,7 @@ import operator
 import subprocess
 import sys
 import time
+from contextlib import nullcontext
 from copy import copy
 from functools import wraps
 from typing import (
@@ -25,7 +26,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
-from django_mysql.compat import cache, nullcontext
+from django_mysql.compat import cache
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import (
