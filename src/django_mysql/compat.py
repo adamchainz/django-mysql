@@ -1,7 +1,5 @@
 import sys
-from contextlib import nullcontext
-from types import TracebackType
-from typing import Any, Callable, Optional, Type, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 import django
 
