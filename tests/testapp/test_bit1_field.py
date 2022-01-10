@@ -183,9 +183,9 @@ else:
             class NullBit1Model(TemporaryModel):
                 nb = NullBit1BooleanField()
 
-            model = NullBit1Model(actually_check=True)
+            model = NullBit1Model()
 
-            assert model.check() == [
+            assert model.check(actually_check=True) == [
                 checks.Error(
                     "NullBooleanField is removed except for support in historical "
                     "migrations.",
