@@ -22,12 +22,12 @@ from tests.testapp.models import Poll, expensive_calculation
 
 
 # functions/classes for complex data type tests
-def f():
+def f():  # pragma: no cover
     return 42
 
 
 class C:
-    def m(n):
+    def m(n):  # pragma: no cover
         return 24
 
 
@@ -36,7 +36,7 @@ class Unpickable:
         raise pickle.PickleError()
 
 
-def empty_response(request):
+def empty_response(request):  # pragma: no cover
     return HttpResponse()
 
 

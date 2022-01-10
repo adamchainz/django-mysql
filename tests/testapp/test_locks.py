@@ -36,7 +36,7 @@ class LockTests(TestCase):
                        WHERE PLUGIN_NAME = 'metadata_lock_info'"""
                 )
                 cls.lock_info_preinstalled = cursor.fetchone()[0] > 0
-                if not cls.lock_info_preinstalled:
+                if not cls.lock_info_preinstalled:  # pragma: no branch
                     cursor.execute("INSTALL SONAME 'metadata_lock_info'")
 
     @classmethod

@@ -181,7 +181,7 @@ class AlterStorageEngineTests(TransactionTestCase):
         options=False,
         db_table=None,
         index_together=False,
-    ):
+    ):  # pragma: no cover
         """
         Creates a test model state and database table.
         """
