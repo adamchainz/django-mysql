@@ -1289,8 +1289,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 @override_cache_settings()
 class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
     @pytest.fixture(autouse=True)
-    def flake8dir(self, flake8dir):
-        self.flake8dir = flake8dir
+    def flake8_path(self, flake8_path):
+        self.flake8_path = flake8_path
 
     def test_mysql_cache_migration(self):
         out = StringIO()
@@ -1298,8 +1298,8 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
         output = out.getvalue()
 
         # Lint it
-        self.flake8dir.make_example_py(output)
-        result = self.flake8dir.run_flake8()
+        (self.flake8_path / "example.py").write_text(output)
+        result = self.flake8_path.run_flake8()
         assert result.out_lines == []
 
         # Dynamic import and check

@@ -758,6 +758,7 @@ def pt_visual_explain(queryset: models.QuerySet, display: bool = True) -> str:
     assert mysql.stdout is not None
     mysql.stdout.close()
     explanation = visual_explain.communicate()[0].decode(encoding="utf-8")
+    mysql.wait()
     if display:
         print(explanation)
     return explanation
