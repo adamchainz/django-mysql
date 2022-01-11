@@ -178,21 +178,19 @@ if django.VERSION < (4, 0):
 
 else:
 
-    if django.VERSION < (4, 0):
+    class TestNullCheck(SimpleTestCase):
+        def test_check_deprecated(self):
+            class NullBit1Model(TemporaryModel):
+                nb = NullBit1BooleanField()
 
-        class TestNullCheck(SimpleTestCase):
-            def test_check_deprecated(self):
-                class NullBit1Model(TemporaryModel):
-                    nb = NullBit1BooleanField()
+            model = NullBit1Model()
 
-                model = NullBit1Model()
-
-                assert model.check() == [
-                    checks.Error(
-                        "NullBooleanField is removed except for support in historical "
-                        "migrations.",
-                        hint="Use BooleanField(null=True) instead.",
-                        obj=NullBit1Model._meta.get_field("nb"),
-                        id="fields.E903",
-                    ),
-                ]
+            assert model.check(actually_check=True) == [
+                checks.Error(
+                    "NullBooleanField is removed except for support in historical "
+                    "migrations.",
+                    hint="Use BooleanField(null=True) instead.",
+                    obj=NullBit1Model._meta.get_field("nb"),
+                    id="fields.E903",
+                ),
+            ]

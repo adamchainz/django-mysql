@@ -19,8 +19,8 @@ def pytest_report_header(config):
 
         else:
 
-            with closing(connection._nodb_connection) as conn:
-                with conn.cursor() as cursor:
+            with closing(connection._nodb_connection) as conn:  # pragma: no branch
+                with conn.cursor() as cursor:  # pragma: no branch
                     cursor.execute("SELECT VERSION()")
                     version = cursor.fetchone()[0]
         header += f"\nMySQL version: {version}"

@@ -143,7 +143,7 @@ class DynamicModel(Model):
             return []
         return super().check(**kwargs)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
 
 
@@ -157,7 +157,7 @@ class SpeclessDynamicModel(Model):
             return []
         return super().check(**kwargs)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
 
 
@@ -168,9 +168,6 @@ class Author(Model):
     birthday = DateTimeField(null=True)
     deathday = DateTimeField(null=True)
 
-    def __str__(self):
-        return f"{self.id} {self.name}"
-
 
 class Book(Model):
     title = CharField(max_length=32, db_index=True)
@@ -180,9 +177,6 @@ class Book(Model):
 class VanillaAuthor(VanillaModel):
     name = CharField(max_length=32)
 
-    def __str__(self):
-        return f"{self.id} {self.name}"
-
 
 class AuthorExtra(Model):
     author = OneToOneField(Author, on_delete=CASCADE, primary_key=True)
@@ -191,9 +185,6 @@ class AuthorExtra(Model):
 
 class NameAuthor(Model):
     name = CharField(max_length=32, primary_key=True)
-
-    def __str__(self):
-        return f"{self.id} {self.name}"
 
 
 class NameAuthorExtra(Model):
@@ -206,9 +197,6 @@ class AuthorMultiIndex(Model):
 
     name = CharField(max_length=32, db_index=True)
     country = CharField(max_length=32)
-
-    def __str__(self):
-        return f"{self.id} {self.name} in {self.country}"
 
 
 class AuthorHugeName(Model):
@@ -281,7 +269,7 @@ class JSONModel(Model):
 
     name = CharField(max_length=3)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return str(json.dumps(self.attrs))
 
 
