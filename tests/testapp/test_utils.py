@@ -1,5 +1,4 @@
-from time import sleep
-from unittest import SkipTest, mock, skipUnless
+from unittest import SkipTest, mock
 
 import django
 import pytest
@@ -7,13 +6,10 @@ from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test import SimpleTestCase, TestCase
 
 from django_mysql.utils import (
-    PTFingerprintThread,
     WeightedAverageRate,
     connection_is_mariadb,
     format_duration,
-    have_program,
     index_name,
-    pt_fingerprint,
 )
 from tests.testapp.models import Author, AuthorMultiIndex
 
@@ -108,53 +104,6 @@ class FormatDurationTests(SimpleTestCase):
     def test_hours(self):
         assert format_duration(3600) == "1h0m0s"
         assert format_duration(3601) == "1h0m1s"
-
-
-@skipUnless(have_program("pt-fingerprint"), "pt-fingerprint must be installed")
-class PTFingerprintTests(SimpleTestCase):
-    def test_basic(self):
-        assert pt_fingerprint("SELECT 5") == "select ?"
-        assert pt_fingerprint("SELECT 5;") == "select ?"
-
-    def test_long(self):
-        query = """
-            SELECT
-                CONCAT(customer.last_name, ', ', customer.first_name)
-                    AS customer,
-                address.phone,
-                film.title
-            FROM rental
-                INNER JOIN customer
-                    ON rental.customer_id = customer.customer_id
-                INNER JOIN address
-                    ON customer.address_id = address.address_id
-                INNER JOIN inventory
-                    ON rental.inventory_id = inventory.inventory_id
-                INNER JOIN film
-                    ON inventory.film_id = film.film_id
-            WHERE
-                rental.return_date IS NULL AND
-                rental_date + INTERVAL film.rental_duration DAY <
-                    CURRENT_DATE()
-            LIMIT 5"""
-        assert pt_fingerprint(query) == (
-            "select concat(customer.last_name, ?, customer.first_name) as "
-            + "customer, address.phone, film.title from rental inner join "
-            + "customer on rental.customer_id = customer.customer_id "
-            + "inner join address on customer.address_id = "
-            + "address.address_id inner join inventory on "
-            + "rental.inventory_id = inventory.inventory_id inner join "
-            + "film on inventory.film_id = film.film_id where "
-            + "rental.return_date is ? and rental_date ? interval "
-            + "film.rental_duration day < current_date() limit ?"
-        )
-
-    def test_the_thread_shuts_on_time_out(self):
-        PTFingerprintThread.PROCESS_LIFETIME = 0.1
-        pt_fingerprint("select 123")
-        sleep(0.2)
-        assert PTFingerprintThread.the_thread is None
-        PTFingerprintThread.PROCESS_LIFETIME = 60
 
 
 class IndexNameTests(TestCase):

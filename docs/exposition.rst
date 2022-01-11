@@ -306,20 +306,6 @@ commandline tools with ``dbparams``:
 :ref:`Read more <management_commands>`
 
 
----------
-Utilities
----------
-
-Fingerprint queries quickly with the ``pt-fingerprint`` wrapper:
-
-.. code-block:: pycon
-
-    >>> pt_fingerprint("SELECT * FROM myapp_author WHERE id = 5")
-    "select * from myapp_author where id = 5"
-
-:ref:`Read more <utilities>`
-
-
 --------------
 Test Utilities
 --------------

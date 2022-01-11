@@ -1,22 +1,8 @@
-import os
 import subprocess
 import time
 from collections import defaultdict
-from queue import Empty, Queue
-from threading import Lock, Thread
 from types import TracebackType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Generator,
-    List,
-    Mapping,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, Dict, Generator, List, Mapping, Optional, Tuple, Type, Union
 from weakref import WeakKeyDictionary
 
 import django
@@ -174,112 +160,6 @@ def settings_to_cmd_args(settings_dict: Dict[str, Any]) -> List[str]:
 def have_program(program_name: str) -> bool:
     status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
     return status == 0
-
-
-def pt_fingerprint(query: str) -> str:
-    """
-    Takes a query (in a string) and returns its 'fingerprint'
-    """
-    if not have_program("pt-fingerprint"):  # pragma: no cover
-        raise OSError("pt-fingerprint doesn't appear to be installed")
-
-    thread = PTFingerprintThread.get_thread()
-    thread.in_queue.put(query)
-    return thread.out_queue.get()
-
-
-if TYPE_CHECKING:  # pragma: no cover
-    PTFingerPrintQueueType = Queue[str]
-else:
-    PTFingerPrintQueueType = Queue
-
-
-class PTFingerprintThread(Thread):
-    """
-    Class for a singleton background thread to pass queries to pt-fingerprint
-    and get their fingerprints back. This is done because the process launch
-    time is relatively expensive and it's useful to be able to fingerprinting
-    queries quickly.
-
-    The get_thread() class method returns the singleton thread - either
-    instantiating it or returning the existing one.
-
-    The thread launches pt-fingerprint with subprocess and then takes queries
-    from an input queue, passes them the subprocess and returns the fingerprint
-    to an output queue. If it receives no queries in PROCESS_LIFETIME seconds,
-    it closes the subprocess and itself - so you don't have processes hanging
-    around.
-    """
-
-    the_thread: Optional["PTFingerprintThread"] = None
-    life_lock = Lock()
-
-    PROCESS_LIFETIME = 60.0  # seconds
-
-    @classmethod
-    def get_thread(cls) -> "PTFingerprintThread":
-        with cls.life_lock:
-            if cls.the_thread is None:
-                in_queue: PTFingerPrintQueueType = Queue()
-                out_queue: PTFingerPrintQueueType = Queue()
-                thread = cls(in_queue, out_queue)
-                thread.daemon = True
-                thread.in_queue = in_queue
-                thread.out_queue = out_queue
-                thread.start()
-                cls.the_thread = thread
-
-        return cls.the_thread
-
-    def __init__(
-        self,
-        in_queue: PTFingerPrintQueueType,
-        out_queue: PTFingerPrintQueueType,
-        **kwargs: Any,
-    ) -> None:
-        self.in_queue = in_queue
-        self.out_queue = out_queue
-        super().__init__(**kwargs)
-
-    def run(self) -> None:
-        # pty is unix/linux only
-        import pty  # noqa
-
-        global fingerprint_thread
-        master, slave = pty.openpty()
-        proc = subprocess.Popen(
-            ["pt-fingerprint"], stdin=subprocess.PIPE, stdout=slave, close_fds=True
-        )
-        stdin = proc.stdin
-        assert stdin is not None
-        stdout = os.fdopen(master)
-
-        while True:
-            try:
-                query = self.in_queue.get(timeout=self.PROCESS_LIFETIME)
-            except Empty:
-                self.life_lock.acquire()
-                # We timed out, but there was something put into the queue
-                # since
-                if (
-                    self.__class__.the_thread is self and self.in_queue.qsize()
-                ):  # pragma: no cover
-                    self.life_lock.release()
-                    break
-                # Die
-                break
-
-            stdin.write(query.encode("utf-8"))
-            if not query.endswith(";"):
-                stdin.write(b";")
-            stdin.write(b"\n")
-            stdin.flush()
-            fingerprint = stdout.readline()
-            self.out_queue.put(fingerprint.strip())
-
-        stdin.close()
-        self.__class__.the_thread = None
-        self.life_lock.release()
 
 
 def collapse_spaces(string: str) -> str:
