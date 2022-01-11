@@ -97,7 +97,7 @@ django-testdata==1.0.3 \
 flake8==4.0.1 \
     --hash=sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d \
     --hash=sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d
-    # via pytest-flake8dir
+    # via pytest-flake8-path
 importlib-metadata==4.10.0 \
     --hash=sha256:92a8b58ce734b2a4494878e0ecf7d79ccd7a128b5fc6014c401e0b61f006f0f6 \
     --hash=sha256:b7cf7d3fef75f1e4c80a96ca660efbd51473d7e8f39b5ab9210febc7809012a4
@@ -155,16 +155,16 @@ pytest==6.2.5 \
     # via
     #   -r requirements.in
     #   pytest-django
-    #   pytest-flake8dir
+    #   pytest-flake8-path
     #   pytest-randomly
     #   pytest-super-check
 pytest-django==4.5.2 \
     --hash=sha256:c60834861933773109334fe5a53e83d1ef4828f2203a1d6a0fa9972f4f75ab3e \
     --hash=sha256:d9076f759bb7c36939dbdd5ae6633c18edfc2902d1a69fdbefd2426b970ce6c2
     # via -r requirements.in
-pytest-flake8dir==2.6.1 \
-    --hash=sha256:a368d1f9366b9f8084da24f324a65d312ca129d363f1a0cbdc7409376bb9e66f \
-    --hash=sha256:f37df8b9e11cdb5c6f2d8c907ce145c686e31d80b2a1f6a887534bda3288ac66
+pytest-flake8-path==1.2.0 \
+    --hash=sha256:74055e7f71d65f137e308f9d0b516f1de06997d988fab938edaf3a71f4d24d88 \
+    --hash=sha256:cc9252310fb42e8530447aeacd4adf087e24f90b2cca6daeebf04e33d2b492ab
     # via -r requirements.in
 pytest-randomly==3.10.3 \
     --hash=sha256:22154cdcff7ba44e0599596490e6b75278ca973a33812ea6a54bf14d0b042ef1 \

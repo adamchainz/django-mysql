@@ -7,6 +7,6 @@ mysqlclient
 parameterized
 pytest
 pytest-django
-pytest-flake8dir
+pytest-flake8-path
 pytest-randomly
 pytest-super-check
