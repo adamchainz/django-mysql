@@ -17,6 +17,7 @@ to the home of Django's native fields in ``django.db.models``.
    list_fields
    set_fields
    enum_field
+   fixedchar_field
    resizable_text_binary_fields
    null_bit1_boolean_fields
 
