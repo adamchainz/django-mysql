@@ -1,4 +1,5 @@
 from typing import Any, cast
+
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
 
@@ -43,4 +44,4 @@ class FixedCharField(CharField):
         return name, path, args, kwargs
 
     def db_type(self, connection: BaseDatabaseWrapper) -> str:
-        return "char({length})".format(length=self.length)
+        return f"char({self.length})"
