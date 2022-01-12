@@ -21,7 +21,7 @@ Docs:
 `MariaDB <https://mariadb.com/kb/en/char/>`_.
 
 
-.. class:: FixedCharField(length, **kwargs)
+.. class:: FixedCharField(length: int = 1, **kwargs)
 
     A subclass of Django's :class:`~django.db.models.Charfield` that uses a
     MySQL ``CHAR`` for storage.
