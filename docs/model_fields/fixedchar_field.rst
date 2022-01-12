@@ -28,14 +28,21 @@ Docs:
 
     ``length`` is a non-standard Django argument for a field class, however it
     is required for ``FixedCharField``. It must be an integer value within the
-    range of 0-255. Supplying values outside that range will throw an error. For
-    example:
+    range of 0-255. Supplying values outside that range will throw a ValueError.
+    For example:
 
     .. code-block:: python
 
         from django_mysql.models import FixedWidthField
 
 
-        class Address(Model):
-            zip_code = FixedWidthField(length=5)
+        class VariousCharLengths(Model):
+            zip_code = FixedCharField(length=5)
+            default_length = FixedCharField()  # defaults to length=1
             really_long_string = FixedCharField(length=256)  # ValueError
+
+    .. warning::
+
+    MariaDB defaults to a ``CHAR(1)`` field, while MySQL has no default value.
+    ``FixedCharField`` follows the MariaDB behavior and defaults to a
+    ``CHAR(1)`` field if a length is not provided.

@@ -7,14 +7,20 @@ from django_mysql.models import FixedCharField
 
 
 class TestFixedCharField(TestCase):
-    def test_missing_length(self):
-        with pytest.raises(TypeError):
-            FixedCharField()
-
     def test_invalid_length_type(self):
         with pytest.raises(TypeError) as exc_info:
             FixedCharField(length="4")
         assert "Expected integer value." in str(exc_info.value)
+
+    def test_invalid_length_too_short(self):
+        with pytest.raises(ValueError) as exc_info:
+            FixedCharField(length=-1)
+        assert "Length must be in the range" in str(exc_info.value)
+
+    def test_invalid_length_too_long(self):
+        with pytest.raises(ValueError) as exc_info:
+            FixedCharField(length=256)
+        assert "Length must be in the range" in str(exc_info.value)
 
     def test_invalid_max_length(self):
         with pytest.raises(TypeError) as exc_info:
@@ -24,10 +30,10 @@ class TestFixedCharField(TestCase):
 
 class TestDeconstruct(TestCase):
     def test_deconstruct(self):
-        field = FixedCharField(length=4)
+        field = FixedCharField()
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.FixedCharField"
-        assert kwargs["length"] == 4
+        assert kwargs["length"] == 1
         assert "max_length" not in kwargs
         FixedCharField(*args, **kwargs)
 

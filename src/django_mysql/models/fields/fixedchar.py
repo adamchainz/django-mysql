@@ -6,12 +6,19 @@ from django_mysql.typing import DeconstructResult
 
 
 class FixedCharField(CharField):
-    def __init__(self, length: int, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, length: int = 1, *args: Any, **kwargs: Any) -> None:
         # Ensure we have an actual integer value
         if not isinstance(length, int):
             raise TypeError(
-                'Invalid length value "{length}".'
+                'Invalid length value "{length}". '
                 "Expected integer value.".format(length=length)
+            )
+
+        # CHAR fields can only be in the range of 0-255
+        if length < 0 or length > 255:
+            raise ValueError(
+                'Invalid length value "{length}". '
+                "Length must be in the range of 0-255.".format(length=length)
             )
 
         # A max_length doesn't make sense in this context
