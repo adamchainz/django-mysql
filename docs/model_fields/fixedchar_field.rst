@@ -39,10 +39,10 @@ Docs:
         class VariousCharLengths(Model):
             zip_code = FixedCharField(length=5)
             default_length = FixedCharField()  # defaults to length=1
-            really_long_string = FixedCharField(length=256)  # ValueError
+            really_long_string = FixedCharField(length=256)  # raise ValueError
 
-    .. warning::
+    .. note::
 
-    MariaDB defaults to a ``CHAR(1)`` field, while MySQL has no default value.
-    ``FixedCharField`` follows the MariaDB behavior and defaults to a
-    ``CHAR(1)`` field if a length is not provided.
+        MariaDB defaults to a ``CHAR(1)`` field, while MySQL has no default value.
+        ``FixedCharField`` follows the MariaDB behavior and defaults to a
+        ``CHAR(1)`` field if a length is not provided.
