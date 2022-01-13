@@ -7,7 +7,7 @@ from django_mysql.typing import DeconstructResult
 
 
 class FixedCharField(CharField):
-    def __init__(self, length: int = 1, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, length: int, *args: Any, **kwargs: Any) -> None:
         # Ensure we have an actual integer value
         if not isinstance(length, int):
             raise TypeError(

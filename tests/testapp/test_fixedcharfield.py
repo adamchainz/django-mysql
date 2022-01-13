@@ -30,7 +30,7 @@ class TestFixedCharField(TestCase):
 
 class TestDeconstruct(TestCase):
     def test_deconstruct(self):
-        field = FixedCharField()
+        field = FixedCharField(length=1)
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.FixedCharField"
         assert kwargs["length"] == 1
