@@ -26,7 +26,10 @@ class FixedCharField(CharField):
         if "max_length" in kwargs:
             raise TypeError('"max_length" is not a valid argument')
 
+        # However, a max_length is required by Django CharField,
+        # so we'll set it equal to the length of our CHAR field
         self.length = length
+        kwargs["max_length"] = length
         super().__init__(*args, **kwargs)
 
     def deconstruct(self) -> DeconstructResult:
@@ -40,6 +43,7 @@ class FixedCharField(CharField):
             path = "django_mysql.models.FixedCharField"
 
         kwargs["length"] = self.length
+        kwargs["max_length"] = self.length
 
         return name, path, args, kwargs
 

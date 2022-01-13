@@ -34,7 +34,7 @@ class TestDeconstruct(TestCase):
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.FixedCharField"
         assert kwargs["length"] == 1
-        assert "max_length" not in kwargs
+        assert kwargs["max_length"] == 1
         FixedCharField(*args, **kwargs)
 
 
