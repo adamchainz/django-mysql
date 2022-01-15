@@ -88,9 +88,9 @@ iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
     # via pytest
-mariadb-dyncol==3.4.0 \
-    --hash=sha256:60d34980e7b3f1c24020f972eb377df8799731e4247e06c866255676a5cd337c \
-    --hash=sha256:83d63a0670e63cd5cc8bc2331ae40c119b55ebfea58e01e5896f749e158e7430
+mariadb-dyncol==3.5.0 \
+    --hash=sha256:04ba1dddd4c2887c8d9ce3bfa493a5343dd57303b9dcb71031d8eeda4a7f470b \
+    --hash=sha256:0ba3dc16cd8b8a86dd482727a5665f84955aacf5f393a3e661de103c578246f0
     # via -r requirements.in
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
@@ -148,13 +148,13 @@ pytest-flake8-path==1.2.0 \
     --hash=sha256:74055e7f71d65f137e308f9d0b516f1de06997d988fab938edaf3a71f4d24d88 \
     --hash=sha256:cc9252310fb42e8530447aeacd4adf087e24f90b2cca6daeebf04e33d2b492ab
     # via -r requirements.in
-pytest-randomly==3.10.3 \
-    --hash=sha256:22154cdcff7ba44e0599596490e6b75278ca973a33812ea6a54bf14d0b042ef1 \
-    --hash=sha256:b05a7a45f54cae2b5095752c6a10cb559df84448421b0420ae492dd2fb1727ef
+pytest-randomly==3.11.0 \
+    --hash=sha256:9f013b8c1923130f3d0a286fde56e1fc52cfb3547b8eedf2765c460cee979c7f \
+    --hash=sha256:a3c680d2b8150cf766311a80a1f92da64c3dd819045cda834fbf1b0ac4891610
     # via -r requirements.in
-pytest-super-check==2.4.0 \
-    --hash=sha256:31288f9d33471189e775b5d695a70675ebcdecfd7af499afea5d7d2bee89121b \
-    --hash=sha256:c72cfb67b11f477b09aa70945c253a6006f3265bd00ea68c7db201d33607b02f
+pytest-super-check==2.5.0 \
+    --hash=sha256:43e6339db02807d97e3d82c071e4aea7654ea3bd11aa4970134984d737d2611a \
+    --hash=sha256:f3a60920d0c656fb648d89155a04724c84b73c4cd3afc6d6134385fb59ecbb6e
     # via -r requirements.in
 sqlparse==0.4.2 \
     --hash=sha256:0c00730c74263a94e5a9919ade150dfc3b19c574389985446148402998287dae \
