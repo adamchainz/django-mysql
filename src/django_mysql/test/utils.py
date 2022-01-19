@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import uuid
 from functools import wraps
 from types import TracebackType
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any
 
 from django.db import connections
 from django.db.utils import DEFAULT_DB_ALIAS
@@ -20,9 +22,7 @@ class override_mysql_variables:
     are called before and after, respectively, the function/block is executed.
     """
 
-    def __init__(
-        self, using: str = DEFAULT_DB_ALIAS, **options: Union[str, int]
-    ) -> None:
+    def __init__(self, using: str = DEFAULT_DB_ALIAS, **options: str | int) -> None:
         self.db = using
         self.options = options
         self.prefix: str = uuid.uuid1().hex.replace("-", "")[:16]
@@ -32,9 +32,9 @@ class override_mysql_variables:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        exc_traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
     ) -> None:
         self.disable()
 
@@ -61,8 +61,8 @@ class override_mysql_variables:
 
             return inner
 
-    def wrap_class(self, klass: Type[Any]) -> None:
-        kwargs: Dict[str, Any] = {"using": self.db, **self.options}
+    def wrap_class(self, klass: type[Any]) -> None:
+        kwargs: dict[str, Any] = {"using": self.db, **self.options}
 
         for name in dir(klass):
             if not name.startswith("test_"):

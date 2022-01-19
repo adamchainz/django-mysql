@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.utils.translation import ngettext_lazy
 

@@ -1,4 +1,6 @@
-from typing import Any, List, Optional, Set
+from __future__ import annotations
+
+from typing import Any
 
 from django import forms
 from django.core import validators
@@ -24,8 +26,8 @@ class SimpleListField(forms.CharField):
     def __init__(
         self,
         base_field: forms.Field,
-        max_length: Optional[int] = None,
-        min_length: Optional[int] = None,
+        max_length: int | None = None,
+        min_length: int | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -43,7 +45,7 @@ class SimpleListField(forms.CharField):
             return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
-    def to_python(self, value: str) -> List[Any]:
+    def to_python(self, value: str) -> list[Any]:
         if value and len(value):
             items = value.split(",")
         else:
@@ -145,8 +147,8 @@ class SimpleSetField(forms.CharField):
     def __init__(
         self,
         base_field: forms.Field,
-        max_length: Optional[int] = None,
-        min_length: Optional[int] = None,
+        max_length: int | None = None,
+        min_length: int | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -164,7 +166,7 @@ class SimpleSetField(forms.CharField):
             return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
-    def to_python(self, value: str) -> Set[Any]:
+    def to_python(self, value: str) -> set[Any]:
         if value and len(value):
             items = value.split(",")
         else:

@@ -1,4 +1,6 @@
-from typing import Any, Callable, Iterable, Tuple
+from __future__ import annotations
+
+from typing import Any, Callable, Iterable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField, Lookup, Transform
@@ -20,7 +22,7 @@ class SoundsLike(Lookup):
         self,
         qn: Callable[[str], str],
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
@@ -33,7 +35,7 @@ class Soundex(Transform):
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
         return "SOUNDEX(%s)" % lhs, params
 
@@ -61,7 +63,7 @@ class SetContains(Lookup):
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
@@ -81,7 +83,7 @@ class DynColHasKey(Lookup):
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)

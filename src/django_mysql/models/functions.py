@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime as dt
 import json
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Union
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -20,7 +22,7 @@ ExpressionArgument = Union[
 
 class SingleArgFunc(Func):
 
-    output_field_class: Type[DjangoField]
+    output_field_class: type[DjangoField]
 
     def __init__(self, expression: ExpressionArgument) -> None:
         super().__init__(expression)
@@ -37,8 +39,8 @@ class If(Func):
         self,
         condition: ExpressionArgument,
         true: ExpressionArgument,
-        false: Optional[ExpressionArgument] = None,
-        output_field: Optional[DjangoField] = None,
+        false: ExpressionArgument | None = None,
+        output_field: DjangoField | None = None,
     ) -> None:
         if output_field is None:
             # Workaround for some ORM weirdness
@@ -71,7 +73,7 @@ class ConcatWS(Func):
     function = "CONCAT_WS"
 
     def __init__(
-        self, *expressions: ExpressionArgument, separator: Optional[str] = ","
+        self, *expressions: ExpressionArgument, separator: str | None = ","
     ) -> None:
         if len(expressions) < 2:
             raise ValueError("ConcatWS must take at least two expressions")
@@ -90,7 +92,7 @@ class ELT(Func):
     def __init__(
         self,
         num: ExpressionArgument,
-        expressions: Union[List[ExpressionArgument], Tuple[ExpressionArgument]],
+        expressions: list[ExpressionArgument] | tuple[ExpressionArgument],
     ) -> None:
         value_exprs = []
         for v in expressions:
@@ -107,7 +109,7 @@ class Field(Func):
     def __init__(
         self,
         field: ExpressionArgument,
-        values: Union[List[ExpressionArgument], Tuple[ExpressionArgument]],
+        values: list[ExpressionArgument] | tuple[ExpressionArgument],
         **kwargs: Any,
     ) -> None:
         values_exprs = []
@@ -186,7 +188,7 @@ class SHA2(Func):
 class LastInsertId(Func):
     function = "LAST_INSERT_ID"
 
-    def __init__(self, expression: Optional[ExpressionArgument] = None) -> None:
+    def __init__(self, expression: ExpressionArgument | None = None) -> None:
         if expression is not None:
             super().__init__(expression)
         else:
@@ -215,7 +217,7 @@ if HAVE_JSONFIELD:  # pragma: no branch
             self,
             expression: ExpressionArgument,
             *paths: ExpressionArgument,
-            output_field: Optional[Type[DjangoField]] = None,
+            output_field: type[DjangoField] | None = None,
         ) -> None:
             exprs = [expression]
             for path in paths:
@@ -240,7 +242,7 @@ if HAVE_JSONFIELD:  # pragma: no branch
         def __init__(
             self,
             expression: ExpressionArgument,
-            path: Optional[ExpressionArgument] = None,
+            path: ExpressionArgument | None = None,
         ) -> None:
             exprs = [expression]
             if path is not None:
@@ -256,9 +258,9 @@ if HAVE_JSONFIELD:  # pragma: no branch
         def __init__(
             self,
             expression: ExpressionArgument,
-            path: Optional[ExpressionArgument] = None,
+            path: ExpressionArgument | None = None,
             *,
-            output_field: Optional[DjangoField] = None,
+            output_field: DjangoField | None = None,
             **extra: Any,
         ) -> None:
             if output_field is None:
@@ -276,7 +278,7 @@ if HAVE_JSONFIELD:  # pragma: no branch
     # Cast(..., output_field=JSONField())
     class JSONValue(Expression):
         def __init__(
-            self, data: Union[None, int, float, str, List[Any], Dict[str, Any]]
+            self, data: None | int | float | str | list[Any] | dict[str, Any]
         ) -> None:
             self._data = data
 
@@ -284,7 +286,7 @@ if HAVE_JSONFIELD:  # pragma: no branch
             self,
             compiler: SQLCompiler,
             connection: BaseDatabaseWrapper,
-        ) -> Tuple[str, Tuple[Any, ...]]:
+        ) -> tuple[str, tuple[Any, ...]]:
             if connection.vendor != "mysql":  # pragma: no cover
                 raise AssertionError("JSONValue only supports MySQL/MariaDB")
             json_string = json.dumps(self._data, allow_nan=False)
@@ -298,11 +300,17 @@ if HAVE_JSONFIELD:  # pragma: no branch
         def __init__(
             self,
             expression: ExpressionArgument,
-            data: Dict[
+            data: dict[
                 str,
-                Union[
-                    ExpressionArgument, None, int, float, str, List[Any], Dict[str, Any]
-                ],
+                (
+                    ExpressionArgument
+                    | None
+                    | int
+                    | float
+                    | str
+                    | list[Any]
+                    | dict[str, Any]
+                ),
             ],
         ) -> None:
             if not data:
@@ -402,7 +410,7 @@ class AsType(Func):
         super().__init__(expression, data_type=data_type)
 
     @property
-    def TYPE_MAP(self) -> Dict[str, Union[Type[DjangoField], DjangoField]]:
+    def TYPE_MAP(self) -> dict[str, type[DjangoField] | DjangoField]:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         return KeyTransform.TYPE_MAP
@@ -414,8 +422,8 @@ class ColumnAdd(Func):
     def __init__(
         self,
         expression: ExpressionArgument,
-        to_add: Dict[
-            str, Union[ExpressionArgument, float, int, dt.date, dt.time, dt.datetime]
+        to_add: dict[
+            str, ExpressionArgument | float | int | dt.date | dt.time | dt.datetime
         ],
     ) -> None:
         from django_mysql.models.fields import DynamicField
@@ -478,7 +486,7 @@ class ColumnGet(Func):
         )
 
     @property
-    def TYPE_MAP(self) -> Dict[str, Union[DjangoField, Type[DjangoField]]]:
+    def TYPE_MAP(self) -> dict[str, DjangoField | type[DjangoField]]:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         return KeyTransform.TYPE_MAP

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import pickle
 import re
-from typing import List
 from unittest import mock, skipUnless
 
 import pytest
@@ -467,7 +468,7 @@ class SmartIteratorTests(TestCase):
         assert "non-integer primary key" in str(excinfo.value)
 
     def test_chunks(self):
-        seen: List[int] = []
+        seen: list[int] = []
         for authors in Author.objects.iter_smart_chunks():
             seen.extend(author.id for author in authors)
 
@@ -626,7 +627,7 @@ class SmartIteratorTests(TestCase):
         assert seen == all_ids
 
     def test_iter_smart_pk_range_with_raw(self):
-        seen: List[int] = []
+        seen: list[int] = []
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             authors = Author.objects.raw(
                 """

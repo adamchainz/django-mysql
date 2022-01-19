@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import migrations, models
 
 from django_mysql.models import ListCharField

@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import os
 import pickle
 import time
 import types
 from decimal import Decimal
 from io import StringIO
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
@@ -93,7 +95,7 @@ def caches_setting_for_tests(options=None, **params):
     # base config for the tests.
     # This results in the following search order:
     # params -> _caches_setting_base -> base
-    setting: Dict[str, Any] = {k: {} for k in _caches_setting_base.keys()}
+    setting: dict[str, Any] = {k: {} for k in _caches_setting_base.keys()}
     for key, cache_params in setting.items():
         cache_params.update(_caches_setting_base[key])
         cache_params.update(params)

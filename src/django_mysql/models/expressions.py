@@ -1,4 +1,6 @@
-from typing import Any, Iterable, List, Tuple, Union
+from __future__ import annotations
+
+from typing import Any, Iterable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import F, Value
@@ -14,7 +16,7 @@ class TwoSidedExpression(BaseExpression):
         self.lhs = lhs
         self.rhs = rhs
 
-    def get_source_expressions(self) -> List[BaseExpression]:
+    def get_source_expressions(self) -> list[BaseExpression]:
         return [self.lhs, self.rhs]
 
     def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
@@ -26,20 +28,20 @@ class ListF:
         self.field_name = field_name
         self.field = F(field_name)
 
-    def append(self, value: Union[BaseExpression, Any]) -> "AppendListF":
+    def append(self, value: BaseExpression | Any) -> AppendListF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return AppendListF(self.field, value)
 
-    def appendleft(self, value: Union[Any, BaseExpression]) -> "AppendLeftListF":
+    def appendleft(self, value: Any | BaseExpression) -> AppendLeftListF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return AppendLeftListF(self.field, value)
 
-    def pop(self) -> "PopListF":
+    def pop(self) -> PopListF:
         return PopListF(self.field)
 
-    def popleft(self) -> "PopLeftListF":
+    def popleft(self) -> PopLeftListF:
         return PopLeftListF(self.field)
 
 
@@ -68,7 +70,7 @@ class AppendListF(TwoSidedExpression):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Tuple[Any, ...]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
@@ -103,7 +105,7 @@ class AppendLeftListF(TwoSidedExpression):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Tuple[Any, ...]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
@@ -137,7 +139,7 @@ class PopListF(BaseExpression):
         super().__init__()
         self.lhs = lhs
 
-    def get_source_expressions(self) -> List[BaseExpression]:
+    def get_source_expressions(self) -> list[BaseExpression]:
         return [self.lhs]
 
     def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
@@ -147,7 +149,7 @@ class PopListF(BaseExpression):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Tuple[Any, ...]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
 
         sql = self.sql_expression % (field)
@@ -170,7 +172,7 @@ class PopLeftListF(BaseExpression):
         super().__init__()
         self.lhs = lhs
 
-    def get_source_expressions(self) -> List[BaseExpression]:
+    def get_source_expressions(self) -> list[BaseExpression]:
         return [self.lhs]
 
     def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
@@ -180,7 +182,7 @@ class PopLeftListF(BaseExpression):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Tuple[Any, ...]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
 
         sql = self.sql_expression % (field)
@@ -191,12 +193,12 @@ class SetF:
     def __init__(self, field_name: str) -> None:
         self.field = F(field_name)
 
-    def add(self, value: Union[Any, BaseExpression]) -> "AddSetF":
+    def add(self, value: Any | BaseExpression) -> AddSetF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return AddSetF(self.field, value)
 
-    def remove(self, value: Union[Any, BaseExpression]) -> "RemoveSetF":
+    def remove(self, value: Any | BaseExpression) -> RemoveSetF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return RemoveSetF(self.field, value)
@@ -227,7 +229,7 @@ class AddSetF(TwoSidedExpression):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Tuple[Any, ...]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
@@ -281,7 +283,7 @@ class RemoveSetF(TwoSidedExpression):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-    ) -> Tuple[str, Tuple[Any, ...]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 

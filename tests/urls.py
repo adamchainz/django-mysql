@@ -1,5 +1,5 @@
-from typing import List
+from __future__ import annotations
 
 from django.urls import path
 
-urlpatterns: List[path] = []
+urlpatterns: list[path] = []

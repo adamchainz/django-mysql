@@ -1,4 +1,6 @@
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import BooleanField, Expression, NullBooleanField
@@ -19,7 +21,7 @@ class Bit1Mixin:
             value = value == "\x01"  # pragma: no cover
         return value
 
-    def get_prep_value(self, value: Any) -> Optional[int]:
+    def get_prep_value(self, value: Any) -> int | None:
         if value is None:
             return value
         else:

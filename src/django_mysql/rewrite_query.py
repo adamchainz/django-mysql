@@ -4,11 +4,12 @@ queries and using them to rewrite that query. This is done to support query
 hints whilst obviating patching Django's ORM in complex ways.
 """
 
+from __future__ import annotations
+
 import operator
 import re
 from collections import OrderedDict
 from functools import reduce
-from typing import List, Tuple
 
 # The rewrite comments contain a single quote mark that would need be escaped
 # if entered in a column name or something like that. We aren't too worried
@@ -39,9 +40,9 @@ index_rule_re = re.compile(
 
 
 def rewrite_query(sql: str) -> str:
-    comments: List[str] = []
-    hints: List[str] = []
-    index_hints: List[Tuple[str, str, str, str]] = []
+    comments: list[str] = []
+    hints: list[str] = []
+    index_hints: list[tuple[str, str, str, str]] = []
     for match in query_rewrite_re.findall(sql):
         if match in SELECT_HINT_TOKENS:
             hints.append(match)
@@ -117,9 +118,9 @@ query_start_re = re.compile(
 
 def modify_sql(
     sql: str,
-    add_comments: List[str],
-    add_hints: List[str],
-    add_index_hints: List[Tuple[str, str, str, str]],
+    add_comments: list[str],
+    add_hints: list[str],
+    add_index_hints: list[tuple[str, str, str, str]],
 ) -> str:
     """
     Parse the start of the SQL, injecting each string in add_comments in

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from collections import OrderedDict
 from types import TracebackType
-from typing import Dict, List, Optional, Type, Union
 
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
@@ -13,7 +14,7 @@ from django_mysql.exceptions import TimeoutError
 
 class Lock:
     def __init__(
-        self, name: str, acquire_timeout: float = 10.0, using: Optional[str] = None
+        self, name: str, acquire_timeout: float = 10.0, using: str | None = None
     ) -> None:
         self.acquire_timeout = acquire_timeout
 
@@ -39,18 +40,18 @@ class Lock:
     def get_cursor(self) -> CursorWrapper:
         return connections[self.db].cursor()
 
-    def __enter__(self) -> "Lock":
+    def __enter__(self) -> Lock:
         return self.acquire()
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        exc_traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
     ) -> None:
         self.release()
 
-    def acquire(self) -> "Lock":
+    def acquire(self) -> Lock:
         with self.get_cursor() as cursor:
             cursor.execute("SELECT GET_LOCK(%s, %s)", (self.name, self.acquire_timeout))
             result = cursor.fetchone()[0]
@@ -72,7 +73,7 @@ class Lock:
     def is_held(self) -> bool:
         return self.holding_connection_id() is not None
 
-    def holding_connection_id(self) -> Optional[int]:
+    def holding_connection_id(self) -> int | None:
         with self.get_cursor() as cursor:
             cursor.execute("SELECT IS_USED_LOCK(%s)", (self.name,))
             return cursor.fetchone()[0]
@@ -80,7 +81,7 @@ class Lock:
     @classmethod
     def held_with_prefix(
         cls, prefix: str, using: str = DEFAULT_DB_ALIAS
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         # Use the METADATA_LOCK_INFO table from the MariaDB plugin to show
         # which locks of a given prefix are held
         prefix = cls.make_name(using, prefix)
@@ -99,17 +100,15 @@ class Lock:
 class TableLock:
     def __init__(
         self,
-        read: Optional[List[Union[str, Type[Model]]]] = None,
-        write: Optional[List[Union[str, Type[Model]]]] = None,
-        using: Optional[str] = None,
+        read: list[str | type[Model]] | None = None,
+        write: list[str | type[Model]] | None = None,
+        using: str | None = None,
     ) -> None:
-        self.read: List[str] = self._process_names(read)
-        self.write: List[str] = self._process_names(write)
+        self.read: list[str] = self._process_names(read)
+        self.write: list[str] = self._process_names(write)
         self.db = DEFAULT_DB_ALIAS if using is None else using
 
-    def _process_names(
-        self, names: Optional[List[Union[str, Type[Model]]]]
-    ) -> List[str]:
+    def _process_names(self, names: list[str | type[Model]] | None) -> list[str]:
         """
         Convert a list of models/table names into a list of table names. Deals
         with cases of model inheritance, etc.
@@ -137,9 +136,9 @@ class TableLock:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        exc_traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
     ) -> None:
         self.release(exc_type, exc_value, exc_traceback)
 
@@ -164,9 +163,9 @@ class TableLock:
 
     def release(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_value: Optional[BaseException] = None,
-        exc_traceback: Optional[TracebackType] = None,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        exc_traceback: TracebackType | None = None,
     ) -> None:
         connection = connections[self.db]
         with connection.cursor() as cursor:

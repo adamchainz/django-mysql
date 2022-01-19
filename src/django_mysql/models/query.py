@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import operator
 import subprocess
 import sys
@@ -5,18 +7,7 @@ import time
 from contextlib import nullcontext
 from copy import copy
 from functools import wraps
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any, Callable, Dict, Generator, Optional, Tuple, TypeVar, Union, cast
 
 from django.conf import settings
 from django.db import connections, models
@@ -75,7 +66,7 @@ def requires_query_rewrite(func: QueryRewriteFunc) -> QueryRewriteFunc:
 
 
 class QuerySetMixin(models.QuerySet):
-    _count_tries_approx: Optional[_CountTriesApproxDict]
+    _count_tries_approx: _CountTriesApproxDict | None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -147,7 +138,7 @@ class QuerySetMixin(models.QuerySet):
     # into actual hints
 
     @requires_query_rewrite
-    def label(self, string: str) -> "QuerySetMixin":
+    def label(self, string: str) -> QuerySetMixin:
         """
         Adds an arbitrary user-defined comment that will appear after
         SELECT/UPDATE/DELETE which can be used to identify where the query was
@@ -223,7 +214,7 @@ class QuerySetMixin(models.QuerySet):
         self: _Q,
         *index_names: str,
         for_: _IndexHintForType = None,
-        table_name: Optional[str] = None,
+        table_name: str | None = None,
     ) -> _Q:
         return self._index_hint(
             *index_names, hint="USE", for_=for_, table_name=table_name
@@ -233,7 +224,7 @@ class QuerySetMixin(models.QuerySet):
         self: _Q,
         *index_names: str,
         for_: _IndexHintForType = None,
-        table_name: Optional[str] = None,
+        table_name: str | None = None,
     ) -> _Q:
         return self._index_hint(
             *index_names, hint="FORCE", for_=for_, table_name=table_name
@@ -243,7 +234,7 @@ class QuerySetMixin(models.QuerySet):
         self: _Q,
         *index_names: str,
         for_: _IndexHintForType = None,
-        table_name: Optional[str] = None,
+        table_name: str | None = None,
     ) -> _Q:
         return self._index_hint(
             *index_names, hint="IGNORE", for_=for_, table_name=table_name
@@ -254,7 +245,7 @@ class QuerySetMixin(models.QuerySet):
         self: _Q,
         *index_names: str,
         hint: str,
-        table_name: Optional[str] = None,
+        table_name: str | None = None,
         for_: _IndexHintForType = None,
     ) -> _Q:
         if hint != "USE" and not len(index_names):
@@ -288,15 +279,15 @@ class QuerySetMixin(models.QuerySet):
         self,
         *,
         atomically: bool = True,
-        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        status_thresholds: dict[str, int | float] | None = None,
         pk_range: _SmartPkRangeType = None,
         chunk_time: float = 0.5,
         chunk_size: int = 2,
         chunk_min: int = 1,
         chunk_max: int = 10000,
         report_progress: bool = False,
-        total: Optional[int] = None,
-    ) -> "SmartIterator":
+        total: int | None = None,
+    ) -> SmartIterator:
         return SmartIterator(
             queryset=self,
             atomically=atomically,
@@ -314,15 +305,15 @@ class QuerySetMixin(models.QuerySet):
         self,
         *,
         atomically: bool = True,
-        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        status_thresholds: dict[str, int | float] | None = None,
         pk_range: _SmartPkRangeType = None,
         chunk_time: float = 0.5,
         chunk_size: int = 2,
         chunk_min: int = 1,
         chunk_max: int = 10000,
         report_progress: bool = False,
-        total: Optional[int] = None,
-    ) -> "SmartChunkedIterator":
+        total: int | None = None,
+    ) -> SmartChunkedIterator:
         return SmartChunkedIterator(
             queryset=self,
             atomically=atomically,
@@ -340,15 +331,15 @@ class QuerySetMixin(models.QuerySet):
         self,
         *,
         atomically: bool = True,
-        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        status_thresholds: dict[str, int | float] | None = None,
         pk_range: _SmartPkRangeType = None,
         chunk_time: float = 0.5,
         chunk_size: int = 2,
         chunk_min: int = 1,
         chunk_max: int = 10000,
         report_progress: bool = False,
-        total: Optional[int] = None,
-    ) -> "SmartPKRangeIterator":
+        total: int | None = None,
+    ) -> SmartPKRangeIterator:
         return SmartPKRangeIterator(
             queryset=self,
             atomically=atomically,
@@ -377,7 +368,7 @@ def add_QuerySetMixin(queryset: models.QuerySet) -> models.QuerySet:
 
 
 @cache
-def _make_mixin_class(klass: Type[models.QuerySet]) -> Type[QuerySetMixin]:
+def _make_mixin_class(klass: type[models.QuerySet]) -> type[QuerySetMixin]:
     class MixedInQuerySet(QuerySetMixin, klass):  # type: ignore [valid-type,misc]
         pass
 
@@ -404,14 +395,14 @@ class SmartChunkedIterator:
         queryset: models.QuerySet,
         *,
         atomically: bool = True,
-        status_thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        status_thresholds: dict[str, int | float] | None = None,
         pk_range: _SmartPkRangeType = None,
         chunk_time: float = 0.5,
         chunk_size: int = 2,
         chunk_min: int = 1,
         chunk_max: int = 10000,
         report_progress: bool = False,
-        total: Optional[int] = None,
+        total: int | None = None,
     ):
         self.queryset = self.sanitize_queryset(queryset)
 
@@ -508,7 +499,7 @@ class SmartChunkedIterator:
         models.AutoField,  # Is an integer field but doesn't subclass it :(
     )
 
-    def get_first_and_last(self) -> Tuple[int, int]:
+    def get_first_and_last(self) -> tuple[int, int]:
         if isinstance(self.pk_range, tuple) and len(self.pk_range) == 2:
             should_be_reversed = (
                 self.pk_range[1] < self.pk_range[0]
@@ -591,8 +582,8 @@ class SmartChunkedIterator:
     def update_progress(
         self,
         direction: _SmartDirectionType,
-        chunk: Optional[models.QuerySet] = None,
-        end_pk: Optional[int] = None,
+        chunk: models.QuerySet | None = None,
+        end_pk: int | None = None,
     ) -> None:
         if not self.report_progress:
             return
@@ -684,7 +675,7 @@ class SmartIterator(SmartChunkedIterator):
 class SmartPKRangeIterator(SmartChunkedIterator):
     def __iter__(  # type: ignore [override]
         self,
-    ) -> Generator[Tuple[int, int], None, None]:
+    ) -> Generator[tuple[int, int], None, None]:
         for chunk in super().__iter__():
             start_pk, end_pk = chunk._smart_iterator_pks
             yield start_pk, end_pk

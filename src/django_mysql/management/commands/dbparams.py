@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import argparse
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import django
 from django.core.management import BaseCommand, CommandError
@@ -19,7 +21,7 @@ class Command(BaseCommand):
         "'{default}'."
     ).format(default=DEFAULT_DB_ALIAS)
 
-    requires_system_checks: Union[List[str], bool]
+    requires_system_checks: list[str] | bool
     if django.VERSION >= (3, 2):
         requires_system_checks = []
     else:
@@ -67,7 +69,7 @@ class Command(BaseCommand):
         elif not show_mysql and not show_dsn:
             show_mysql = True
 
-        settings_dict: Dict[str, Any] = connection.settings_dict
+        settings_dict: dict[str, Any] = connection.settings_dict
 
         if show_mysql:
             self.output_for_mysql(settings_dict)
@@ -76,12 +78,12 @@ class Command(BaseCommand):
         else:  # pragma: no cover
             raise AssertionError("Impossible")
 
-    def output_for_mysql(self, settings_dict: Dict[str, Any]) -> None:
+    def output_for_mysql(self, settings_dict: dict[str, Any]) -> None:
         args = settings_to_cmd_args(settings_dict)
         args = args[1:]  # Delete the 'mysql' at the start
         self.stdout.write(" ".join(args), ending="")
 
-    def output_for_dsn(self, settings_dict: Dict[str, Any]) -> None:
+    def output_for_dsn(self, settings_dict: dict[str, Any]) -> None:
         cert = settings_dict["OPTIONS"].get("ssl", {}).get("ca")
         if cert:
             self.stderr.write(

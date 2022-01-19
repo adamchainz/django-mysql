@@ -1,4 +1,6 @@
-from typing import Any, Iterable, Tuple
+from __future__ import annotations
+
+from typing import Any, Iterable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import IntegerField, Transform
@@ -24,6 +26,6 @@ class SetLength(Transform):
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
         return self.expr % (lhs, lhs, lhs), params

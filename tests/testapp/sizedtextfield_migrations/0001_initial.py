@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from __future__ import annotations
 
 from django.db import migrations, models
 
@@ -7,7 +7,7 @@ from django_mysql.models import SizedTextField
 
 class Migration(migrations.Migration):
 
-    dependencies: List[Tuple[str, str]] = []
+    dependencies: list[tuple[str, str]] = []
 
     operations = [
         migrations.CreateModel(
