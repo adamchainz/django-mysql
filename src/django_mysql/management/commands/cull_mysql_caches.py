@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import argparse
-from typing import Any, List
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
@@ -28,7 +30,7 @@ class Command(BaseCommand):
         )
 
     def handle(
-        self, *args: Any, verbosity: int, aliases: List[str], **options: Any
+        self, *args: Any, verbosity: int, aliases: list[str], **options: Any
     ) -> None:
         if not aliases:
             aliases = list(settings.CACHES)

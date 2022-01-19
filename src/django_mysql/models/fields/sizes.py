@@ -1,4 +1,6 @@
-from typing import Any, List, cast
+from __future__ import annotations
+
+from typing import Any, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -12,7 +14,7 @@ class SizedBinaryField(BinaryField):
         self.size_class = size_class
         super().__init__(*args, **kwargs)
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if self.size_class not in (1, 2, 3, 4):
             errors.append(
@@ -54,7 +56,7 @@ class SizedTextField(TextField):
         self.size_class = size_class
         super().__init__(*args, **kwargs)
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if self.size_class not in (1, 2, 3, 4):
             errors.append(

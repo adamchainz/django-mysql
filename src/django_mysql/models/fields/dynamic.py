@@ -1,17 +1,8 @@
+from __future__ import annotations
+
 import datetime as dt
 import json
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any, Callable, Dict, Iterable, Type, Union, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -77,7 +68,7 @@ class DynamicField(Field):
         *args: Any,
         default: Any = dict,
         blank: bool = True,
-        spec: Optional[SpecDict] = None,
+        spec: SpecDict | None = None,
         **kwargs: Any,
     ) -> None:
         if spec is None:
@@ -86,7 +77,7 @@ class DynamicField(Field):
             self.spec = spec
         super().__init__(*args, default=default, blank=blank, **kwargs)
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
         errors.extend(self._check_mariadb_dyncol())
         errors.extend(self._check_mariadb_version())
@@ -94,7 +85,7 @@ class DynamicField(Field):
         errors.extend(self._check_spec_recursively(self.spec))
         return errors
 
-    def _check_mariadb_dyncol(self) -> List[checks.CheckMessage]:
+    def _check_mariadb_dyncol(self) -> list[checks.CheckMessage]:
         errors = []
         if mariadb_dyncol is None:
             errors.append(
@@ -107,7 +98,7 @@ class DynamicField(Field):
             )
         return errors
 
-    def _check_mariadb_version(self) -> List[checks.CheckMessage]:
+    def _check_mariadb_version(self) -> list[checks.CheckMessage]:
         errors = []
 
         any_conn_works = any(
@@ -126,7 +117,7 @@ class DynamicField(Field):
             )
         return errors
 
-    def _check_character_set(self) -> List[checks.CheckMessage]:
+    def _check_character_set(self) -> list[checks.CheckMessage]:
         errors = []
 
         conn = None
@@ -160,7 +151,7 @@ class DynamicField(Field):
 
     def _check_spec_recursively(
         self, spec: Any, path: str = ""
-    ) -> List[checks.CheckMessage]:
+    ) -> list[checks.CheckMessage]:
         errors = []
 
         if not isinstance(spec, dict):
@@ -210,8 +201,8 @@ class DynamicField(Field):
 
     def get_transform(
         self, name: str
-    ) -> Optional[Union[Type[Transform], Callable[..., Transform]]]:
-        transform: Optional[Type[Transform]] = super().get_transform(name)
+    ) -> type[Transform] | Callable[..., Transform] | None:
+        transform: type[Transform] | None = super().get_transform(name)
         if transform is not None:
             return transform
 
@@ -255,7 +246,7 @@ class DynamicField(Field):
 
     @classmethod
     def validate_spec(
-        cls, spec: Dict[str, Any], value: Dict[str, Any], prefix: str = ""
+        cls, spec: dict[str, Any], value: dict[str, Any], prefix: str = ""
     ) -> None:
         for key, subspec in spec.items():
             if key in value:
@@ -296,7 +287,7 @@ class DynamicField(Field):
             kwargs["blank"] = False
         return name, path, args, kwargs
 
-    def formfield(self, *args: Any, **kwargs: Any) -> Optional[FormField]:
+    def formfield(self, *args: Any, **kwargs: Any) -> FormField | None:
         """
         Disabled in forms - there is no sensible way of editing this
         """
@@ -320,7 +311,7 @@ class KeyTransform(Transform):
 
     SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
 
-    TYPE_MAP: Dict[str, Union[Type[Field], Field]] = {
+    TYPE_MAP: dict[str, type[Field] | Field] = {
         "BINARY": DynamicField,
         "CHAR": TextField(),
         "DATE": DateField(),
@@ -335,7 +326,7 @@ class KeyTransform(Transform):
         key_name: str,
         data_type: str,
         *args: Any,
-        subspec: Optional[SpecDict] = None,
+        subspec: SpecDict | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
@@ -354,7 +345,7 @@ class KeyTransform(Transform):
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
         return (
             f"COLUMN_GET({lhs}, %s AS {self.data_type})",
@@ -364,7 +355,7 @@ class KeyTransform(Transform):
 
 class KeyTransformFactory:
     def __init__(
-        self, key_name: str, data_type: str, subspec: Optional[SpecDict] = None
+        self, key_name: str, data_type: str, subspec: SpecDict | None = None
     ) -> None:
         self.key_name = key_name
         self.data_type = data_type

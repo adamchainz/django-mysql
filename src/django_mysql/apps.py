@@ -1,4 +1,6 @@
-from typing import Any, Callable, Dict
+from __future__ import annotations
+
+from typing import Any, Callable
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -57,11 +59,11 @@ def install_rewrite_hook(connection: BaseDatabaseWrapper, **kwargs: Any) -> None
 
 
 def rewrite_hook(
-    execute: Callable[[str, str, bool, Dict[str, Any]], Any],
+    execute: Callable[[str, str, bool, dict[str, Any]], Any],
     sql: str,
     params: str,
     many: bool,
-    context: Dict[str, Any],
+    context: dict[str, Any],
 ) -> Any:
     if (
         getattr(settings, "DJANGO_MYSQL_REWRITE_QUERIES", False)

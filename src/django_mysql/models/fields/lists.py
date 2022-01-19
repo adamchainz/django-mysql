@@ -1,4 +1,6 @@
-from typing import Any, Callable, Iterable, List, Optional, Tuple, Type, Union, cast
+from __future__ import annotations
+
+from typing import Any, Callable, Iterable, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -16,7 +18,7 @@ from django_mysql.validators import ListMaxLengthValidator
 
 class ListFieldMixin(Field):
     def __init__(
-        self, base_field: Field, size: Optional[int] = None, **kwargs: Any
+        self, base_field: Field, size: int | None = None, **kwargs: Any
     ) -> None:
         self.base_field = base_field
         self.size = size
@@ -33,7 +35,7 @@ class ListFieldMixin(Field):
         else:
             return default
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
@@ -124,9 +126,7 @@ class ListFieldMixin(Field):
             return ",".join(value)
         return value
 
-    def get_lookup(
-        self, lookup_name: str
-    ) -> Union[Type[Lookup], Callable[..., Lookup]]:
+    def get_lookup(self, lookup_name: str) -> type[Lookup] | Callable[..., Lookup]:
         lookup = super().get_lookup(lookup_name)
         if lookup:
             return lookup
@@ -154,7 +154,7 @@ class ListFieldMixin(Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls: Type[Model], name: str, **kwargs: Any) -> None:
+    def contribute_to_class(self, cls: type[Model], name: str, **kwargs: Any) -> None:
         super().contribute_to_class(cls, name, **kwargs)
         self.base_field.model = cls
 
@@ -164,7 +164,7 @@ class ListCharField(ListFieldMixin, CharField):
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
@@ -220,7 +220,7 @@ class IndexLookup(Lookup):
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> Tuple[str, Iterable[Any]]:
+    ) -> tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = tuple(lhs_params) + tuple(rhs_params)

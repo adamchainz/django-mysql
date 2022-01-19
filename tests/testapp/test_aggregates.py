@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from django.db.models import F, TextField
 from django.test import TestCase

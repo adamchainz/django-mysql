@@ -1,4 +1,6 @@
-from typing import Any, List, Tuple, Union, cast
+from __future__ import annotations
+
+from typing import Any, cast
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
@@ -14,13 +16,13 @@ class EnumField(CharField):
     def __init__(
         self,
         *args: Any,
-        choices: List[Union[str, Tuple[str, str]]],
+        choices: list[str | tuple[str, str]],
         **kwargs: Any,
     ) -> None:
         if len(choices) == 0:
             raise ValueError('"choices" argument must be be a non-empty list')
 
-        reformatted_choices: List[Tuple[str, str]] = []
+        reformatted_choices: list[tuple[str, str]] = []
         for choice in choices:
             if isinstance(choice, tuple):
                 reformatted_choices.append(choice)

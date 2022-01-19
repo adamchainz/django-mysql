@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_mysql.models.fields.bit import Bit1BooleanField, NullBit1BooleanField
 from django_mysql.models.fields.dynamic import DynamicField
 from django_mysql.models.fields.enum import EnumField

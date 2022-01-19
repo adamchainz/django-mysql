@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import os
-from typing import List
 
 import django
 
@@ -38,7 +39,7 @@ DATABASES = {
 
 DATABASE_ROUTERS = ["tests.testapp.routers.NothingOnSQLiteRouter"]
 
-ALLOWED_HOSTS: List[str] = []
+ALLOWED_HOSTS: list[str] = []
 
 INSTALLED_APPS = [
     "tests.testapp",

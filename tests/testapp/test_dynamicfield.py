@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime as dt
 import json
 from unittest import SkipTest, mock

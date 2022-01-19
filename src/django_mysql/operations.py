@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 from django.db.migrations.operations.base import Operation
@@ -90,7 +90,7 @@ class InstallSOName(Operation):
 
 class AlterStorageEngine(Operation):
     def __init__(
-        self, name: str, to_engine: str, from_engine: Optional[str] = None
+        self, name: str, to_engine: str, from_engine: str | None = None
     ) -> None:
         self.name = name
         self.engine = to_engine
@@ -162,7 +162,7 @@ class AlterStorageEngine(Operation):
     def name_lower(self) -> str:
         return self.name.lower()
 
-    def references_model(self, name: str, app_label: Optional[str] = None) -> bool:
+    def references_model(self, name: str, app_label: str | None = None) -> bool:
         return name.lower() == self.name_lower
 
     def describe(self) -> str:

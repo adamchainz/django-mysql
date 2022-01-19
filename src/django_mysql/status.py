@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import time
-from typing import Dict, Iterable, Optional, Union
+from typing import Iterable
 
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
@@ -16,7 +18,7 @@ class BaseStatus:
 
     query = ""
 
-    def __init__(self, using: Optional[str] = None) -> None:
+    def __init__(self, using: str | None = None) -> None:
         if using is None:
             self.db = DEFAULT_DB_ALIAS
         else:
@@ -25,7 +27,7 @@ class BaseStatus:
     def get_cursor(self) -> CursorWrapper:
         return connections[self.db].cursor()
 
-    def get(self, name: str) -> Union[int, float, bool, str]:
+    def get(self, name: str) -> int | float | bool | str:
         if "%" in name:
             raise ValueError(
                 "get() is for fetching single variables, " "no % wildcards"
@@ -36,7 +38,7 @@ class BaseStatus:
                 raise KeyError(f"No such status variable '{name}'")
             return self._cast(cursor.fetchone()[1])
 
-    def get_many(self, names: Iterable[str]) -> Dict[str, Union[int, float, bool, str]]:
+    def get_many(self, names: Iterable[str]) -> dict[str, int | float | bool | str]:
         if not names:
             return {}
 
@@ -59,9 +61,7 @@ class BaseStatus:
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
-    def as_dict(
-        self, prefix: Optional[str] = None
-    ) -> Dict[str, Union[int, float, bool, str]]:
+    def as_dict(self, prefix: str | None = None) -> dict[str, int | float | bool | str]:
         with self.get_cursor() as cursor:
             if prefix is None:
                 cursor.execute(self.query)
@@ -70,7 +70,7 @@ class BaseStatus:
             rows = cursor.fetchall()
             return {name: self._cast(value) for name, value in rows}
 
-    def _cast(self, value: str) -> Union[int, float, bool, str]:
+    def _cast(self, value: str) -> int | float | bool | str:
         # Many status variables are integers or floats but SHOW GLOBAL STATUS
         # returns them as strings
         try:
@@ -94,7 +94,7 @@ class GlobalStatus(BaseStatus):
 
     def wait_until_load_low(
         self,
-        thresholds: Optional[Dict[str, Union[int, float]]] = None,
+        thresholds: dict[str, int | float] | None = None,
         timeout: float = 60.0,
         sleep: float = 0.1,
     ) -> None:

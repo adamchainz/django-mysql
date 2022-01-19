@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db.backends.mysql.base import DatabaseWrapper as BaseDatabaseWrapper
 
 

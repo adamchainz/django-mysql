@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import argparse
-from typing import Any, List, Set
+from typing import Any
 
 from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
@@ -26,7 +28,7 @@ class Command(BaseCommand):
             help="Specify the cache alias(es) to create migrations for.",
         )
 
-    def handle(self, *args: Any, aliases: List[str], **options: Any) -> None:
+    def handle(self, *args: Any, aliases: list[str], **options: Any) -> None:
         if not aliases:
             aliases = list(settings.CACHES)
 
@@ -49,7 +51,7 @@ class Command(BaseCommand):
         migration = self.render_migration(tables)
         self.stdout.write(migration)
 
-    def render_migration(self, tables: Set[str]) -> str:
+    def render_migration(self, tables: set[str]) -> str:
         # This used to use a Django template, but we can't instantiate them
         # direct now, as the user may not have the django template engine
         # defined in TEMPLATES

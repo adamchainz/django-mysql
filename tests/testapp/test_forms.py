@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from django import forms
 from django.core import exceptions

@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import subprocess
 import time
 from collections import defaultdict
 from types import TracebackType
-from typing import Any, Dict, Generator, List, Mapping, Optional, Tuple, Type, Union
+from typing import Any, Generator, Mapping
 from weakref import WeakKeyDictionary
 
 import django
@@ -67,15 +69,15 @@ class StopWatch:
     Context manager for timing a block
     """
 
-    def __enter__(self) -> "StopWatch":
+    def __enter__(self) -> StopWatch:
         self.start_time = time.time()
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        exc_traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_traceback: TracebackType | None,
     ) -> None:
         self.end_time = time.time()
         self.total_time = self.end_time - self.start_time
@@ -121,7 +123,7 @@ else:
             return is_mariadb
 
 
-def settings_to_cmd_args(settings_dict: Dict[str, Any]) -> List[str]:
+def settings_to_cmd_args(settings_dict: dict[str, Any]) -> list[str]:
     """
     Copied from django 1.8 MySQL backend DatabaseClient - where the runshell
     commandline creation has been extracted and made callable like so.
@@ -208,7 +210,7 @@ def index_name(model: Model, *field_names: str, using: str = DEFAULT_DB_ALIAS) -
         raise KeyError("There is no index on (" + ",".join(field_names) + ")")
 
 
-def get_list_sql(sequence: Union[List[str], Tuple[str, ...]]) -> str:
+def get_list_sql(sequence: list[str] | tuple[str, ...]) -> str:
     return "({})".format(",".join("%s" for x in sequence))
 
 

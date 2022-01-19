@@ -1,4 +1,6 @@
-from typing import Any, List, Optional, Type, cast
+from __future__ import annotations
+
+from typing import Any, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -16,7 +18,7 @@ from django_mysql.validators import SetMaxLengthValidator
 
 class SetFieldMixin(Field):
     def __init__(
-        self, base_field: Field, size: Optional[int] = None, **kwargs: Any
+        self, base_field: Field, size: int | None = None, **kwargs: Any
     ) -> None:
         self.base_field = base_field
         self.size = size
@@ -33,7 +35,7 @@ class SetFieldMixin(Field):
         else:
             return default
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
         if not isinstance(self.base_field, (CharField, IntegerField)):
             errors.append(
@@ -137,7 +139,7 @@ class SetFieldMixin(Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls: Type[Model], name: str, **kwargs: Any) -> None:
+    def contribute_to_class(self, cls: type[Model], name: str, **kwargs: Any) -> None:
         super().contribute_to_class(cls, name, **kwargs)
         self.base_field.model = cls
 
@@ -147,7 +149,7 @@ class SetCharField(SetFieldMixin, CharField):
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
 
-    def check(self, **kwargs: Any) -> List[checks.CheckMessage]:
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
 
         # Unfortunately this check can't really be done for IntegerFields since
