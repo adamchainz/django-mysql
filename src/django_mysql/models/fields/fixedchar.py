@@ -46,4 +46,4 @@ class FixedCharField(CharField):
         return name, path, args, kwargs
 
     def db_type(self, connection: BaseDatabaseWrapper) -> str:
-        return f"char({self.length})"
+        return f"CHAR({self.length})"
