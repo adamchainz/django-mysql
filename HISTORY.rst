@@ -2,6 +2,9 @@
 History
 =======
 
+4.5.0 (2022-01-23)
+------------------
+
 * Drop ``pt_fingerprint()``.
   Its complicated threading code leaked processes.
   Switch to calling ``pt-fingerprint`` directly with ``subprocess.run()`` instead.
