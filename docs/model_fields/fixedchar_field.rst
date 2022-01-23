@@ -1,8 +1,8 @@
 .. fixedchar-field:
 
----------
+--------------
 FixedCharField
----------
+--------------
 
 .. currentmodule:: django_mysql.models
 
@@ -15,11 +15,9 @@ indexes strings. MySQL's ``CHAR`` type allows a more compact representation
 of such columns. ``FixedCharField`` allows you to use the ``CHAR`` type
 with Django.
 
-
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/char.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/char/>`_.
-
 
 .. class:: FixedCharField(length: int, **kwargs)
 
@@ -38,4 +36,3 @@ Docs:
 
         class VariousCharLengths(Model):
             zip_code = FixedCharField(length=5)
-            really_long_string = FixedCharField(length=256)  # raise ValueError
