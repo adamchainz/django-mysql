@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
+from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
 
@@ -10,16 +11,27 @@ from django_mysql.typing import DeconstructResult
 
 class FixedCharField(CharField):
     def __init__(self, *args: Any, length: int, **kwargs: Any) -> None:
-        if length < 0 or length > 255:
-            raise ValueError(
-                'Invalid length value "{length}". '
-                "Length must be in the range of 0-255.".format(length=length)
-            )
-
         if "max_length" in kwargs:
             raise TypeError('"max_length" is not a valid argument')
 
         super().__init__(*args, max_length=length, **kwargs)
+
+    def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
+        errors = super().check(**kwargs)
+
+        if isinstance(self.max_length, int) and (
+            self.max_length < 0 or self.max_length > 255
+        ):
+            errors.append(
+                checks.Error(
+                    "'length' must be between 0 and 255.",
+                    hint=None,
+                    obj=self,
+                    id="django_mysql.E015",
+                )
+            )
+
+        return errors
 
     def deconstruct(self) -> DeconstructResult:
         name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
