@@ -9,7 +9,7 @@ from django_mysql.models import FixedCharField
 
 class Migration(migrations.Migration):
 
-    dependencies: List[Tuple[str, str]] = []
+    dependencies: list[tuple[str, str]] = []
 
     operations = [
         migrations.CreateModel(
