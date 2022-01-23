@@ -3,10 +3,11 @@ from __future__ import annotations
 import pytest
 from django.core.management import call_command
 from django.db import connection
+from django.db.utils import DataError
 from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 
 from django_mysql.models import FixedCharField
-from tests.testapp.models import TemporaryModel
+from tests.testapp.models import FixedCharModel, TemporaryModel
 
 
 class TestFixedCharField(TestCase):
@@ -14,6 +15,35 @@ class TestFixedCharField(TestCase):
         with pytest.raises(TypeError) as exc_info:
             FixedCharField(length=4, max_length=100)
         assert '"max_length" is not a valid argument' in str(exc_info.value)
+
+
+class TestSaveLoad(TestCase):
+    def test_success_exact(self):
+        instance = FixedCharModel.objects.create(zip_code="0" * 10)
+        assert instance.zip_code == "0" * 10
+        instance = FixedCharModel.objects.get(id=instance.id)
+        assert instance.zip_code == "0" * 10
+
+    def test_success_shorter(self):
+        FixedCharModel.objects.create(zip_code="0" * 9)
+        m = FixedCharModel.objects.get()
+        assert m.zip_code == "0" * 9
+
+    def test_invalid_too_long(self):
+        with pytest.raises(DataError) as excinfo:
+            FixedCharModel.objects.create(zip_code="0" * 11)
+
+        assert excinfo.value.args == (
+            1406,
+            "Data too long for column 'zip_code' at row 1",
+        )
+
+    def test_exact_lookup(self):
+        FixedCharModel.objects.create(zip_code="0" * 10)
+
+        count = FixedCharModel.objects.filter(zip_code="0" * 10).count()
+
+        assert count == 1
 
 
 class TestDeconstruct(TestCase):
