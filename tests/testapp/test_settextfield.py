@@ -9,10 +9,11 @@ from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
 from django.test import SimpleTestCase, TestCase
+from django.test.utils import isolate_apps
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
-from tests.testapp.models import BigCharSetModel, BigIntSetModel, TemporaryModel
+from tests.testapp.models import BigCharSetModel, BigIntSetModel
 
 
 class TestSaveLoad(TestCase):
@@ -205,6 +206,7 @@ class TestValidation(SimpleTestCase):
         )
 
 
+@isolate_apps("tests.testapp")
 class TestCheck(SimpleTestCase):
     def test_model_set(self):
         field = BigIntSetModel._meta.get_field("field")
@@ -214,22 +216,22 @@ class TestCheck(SimpleTestCase):
         assert field.base_field.model.__name__ == "BigIntSetModel"
 
     def test_base_field_checks(self):
-        class InvalidSetTextModel1(TemporaryModel):
+        class Invalid(models.Model):
             field = SetTextField(models.CharField())
 
-        errors = InvalidSetTextModel1.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E001"
         assert "Base field for set has errors" in errors[0].msg
         assert "max_length" in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidSetTextModel2(TemporaryModel):
+        class Invalid(models.Model):
             field = SetTextField(
                 models.ForeignKey("testapp.Author", on_delete=models.CASCADE)
             )
 
-        errors = InvalidSetTextModel2.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E002"
         assert "Base field for set must be" in errors[0].msg

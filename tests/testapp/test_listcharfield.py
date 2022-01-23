@@ -11,16 +11,12 @@ from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q, Value
 from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
+from django.test.utils import isolate_apps
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField, ListF
 from django_mysql.test.utils import override_mysql_variables
-from tests.testapp.models import (
-    CharListDefaultModel,
-    CharListModel,
-    IntListModel,
-    TemporaryModel,
-)
+from tests.testapp.models import CharListDefaultModel, CharListModel, IntListModel
 
 
 class TestSaveLoad(TestCase):
@@ -417,45 +413,46 @@ class TestValidation(SimpleTestCase):
         )
 
 
+@isolate_apps("tests.testapp")
 class TestCheck(SimpleTestCase):
     def test_field_checks(self):
-        class InvalidListCharModel1(TemporaryModel):
+        class Invalid(models.Model):
             field = ListCharField(models.CharField(), max_length=32)
 
-        errors = InvalidListCharModel1.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E004"
         assert "Base field for list has errors" in errors[0].msg
         assert "max_length" in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidListCharModel2(TemporaryModel):
+        class Invalid(models.Model):
             field = ListCharField(
                 models.ForeignKey("testapp.Author", on_delete=models.CASCADE),
                 max_length=32,
             )
 
-        errors = InvalidListCharModel2.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E005"
         assert "Base field for list must be" in errors[0].msg
 
     def test_max_length_including_base(self):
-        class InvalidListCharModel3(TemporaryModel):
+        class Invalid(models.Model):
             field = ListCharField(
                 models.CharField(max_length=32), size=2, max_length=32
             )
 
-        errors = InvalidListCharModel3.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E006"
         assert "Field can overrun" in errors[0].msg
 
     def test_max_length_missing_doesnt_crash(self):
-        class InvalidListCharModel4(TemporaryModel):
+        class Invalid(models.Model):
             field = ListCharField(models.CharField(max_length=2), size=2)
 
-        errors = InvalidListCharModel4.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "fields.E120"
         assert errors[0].msg == "CharFields must define a 'max_length' attribute."

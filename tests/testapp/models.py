@@ -36,26 +36,6 @@ from django_mysql.models import (
 from django_mysql.utils import connection_is_mariadb
 
 
-class TemporaryModel(Model):
-    """
-    Used for temporary, mostly invalid models created in tests - check() is
-    disabled unless an extra parameter is provided, in case the checks get run
-    during tests, e.g. from call_command.
-    """
-
-    class Meta:
-        app_label = "testapp"
-        abstract = True
-
-    @classmethod
-    def check(cls, **kwargs):
-        actually_check = kwargs.pop("actually_check", False)
-        if actually_check:
-            return super().check(**kwargs)
-        else:
-            return []
-
-
 class EnumModel(Model):
     field = EnumField(
         choices=[

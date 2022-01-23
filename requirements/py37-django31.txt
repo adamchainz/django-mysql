@@ -143,7 +143,6 @@ pytest==6.2.5 \
     #   pytest-django
     #   pytest-flake8-path
     #   pytest-randomly
-    #   pytest-super-check
 pytest-django==4.5.2 \
     --hash=sha256:c60834861933773109334fe5a53e83d1ef4828f2203a1d6a0fa9972f4f75ab3e \
     --hash=sha256:d9076f759bb7c36939dbdd5ae6633c18edfc2902d1a69fdbefd2426b970ce6c2
@@ -155,10 +154,6 @@ pytest-flake8-path==1.2.0 \
 pytest-randomly==3.11.0 \
     --hash=sha256:9f013b8c1923130f3d0a286fde56e1fc52cfb3547b8eedf2765c460cee979c7f \
     --hash=sha256:a3c680d2b8150cf766311a80a1f92da64c3dd819045cda834fbf1b0ac4891610
-    # via -r requirements.in
-pytest-super-check==2.5.0 \
-    --hash=sha256:43e6339db02807d97e3d82c071e4aea7654ea3bd11aa4970134984d737d2611a \
-    --hash=sha256:f3a60920d0c656fb648d89155a04724c84b73c4cd3afc6d6134385fb59ecbb6e
     # via -r requirements.in
 pytz==2021.3 \
     --hash=sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c \

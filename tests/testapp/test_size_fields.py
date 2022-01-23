@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import pytest
 from django.core.management import call_command
-from django.db import connection
+from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.transaction import atomic
 from django.db.utils import DataError
 from django.test import TestCase, TransactionTestCase
-from django.test.utils import override_settings
+from django.test.utils import isolate_apps, override_settings
 
 from django_mysql.models import SizedBinaryField, SizedTextField
 from django_mysql.test.utils import override_mysql_variables
-from tests.testapp.models import SizeFieldModel, TemporaryModel
+from tests.testapp.models import SizeFieldModel
 from tests.testapp.utils import column_type
 
 # Ensure we aren't just warned about the data truncation
@@ -30,13 +30,14 @@ class SubSizedBinaryField(SizedBinaryField):
     """
 
 
+@isolate_apps("tests.testapp")
 @forceDataError
 class SizedBinaryFieldTests(TestCase):
     def test_binaryfield_checks(self):
-        class InvalidSizedBinaryModel(TemporaryModel):
+        class Invalid(models.Model):
             field = SizedBinaryField(size_class=5)
 
-        errors = InvalidSizedBinaryModel.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E007"
         assert errors[0].msg == "size_class must be 1, 2, 3, or 4"
@@ -132,13 +133,14 @@ class SubSizedTextField(SizedTextField):
     """
 
 
+@isolate_apps("tests.testapp")
 @forceDataError
 class SizedTextFieldTests(TestCase):
     def test_check_max_length(self):
-        class InvalidSizedTextModel(TemporaryModel):
+        class Invalid(models.Model):
             field = SizedTextField(size_class=5)
 
-        errors = InvalidSizedTextModel.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E008"
         assert errors[0].msg == "size_class must be 1, 2, 3, or 4"

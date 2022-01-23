@@ -8,15 +8,16 @@ import mariadb_dyncol
 import pytest
 from django.core import serializers
 from django.core.exceptions import FieldError
-from django.db import connection
+from django.db import connection, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
 from django.test import TestCase
+from django.test.utils import isolate_apps
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
 from tests.compat import wrap_testdata
-from tests.testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
+from tests.testapp.models import DynamicModel, SpeclessDynamicModel
 
 
 class DynColTestCase(TestCase):
@@ -283,6 +284,7 @@ class SpeclessQueryTests(DynColTestCase):
         ]
 
 
+@isolate_apps("tests.testapp")
 class TestCheck(DynColTestCase):
 
     databases = ["default", "other"]
@@ -291,10 +293,10 @@ class TestCheck(DynColTestCase):
     def test_db_not_mariadb(self, is_mariadb):
         is_mariadb.return_value = False
 
-        class ValidDynamicModel1(TemporaryModel):
+        class Valid(models.Model):
             field = DynamicField()
 
-        errors = ValidDynamicModel1.check(actually_check=True)
+        errors = Valid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E013"
         assert "MariaDB is required" in errors[0].msg
@@ -321,20 +323,20 @@ class TestCheck(DynColTestCase):
         assert "The MySQL charset must be 'utf8'" in errors[0].msg
 
     def test_spec_not_dict(self):
-        class InvalidDynamicModel1(TemporaryModel):
+        class Invalid(models.Model):
             field = DynamicField(spec=["woops", "a", "list"])  # type: ignore [arg-type]
 
-        errors = InvalidDynamicModel1.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E009"
         assert "'spec' must be a dict" in errors[0].msg
         assert "The value passed is of type list" in errors[0].hint
 
     def test_spec_key_not_valid(self):
-        class InvalidDynamicModel2(TemporaryModel):
+        class Invalid(models.Model):
             field = DynamicField(spec={2.0: str})  # type: ignore [dict-item]
 
-        errors = InvalidDynamicModel2.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E010"
         assert "The key '2.0' in 'spec' is not a string" in errors[0].msg
@@ -342,10 +344,10 @@ class TestCheck(DynColTestCase):
         assert "'2.0' is of type float" in errors[0].hint
 
     def test_spec_value_not_valid(self):
-        class InvalidDynamicModel3(TemporaryModel):
+        class Invalid(models.Model):
             field = DynamicField(spec={"bad": list})  # type: ignore [dict-item]
 
-        errors = InvalidDynamicModel3.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E011"
         assert "The value for 'bad' in 'spec' is not an allowed type" in errors[0].msg
@@ -355,12 +357,12 @@ class TestCheck(DynColTestCase):
         )
 
     def test_spec_nested_value_not_valid(self):
-        class InvalidDynamicModel4(TemporaryModel):
+        class Invalid(models.Model):
             field = DynamicField(
                 spec={"l1": {"bad": tuple}},  # type: ignore [dict-item]
             )
 
-        errors = InvalidDynamicModel4.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E011"
         assert (
