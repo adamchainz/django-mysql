@@ -6,14 +6,12 @@ FixedCharField
 
 .. currentmodule:: django_mysql.models
 
-Using a ``CharField`` for fixed-width strings leads to variable data
-storage since the storage amount can changed depending on the length
-of the string, whereas a fixed-width string will always use the same
-amount of storage, regardless of the string value. Fixed value columns
-can also decrease the storage size overall due to how the engine
-indexes strings. MySQL's ``CHAR`` type allows a more compact representation
-of such columns. ``FixedCharField`` allows you to use the ``CHAR`` type
-with Django.
+Django’s ``CharField`` uses the ``VARCHAR`` data type, which uses variable
+storage space depending on string length. This normally saves storage space,
+but for columns with a fixed length, it adds a small overhead.
+``FixedCharField`` uses the ``CHAR`` data type, which avoids that overhead.
+It only accepts strings with the given length, and uses a corresponding fixed
+amount of storage.
 
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/char.html>`_ /
@@ -34,5 +32,5 @@ Docs:
         from django_mysql.models import FixedCharField
 
 
-        class VariousCharLengths(Model):
+        class Address(Model):
             zip_code = FixedCharField(length=5)
