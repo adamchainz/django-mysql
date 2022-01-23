@@ -149,6 +149,20 @@ restricted to a set of choices to be stored in a space efficient manner:
 :ref:`Read more <enum-field>`
 
 
+FixedCharField
+--------------
+
+A field class for using MySQL's ``CHAR`` type, which allows strings to be
+stored at a fixed width:
+
+.. code-block:: python
+
+    class Address(Model):
+        zip_code = FixedCharField(length=10)
+
+:ref:`Read more <fixedchar-field>`
+
+
 Resizable Text/Binary Fields
 ----------------------------
 

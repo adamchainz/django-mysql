@@ -23,6 +23,7 @@ from django_mysql.models import (
     Bit1BooleanField,
     DynamicField,
     EnumField,
+    FixedCharField,
     ListCharField,
     ListTextField,
     Model,
@@ -161,6 +162,10 @@ class SpeclessDynamicModel(Model):
 
     def __str__(self):  # pragma: no cover
         return ",".join(f"{key}:{value}" for key, value in self.attrs.items())
+
+
+class FixedCharModel(Model):
+    zip_code = FixedCharField(max_length=10)
 
 
 class Author(Model):

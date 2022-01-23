@@ -6,6 +6,9 @@ History
   Its complicated threading code leaked processes.
   Switch to calling ``pt-fingerprint`` directly with ``subprocess.run()`` instead.
 
+* Add model ``FixedCharField`` for storing fixed width strings
+  using a ``CHAR`` type.
+
 4.4.0 (2022-01-10)
 ------------------
 
