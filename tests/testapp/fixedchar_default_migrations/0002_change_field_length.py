@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="FixedCharDefaultModel",
             name="zip_code",
-            field=FixedCharField(length=10),
+            field=FixedCharField(max_length=10),
         )
     ]

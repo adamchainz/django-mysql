@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "zip_code",
-                    FixedCharField(length=5),
+                    FixedCharField(max_length=5),
                 ),
             ],
             options={},

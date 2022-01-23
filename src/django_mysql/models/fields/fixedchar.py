@@ -10,12 +10,6 @@ from django_mysql.typing import DeconstructResult
 
 
 class FixedCharField(CharField):
-    def __init__(self, *args: Any, length: int, **kwargs: Any) -> None:
-        if "max_length" in kwargs:
-            raise TypeError('"max_length" is not a valid argument')
-
-        super().__init__(*args, max_length=length, **kwargs)
-
     def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
 
@@ -24,7 +18,7 @@ class FixedCharField(CharField):
         ):
             errors.append(
                 checks.Error(
-                    "'length' must be between 0 and 255.",
+                    "'max_length' must be between 0 and 255.",
                     hint=None,
                     obj=self,
                     id="django_mysql.E015",
@@ -42,8 +36,6 @@ class FixedCharField(CharField):
         )
         if path in bad_paths:
             path = "django_mysql.models.FixedCharField"
-
-        kwargs["length"] = kwargs.pop("max_length")
 
         return name, path, args, kwargs
 

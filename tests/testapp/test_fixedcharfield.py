@@ -10,13 +10,6 @@ from django_mysql.models import FixedCharField
 from tests.testapp.models import FixedCharModel, TemporaryModel
 
 
-class TestFixedCharField(TestCase):
-    def test_invalid_max_length(self):
-        with pytest.raises(TypeError) as exc_info:
-            FixedCharField(length=4, max_length=100)
-        assert '"max_length" is not a valid argument' in str(exc_info.value)
-
-
 class TestSaveLoad(TestCase):
     def test_success_exact(self):
         instance = FixedCharModel.objects.create(zip_code="0" * 10)
@@ -48,34 +41,33 @@ class TestSaveLoad(TestCase):
 
 class TestDeconstruct(TestCase):
     def test_deconstruct(self):
-        field = FixedCharField(length=1)
+        field = FixedCharField(max_length=1)
         name, path, args, kwargs = field.deconstruct()
         assert path == "django_mysql.models.FixedCharField"
-        assert kwargs["length"] == 1
-        assert "max_length" not in kwargs
+        assert kwargs["max_length"] == 1
         FixedCharField(*args, **kwargs)
 
 
 class TestCheck(SimpleTestCase):
     def test_length_too_small(self):
         class InvalidFixedCharModel1(TemporaryModel):
-            field = FixedCharField(length=-1)
+            field = FixedCharField(max_length=-1)
 
         errors = InvalidFixedCharModel1.check(actually_check=True)
         assert len(errors) == 2
         assert errors[0].id == "fields.E121"
         assert errors[0].msg == "'max_length' must be a positive integer."
         assert errors[1].id == "django_mysql.E015"
-        assert errors[1].msg == "'length' must be between 0 and 255."
+        assert errors[1].msg == "'max_length' must be between 0 and 255."
 
     def test_length_too_large(self):
         class InvalidFixedCharModel2(TemporaryModel):
-            field = FixedCharField(length=256)
+            field = FixedCharField(max_length=256)
 
         errors = InvalidFixedCharModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E015"
-        assert errors[0].msg == "'length' must be between 0 and 255."
+        assert errors[0].msg == "'max_length' must be between 0 and 255."
 
 
 class TestMigrations(TransactionTestCase):

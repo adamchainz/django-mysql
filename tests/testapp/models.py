@@ -165,7 +165,7 @@ class SpeclessDynamicModel(Model):
 
 
 class FixedCharModel(Model):
-    zip_code = FixedCharField(length=10)
+    zip_code = FixedCharField(max_length=10)
 
 
 class Author(Model):
