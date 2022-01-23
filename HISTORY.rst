@@ -12,6 +12,8 @@ History
 * Add model ``FixedCharField`` for storing fixed width strings
   using a ``CHAR`` type.
 
+  Thanks to Caleb Ely in `PR #883 <https://github.com/adamchainz/django-mysql/pull/883>`__.
+
 4.4.0 (2022-01-10)
 ------------------
 
