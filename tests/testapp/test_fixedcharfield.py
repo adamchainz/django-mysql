@@ -9,11 +9,6 @@ from django_mysql.models import FixedCharField
 
 
 class TestFixedCharField(TestCase):
-    def test_invalid_length_type(self):
-        with pytest.raises(TypeError) as exc_info:
-            FixedCharField(length="4")  # type: ignore [arg-type]
-        assert "Expected integer value." in str(exc_info.value)
-
     def test_invalid_length_too_short(self):
         with pytest.raises(ValueError) as exc_info:
             FixedCharField(length=-1)

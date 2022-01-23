@@ -10,12 +10,6 @@ from django_mysql.typing import DeconstructResult
 
 class FixedCharField(CharField):
     def __init__(self, *args: Any, length: int, **kwargs: Any) -> None:
-        if not isinstance(length, int):
-            raise TypeError(
-                'Invalid length value "{length}". '
-                "Expected integer value.".format(length=length)
-            )
-
         if length < 0 or length > 255:
             raise ValueError(
                 'Invalid length value "{length}". '
