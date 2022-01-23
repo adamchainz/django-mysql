@@ -4,11 +4,13 @@ import json
 
 import django
 from django.core import checks, serializers
+from django.db import models
 from django.db.models import F
 from django.test import SimpleTestCase, TestCase
+from django.test.utils import isolate_apps
 
 from django_mysql.models import NullBit1BooleanField
-from tests.testapp.models import Bit1Model, TemporaryModel
+from tests.testapp.models import Bit1Model
 
 if django.VERSION < (4, 0):
     from tests.testapp.models import NullBit1Model
@@ -180,19 +182,18 @@ if django.VERSION < (4, 0):
 
 else:
 
+    @isolate_apps("tests.testapp")
     class TestNullCheck(SimpleTestCase):
         def test_check_deprecated(self):
-            class NullBit1Model(TemporaryModel):
+            class Invalid(models.Model):
                 nb = NullBit1BooleanField()
 
-            model = NullBit1Model()
-
-            assert model.check(actually_check=True) == [
+            assert Invalid.check() == [
                 checks.Error(
                     "NullBooleanField is removed except for support in historical "
                     "migrations.",
                     hint="Use BooleanField(null=True) instead.",
-                    obj=NullBit1Model._meta.get_field("nb"),
+                    obj=Invalid._meta.get_field("nb"),
                     id="fields.E903",
                 ),
             ]

@@ -9,4 +9,3 @@ pytest
 pytest-django
 pytest-flake8-path
 pytest-randomly
-pytest-super-check

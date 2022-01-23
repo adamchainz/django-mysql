@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import pytest
 from django.core.management import call_command
-from django.db import connection
+from django.db import connection, models
 from django.db.utils import DataError
 from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
+from django.test.utils import isolate_apps
 
 from django_mysql.models import FixedCharField
-from tests.testapp.models import FixedCharModel, TemporaryModel
+from tests.testapp.models import FixedCharModel
 
 
 class TestSaveLoad(TestCase):
@@ -59,12 +60,13 @@ class TestDeconstruct(TestCase):
         assert path == "tests.testapp.test_fixedcharfield.SubFixedCharField"
 
 
+@isolate_apps("tests.testapp")
 class TestCheck(SimpleTestCase):
     def test_length_too_small(self):
-        class InvalidFixedCharModel1(TemporaryModel):
+        class Invalid(models.Model):
             field = FixedCharField(max_length=-1)
 
-        errors = InvalidFixedCharModel1.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 2
         assert errors[0].id == "fields.E121"
         assert errors[0].msg == "'max_length' must be a positive integer."
@@ -72,10 +74,10 @@ class TestCheck(SimpleTestCase):
         assert errors[1].msg == "'max_length' must be between 0 and 255."
 
     def test_length_too_large(self):
-        class InvalidFixedCharModel2(TemporaryModel):
+        class Invalid(models.Model):
             field = FixedCharField(max_length=256)
 
-        errors = InvalidFixedCharModel2.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E015"
         assert errors[0].msg == "'max_length' must be between 0 and 255."

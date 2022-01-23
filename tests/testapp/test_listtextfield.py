@@ -10,10 +10,11 @@ from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
 from django.test import SimpleTestCase, TestCase
+from django.test.utils import isolate_apps
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
-from tests.testapp.models import BigCharListModel, BigIntListModel, TemporaryModel
+from tests.testapp.models import BigCharListModel, BigIntListModel
 
 
 class TestSaveLoad(TestCase):
@@ -232,25 +233,26 @@ class TestValidation(SimpleTestCase):
         )
 
 
+@isolate_apps("tests.testapp")
 class TestCheck(SimpleTestCase):
     def test_field_checks(self):
-        class InvalidListTextModel1(TemporaryModel):
+        class Invalid(models.Model):
             field = ListTextField(models.CharField(), max_length=32)
 
-        errors = InvalidListTextModel1.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E004"
         assert "Base field for list has errors" in errors[0].msg
         assert "max_length" in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidListTextModel2(TemporaryModel):
+        class Invalid(models.Model):
             field = ListTextField(
                 models.ForeignKey("testapp.Author", on_delete=models.CASCADE),
                 max_length=32,
             )
 
-        errors = InvalidListTextModel2.check(actually_check=True)
+        errors = Invalid.check()
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E005"
         assert "Base field for list must be" in errors[0].msg
