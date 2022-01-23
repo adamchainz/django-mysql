@@ -19,10 +19,7 @@ class FixedCharField(CharField):
         if "max_length" in kwargs:
             raise TypeError('"max_length" is not a valid argument')
 
-        # max_length is required by CharField
-        self.length = length
-        kwargs["max_length"] = length
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, max_length=length, **kwargs)
 
     def deconstruct(self) -> DeconstructResult:
         name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
@@ -34,10 +31,9 @@ class FixedCharField(CharField):
         if path in bad_paths:
             path = "django_mysql.models.FixedCharField"
 
-        kwargs["length"] = self.length
-        kwargs["max_length"] = self.length
+        kwargs["length"] = kwargs.pop("max_length")
 
         return name, path, args, kwargs
 
     def db_type(self, connection: BaseDatabaseWrapper) -> str:
-        return f"CHAR({self.length})"
+        return f"CHAR({self.max_length})"
