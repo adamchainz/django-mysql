@@ -39,6 +39,12 @@ class TestSaveLoad(TestCase):
         assert count == 1
 
 
+class SubFixedCharField(FixedCharField):
+    """
+    Used below, has a different path for deconstruct()
+    """
+
+
 class TestDeconstruct(TestCase):
     def test_deconstruct(self):
         field = FixedCharField(max_length=1)
@@ -46,6 +52,11 @@ class TestDeconstruct(TestCase):
         assert path == "django_mysql.models.FixedCharField"
         assert kwargs["max_length"] == 1
         FixedCharField(*args, **kwargs)
+
+    def test_subclass_deconstruct(self):
+        field = SubFixedCharField(max_length=1)
+        name, path, args, kwargs = field.deconstruct()
+        assert path == "tests.testapp.test_fixedcharfield.SubFixedCharField"
 
 
 class TestCheck(SimpleTestCase):
