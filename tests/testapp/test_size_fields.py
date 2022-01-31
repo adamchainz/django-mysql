@@ -51,11 +51,11 @@ class SizedBinaryFieldTests(TestCase):
     @atomic
     def test_binary_1_max_length(self):
         # Okay
-        m = SizeFieldModel(binary1=bytes(1) * (2 ** 8 - 1))
+        m = SizeFieldModel(binary1=bytes(1) * (2**8 - 1))
         m.save()
 
         # Bad - Data too long
-        m = SizeFieldModel(binary1=bytes(1) * (2 ** 8))
+        m = SizeFieldModel(binary1=bytes(1) * (2**8))
         with pytest.raises(DataError) as excinfo:
             m.save()
         assert excinfo.value.args[0] == 1406
@@ -153,11 +153,11 @@ class SizedTextFieldTests(TestCase):
 
     def test_tinytext_max_length(self):
         # Okay
-        m = SizeFieldModel(text1="a" * (2 ** 8 - 1))
+        m = SizeFieldModel(text1="a" * (2**8 - 1))
         m.save()
 
         # Bad - Data too long
-        m = SizeFieldModel(text1="a" * (2 ** 8))
+        m = SizeFieldModel(text1="a" * (2**8))
         with atomic(), pytest.raises(DataError) as excinfo:
             m.save()
         assert excinfo.value.args[0] == 1406
