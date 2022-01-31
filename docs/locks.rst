@@ -33,7 +33,7 @@ The following can be imported from ``django_mysql.locks``.
             with Lock("my_unique_name", acquire_timeout=2.0):
                 mutually_exclusive_process()
         except TimeoutError:
-            print "Could not get the lock"
+            print("Could not get the lock")
 
     For more information on user locks refer to the ``GET_LOCK`` documentation
     on `MySQL
