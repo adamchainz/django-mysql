@@ -40,7 +40,7 @@ class EnumField(CharField):
             raise TypeError('"max_length" is not a valid argument')
         # Massive to avoid problems with validation - let MySQL handle the
         # maximum string length
-        kwargs["max_length"] = int(2 ** 32)
+        kwargs["max_length"] = int(2**32)
 
         super().__init__(*args, choices=reformatted_choices, **kwargs)
 

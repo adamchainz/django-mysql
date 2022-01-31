@@ -18,7 +18,7 @@ from tests.testapp.models import BigCharSetModel, BigIntSetModel
 
 class TestSaveLoad(TestCase):
     def test_char_easy(self):
-        big_set = {str(i ** 2) for i in range(1000)}
+        big_set = {str(i**2) for i in range(1000)}
         s = BigCharSetModel.objects.create(field=big_set)
         assert s.field == big_set
         s = BigCharSetModel.objects.get(id=s.id)
@@ -33,7 +33,7 @@ class TestSaveLoad(TestCase):
         assert s.field == bigger_set
 
     def test_char_string_direct(self):
-        big_set = {str(i ** 2) for i in range(1000)}
+        big_set = {str(i**2) for i in range(1000)}
         big_str = ",".join(big_set)
         s = BigCharSetModel.objects.create(field=big_str)
         s = BigCharSetModel.objects.get(id=s.id)
@@ -146,7 +146,7 @@ class TestSaveLoad(TestCase):
         assert three.count() == 0
 
     def test_int_easy(self):
-        big_set = {i ** 2 for i in range(1000)}
+        big_set = {i**2 for i in range(1000)}
         mymodel = BigIntSetModel.objects.create(field=big_set)
         assert mymodel.field == big_set
         mymodel = BigIntSetModel.objects.get(id=mymodel.id)
@@ -304,7 +304,7 @@ class TestMigrationWriter(TestCase):
 
 class TestSerialization(SimpleTestCase):
     def test_dumping(self):
-        big_set = {str(i ** 2) for i in range(1000)}
+        big_set = {str(i**2) for i in range(1000)}
         instance = BigCharSetModel(field=big_set)
         data = json.loads(serializers.serialize("json", [instance]))[0]
         field = data["fields"]["field"]
