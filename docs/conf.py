@@ -53,16 +53,6 @@ exclude_patterns = [
     "venv",
 ]
 
-# If true, the current module name will be prepended to all description
-# unit titles (such as .. function::).
-add_module_names = False
-
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
-
-# A list of ignored prefixes for module index sorting.
-modindex_common_prefix = ["django_mysql."]
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -81,8 +71,6 @@ html_favicon = "_static/favicon.ico"
 html_static_path = ["_static"]
 
 # -- Options for LaTeX output ------------------------------------------
-
-latex_elements: dict[str, str] = {}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
