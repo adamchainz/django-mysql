@@ -14,19 +14,11 @@ from pathlib import Path
 here = Path(__file__).parent.resolve()
 sys.path.insert(0, str(here / ".." / "src"))
 
-# -- General configuration ---------------------------------------------
+# -- Project information -----------------------------------------------------
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.intersphinx",
-]
-
-# General information about the project.
 project = "Django-MySQL"
 copyright = "2017 Adam Johnson"
+author = "Adam Johnson"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -43,6 +35,16 @@ def _get_version() -> str:
 
 version = _get_version()
 release = version
+
+# -- General configuration ---------------------------------------------
+
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
