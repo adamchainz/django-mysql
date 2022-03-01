@@ -1,4 +1,4 @@
-.. fixedchar-field:
+.. _fixedchar-field:
 
 --------------
 FixedCharField
