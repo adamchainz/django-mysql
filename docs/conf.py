@@ -85,31 +85,6 @@ latex_documents = [
     ),
 ]
 
-# -- Options for manual page output ------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "django-mysql", "Django-MySQL Documentation", ["Adam Johnson"], 1),
-]
-
-# -- Options for Texinfo output ----------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (
-        "index",
-        "django-mysql",
-        "Django-MySQL Documentation",
-        "Adam Johnson",
-        "django-mysql",
-        "One line description of project.",
-        "Miscellaneous",
-    ),
-]
-
 # -- Options for Intersphinx -------------------------------------------
 
 intersphinx_mapping = {
