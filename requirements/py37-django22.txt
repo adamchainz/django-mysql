@@ -51,9 +51,9 @@ coverage==6.3.2 \
     --hash=sha256:f9987b0354b06d4df0f4d3e0ec1ae76d7ce7cbca9a2f98c25041eb79eec766f1 \
     --hash=sha256:fd9e830e9d8d89b20ab1e5af09b32d33e1a08ef4c4e14411e559556fd788e6b2
     # via -r requirements.in
-django==2.2.27 \
-    --hash=sha256:1ee37046b0bf2b61e83b3a01d067323516ec3b6f2b17cd49b1326dd4ba9dc913 \
-    --hash=sha256:90763c764738586b11d7e1f44828032c153366e43ad7f782908193a1bb2d6d92
+django==3.2.13 \
+    --hash=sha256:6d93497a0a9bf6ba0e0b1a29cccdc40efbfc76297255b1309b3a884a688ec4b6 \
+    --hash=sha256:b896ca61edc079eb6bbaa15cf6071eb69d6aac08cce5211583cfb41515644fdf
     # via
     #   -r requirements.in
     #   django-jsonfield-backport
