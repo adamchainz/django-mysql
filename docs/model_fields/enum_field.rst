@@ -27,26 +27,28 @@ Docs:
     ``choices`` is a standard Django argument for any field class, however it
     is required for ``EnumField``. It can either be a list of strings, or a
     list of two-tuples of strings, where the first element in each tuple is the
-    value used, and the second the human readable name used in forms. For
-    example:
+    value used, and the second the human readable name used in forms. The best
+    way to form it is with Django’s |TextChoices enumeration type|__.
+
+    .. |TextChoices enumeration type| replace:: ``TextChoices`` enumeration type
+    __ https://docs.djangoproject.com/en/stable/ref/models/fields/#field-choices-enum-types
+
+    For example:
 
     .. code-block:: python
 
+        from django.db import models
         from django_mysql.models import EnumField
 
 
-        class BookCover(Model):
-            color = EnumField(choices=["red", "green", "blue"])
+        class BookCoverColour(models.TextChoices):
+            RED = "red"
+            GREEN = "green"
+            BLUE = "blue"
 
 
-        class Book(Model):
-            color = EnumField(
-                choices=[
-                    ("red", "Bright Red"),
-                    ("green", "Vibrant Green"),
-                    "blue",  # human readable name will be set to "blue"
-                ]
-            )
+        class BookCover(models.Model):
+            colour = EnumField(choices=BookCoverColour.choices)
 
 
     .. warning::
@@ -58,5 +60,5 @@ Docs:
        not.
 
        Also the empty string has strange behaviour with ``ENUM``, acting
-       somewhat like ``NULL``, but not entirely; therefore it's recommended you
-       have Strict Mode on.
+       somewhat like ``NULL``, but not entirely. It is therefore recommended
+       you ensure Strict Mode is on.
