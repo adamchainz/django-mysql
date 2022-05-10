@@ -33,13 +33,6 @@ class VariablesTests(TransactionTestCase):
         assert errors == []
 
     @override_mysql_variables(innodb_strict_mode=0)
-    def test_fails_if_no_innodb_strict_old_django(self):
-        errors = check_variables(app_configs=None)
-        assert len(errors) == 1
-        assert errors[0].id == "django_mysql.W002"
-        assert "InnoDB Strict Mode" in errors[0].msg
-
-    @override_mysql_variables(innodb_strict_mode=0)
     def test_fails_if_no_innodb_strict(self):
         errors = check_variables(app_configs=None, databases=["default", "other"])
         assert len(errors) == 1
