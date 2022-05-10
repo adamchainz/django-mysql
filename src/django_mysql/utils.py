@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import subprocess
 import time
 from collections import defaultdict
 from types import TracebackType
@@ -9,8 +8,6 @@ from typing import Any, Generator
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Model
-
-from django_mysql.compat import cache
 
 
 class WeightedAverageRate:
@@ -126,12 +123,6 @@ def settings_to_cmd_args(settings_dict: dict[str, Any]) -> list[str]:
     if db:
         args += [db]
     return args
-
-
-@cache
-def have_program(program_name: str) -> bool:
-    status = subprocess.call(["which", program_name], stdout=subprocess.PIPE)
-    return status == 0
 
 
 def collapse_spaces(string: str) -> str:
