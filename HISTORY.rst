@@ -6,6 +6,13 @@ History
 
 * Support MariaDB 10.7.
 
+* Drop ``django_mysql.utils.connection_is_mariadb``. On Django 3.0+ you can
+  simply check:
+
+  .. code-block:: python
+
+      connection.vendor == "mysql" and connection.mysql_is_mariadb
+
 4.5.0 (2022-01-23)
 ------------------
 

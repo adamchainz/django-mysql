@@ -37,7 +37,6 @@ from django_mysql.models.functions import (
     UpdateXML,
     XMLExtractValue,
 )
-from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
 from tests.testapp.utils import print_all_queries
@@ -604,7 +603,7 @@ class JSONFunctionTests(TestCase):
 class RegexpFunctionTests(TestCase):
     def setUp(self):
         super().setUp()
-        if not connection_is_mariadb(connection):
+        if not connection.mysql_is_mariadb:
             raise SkipTest("MariaDB is required")
 
     def test_regex_instr(self):

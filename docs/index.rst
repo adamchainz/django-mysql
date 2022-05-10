@@ -28,7 +28,6 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    locks
    status
    management_commands/index
-   utilities
    test_utilities
    exceptions
    contributing

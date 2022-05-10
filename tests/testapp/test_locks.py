@@ -12,7 +12,6 @@ from django.test import TestCase, TransactionTestCase
 from django_mysql.exceptions import TimeoutError
 from django_mysql.locks import Lock, TableLock
 from django_mysql.models import Model
-from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import (
     AgedCustomer,
     Alphabet,
@@ -30,7 +29,7 @@ class LockTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.supports_lock_info = connection_is_mariadb(connection)
+        cls.supports_lock_info = connection.mysql_is_mariadb
         if cls.supports_lock_info:
             with connection.cursor() as cursor:
                 cursor.execute(
