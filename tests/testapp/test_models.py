@@ -760,7 +760,7 @@ class SmartIteratorTests(TestCase):
 class VisualExplainTests(TestCase):
     @classmethod
     def setUpClass(cls):
-        if shutil.which("pt-visual-explain") is None:
+        if shutil.which("pt-visual-explain") is None:  # pragma: no cover
             raise SkipTest("pt-visual-explain must be installed")
         super().setUpClass()
 
