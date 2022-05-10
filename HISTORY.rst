@@ -2,6 +2,8 @@
 History
 =======
 
+* Drop support for Django 2.2, 3.0, and 3.1.
+
 * Support MariaDB 10.7.
 
 4.5.0 (2022-01-23)

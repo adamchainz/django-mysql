@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterable
 
-import django
 from django.core import checks
 
 from django_mysql.utils import mysql_connections
@@ -12,13 +11,11 @@ def register_checks() -> None:
     checks.register(checks.Tags.database)(check_variables)
 
 
-def check_variables(**kwargs: Any) -> list[checks.CheckMessage]:
-    if django.VERSION >= (3, 1):
-        # when moving to Django 3.1+ only support, make this a real argument
-        databases = kwargs["databases"]
-    else:
-        databases = {alias for alias, connection in mysql_connections()}
-
+def check_variables(
+    *,
+    databases: Iterable[str] | None = None,
+    **kwargs: Any,
+) -> list[checks.CheckMessage]:
     errors: list[checks.CheckMessage] = []
 
     if databases is None:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from contextlib import closing
 
 import django
 from django.db import connection
@@ -12,19 +11,9 @@ def pytest_report_header(config):
     dot_version = ".".join(str(x) for x in django.VERSION)
     header = "Django version: " + dot_version
 
-    with _blocking_manager.unblock():
-        if django.VERSION >= (3, 1):
-
-            with connection._nodb_cursor() as cursor:
-                cursor.execute("SELECT VERSION()")
-                version = cursor.fetchone()[0]
-
-        else:
-
-            with closing(connection._nodb_connection) as conn:  # pragma: no branch
-                with conn.cursor() as cursor:  # pragma: no branch
-                    cursor.execute("SELECT VERSION()")
-                    version = cursor.fetchone()[0]
+    with _blocking_manager.unblock(), connection._nodb_cursor() as cursor:
+        cursor.execute("SELECT VERSION()")
+        version = cursor.fetchone()[0]
         header += f"\nMySQL version: {version}"
 
     return header
