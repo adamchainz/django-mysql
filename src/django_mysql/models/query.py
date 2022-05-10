@@ -24,7 +24,6 @@ from django_mysql.utils import (
     StopWatch,
     WeightedAverageRate,
     format_duration,
-    have_program,
     settings_to_cmd_args,
 )
 
@@ -723,9 +722,6 @@ def can_approx_count(queryset: QuerySetMixin) -> bool:
 
 
 def pt_visual_explain(queryset: models.QuerySet, display: bool = True) -> str:
-    if not have_program("pt-visual-explain"):  # pragma: no cover
-        raise OSError("pt-visual-explain doesn't appear to be installed")
-
     connection = connections[queryset.db]
     capturer = CaptureQueriesContext(connection)
     with capturer, connection.cursor() as cursor:
