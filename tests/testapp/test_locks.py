@@ -236,7 +236,7 @@ class TableLockTests(TransactionTestCase):
             if rows:
                 assert len(rows) == 1
                 return rows[0][2] > 0
-            else:
+            else:  # pragma: no cover
                 # MySQL 8+ closes the table really quickly. If it's closed,
                 # it's not locked.
                 return False
