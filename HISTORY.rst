@@ -2,6 +2,9 @@
 History
 =======
 
+4.6.0 (2022-05-10)
+------------------
+
 * Drop support for Django 2.2, 3.0, and 3.1.
 
 * Support MariaDB 10.7 and 10.8.
