@@ -4,7 +4,7 @@ History
 
 * Drop support for Django 2.2, 3.0, and 3.1.
 
-* Support MariaDB 10.7.
+* Support MariaDB 10.7 and 10.8.
 
 * Drop ``django_mysql.utils.connection_is_mariadb``. On Django 3.0+ you can
   simply check:
