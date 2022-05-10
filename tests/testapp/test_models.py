@@ -15,7 +15,6 @@ from django.test.utils import captured_stdout, override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator, add_QuerySetMixin
 from django_mysql.utils import have_program, index_name
-from tests.compat import wrap_testdata
 from tests.testapp.models import (
     Author,
     AuthorExtra,
@@ -41,7 +40,6 @@ class MixinQuerysetTests(TestCase):
 
 class ApproximateCountTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
         Author.objects.bulk_create([Author() for i in range(10)])
@@ -377,7 +375,6 @@ class QueryHintNewConnectionTests(TestCase):
 
 class FoundRowsTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
         Author.objects.bulk_create([Author() for i in range(10)])
@@ -449,7 +446,6 @@ class FoundRowsTests(TestCase):
 
 class SmartIteratorTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
         Author.objects.bulk_create([Author(id=i + 1) for i in range(10)])

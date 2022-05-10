@@ -16,7 +16,6 @@ from django.test.utils import isolate_apps
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
-from tests.compat import wrap_testdata
 from tests.testapp.models import DynamicModel, SpeclessDynamicModel
 
 
@@ -120,7 +119,6 @@ DynamicField.register_lookup(DumbTransform)
 
 class QueryTests(DynColTestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
         cls.objs = [
@@ -268,7 +266,6 @@ class QueryTests(DynColTestCase):
 
 class SpeclessQueryTests(DynColTestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
         objs = [

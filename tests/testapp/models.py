@@ -13,12 +13,12 @@ from django.db.models import (
     DecimalField,
     ForeignKey,
     IntegerField,
+    JSONField,
 )
 from django.db.models import Model as VanillaModel
 from django.db.models import OneToOneField, TextField
 from django.utils import timezone
 
-from django_mysql.compat import JSONField
 from django_mysql.models import (
     Bit1BooleanField,
     DynamicField,
@@ -250,8 +250,6 @@ if django.VERSION < (4, 0):
 
 
 class JSONModel(Model):
-    # Something really weird and funky - change the fields on this model at
-    # import time 😱
     attrs = JSONField(null=True)
 
     name = CharField(max_length=3)

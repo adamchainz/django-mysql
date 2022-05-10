@@ -6,7 +6,6 @@ from django.test import TestCase
 
 from django_mysql.models import BitAnd, BitOr, BitXor, GroupConcat
 from django_mysql.test.utils import override_mysql_variables
-from tests.compat import wrap_testdata
 from tests.testapp.models import Alphabet, Author
 
 
@@ -68,7 +67,6 @@ class BitXorTests(TestCase):
 
 class GroupConcatTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         super().setUpTestData()
         cls.shakes = Author.objects.create(name="William Shakespeare")

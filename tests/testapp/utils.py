@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 
-import django
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.test.utils import CaptureQueriesContext
@@ -15,14 +14,6 @@ def skip_if_mysql_8_plus():
     if not connection_is_mariadb(connection) and connection.mysql_version >= (8,):
         pytest.skip("Requires MySQL<8 or MariaDB")
     yield
-
-
-skip_if_django_3_1_plus = pytest.mark.skipif(
-    django.VERSION >= (3, 1), reason="Requires Django < 3.1"
-)
-skip_if_django_before_3_1 = pytest.mark.skipif(
-    django.VERSION < (3, 1), reason="Requires Django 3.1+"
-)
 
 
 def column_type(table_name, column_name):

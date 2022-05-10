@@ -8,10 +8,9 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField, Expression
 from django.db.models import Field as DjangoField
-from django.db.models import Func, IntegerField, TextField, Value
+from django.db.models import Func, IntegerField, JSONField, TextField, Value
 from django.db.models.sql.compiler import SQLCompiler
 
-from django_mysql.compat import HAVE_JSONFIELD, JSONField
 from django_mysql.utils import connection_is_mariadb
 
 ExpressionArgument = Union[
@@ -208,140 +207,147 @@ class LastInsertId(Func):
 
 # JSON Functions
 
-if HAVE_JSONFIELD:  # pragma: no branch
 
-    class JSONExtract(Func):
-        function = "JSON_EXTRACT"
+class JSONExtract(Func):
+    function = "JSON_EXTRACT"
 
-        def __init__(
-            self,
-            expression: ExpressionArgument,
-            *paths: ExpressionArgument,
-            output_field: type[DjangoField] | None = None,
-        ) -> None:
-            exprs = [expression]
-            for path in paths:
-                if not hasattr(path, "resolve_expression"):
-                    path = Value(path)
-                exprs.append(path)
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        *paths: ExpressionArgument,
+        output_field: type[DjangoField] | None = None,
+    ) -> None:
+        exprs = [expression]
+        for path in paths:
+            if not hasattr(path, "resolve_expression"):
+                path = Value(path)
+            exprs.append(path)
 
-            if output_field is not None:
-                if len(paths) > 1:
-                    raise TypeError(
-                        "output_field won't work with more than one path, as a "
-                        "JSON Array will be returned"
-                    )
-            else:
-                output_field = JSONField()
+        if output_field is not None:
+            if len(paths) > 1:
+                raise TypeError(
+                    "output_field won't work with more than one path, as a "
+                    "JSON Array will be returned"
+                )
+        else:
+            output_field = JSONField()
 
-            super().__init__(*exprs, output_field=output_field)
+        super().__init__(*exprs, output_field=output_field)
 
-    class JSONKeys(Func):
-        function = "JSON_KEYS"
 
-        def __init__(
-            self,
-            expression: ExpressionArgument,
-            path: ExpressionArgument | None = None,
-        ) -> None:
-            exprs = [expression]
-            if path is not None:
-                if not hasattr(path, "resolve_expression"):
-                    path = Value(path)
-                exprs.append(path)
+class JSONKeys(Func):
+    function = "JSON_KEYS"
 
-            super().__init__(*exprs, output_field=JSONField())
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        path: ExpressionArgument | None = None,
+    ) -> None:
+        exprs = [expression]
+        if path is not None:
+            if not hasattr(path, "resolve_expression"):
+                path = Value(path)
+            exprs.append(path)
 
-    class JSONLength(Func):
-        function = "JSON_LENGTH"
+        super().__init__(*exprs, output_field=JSONField())
 
-        def __init__(
-            self,
-            expression: ExpressionArgument,
-            path: ExpressionArgument | None = None,
-            *,
-            output_field: DjangoField | None = None,
-            **extra: Any,
-        ) -> None:
-            if output_field is None:
-                output_field = IntegerField()
 
-            exprs = [expression]
-            if path is not None:
-                if not hasattr(path, "resolve_expression"):
-                    path = Value(path)
-                exprs.append(path)
+class JSONLength(Func):
+    function = "JSON_LENGTH"
 
-            super().__init__(*exprs, output_field=output_field)
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        path: ExpressionArgument | None = None,
+        *,
+        output_field: DjangoField | None = None,
+        **extra: Any,
+    ) -> None:
+        if output_field is None:
+            output_field = IntegerField()
 
-    # When only Django 3.1+ is supported, JSONValue can be replaced with
-    # Cast(..., output_field=JSONField())
-    class JSONValue(Expression):
-        def __init__(
-            self, data: None | int | float | str | list[Any] | dict[str, Any]
-        ) -> None:
-            self._data = data
+        exprs = [expression]
+        if path is not None:
+            if not hasattr(path, "resolve_expression"):
+                path = Value(path)
+            exprs.append(path)
 
-        def as_sql(
-            self,
-            compiler: SQLCompiler,
-            connection: BaseDatabaseWrapper,
-        ) -> tuple[str, tuple[Any, ...]]:
-            if connection.vendor != "mysql":  # pragma: no cover
-                raise AssertionError("JSONValue only supports MySQL/MariaDB")
-            json_string = json.dumps(self._data, allow_nan=False)
-            if connection_is_mariadb(connection):
-                # MariaDB doesn't support explicit cast to JSON.
-                return "JSON_EXTRACT(%s, '$')", (json_string,)
-            else:
-                return "CAST(%s AS JSON)", (json_string,)
+        super().__init__(*exprs, output_field=output_field)
 
-    class BaseJSONModifyFunc(Func):
-        def __init__(
-            self,
-            expression: ExpressionArgument,
-            data: dict[
-                str,
-                (
-                    ExpressionArgument
-                    | None
-                    | int
-                    | float
-                    | str
-                    | list[Any]
-                    | dict[str, Any]
-                ),
-            ],
-        ) -> None:
-            if not data:
-                raise ValueError('"data" cannot be empty')
 
-            exprs = [expression]
+# When only Django 3.1+ is supported, JSONValue can be replaced with
+# Cast(..., output_field=JSONField())
+class JSONValue(Expression):
+    def __init__(
+        self, data: None | int | float | str | list[Any] | dict[str, Any]
+    ) -> None:
+        self._data = data
 
-            for path, value in data.items():
-                if not hasattr(path, "resolve_expression"):
-                    path = Value(path)
+    def as_sql(
+        self,
+        compiler: SQLCompiler,
+        connection: BaseDatabaseWrapper,
+    ) -> tuple[str, tuple[Any, ...]]:
+        if connection.vendor != "mysql":  # pragma: no cover
+            raise AssertionError("JSONValue only supports MySQL/MariaDB")
+        json_string = json.dumps(self._data, allow_nan=False)
+        if connection_is_mariadb(connection):
+            # MariaDB doesn't support explicit cast to JSON.
+            return "JSON_EXTRACT(%s, '$')", (json_string,)
+        else:
+            return "CAST(%s AS JSON)", (json_string,)
 
-                exprs.append(path)
 
-                if not hasattr(value, "resolve_expression"):
-                    value = JSONValue(value)
+class BaseJSONModifyFunc(Func):
+    def __init__(
+        self,
+        expression: ExpressionArgument,
+        data: dict[
+            str,
+            (
+                ExpressionArgument
+                | None
+                | int
+                | float
+                | str
+                | list[Any]
+                | dict[str, Any]
+            ),
+        ],
+    ) -> None:
+        if not data:
+            raise ValueError('"data" cannot be empty')
 
-                exprs.append(value)
+        exprs = [expression]
 
-            super().__init__(*exprs, output_field=JSONField())
+        for path, value in data.items():
+            if not hasattr(path, "resolve_expression"):
+                path = Value(path)
 
-    class JSONInsert(BaseJSONModifyFunc):
-        function = "JSON_INSERT"
+            exprs.append(path)
 
-    class JSONReplace(BaseJSONModifyFunc):
-        function = "JSON_REPLACE"
+            if not hasattr(value, "resolve_expression"):
+                value = JSONValue(value)
 
-    class JSONSet(BaseJSONModifyFunc):
-        function = "JSON_SET"
+            exprs.append(value)
 
-    class JSONArrayAppend(BaseJSONModifyFunc):
-        function = "JSON_ARRAY_APPEND"
+        super().__init__(*exprs, output_field=JSONField())
+
+
+class JSONInsert(BaseJSONModifyFunc):
+    function = "JSON_INSERT"
+
+
+class JSONReplace(BaseJSONModifyFunc):
+    function = "JSON_REPLACE"
+
+
+class JSONSet(BaseJSONModifyFunc):
+    function = "JSON_SET"
+
+
+class JSONArrayAppend(BaseJSONModifyFunc):
+    function = "JSON_ARRAY_APPEND"
 
 
 # MariaDB Regexp Functions

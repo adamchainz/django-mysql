@@ -4,13 +4,9 @@ import subprocess
 import time
 from collections import defaultdict
 from types import TracebackType
-from typing import Any, Generator, Mapping
-from weakref import WeakKeyDictionary
+from typing import Any, Generator
 
-import django
-from django.db import DEFAULT_DB_ALIAS
-from django.db import connection as default_connection
-from django.db import connections
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Model
 
@@ -97,30 +93,8 @@ def format_duration(total_seconds: int) -> str:
     return "".join(out)
 
 
-if django.VERSION >= (3, 0):
-
-    def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
-        return connection.vendor == "mysql" and connection.mysql_is_mariadb
-
-else:
-
-    _is_mariadb_cache: Mapping[BaseDatabaseWrapper, bool] = WeakKeyDictionary()
-
-    def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
-        if connection.vendor != "mysql":
-            return False
-
-        if connection is default_connection:
-            connection = connections[DEFAULT_DB_ALIAS]
-
-        try:
-            return _is_mariadb_cache[connection]
-        except KeyError:
-            with connection.temporary_connection():  # pragma: no branch
-                server_info: str = connection.connection.get_server_info()
-            is_mariadb = "MariaDB" in server_info
-            _is_mariadb_cache[connection] = is_mariadb  # type: ignore [index]
-            return is_mariadb
+def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
+    return connection.vendor == "mysql" and connection.mysql_is_mariadb
 
 
 def settings_to_cmd_args(settings_dict: dict[str, Any]) -> list[str]:

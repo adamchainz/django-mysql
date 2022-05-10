@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import os
 
-import django
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -39,6 +37,8 @@ DATABASES = {
 
 DATABASE_ROUTERS = ["tests.testapp.routers.NothingOnSQLiteRouter"]
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 ALLOWED_HOSTS: list[str] = []
 
 INSTALLED_APPS = [
@@ -46,9 +46,6 @@ INSTALLED_APPS = [
     "django_mysql",
     "django.contrib.contenttypes",
 ]
-
-if django.VERSION < (3, 1):
-    INSTALLED_APPS.append("django_jsonfield_backport")
 
 ROOT_URLCONF = "tests.urls"
 TIME_ZONE = "UTC"
@@ -63,8 +60,5 @@ TEMPLATES = [
         },
     }
 ]
-
-if django.VERSION >= (3, 2):
-    DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DJANGO_MYSQL_REWRITE_QUERIES = True
