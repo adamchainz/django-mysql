@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pickle
 import re
-from unittest import mock, skipUnless
+import shutil
+from unittest import SkipTest, mock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
@@ -14,7 +15,7 @@ from django.test import TestCase
 from django.test.utils import captured_stdout, override_settings
 
 from django_mysql.models import ApproximateInt, SmartIterator, add_QuerySetMixin
-from django_mysql.utils import have_program, index_name
+from django_mysql.utils import index_name
 from tests.testapp.models import (
     Author,
     AuthorExtra,
@@ -756,8 +757,13 @@ class SmartIteratorTests(TestCase):
         assert bad_authors.count() == 0
 
 
-@skipUnless(have_program("pt-visual-explain"), "pt-visual-explain must be installed")
 class VisualExplainTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if shutil.which("pt-visual-explain") is None:
+            raise SkipTest("pt-visual-explain must be installed")
+        super().setUpClass()
+
     def test_basic(self):
         with captured_stdout() as capture:
             Author.objects.all().pt_visual_explain()
