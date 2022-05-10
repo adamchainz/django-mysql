@@ -11,8 +11,6 @@ from django.db.models import Field as DjangoField
 from django.db.models import Func, IntegerField, JSONField, TextField, Value
 from django.db.models.sql.compiler import SQLCompiler
 
-from django_mysql.utils import connection_is_mariadb
-
 ExpressionArgument = Union[
     Expression,
     str,  # column reference handled by Django
@@ -291,7 +289,7 @@ class JSONValue(Expression):
         if connection.vendor != "mysql":  # pragma: no cover
             raise AssertionError("JSONValue only supports MySQL/MariaDB")
         json_string = json.dumps(self._data, allow_nan=False)
-        if connection_is_mariadb(connection):
+        if connection.vendor == "mysql" and connection.mysql_is_mariadb:
             # MariaDB doesn't support explicit cast to JSON.
             return "JSON_EXTRACT(%s, '$')", (json_string,)
         else:

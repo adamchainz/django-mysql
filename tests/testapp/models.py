@@ -33,7 +33,6 @@ from django_mysql.models import (
     SizedBinaryField,
     SizedTextField,
 )
-from django_mysql.utils import connection_is_mariadb
 
 
 class EnumModel(Model):
@@ -122,7 +121,7 @@ class DynamicModel(Model):
     @classmethod
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
-        if not (connection_is_mariadb(connection)):
+        if not connection.mysql_is_mariadb:
             return []
         return super().check(**kwargs)
 
@@ -136,7 +135,7 @@ class SpeclessDynamicModel(Model):
     @classmethod
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
-        if not (connection_is_mariadb(connection)):
+        if not connection.mysql_is_mariadb:
             return []
         return super().check(**kwargs)
 

@@ -24,7 +24,6 @@ from django.utils.translation import gettext_lazy as _
 from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
 from django_mysql.typing import DeconstructResult
-from django_mysql.utils import connection_is_mariadb
 
 try:
     import mariadb_dyncol
@@ -102,7 +101,7 @@ class DynamicField(Field):
         errors = []
 
         any_conn_works = any(
-            (hasattr(conn, "mysql_version") and connection_is_mariadb(conn))
+            (conn.vendor == "mysql" and conn.mysql_is_mariadb)
             for _alias, conn in mysql_connections()
         )
 
@@ -122,9 +121,7 @@ class DynamicField(Field):
 
         conn = None
         for _alias, check_conn in mysql_connections():
-            if hasattr(check_conn, "mysql_version") and connection_is_mariadb(
-                check_conn
-            ):
+            if check_conn.vendor == "mysql" and check_conn.mysql_is_mariadb:
                 conn = check_conn
                 break
 

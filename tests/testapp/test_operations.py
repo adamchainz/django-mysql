@@ -10,7 +10,6 @@ from django.test.utils import CaptureQueriesContext
 
 from django_mysql.operations import AlterStorageEngine, InstallPlugin, InstallSOName
 from django_mysql.test.utils import override_mysql_variables
-from django_mysql.utils import connection_is_mariadb
 
 
 def plugin_exists(plugin_name):
@@ -40,7 +39,7 @@ class PluginOperationTests(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        if not connection_is_mariadb(connection):
+        if not connection.mysql_is_mariadb:
             raise SkipTest("The metadata_lock_info plugin is required")
 
     def test_install_plugin_describe(self):

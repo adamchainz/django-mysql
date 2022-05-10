@@ -93,10 +93,6 @@ def format_duration(total_seconds: int) -> str:
     return "".join(out)
 
 
-def connection_is_mariadb(connection: BaseDatabaseWrapper) -> bool:
-    return connection.vendor == "mysql" and connection.mysql_is_mariadb
-
-
 def settings_to_cmd_args(settings_dict: dict[str, Any]) -> list[str]:
     """
     Copied from django 1.8 MySQL backend DatabaseClient - where the runshell

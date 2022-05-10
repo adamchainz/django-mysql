@@ -8,21 +8,20 @@ import mariadb_dyncol
 import pytest
 from django.core import serializers
 from django.core.exceptions import FieldError
-from django.db import connection, models
+from django.db import connection, connections, models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
 from django.test import TestCase
 from django.test.utils import isolate_apps
 
 from django_mysql.models import DynamicField
-from django_mysql.utils import connection_is_mariadb
 from tests.testapp.models import DynamicModel, SpeclessDynamicModel
 
 
 class DynColTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        if not (connection_is_mariadb(connection)):
+        if not connection.mysql_is_mariadb:
             raise SkipTest("Dynamic Columns require MariaDB")
         super().setUpClass()
 
@@ -286,14 +285,18 @@ class TestCheck(DynColTestCase):
 
     databases = ["default", "other"]
 
-    @mock.patch("django_mysql.models.fields.dynamic.connection_is_mariadb")
-    def test_db_not_mariadb(self, is_mariadb):
-        is_mariadb.return_value = False
-
+    def test_db_not_mariadb(self):
         class Valid(models.Model):
             field = DynamicField()
 
-        errors = Valid.check()
+        mock_default = mock.patch.object(
+            connections["default"], "mysql_is_mariadb", False
+        )
+        mock_other = mock.patch.object(connections["other"], "mysql_is_mariadb", False)
+
+        with mock_default, mock_other:
+            errors = Valid.check()
+
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E013"
         assert "MariaDB is required" in errors[0].msg
