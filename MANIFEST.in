@@ -1,5 +1,3 @@
-prune docs
-exclude .readthedocs.yaml
 include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
