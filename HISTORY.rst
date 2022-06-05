@@ -6,6 +6,9 @@ History
 
 * Support Django 4.1.
 
+* Drop support for MariaDB 10.2, as it is end of life.
+
+
 4.6.0 (2022-05-10)
 ------------------
 

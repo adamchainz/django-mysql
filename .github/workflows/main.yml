@@ -27,7 +27,6 @@ jobs:
         database:
         - mysql:5.7
         - mysql:8.0
-        - mariadb:10.2
         - mariadb:10.3
         - mariadb:10.4
         - mariadb:10.5
