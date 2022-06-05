@@ -4,13 +4,13 @@ Installation
 Requirements
 ------------
 
-Python 3.7 to 3.10 supported.
+Python 3.7 to 3.11 supported.
 
-Django 3.2 to 4.0 supported.
+Django 3.2 to 4.1 supported.
 
 MySQL 5.7 to 8.0 supported.
 
-MariaDB 10.2 to 10.8 supported.
+MariaDB 10.3 to 10.8 supported.
 
 mysqclient 1.3 to 1.4 supported.
 

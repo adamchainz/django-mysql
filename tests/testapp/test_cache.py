@@ -712,7 +712,6 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def test_cache_write_unpicklable_object(self):
         fetch_middleware = FetchFromCacheMiddleware(empty_response)
-        fetch_middleware.cache = cache
 
         request = self.factory.get("/cache/test")
         request._cache_update_cache = True
@@ -729,7 +728,6 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             return response
 
         update_middleware = UpdateCacheMiddleware(get_response)
-        update_middleware.cache = cache
         response = update_middleware(request)
 
         get_cache_data = fetch_middleware.process_request(request)
