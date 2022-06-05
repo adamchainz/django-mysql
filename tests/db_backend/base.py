@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import os
-
-from django.db import NotSupportedError
 from django.db.backends.mysql.base import DatabaseWrapper as BaseDatabaseWrapper
 
 
@@ -36,11 +33,3 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             )
             cursor.execute("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';")
         super().init_connection_state()
-
-    def check_database_version_supported(self):
-        try:
-            return super().check_database_version_supported()
-        except NotSupportedError as exc:
-            print(exc)
-            print("Skipping all tests.")
-            os._exit(0)
