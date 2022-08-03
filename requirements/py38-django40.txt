@@ -73,9 +73,9 @@ coverage==6.4.2 \
     --hash=sha256:f23876b018dfa5d3e98e96f5644b109090f16a4acb22064e0f06933663005d39 \
     --hash=sha256:f7bd0ffbcd03dc39490a1f40b2669cc414fae0c4e16b77bb26806a4d0b7d1452
     # via -r requirements.in
-django==4.0.6 \
-    --hash=sha256:a67a793ff6827fd373555537dca0da293a63a316fe34cb7f367f898ccca3c3ae \
-    --hash=sha256:ca54ebedfcbc60d191391efbf02ba68fb52165b8bf6ccd6fe71f098cac1fe59e
+django==4.0.7 \
+    --hash=sha256:41bd65a9e5f8a89cdbfa7a7bba45cd7431ae89e750af82dea8a35fd1a7ecbe66 \
+    --hash=sha256:9c6d5ad36be798e562ddcaa6b17b1c3ff2d3c4f529a47432b69fb9a30f847461
     # via
     #   -r requirements.in
     #   django-jsonfield-backport
@@ -88,9 +88,9 @@ django-testdata==1.0.3 \
     --hash=sha256:2e782d999eff3118e07353a2d9f8d0a39b58c8f365c3efa1efe0043330731eb9 \
     --hash=sha256:5e1713fabd89e4c0b4ed10f79870b17118f4f343dc9c5d233f86b97f38419db0
     # via -r requirements.in
-flake8==4.0.1 \
-    --hash=sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d \
-    --hash=sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d
+flake8==5.0.3 \
+    --hash=sha256:93aa565ae2f0316b95bb57a354f2b2d55ee8508e1fe1cb13b77b9c195b4a2537 \
+    --hash=sha256:b27fd7faa8d90aaae763664a489012292990388e5d3604f383b290caefbbc922
     # via pytest-flake8-path
 importlib-metadata==4.12.0 \
     --hash=sha256:637245b8bab2b6502fcbc752cc4b7a6f6243bb02b31c5c26156ad103d3d45670 \
@@ -104,9 +104,9 @@ mariadb-dyncol==3.6.0 \
     --hash=sha256:5d72fb8da997386a91a0fcede2923077385dcf673560f0a8ba1793adc084e7e6 \
     --hash=sha256:64ba55d8bd9299c9fd15dff2d0c90dd1692290e84dcf23e1d6c67f118cf45c85
     # via -r requirements.in
-mccabe==0.6.1 \
-    --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
-    --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
+mccabe==0.7.0 \
+    --hash=sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325 \
+    --hash=sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e
     # via flake8
 mysqlclient==2.1.1 \
     --hash=sha256:0d1cd3a5a4d28c222fa199002810e8146cffd821410b67851af4cc80aeccd97c \
@@ -133,13 +133,13 @@ py==1.11.0 \
     --hash=sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719 \
     --hash=sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378
     # via pytest
-pycodestyle==2.8.0 \
-    --hash=sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20 \
-    --hash=sha256:eddd5847ef438ea1c7870ca7eb78a9d47ce0cdb4851a5523949f2601d0cbbe7f
+pycodestyle==2.9.0 \
+    --hash=sha256:289cdc0969d589d90752582bef6dff57c5fbc6949ee8b013ad6d6449a8ae9437 \
+    --hash=sha256:beaba44501f89d785be791c9462553f06958a221d166c64e1f107320f839acc2
     # via flake8
-pyflakes==2.4.0 \
-    --hash=sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c \
-    --hash=sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e
+pyflakes==2.5.0 \
+    --hash=sha256:4579f67d887f804e67edb544428f264b7b24f435b263c4614f384135cea553d2 \
+    --hash=sha256:491feb020dca48ccc562a8c0cbe8df07ee13078df59813b83959cbdada312ea3
     # via flake8
 pyparsing==3.0.9 \
     --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
