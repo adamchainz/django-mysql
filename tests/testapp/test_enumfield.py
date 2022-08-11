@@ -3,9 +3,10 @@ from __future__ import annotations
 import pytest
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.db import connection
+from django.db import connection, models
 from django.db.utils import DataError
 from django.test import TestCase, TransactionTestCase, override_settings
+from django.test.utils import isolate_apps
 
 from django_mysql.models import EnumField
 from tests.testapp.models import EnumModel, NullableEnumModel
@@ -151,6 +152,28 @@ class TestMigrations(TransactionTestCase):
         )
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
+
+    @isolate_apps("tests.testapp")
+    def test_alter_field_choices_changes(self):
+        class Temp(models.Model):
+            field = EnumField(choices=["apple"])
+
+        with connection.schema_editor() as editor:
+            editor.create_model(Temp)
+
+        @self.addCleanup
+        def drop_table():
+            with connection.schema_editor() as editor:
+                editor.delete_model(Temp)
+
+        old_field = Temp._meta.get_field("field")
+        new_field = EnumField(choices=["apple", "banana"])
+        new_field.set_attributes_from_name("field")
+
+        with connection.schema_editor() as editor, self.assertNumQueries(1):
+            editor.alter_field(Temp, old_field, new_field, strict=True)
+        with connection.schema_editor() as editor, self.assertNumQueries(1):
+            editor.alter_field(Temp, new_field, old_field, strict=True)
 
 
 class TestFormfield(TestCase):
