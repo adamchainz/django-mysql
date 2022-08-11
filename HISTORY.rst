@@ -2,6 +2,9 @@
 History
 =======
 
+4.7.1 (2022-08-11)
+------------------
+
 * Ensure that changing ``choices`` on an ``EnumField`` triggers a migration on Django 4.1.
 
 4.7.0 (2022-06-05)
