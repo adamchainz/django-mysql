@@ -12,7 +12,7 @@ from django_mysql.models.fields.sets import SetTextField
 from django_mysql.models.fields.sizes import SizedBinaryField
 from django_mysql.models.fields.sizes import SizedTextField
 
-__all__ = [
+__all__ = (
     "Bit1BooleanField",
     "DynamicField",
     "EnumField",
@@ -24,4 +24,4 @@ __all__ = [
     "SetTextField",
     "SizedBinaryField",
     "SizedTextField",
-]
+)
