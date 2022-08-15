@@ -23,9 +23,9 @@ from django.db.models.sql.compiler import SQLCompiler
 from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
-from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
 from django_mysql.typing import DeconstructResult
+from django_mysql.utils import mysql_connections
 
 try:
     import mariadb_dyncol
@@ -87,7 +87,7 @@ class DynamicField(Field):
         return errors
 
     def _check_mariadb_dyncol(self) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
         if mariadb_dyncol is None:
             errors.append(
                 checks.Error(
@@ -100,7 +100,7 @@ class DynamicField(Field):
         return errors
 
     def _check_mariadb_version(self) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
 
         any_conn_works = any(
             (conn.vendor == "mysql" and conn.mysql_is_mariadb)
@@ -119,7 +119,7 @@ class DynamicField(Field):
         return errors
 
     def _check_character_set(self) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
 
         conn = None
         for _alias, check_conn in mysql_connections():
@@ -151,7 +151,7 @@ class DynamicField(Field):
     def _check_spec_recursively(
         self, spec: Any, path: str = ""
     ) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
 
         if not isinstance(spec, dict):
             errors.append(
