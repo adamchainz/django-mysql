@@ -6,6 +6,7 @@ from types import TracebackType
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
 from django.db.models import Model
+from django.db.transaction import Atomic
 from django.db.transaction import TransactionManagementError
 from django.db.transaction import atomic
 from django.db.utils import DEFAULT_DB_ALIAS
@@ -77,7 +78,8 @@ class Lock:
     def holding_connection_id(self) -> int | None:
         with self.get_cursor() as cursor:
             cursor.execute("SELECT IS_USED_LOCK(%s)", (self.name,))
-            return cursor.fetchone()[0]
+            result: int | None = cursor.fetchone()[0]
+            return result
 
     @classmethod
     def held_with_prefix(
@@ -108,6 +110,7 @@ class TableLock:
         self.read: list[str] = self._process_names(read)
         self.write: list[str] = self._process_names(write)
         self.db = DEFAULT_DB_ALIAS if using is None else using
+        self._atomic: Atomic | None = None
 
     def _process_names(self, names: list[str | type[Model]] | None) -> list[str]:
         """
@@ -170,6 +173,7 @@ class TableLock:
     ) -> None:
         connection = connections[self.db]
         with connection.cursor() as cursor:
+            assert self._atomic is not None
             self._atomic.__exit__(exc_type, exc_value, exc_traceback)
             self._atomic = None
             cursor.execute("UNLOCK TABLES")
