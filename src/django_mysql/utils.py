@@ -162,7 +162,7 @@ def index_name(model: Model, *field_names: str, using: str = DEFAULT_DB_ALIAS) -
             ),
             (model._meta.db_table,) + column_names,
         )
-        indexes = defaultdict(list)
+        indexes: defaultdict[str, list[str]] = defaultdict(list)
         for index_name, _, column_name in cursor.fetchall():
             indexes[index_name].append(column_name)
 
@@ -177,7 +177,7 @@ def get_list_sql(sequence: list[str] | tuple[str, ...]) -> str:
     return "({})".format(",".join("%s" for x in sequence))
 
 
-def mysql_connections() -> Generator[BaseDatabaseWrapper]:
+def mysql_connections() -> Generator[[str, BaseDatabaseWrapper]]:
     conn_names = [DEFAULT_DB_ALIAS] + list(set(connections) - {DEFAULT_DB_ALIAS})
     for alias in conn_names:
         connection = connections[alias]
