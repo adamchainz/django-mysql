@@ -14,6 +14,7 @@ from django.db.models import Lookup
 from django.db.models import Model
 from django.db.models import TextField
 from django.db.models.expressions import BaseExpression
+from django.db.models.sql.compiler import SQLCompiler
 from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
@@ -230,10 +231,10 @@ class IndexLookup(Lookup):
         self.index = index
 
     def as_sql(
-        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+    ) -> tuple[str, list[str | int]]:
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
         params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
         return f"(FIND_IN_SET({rhs}, {lhs}) = {self.index})", params
