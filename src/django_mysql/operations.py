@@ -48,7 +48,7 @@ class InstallPlugin(Operation):
                 WHERE PLUGIN_NAME LIKE %s""",
                 (self.name,),
             )
-            count = cursor.fetchone()[0]
+            count: int = cursor.fetchone()[0]
             return count > 0
 
     def describe(self) -> str:
@@ -96,9 +96,7 @@ class AlterStorageEngine(Operation):
         self.engine = to_engine
         self.from_engine = from_engine
 
-    @property
-    def reversible(self) -> bool:
-        return self.from_engine is not None
+        self.reversible = self.from_engine is not None
 
     def state_forwards(self, app_label: str, state: ProjectState) -> None:
         pass
