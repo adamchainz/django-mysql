@@ -349,20 +349,23 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def test_touch_without_timeout(self):
         cache.set("key1", "spam", timeout=0.1)
-        cache.touch("key1", timeout=0.4)
+        result = cache.touch("key1", timeout=0.4)
+        assert result is True
         time.sleep(0.2)
         assert "key1" in cache
 
     def test_touch_with_timeout(self):
         cache.set("key1", "spam", timeout=0.1)
-        cache.touch("key1")
+        result = cache.touch("key1")
+        assert result is True
         time.sleep(0.2)
         assert "key1" in cache
 
     def test_touch_already_expired(self):
         cache.set("key1", "spam", timeout=0.1)
         time.sleep(0.2)
-        cache.touch("key1", timeout=0.4)
+        result = cache.touch("key1", timeout=0.4)
+        assert result is False
         assert "key1" not in cache
 
     def test_long_timeout(self):
