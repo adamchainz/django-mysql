@@ -449,10 +449,10 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
-            cursor.execute(
+            affected_rows = cursor.execute(
                 self._touch_query.format(table=table), [exp, key, self._now()]
             )
-        return True
+        return affected_rows > 0
 
     _touch_query = collapse_spaces(
         """
