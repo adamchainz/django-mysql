@@ -57,7 +57,7 @@ class BaseStatus:
                 ]
             )
 
-            cursor.execute(query, names)
+            cursor.execute(query, tuple(names))
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
