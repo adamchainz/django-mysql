@@ -182,7 +182,7 @@ class JSONExtract(Func):
         self,
         expression: ExpressionArgument,
         *paths: ExpressionArgument,
-        output_field: type[DjangoField] | None = None,
+        output_field: DjangoField | None = None,
     ) -> None:
         exprs = [expression]
         for path in paths:
