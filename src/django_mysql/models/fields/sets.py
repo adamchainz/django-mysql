@@ -145,8 +145,10 @@ class SetFieldMixin(Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls: type[Model], name: str, **kwargs: Any) -> None:
-        super().contribute_to_class(cls, name, **kwargs)
+    def contribute_to_class(
+        self, cls: type[Model], name: str, private_only: bool = False
+    ) -> None:
+        super().contribute_to_class(cls, name, private_only=private_only)
         self.base_field.model = cls
 
 
