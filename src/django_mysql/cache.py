@@ -442,16 +442,17 @@ class MySQLCache(BaseDatabaseCache):
 
     def touch(
         self, key: str, timeout: Any = DEFAULT_TIMEOUT, version: int | None = None
-    ) -> None:
+    ) -> bool:
         key = self.make_key(key, version=version)
         self.validate_key(key)
         exp = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
-            cursor.execute(
+            affected_rows = cursor.execute(
                 self._touch_query.format(table=table), [exp, key, self._now()]
             )
+        return affected_rows > 0
 
     _touch_query = collapse_spaces(
         """
