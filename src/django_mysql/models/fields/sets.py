@@ -169,6 +169,7 @@ class SetCharField(SetFieldMixin, CharField):
             and isinstance(self.base_field, CharField)
             and self.size
         ):
+            assert self.base_field.max_length is not None
             max_size = (
                 # The chars used
                 (self.size * (self.base_field.max_length))
