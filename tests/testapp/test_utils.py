@@ -65,7 +65,7 @@ class FormatDurationTests(SimpleTestCase):
 
 class IndexNameTests(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_requires_field_names(self):
         with pytest.raises(ValueError) as excinfo:

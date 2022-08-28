@@ -36,10 +36,11 @@ class BaseStatusTests(TestCase):
 
 class GlobalStatusTests(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_get(self):
         running = global_status.get("Threads_running")
+        assert isinstance(running, int)
         assert running >= 1 and isinstance(running, int)
 
     def test_get_bad_name(self):
@@ -126,18 +127,21 @@ class GlobalStatusTests(TestCase):
 
 class SessionStatusTests(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_get_bytes_received(self):
         bytes_received = session_status.get("Bytes_received")
-        assert bytes_received >= 0 and isinstance(bytes_received, int)
+        assert isinstance(bytes_received, int)
+        assert bytes_received >= 0
 
         bytes_received_2 = session_status.get("Bytes_received")
+        assert isinstance(bytes_received_2, int)
         assert bytes_received_2 >= bytes_received
 
     def test_get_last_query_cost(self):
         cost = session_status.get("Last_query_cost")
-        assert cost >= 0.0 and isinstance(cost, float)
+        assert isinstance(cost, float)
+        assert cost >= 0.0
 
     def test_get_bad_name(self):
         with pytest.raises(ValueError) as excinfo:

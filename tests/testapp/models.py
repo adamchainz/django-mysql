@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 import django
+from django.core import checks
 from django.db import connection
 from django.db.models import (
     CASCADE,
@@ -119,7 +120,7 @@ class DynamicModel(Model):
     )
 
     @classmethod
-    def check(cls, **kwargs):
+    def check(cls, **kwargs: Any) -> list[checks.CheckMessage]:
         # Disable the checks on MySQL so that checks tests don't fail
         if not connection.mysql_is_mariadb:
             return []

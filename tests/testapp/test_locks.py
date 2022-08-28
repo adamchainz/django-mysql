@@ -23,7 +23,10 @@ from tests.testapp.models import (
 
 class LockTests(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
+
+    supports_lock_info: bool
+    lock_info_preinstalled: bool
 
     @classmethod
     def setUpClass(cls):
@@ -216,7 +219,7 @@ class LockTests(TestCase):
 
 class TableLockTests(TransactionTestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def tearDown(self):
         Alphabet.objects.all().delete()

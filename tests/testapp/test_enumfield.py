@@ -98,7 +98,7 @@ class TestEnumField(TestCase):
 
 class TestCheck(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_check(self):
         errors = EnumModel.check()

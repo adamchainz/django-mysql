@@ -23,7 +23,7 @@ class OverrideVarsMethodTest(TestCase):
 @override_mysql_variables(TIMESTAMP=123)
 class OverrideVarsClassTest(OverrideVarsMethodTest):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_class_decorator(self):
         self.check_timestamp(123)
