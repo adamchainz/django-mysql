@@ -312,6 +312,7 @@ class KeyTransform(Transform):
     }
 
     TYPE_MAP: dict[str, Field[Any, Any]] = {
+        # Excludes BINARY -> DynamicField as that’s requires spec
         "CHAR": TextField(),
         "DATE": DateField(),
         "DATETIME": DateTimeField(),
