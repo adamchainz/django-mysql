@@ -160,12 +160,6 @@ class QueryTests(DynColTestCase):
     def test_has_key(self):
         assert list(DynamicModel.objects.filter(attrs__has_key="c")) == self.objs[1:3]
 
-    def test_key_transform_initialize_output_field(self):
-        with pytest.raises(ValueError) as excinfo:
-            KeyTransform("x", "y", output_field=CharField())
-
-        assert str(excinfo.value) == "Cannot set output_field for KeyTransform"
-
     def test_key_transform_initialize_bad_type(self):
         with pytest.raises(ValueError) as excinfo:
             KeyTransform("x", "unknown")

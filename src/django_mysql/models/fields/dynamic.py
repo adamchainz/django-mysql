@@ -323,12 +323,8 @@ class KeyTransform(Transform):
         data_type: str,
         *expressions: Any,
         subspec: SpecDict | None = None,
-        output_field: Field[Any, Any] | None = None,
-        **extra: Any,
     ) -> None:
-        if output_field is not None:
-            raise ValueError("Cannot set output_field for KeyTransform")
-
+        output_field: Field[Any, Any]
         if data_type == "BINARY":
             output_field = DynamicField(spec=subspec)
         else:
@@ -337,7 +333,7 @@ class KeyTransform(Transform):
             except KeyError:
                 raise ValueError(f"Invalid data_type {data_type!r}")
 
-        super().__init__(*expressions, output_field=output_field, **extra)
+        super().__init__(*expressions, output_field=output_field)
 
         self.key_name = key_name
         self.data_type = data_type
