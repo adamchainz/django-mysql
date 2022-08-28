@@ -179,13 +179,18 @@ class DynamicField(Field):
                 subpath = f"{path}.{key}"
                 errors.extend(self._check_spec_recursively(value, subpath))
             elif value not in KeyTransform.SPEC_MAP:
+                valid_names = ", ".join(
+                    sorted(x.__name__ for x in KeyTransform.SPEC_MAP.keys())
+                )
                 errors.append(
                     checks.Error(
                         "The value for '{}' in 'spec{}' is not an allowed type".format(
                             key, path
                         ),
-                        hint="'spec' values must be one of the following "
-                        "types: {}".format(KeyTransform.SPEC_MAP_NAMES),
+                        hint=(
+                            "'spec' values must be one of the following types: "
+                            + valid_names
+                        ),
                         obj=self,
                         id="django_mysql.E011",
                     )
@@ -306,10 +311,8 @@ class KeyTransform(Transform):
         dict: "BINARY",
     }
 
-    SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
-
-    TYPE_MAP: dict[str, type[Field] | Field] = {
-        "BINARY": DynamicField,
+    TYPE_MAP: dict[str, Field[Any, Any]] = {
+        # Excludes BINARY -> DynamicField as that’s requires spec
         "CHAR": TextField(),
         "DATE": DateField(),
         "DATETIME": DateTimeField(),
@@ -322,23 +325,22 @@ class KeyTransform(Transform):
         self,
         key_name: str,
         data_type: str,
-        *args: Any,
+        *expressions: Any,
         subspec: SpecDict | None = None,
-        **kwargs: Any,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        output_field: Field[Any, Any]
+        if data_type == "BINARY":
+            output_field = DynamicField(spec=subspec)
+        else:
+            try:
+                output_field = self.TYPE_MAP[data_type]
+            except KeyError:
+                raise ValueError(f"Invalid data_type {data_type!r}")
+
+        super().__init__(*expressions, output_field=output_field)
+
         self.key_name = key_name
         self.data_type = data_type
-
-        try:
-            output_field = self.TYPE_MAP[data_type]
-        except KeyError:  # pragma: no cover
-            raise ValueError(f"Invalid data_type '{data_type}'")
-
-        if data_type == "BINARY":
-            self.output_field = output_field(spec=subspec)
-        else:
-            self.output_field = output_field
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
