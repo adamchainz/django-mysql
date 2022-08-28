@@ -12,7 +12,7 @@ from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrappe
 from django.db.backends.utils import CursorWrapper
 from django.test.utils import CaptureQueriesContext
 
-if sys.version_info >= (3, 8):
+if sys.version_info >= (3, 10):
     from typing import TypeGuard
 else:
     from typing_extensions import TypeGuard
