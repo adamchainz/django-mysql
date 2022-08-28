@@ -1,22 +1,37 @@
 from __future__ import annotations
 
+import sys
 from contextlib import contextmanager
-from typing import Any
+from types import TracebackType
+from typing import Any, Generator
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
 from django.test.utils import CaptureQueriesContext
 
+if sys.version_info >= (3, 8):
+    from typing import TypeGuard
+else:
+    from typing_extensions import TypeGuard
+
+
+def conn_is_mysql(connection: BaseDatabaseWrapper) -> TypeGuard[MySQLDatabaseWrapper]:
+    return connection.vendor == "mysql"
+
 
 @contextmanager
-def skip_if_mysql_8_plus():
-    if not connection.mysql_is_mariadb and connection.mysql_version >= (8,):
+def skip_if_mysql_8_plus() -> Generator[None, None, None]:
+    if not conn_is_mysql(connection) or (
+        not connection.mysql_is_mariadb and connection.mysql_version >= (8,)
+    ):
         pytest.skip("Requires MySQL<8 or MariaDB")
     yield
 
 
-def column_type(table_name, column_name):
+def column_type(table_name: str, column_name: str) -> str:
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
@@ -24,46 +39,57 @@ def column_type(table_name, column_name):
                      COLUMN_NAME = %s""",
             (table_name, column_name),
         )
-        return cursor.fetchone()[0]
+        type_: str = cursor.fetchone()[0]
+        return type_
 
 
 class CaptureLastQuery:
-    def __init__(self, conn=None):
+    def __init__(self, conn: BaseDatabaseWrapper | None = None) -> None:
         if conn is None:  # pragma: no branch
             conn = connection
-        self.conn = conn
+        self.conn: BaseDatabaseWrapper = conn
 
-    def __enter__(self):
+    def __enter__(self) -> CaptureLastQuery:
         self.capturer = CaptureQueriesContext(self.conn)
         self.capturer.__enter__()
         return self
 
-    def __exit__(self, a, b, c):
-        self.capturer.__exit__(a, b, c)
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.capturer.__exit__(exc_type, exc_val, exc_tb)
 
     @property
-    def query(self):
+    def query(self) -> str:
         return self.capturer.captured_queries[-1]["sql"]
 
 
 class print_all_queries:
-    def __init__(self, conn=None):
+    def __init__(self, conn: BaseDatabaseWrapper | None = None) -> None:
         if conn is None:  # pragma: no branch
             conn = connection
-        self.conn = conn
+        self.conn: BaseDatabaseWrapper = conn
 
-    def __enter__(self):
+    def __enter__(self) -> print_all_queries:
         self.capturer = CaptureQueriesContext(self.conn)
         self.capturer.__enter__()
         return self
 
-    def __exit__(self, a, b, c):
-        self.capturer.__exit__(a, b, c)
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self.capturer.__exit__(exc_type, exc_val, exc_tb)
         for q in self.capturer.captured_queries:
             print(q["sql"])
 
 
-def used_indexes(query, using=DEFAULT_DB_ALIAS):
+def used_indexes(query: str, using: str = DEFAULT_DB_ALIAS) -> set[str]:
     """
     Given SQL 'query', run EXPLAIN and return the names of the indexes used
     """

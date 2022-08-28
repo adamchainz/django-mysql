@@ -78,7 +78,7 @@ class TestSaveLoad(TestCase):
     def test_char_lookup_icontains(self):
         self.check_char_lookup("icontains")
 
-    def check_char_lookup(self, lookup):
+    def check_char_lookup(self, lookup: str) -> None:
         lname = "field__" + lookup
         mymodel = CharListModel.objects.create(field=["mouldy", "rotten"])
 

@@ -12,10 +12,10 @@ class OverrideVarsMethodTest(TestCase):
     def test_method_decorator(self):
         self.check_timestamp(123)
 
-    def check_timestamp(self, expected, using="default"):
+    def check_timestamp(self, expected: int, using: str = "default") -> None:
         with connections[using].cursor() as cursor:
             cursor.execute("SELECT @@TIMESTAMP")
-            mode = cursor.fetchone()[0]
+            mode: int = cursor.fetchone()[0]
 
         assert mode == expected
 

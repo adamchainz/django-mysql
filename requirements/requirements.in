@@ -9,3 +9,4 @@ pytest
 pytest-django
 pytest-flake8-path
 pytest-randomly
+typing-extensions

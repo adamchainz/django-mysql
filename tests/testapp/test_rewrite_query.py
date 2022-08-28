@@ -38,7 +38,7 @@ class RewriteQueryTests(TestCase):
             == "SHOW TABLES "
         )
 
-    def check_identity(self, query):
+    def check_identity(self, query: str) -> None:
         assert rewrite_query(query) == query
 
     def test_straight_join(self):
