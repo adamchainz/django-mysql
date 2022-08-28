@@ -11,6 +11,7 @@ from django.test.utils import CaptureQueriesContext
 
 from django_mysql.operations import AlterStorageEngine, InstallPlugin, InstallSOName
 from django_mysql.test.utils import override_mysql_variables
+from tests.testapp.utils import conn_is_mysql
 
 
 def plugin_exists(plugin_name: str) -> bool:
@@ -40,9 +41,9 @@ class PluginOperationTests(TransactionTestCase):
     databases = {"default", "other"}
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         super().setUpClass()
-        if not connection.mysql_is_mariadb:
+        if not conn_is_mysql(connection) or not connection.mysql_is_mariadb:
             raise SkipTest("The metadata_lock_info plugin is required")
 
     def test_install_plugin_describe(self):

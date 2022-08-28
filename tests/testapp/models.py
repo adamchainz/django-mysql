@@ -34,6 +34,7 @@ from django_mysql.models import (
     SizedBinaryField,
     SizedTextField,
 )
+from tests.testapp.utils import conn_is_mysql
 
 
 class EnumModel(Model):
@@ -122,7 +123,7 @@ class DynamicModel(Model):
     @classmethod
     def check(cls, **kwargs: Any) -> list[checks.CheckMessage]:
         # Disable the checks on MySQL so that checks tests don't fail
-        if not connection.mysql_is_mariadb:
+        if conn_is_mysql(connection) and not connection.mysql_is_mariadb:
             return []
         return super().check(**kwargs)
 
@@ -136,7 +137,7 @@ class SpeclessDynamicModel(Model):
     @classmethod
     def check(cls, **kwargs):
         # Disable the checks on MySQL so that checks tests don't fail
-        if not connection.mysql_is_mariadb:
+        if conn_is_mysql(connection) and not connection.mysql_is_mariadb:
             return []
         return super().check(**kwargs)
 
