@@ -403,7 +403,7 @@ class ColumnAdd(Func):
             if not hasattr(name, "resolve_expression"):
                 name = Value(name)
 
-            if isinstance(value, dict):
+            if isinstance(value, dict):  # type: ignore [unreachable]
                 raise ValueError("ColumnAdd with nested values is not supported")
             if not hasattr(value, "resolve_expression"):
                 value = Value(value)
