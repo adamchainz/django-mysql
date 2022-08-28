@@ -441,19 +441,15 @@ class AsType(Func):
     template = "%(expressions)s AS %(data_type)s"
 
     def __init__(self, expression: ExpressionArgument, data_type: str) -> None:
+        from django_mysql.models.fields.dynamic import KeyTransform
+
         if not hasattr(expression, "resolve_expression"):
             expression = Value(expression)
 
-        if data_type not in self.TYPE_MAP:
+        if data_type not in KeyTransform.TYPE_MAP and data_type != "BINARY":
             raise ValueError(f"Invalid data_type '{data_type}'")
 
         super().__init__(expression, data_type=data_type)
-
-    @property
-    def TYPE_MAP(self) -> dict[str, type[DjangoField] | DjangoField]:
-        from django_mysql.models.fields.dynamic import KeyTransform
-
-        return KeyTransform.TYPE_MAP
 
 
 class ColumnAdd(Func):
@@ -508,25 +504,22 @@ class ColumnGet(Func):
         self,
         expression: ExpressionArgument,
         column_name: ExpressionArgument,
-        data_type: ExpressionArgument,
+        data_type: str,
     ):
+        from django_mysql.models.fields.dynamic import DynamicField, KeyTransform
+
         if not hasattr(column_name, "resolve_expression"):
             column_name = Value(column_name)
 
-        try:
-            output_field = self.TYPE_MAP[data_type]
-        except KeyError:
-            raise ValueError(f"Invalid data_type '{data_type}'")
-
+        output_field: DjangoField[Any, Any]
         if data_type == "BINARY":
-            output_field = output_field()
+            output_field = DynamicField()
+        else:
+            try:
+                output_field = KeyTransform.TYPE_MAP[data_type]
+            except KeyError:
+                raise ValueError(f"Invalid data_type {data_type!r}")
 
         super().__init__(
             expression, column_name, output_field=output_field, data_type=data_type
         )
-
-    @property
-    def TYPE_MAP(self) -> dict[str, DjangoField | type[DjangoField]]:
-        from django_mysql.models.fields.dynamic import KeyTransform
-
-        return KeyTransform.TYPE_MAP

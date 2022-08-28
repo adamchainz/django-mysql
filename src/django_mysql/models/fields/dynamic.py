@@ -179,13 +179,18 @@ class DynamicField(Field):
                 subpath = f"{path}.{key}"
                 errors.extend(self._check_spec_recursively(value, subpath))
             elif value not in KeyTransform.SPEC_MAP:
+                valid_names = ", ".join(
+                    sorted(x.__name__ for x in KeyTransform.SPEC_MAP.keys())
+                )
                 errors.append(
                     checks.Error(
                         "The value for '{}' in 'spec{}' is not an allowed type".format(
                             key, path
                         ),
-                        hint="'spec' values must be one of the following "
-                        "types: {}".format(KeyTransform.SPEC_MAP_NAMES),
+                        hint=(
+                            "'spec' values must be one of the following types: "
+                            + valid_names
+                        ),
                         obj=self,
                         id="django_mysql.E011",
                     )
@@ -305,8 +310,6 @@ class KeyTransform(Transform):
         dt.time: "TIME",
         dict: "BINARY",
     }
-
-    SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
 
     TYPE_MAP: dict[str, Field[Any, Any]] = {
         "CHAR": TextField(),
