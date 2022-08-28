@@ -4,6 +4,7 @@ from unittest import SkipTest
 
 import pytest
 from django.db import connection, migrations, models, transaction
+from django.db.migrations.operations.base import Operation
 from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
@@ -12,29 +13,31 @@ from django_mysql.operations import AlterStorageEngine, InstallPlugin, InstallSO
 from django_mysql.test.utils import override_mysql_variables
 
 
-def plugin_exists(plugin_name):
+def plugin_exists(plugin_name: str) -> bool:
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
                WHERE PLUGIN_NAME = %s""",
             (plugin_name,),
         )
-        return cursor.fetchone()[0] > 0
+        count: int = cursor.fetchone()[0]
+        return count > 0
 
 
-def table_storage_engine(table_name):
+def table_storage_engine(table_name: str) -> str:
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES
                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s""",
             (table_name,),
         )
-        return cursor.fetchone()[0]
+        engine: str = cursor.fetchone()[0]
+        return engine
 
 
 class PluginOperationTests(TransactionTestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     @classmethod
     def setUpClass(cls):
@@ -168,21 +171,18 @@ class AlterStorageEngineTests(TransactionTestCase):
             operation.database_backwards("test_arstd", editor, new_state, project_state)
         assert table_storage_engine("test_arstd_pony") == "MyISAM"
 
-    # Copied from django core migration tests
+    # Adapted from django core migration tests:
 
     def set_up_test_model(
         self,
-        app_label,
-        second_model=False,
-        third_model=False,
-        related_model=False,
-        mti_model=False,
-        proxy_model=False,
-        unique_together=False,
-        options=False,
-        db_table=None,
-        index_together=False,
-    ):  # pragma: no cover
+        app_label: str,
+        *,
+        proxy_model: bool = False,
+        unique_together: bool = False,
+        options: bool = False,
+        db_table: str | None = None,
+        index_together: bool = False,
+    ) -> ProjectState:  # pragma: no cover
         """
         Creates a test model state and database table.
         """
@@ -220,7 +220,7 @@ class AlterStorageEngineTests(TransactionTestCase):
             model_options["permissions"] = [("can_groom", "Can groom")]
         if db_table:
             model_options["db_table"] = db_table
-        operations = [
+        operations: list[Operation] = [
             migrations.CreateModel(
                 "Pony",
                 [
@@ -231,49 +231,6 @@ class AlterStorageEngineTests(TransactionTestCase):
                 options=model_options,
             )
         ]
-        if second_model:
-            operations.append(
-                migrations.CreateModel(
-                    "Stable", [("id", models.AutoField(primary_key=True))]
-                )
-            )
-        if third_model:
-            operations.append(
-                migrations.CreateModel(
-                    "Van", [("id", models.AutoField(primary_key=True))]
-                )
-            )
-        if related_model:
-            operations.append(
-                migrations.CreateModel(
-                    "Rider",
-                    [
-                        ("id", models.AutoField(primary_key=True)),
-                        ("pony", models.ForeignKey("Pony")),
-                        ("friend", models.ForeignKey("self")),
-                    ],
-                )
-            )
-        if mti_model:
-            operations.append(
-                migrations.CreateModel(
-                    "ShetlandPony",
-                    fields=[
-                        (
-                            "pony_ptr",
-                            models.OneToOneField(
-                                auto_created=True,
-                                primary_key=True,
-                                to_field="id",
-                                serialize=False,
-                                to="Pony",
-                            ),
-                        ),
-                        ("cuteness", models.IntegerField(default=1)),
-                    ],
-                    bases=["%s.Pony" % app_label],
-                )
-            )
         if proxy_model:
             operations.append(
                 migrations.CreateModel(
@@ -286,7 +243,12 @@ class AlterStorageEngineTests(TransactionTestCase):
 
         return self.apply_operations(app_label, ProjectState(), operations)
 
-    def apply_operations(self, app_label, project_state, operations):
+    def apply_operations(
+        self,
+        app_label: str,
+        project_state: ProjectState,
+        operations: list[Operation],
+    ) -> ProjectState:
         migration = migrations.Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor() as editor:

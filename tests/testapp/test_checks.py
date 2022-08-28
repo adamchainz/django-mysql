@@ -9,7 +9,7 @@ from django_mysql.test.utils import override_mysql_variables
 
 class CallCheckTest(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_check(self):
         call_command("check", "--database", "default", "--database", "other")
@@ -17,7 +17,7 @@ class CallCheckTest(TestCase):
 
 class VariablesTests(TransactionTestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_passes(self):
         assert check_variables(app_configs=None, databases=["default", "other"]) == []

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from typing import Any
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
+from django.db.backends.utils import CursorWrapper
 from django.test.utils import CaptureQueriesContext
 
 
@@ -72,6 +74,6 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
         return {row["key"] for row in fetchall_dicts(cursor) if row["key"] is not None}
 
 
-def fetchall_dicts(cursor):
+def fetchall_dicts(cursor: CursorWrapper) -> list[dict[str, Any]]:
     columns = [x[0] for x in cursor.description]
     return [dict(zip(columns, row)) for row in cursor.fetchall()]

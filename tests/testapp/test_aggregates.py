@@ -66,6 +66,11 @@ class BitXorTests(TestCase):
 
 
 class GroupConcatTests(TestCase):
+    shakes: Author
+    jk: Author
+    grisham: Author
+    str_tutee_ids: list[str]
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()

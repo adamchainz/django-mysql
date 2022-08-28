@@ -128,7 +128,8 @@ class ControlFlowFunctionTests(TestCase):
 class NumericFunctionTests(TestCase):
     def test_crc32(self):
         Alphabet.objects.create(d="AAAAAA")
-        ab = Alphabet.objects.annotate(crc=CRC32("d")).first()
+        ab = Alphabet.objects.annotate(crc=CRC32("d")).get()
+
         # Precalculated this in MySQL prompt. Python's binascii.crc32 doesn't
         # match - maybe sign issues?
         assert ab.crc == 2854018686
@@ -145,7 +146,7 @@ class NumericFunctionTests(TestCase):
                 "csign": Sign("c"),
             }
 
-        ab = Alphabet.objects.annotate(**kwargs).first()
+        ab = Alphabet.objects.annotate(**kwargs).get()
 
         assert ab.asign == 1
         assert ab.bsign == 0
@@ -155,34 +156,34 @@ class NumericFunctionTests(TestCase):
 class StringFunctionTests(TestCase):
     def test_concat_ws(self):
         Alphabet.objects.create(d="AAA", e="BBB")
-        ab = Alphabet.objects.annotate(de=ConcatWS("d", "e")).first()
+        ab = Alphabet.objects.annotate(de=ConcatWS("d", "e")).get()
         assert ab.de == "AAA,BBB"
 
     def test_concat_ws_integers(self):
         Alphabet.objects.create(a=1, b=2)
-        ab = Alphabet.objects.annotate(ab=ConcatWS("a", "b")).first()
+        ab = Alphabet.objects.annotate(ab=ConcatWS("a", "b")).get()
         assert ab.ab == "1,2"
 
     def test_concat_ws_skips_nulls(self):
         Alphabet.objects.create(d="AAA", e=None, f=2)
-        ab = Alphabet.objects.annotate(de=ConcatWS("d", "e", "f")).first()
+        ab = Alphabet.objects.annotate(de=ConcatWS("d", "e", "f")).get()
         assert ab.de == "AAA,2"
 
     def test_concat_ws_separator(self):
         Alphabet.objects.create(d="AAA", e="BBB")
-        ab = Alphabet.objects.annotate(de=ConcatWS("d", "e", separator=":")).first()
+        ab = Alphabet.objects.annotate(de=ConcatWS("d", "e", separator=":")).get()
         assert ab.de == "AAA:BBB"
 
     def test_concat_ws_separator_null_returns_none(self):
         Alphabet.objects.create(a=1, b=2)
         concat = ConcatWS("a", "b", separator=None)
-        ab = Alphabet.objects.annotate(ab=concat).first()
+        ab = Alphabet.objects.annotate(ab=concat).get()
         assert ab.ab is None
 
     def test_concat_ws_separator_field(self):
         Alphabet.objects.create(a=1, d="AAA", e="BBB")
         concat = ConcatWS("d", "e", separator=F("a"))
-        ab = Alphabet.objects.annotate(de=concat).first()
+        ab = Alphabet.objects.annotate(de=concat).get()
         assert ab.de == "AAA1BBB"
 
     def test_concat_ws_too_few_fields(self):
@@ -196,7 +197,7 @@ class StringFunctionTests(TestCase):
         ab = (
             Alphabet.objects.annotate(de=ConcatWS("d", "e", separator=":"))
             .filter(de__endswith=":BBB")
-            .first()
+            .get()
         )
         assert ab.de == "AAA:BBB"
 
@@ -216,16 +217,16 @@ class StringFunctionTests(TestCase):
 
     def test_field_simple(self):
         Alphabet.objects.create(d="a")
-        ab = Alphabet.objects.annotate(dp=Field("d", ["a", "b"])).first()
+        ab = Alphabet.objects.annotate(dp=Field("d", ["a", "b"])).get()
         assert ab.dp == 1
-        ab = Alphabet.objects.annotate(dp=Field("d", ["b", "a"])).first()
+        ab = Alphabet.objects.annotate(dp=Field("d", ["b", "a"])).get()
         assert ab.dp == 2
-        ab = Alphabet.objects.annotate(dp=Field("d", ["c", "d"])).first()
+        ab = Alphabet.objects.annotate(dp=Field("d", ["c", "d"])).get()
         assert ab.dp == 0
 
     def test_field_expression(self):
         Alphabet.objects.create(d="b")
-        ab = Alphabet.objects.annotate(dp=Field("d", [Value("a"), Value("b")])).first()
+        ab = Alphabet.objects.annotate(dp=Field("d", [Value("a"), Value("b")])).get()
         assert ab.dp == 2
 
     def test_order_by(self):
@@ -287,7 +288,7 @@ class XMLFunctionTests(TestCase):
 
     def test_xmlextractvalue_invalid_xml(self):
         Alphabet.objects.create(d='{"this": "isNotXML"}')
-        ab = Alphabet.objects.annotate(ev=XMLExtractValue("d", "/some")).first()
+        ab = Alphabet.objects.annotate(ev=XMLExtractValue("d", "/some")).get()
         assert ab.ev == ""
 
 
@@ -301,7 +302,7 @@ class EncryptionFunctionTests(TestCase):
             DeprecationWarning, "This function is deprecated."
         ):
             md5 = MD5("d")
-        ab = Alphabet.objects.annotate(md5=md5).first()
+        ab = Alphabet.objects.annotate(md5=md5).get()
 
         assert ab.md5 == pymd5
 
@@ -314,7 +315,7 @@ class EncryptionFunctionTests(TestCase):
             DeprecationWarning, "This function is deprecated."
         ):
             sha1 = SHA1("d")
-        ab = Alphabet.objects.annotate(sha=sha1).first()
+        ab = Alphabet.objects.annotate(sha=sha1).get()
 
         assert ab.sha == pysha1
 
@@ -330,7 +331,7 @@ class EncryptionFunctionTests(TestCase):
                 DeprecationWarning, "This function is deprecated."
             ):
                 sha2 = SHA2("d", hash_len)
-            ab = Alphabet.objects.annotate(sha=sha2).first()
+            ab = Alphabet.objects.annotate(sha=sha2).get()
 
             assert ab.sha == pysha
 
@@ -343,7 +344,7 @@ class EncryptionFunctionTests(TestCase):
             DeprecationWarning, "This function is deprecated."
         ):
             sha2 = SHA2("d")
-        ab = Alphabet.objects.annotate(sha=sha2).first()
+        ab = Alphabet.objects.annotate(sha=sha2).get()
 
         assert ab.sha == pysha512
 
@@ -354,7 +355,7 @@ class EncryptionFunctionTests(TestCase):
 
 class InformationFunctionTests(TestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_last_insert_id(self):
         Alphabet.objects.create(a=7891)
@@ -381,6 +382,8 @@ class InformationFunctionTests(TestCase):
 
 
 class JSONFunctionTests(TestCase):
+    obj: JSONModel
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -508,35 +511,39 @@ class JSONFunctionTests(TestCase):
     def test_json_insert(self):
         self.obj.attrs = JSONInsert("attrs", {"$.int": 99, "$.int2": 102})
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["int"] == 88
-        assert self.obj.attrs["int2"] == 102
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["int"] == 88
+        assert obj.attrs["int2"] == 102
 
     def test_json_insert_expression(self):
         self.obj.attrs = JSONInsert("attrs", {Value("$.int"): Value(99)})
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["int"] == 88
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["int"] == 88
 
     def test_json_insert_dict(self):
         self.obj.attrs = JSONInsert(
             "attrs", {"$.sub": {"paper": "drop"}, "$.sub2": {"int": 42, "foo": "bar"}}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["sub"] == {"document": "store"}
-        assert self.obj.attrs["sub2"]["int"] == 42
-        assert self.obj.attrs["sub2"]["foo"] == "bar"
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["sub"] == {"document": "store"}
+        assert obj.attrs["sub2"]["int"] == 42
+        assert obj.attrs["sub2"]["foo"] == "bar"
 
     def test_json_insert_array(self):
         self.obj.attrs = JSONInsert(
             "attrs", {"$.arr": [1, "two", 3], "$.arr2": ["one", 2]}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["arr"] == ["dee", "arr", "arr"]
-        assert self.obj.attrs["arr2"][0] == "one"
-        assert self.obj.attrs["arr2"][1] == 2
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["arr"] == ["dee", "arr", "arr"]
+        assert obj.attrs["arr2"][0] == "one"
+        assert obj.attrs["arr2"][1] == 2
 
     def test_json_insert_empty_data(self):
         with pytest.raises(ValueError) as excinfo:
@@ -546,27 +553,30 @@ class JSONFunctionTests(TestCase):
     def test_json_replace_pairs(self):
         self.obj.attrs = JSONReplace("attrs", {"$.int": 101, "$.int2": 102})
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["int"] == 101
-        assert "int2" not in self.obj.attrs
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["int"] == 101
+        assert "int2" not in obj.attrs
 
     def test_json_replace_dict(self):
         self.obj.attrs = JSONReplace(
             "attrs", {"$.sub": {"paper": "drop"}, "$.sub2": {"int": 42, "foo": "bar"}}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["sub"] == {"paper": "drop"}
-        assert "sub2" not in self.obj.attrs
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["sub"] == {"paper": "drop"}
+        assert "sub2" not in obj.attrs
 
     def test_json_replace_array(self):
         self.obj.attrs = JSONReplace(
             "attrs", {"$.arr": [1, "two", 3], "$.arr2": ["one", 2]}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["arr"] == [1, "two", 3]
-        assert "arr2" not in self.obj.attrs
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["arr"] == [1, "two", 3]
+        assert "arr2" not in obj.attrs
 
     def test_json_replace_empty_data(self):
         with pytest.raises(ValueError) as excinfo:
@@ -577,29 +587,32 @@ class JSONFunctionTests(TestCase):
         with print_all_queries():
             self.obj.attrs = JSONSet("attrs", {"$.int": 101, "$.int2": 102})
             self.obj.save()
-            self.obj.refresh_from_db()
-            assert self.obj.attrs["int"] == 101
-            assert self.obj.attrs["int2"] == 102
+
+            obj = JSONModel.objects.get()
+            assert obj.attrs["int"] == 101
+            assert obj.attrs["int2"] == 102
 
     def test_json_set_dict(self):
         self.obj.attrs = JSONSet(
             "attrs", {"$.sub": {"paper": "drop"}, "$.sub2": {"int": 42, "foo": "bar"}}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["sub"] == {"paper": "drop"}
-        assert self.obj.attrs["sub2"]["int"] == 42
-        assert self.obj.attrs["sub2"]["foo"] == "bar"
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["sub"] == {"paper": "drop"}
+        assert obj.attrs["sub2"]["int"] == 42
+        assert obj.attrs["sub2"]["foo"] == "bar"
 
     def test_json_set_array(self):
         self.obj.attrs = JSONSet(
             "attrs", {"$.arr": [1, "two", 3], "$.arr2": ["one", 2]}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["arr"] == [1, "two", 3]
-        assert self.obj.attrs["arr2"][0] == "one"
-        assert self.obj.attrs["arr2"][1] == 2
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["arr"] == [1, "two", 3]
+        assert obj.attrs["arr2"][0] == "one"
+        assert obj.attrs["arr2"][1] == 2
 
     def test_json_set_complex_data(self):
         data = {
@@ -615,8 +628,9 @@ class JSONFunctionTests(TestCase):
         }
         self.obj.attrs = JSONSet("attrs", {"$.data": data})
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["data"] == data
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["data"] == data
 
     def test_json_set_empty_data(self):
         with pytest.raises(ValueError) as excinfo:
@@ -628,9 +642,10 @@ class JSONFunctionTests(TestCase):
             "attrs", {"$.arr": "max", "$.arr[0]": 1.1, "$.sub.document": 3}
         )
         self.obj.save()
-        self.obj.refresh_from_db()
-        assert self.obj.attrs["arr"] == [["dee", 1.1], "arr", "arr", "max"]
-        assert self.obj.attrs["sub"]["document"] == ["store", 3]
+
+        obj = JSONModel.objects.get()
+        assert obj.attrs["arr"] == [["dee", 1.1], "arr", "arr", "max"]
+        assert obj.attrs["sub"]["document"] == ["store", 3]
 
 
 class RegexpFunctionTests(TestCase):

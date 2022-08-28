@@ -118,28 +118,31 @@ DynamicField.register_lookup(DumbTransform)
 
 
 class QueryTests(DynColTestCase):
+    objs: list[DynamicModel]
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.objs = [
-            DynamicModel(attrs={"a": "b"}),
-            DynamicModel(attrs={"a": "b", "c": "d"}),
-            DynamicModel(attrs={"c": "d"}),
-            DynamicModel(attrs={}),
-            DynamicModel(
-                attrs={
-                    "datetimey": dt.datetime(2001, 1, 4, 14, 15, 16),
-                    "datey": dt.date(2001, 1, 4),
-                    "floaty": 128.5,
-                    "inty": 9001,
-                    "stry": "strvalue",
-                    "str_underscorey": "strvalue2",
-                    "timey": dt.time(14, 15, 16),
-                    "nesty": {"level2": "chirp"},
-                }
-            ),
-        ]
-        DynamicModel.objects.bulk_create(cls.objs)
+        DynamicModel.objects.bulk_create(
+            [
+                DynamicModel(attrs={"a": "b"}),
+                DynamicModel(attrs={"a": "b", "c": "d"}),
+                DynamicModel(attrs={"c": "d"}),
+                DynamicModel(attrs={}),
+                DynamicModel(
+                    attrs={
+                        "datetimey": dt.datetime(2001, 1, 4, 14, 15, 16),
+                        "datey": dt.date(2001, 1, 4),
+                        "floaty": 128.5,
+                        "inty": 9001,
+                        "stry": "strvalue",
+                        "str_underscorey": "strvalue2",
+                        "timey": dt.time(14, 15, 16),
+                        "nesty": {"level2": "chirp"},
+                    }
+                ),
+            ]
+        )
         cls.objs = list(DynamicModel.objects.order_by("id"))
 
     def test_equal(self):
@@ -271,14 +274,17 @@ class QueryTests(DynColTestCase):
 
 
 class SpeclessQueryTests(DynColTestCase):
+    objs: list[SpeclessDynamicModel]
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        objs = [
-            SpeclessDynamicModel(attrs={"a": "b"}),
-            SpeclessDynamicModel(attrs={"a": "c"}),
-        ]
-        SpeclessDynamicModel.objects.bulk_create(objs)
+        SpeclessDynamicModel.objects.bulk_create(
+            [
+                SpeclessDynamicModel(attrs={"a": "b"}),
+                SpeclessDynamicModel(attrs={"a": "c"}),
+            ]
+        )
         cls.objs = list(SpeclessDynamicModel.objects.order_by("id"))
 
     def test_simple(self):
@@ -290,7 +296,7 @@ class SpeclessQueryTests(DynColTestCase):
 @isolate_apps("tests.testapp")
 class TestCheck(DynColTestCase):
 
-    databases = ["default", "other"]
+    databases = {"default", "other"}
 
     def test_db_not_mariadb(self):
         class Valid(models.Model):
@@ -337,7 +343,9 @@ class TestCheck(DynColTestCase):
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E009"
         assert "'spec' must be a dict" in errors[0].msg
-        assert "The value passed is of type list" in errors[0].hint
+        hint = errors[0].hint
+        assert hint is not None
+        assert "The value passed is of type list" in hint
 
     def test_spec_key_not_valid(self):
         class Invalid(models.Model):
@@ -347,8 +355,10 @@ class TestCheck(DynColTestCase):
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E010"
         assert "The key '2.0' in 'spec' is not a string" in errors[0].msg
-        assert "'spec' keys must be of type " in errors[0].hint
-        assert "'2.0' is of type float" in errors[0].hint
+        hint = errors[0].hint
+        assert hint is not None
+        assert "'spec' keys must be of type " in hint
+        assert "'2.0' is of type float" in hint
 
     def test_spec_value_not_valid(self):
         class Invalid(models.Model):
@@ -358,9 +368,10 @@ class TestCheck(DynColTestCase):
         assert len(errors) == 1
         assert errors[0].id == "django_mysql.E011"
         assert "The value for 'bad' in 'spec' is not an allowed type" in errors[0].msg
+        hint = errors[0].hint
+        assert hint is not None
         assert (
-            "'spec' values must be one of the following types: date, datetime"
-            in errors[0].hint
+            "'spec' values must be one of the following types: date, datetime" in hint
         )
 
     def test_spec_nested_value_not_valid(self):
@@ -375,9 +386,10 @@ class TestCheck(DynColTestCase):
         assert (
             "The value for 'bad' in 'spec.l1' is not an allowed type" in errors[0].msg
         )
+        hint = errors[0].hint
+        assert hint is not None
         assert (
-            "'spec' values must be one of the following types: date, datetime"
-            in errors[0].hint
+            "'spec' values must be one of the following types: date, datetime" in hint
         )
 
 
