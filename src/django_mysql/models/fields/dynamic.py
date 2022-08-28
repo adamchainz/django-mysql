@@ -308,8 +308,7 @@ class KeyTransform(Transform):
 
     SPEC_MAP_NAMES = ", ".join(sorted(x.__name__ for x in SPEC_MAP.keys()))
 
-    TYPE_MAP: dict[str, type[Field] | Field] = {
-        "BINARY": DynamicField,
+    TYPE_MAP: dict[str, Field[Any, Any]] = {
         "CHAR": TextField(),
         "DATE": DateField(),
         "DATETIME": DateTimeField(),
@@ -322,23 +321,26 @@ class KeyTransform(Transform):
         self,
         key_name: str,
         data_type: str,
-        *args: Any,
+        *expressions: Any,
         subspec: SpecDict | None = None,
-        **kwargs: Any,
+        output_field: Field[Any, Any] | None = None,
+        **extra: Any,
     ) -> None:
-        super().__init__(*args, **kwargs)
-        self.key_name = key_name
-        self.data_type = data_type
-
-        try:
-            output_field = self.TYPE_MAP[data_type]
-        except KeyError:  # pragma: no cover
-            raise ValueError(f"Invalid data_type '{data_type}'")
+        if output_field is not None:
+            raise ValueError("Cannot set output_field for KeyTransform")
 
         if data_type == "BINARY":
-            self.output_field = output_field(spec=subspec)
+            output_field = DynamicField(spec=subspec)
         else:
-            self.output_field = output_field
+            try:
+                output_field = self.TYPE_MAP[data_type]
+            except KeyError:
+                raise ValueError(f"Invalid data_type {data_type!r}")
+
+        super().__init__(*expressions, output_field=output_field, **extra)
+
+        self.key_name = key_name
+        self.data_type = data_type
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
