@@ -15,7 +15,6 @@ from django.db.models import Model
 from django.db.models import TextField
 from django.db.models.expressions import BaseExpression
 from django.db.models.sql.compiler import SQLCompiler
-from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleListField
@@ -75,7 +74,7 @@ class ListFieldMixin(Field):
         return errors
 
     @property
-    def description(self) -> Any:
+    def description(self) -> str:
         return _("List of %(base_description)s") % {
             "base_description": self.base_field.description
         }
@@ -155,7 +154,7 @@ class ListFieldMixin(Field):
         vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
-    def formfield(self, **kwargs: Any) -> FormField:
+    def formfield(self, **kwargs: Any) -> Any:
         defaults = {
             "form_class": SimpleListField,
             "base_field": self.base_field.formfield(),
