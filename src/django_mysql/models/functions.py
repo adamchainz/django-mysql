@@ -23,8 +23,7 @@ class SingleArgFunc(Func):
     output_field_class: type[DjangoField]
 
     def __init__(self, expression: ExpressionArgument) -> None:
-        super().__init__(expression)
-        self.output_field = self.output_field_class()
+        super().__init__(expression, output_field=self.output_field_class())
 
 
 # Control Flow Functions
@@ -223,11 +222,9 @@ class LastInsertId(Func):
 
     def __init__(self, expression: ExpressionArgument | None = None) -> None:
         if expression is not None:
-            super().__init__(expression)
+            super().__init__(expression, output_field=IntegerField())
         else:
-            super().__init__()
-
-        self.output_field = IntegerField()
+            super().__init__(output_field=IntegerField())
 
     @classmethod
     def get(cls, using: str = DEFAULT_DB_ALIAS) -> int:
