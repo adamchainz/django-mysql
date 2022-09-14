@@ -28,7 +28,7 @@ class GroupConcat(Aggregate):
     def __init__(
         self,
         expression: Expression,
-        filter=None,
+        filter: Any | None=None,
         distinct: bool = False,
         separator: str | None = None,
         ordering: str | None = None,
