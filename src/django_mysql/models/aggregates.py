@@ -28,7 +28,7 @@ class GroupConcat(Aggregate):
     def __init__(
         self,
         expression: Expression,
-        filter = None,
+        filter=None,
         distinct: bool = False,
         separator: str | None = None,
         ordering: str | None = None,
@@ -61,9 +61,7 @@ class GroupConcat(Aggregate):
             source_expressions = copy.get_source_expressions()
             condition = When(self.filter, then=source_expressions[0])
             copy.set_source_expressions([Case(condition)] + source_expressions[1:])
-            return super(Aggregate, copy).as_sql(
-                compiler, connection, **extra_context
-            )
+            return super(Aggregate, copy).as_sql(compiler, connection, **extra_context)
 
         connection.ops.check_expression_support(self)
         sql = ["GROUP_CONCAT("]
