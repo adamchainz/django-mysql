@@ -23,8 +23,10 @@ class BitXor(Aggregate):
 
 
 class GroupConcat(Aggregate):
+    template = "%(function)s(%(distinct)s%(expressions)s%(order_by)s%(separator)s)"
     function = "GROUP_CONCAT"
     name = "GroupConcat"
+    output_field = CharField()
     allow_distinct = True
 
     def __init__(
@@ -56,6 +58,15 @@ class GroupConcat(Aggregate):
         connection: BaseDatabaseWrapper,
         **extra_context: Any,
     ) -> tuple[str, tuple[Any, ...]]:
+        def expr_sql():
+            expr_parts = []
+            params = []
+            for arg in self.source_expressions:
+                arg_sql, arg_params = compiler.compile(arg)
+                expr_parts.append(arg_sql)
+                params.extend(arg_params)
+            return self.arg_joiner.join(expr_parts)
+
         if self.filter:
             extra_context["distinct"] = "DISTINCT " if self.distinct else ""
             copy = self.copy()
@@ -63,6 +74,19 @@ class GroupConcat(Aggregate):
             source_expressions = copy.get_source_expressions()
             condition = When(self.filter, then=source_expressions[0])
             copy.set_source_expressions([Case(condition)] + source_expressions[1:])
+
+            extra_context["order_by"] = (
+                f" ORDER BY {expr_sql()} {self.ordering}"
+                if self.ordering else
+                ""
+            )
+
+            extra_context["separator"] = (
+                f" SEPARATOR '{self.separator}' " 
+                if self.separator else 
+                ""
+            )
+
             return super(Aggregate, copy).as_sql(compiler, connection, **extra_context)
 
         connection.ops.check_expression_support(self)
@@ -70,13 +94,7 @@ class GroupConcat(Aggregate):
         if self.distinct:
             sql.append("DISTINCT ")
 
-        expr_parts = []
-        params = []
-        for arg in self.source_expressions:
-            arg_sql, arg_params = compiler.compile(arg)
-            expr_parts.append(arg_sql)
-            params.extend(arg_params)
-        expr_sql = self.arg_joiner.join(expr_parts)
+        expr_sql = expr_sql()
 
         sql.append(expr_sql)
 
