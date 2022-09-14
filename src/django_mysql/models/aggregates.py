@@ -28,6 +28,7 @@ class GroupConcat(Aggregate):
     def __init__(
         self,
         expression: Expression,
+        filter = None,
         distinct: bool = False,
         separator: str | None = None,
         ordering: str | None = None,
@@ -38,7 +39,7 @@ class GroupConcat(Aggregate):
             # This can/will be improved to SetTextField or ListTextField
             extra["output_field"] = CharField()
 
-        super().__init__(expression, **extra)
+        super().__init__(expression, filter=filter, **extra)
 
         self.distinct = distinct
         self.separator = separator
@@ -53,6 +54,17 @@ class GroupConcat(Aggregate):
         connection: BaseDatabaseWrapper,
         **extra_context: Any,
     ) -> tuple[str, tuple[Any, ...]]:
+        if self.filter:
+            extra_context["distinct"] = "DISTINCT " if self.distinct else ""
+            copy = self.copy()
+            copy.filter = None
+            source_expressions = copy.get_source_expressions()
+            condition = When(self.filter, then=source_expressions[0])
+            copy.set_source_expressions([Case(condition)] + source_expressions[1:])
+            return super(Aggregate, copy).as_sql(
+                compiler, connection, **extra_context
+            )
+
         connection.ops.check_expression_support(self)
         sql = ["GROUP_CONCAT("]
         if self.distinct:
