@@ -24,6 +24,8 @@ class BitXor(Aggregate):
 
 class GroupConcat(Aggregate):
     function = "GROUP_CONCAT"
+    name = "GroupConcat"
+    allow_distinct = True
 
     def __init__(
         self,
