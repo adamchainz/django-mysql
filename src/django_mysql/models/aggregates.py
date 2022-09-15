@@ -65,7 +65,7 @@ class GroupConcat(Aggregate):
                 arg_sql, arg_params = compiler.compile(arg)
                 expr_parts.append(arg_sql)
                 params.extend(arg_params)
-            return self.arg_joiner.join(expr_parts)
+            return self.arg_joiner.join(expr_parts), params
 
         if self.filter:
             extra_context["distinct"] = "DISTINCT " if self.distinct else ""
@@ -75,12 +75,18 @@ class GroupConcat(Aggregate):
             condition = When(self.filter, then=source_expressions[0])
             copy.set_source_expressions([Case(condition)] + source_expressions[1:])
 
+            expr_sql, _ = expr_sql()
+            
             extra_context["order_by"] = (
-                f" ORDER BY {expr_sql()} {self.ordering}" if self.ordering else ""
+                f" ORDER BY {expr_sql} {self.ordering}"
+                if self.ordering else
+                ""
             )
 
             extra_context["separator"] = (
-                f" SEPARATOR '{self.separator}' " if self.separator else ""
+                f" SEPARATOR '{self.separator}' " 
+                if self.separator else 
+                ""
             )
 
             return super(Aggregate, copy).as_sql(compiler, connection, **extra_context)
@@ -90,7 +96,7 @@ class GroupConcat(Aggregate):
         if self.distinct:
             sql.append("DISTINCT ")
 
-        expr_sql = expr_sql()
+        expr_sql, params = expr_sql()
 
         sql.append(expr_sql)
 
