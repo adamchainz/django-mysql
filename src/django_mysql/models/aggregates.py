@@ -76,17 +76,13 @@ class GroupConcat(Aggregate):
             copy.set_source_expressions([Case(condition)] + source_expressions[1:])
 
             expr_sql, _ = expr_sql()
-            
+
             extra_context["order_by"] = (
-                f" ORDER BY {expr_sql} {self.ordering}"
-                if self.ordering else
-                ""
+                f" ORDER BY {expr_sql} {self.ordering}" if self.ordering else ""
             )
 
             extra_context["separator"] = (
-                f" SEPARATOR '{self.separator}' " 
-                if self.separator else 
-                ""
+                f" SEPARATOR '{self.separator}' " if self.separator else ""
             )
 
             return super(Aggregate, copy).as_sql(compiler, connection, **extra_context)
