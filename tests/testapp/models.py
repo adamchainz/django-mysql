@@ -29,11 +29,11 @@ from django_mysql.models import (
     ListTextField,
     Model,
     NullBit1BooleanField,
+    PositiveTinyIntegerField,
     SetCharField,
     SetTextField,
     SizedBinaryField,
     SizedTextField,
-    PositiveTinyIntegerField,
     TinyIntegerField,
 )
 from tests.testapp.utils import conn_is_mysql
