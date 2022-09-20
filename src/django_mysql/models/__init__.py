@@ -25,4 +25,6 @@ from django_mysql.models.fields import (  # noqa
     SetTextField,
     SizedBinaryField,
     SizedTextField,
+    TinyIntegerField,
+    PositiveTinyIntegerField,
 )
