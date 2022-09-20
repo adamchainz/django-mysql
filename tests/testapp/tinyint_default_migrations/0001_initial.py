@@ -23,11 +23,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "col1",
+                    "discount_amt",
                     TinyIntegerField(),
                 ),
                 (
-                    "col2",
+                    "discount_amt_pct",
                     PositiveTinyIntegerField(),
                 ),
             ],

@@ -33,8 +33,15 @@ from django_mysql.models import (
     SetTextField,
     SizedBinaryField,
     SizedTextField,
+    PositiveTinyIntegerField,
+    TinyIntegerField,
 )
 from tests.testapp.utils import conn_is_mysql
+
+
+class TinyIntModel(Model):
+    discount_amt = TinyIntegerField()
+    discount_amt_pct = PositiveTinyIntegerField()
 
 
 class EnumModel(Model):
