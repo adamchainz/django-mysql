@@ -58,6 +58,16 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = "furo"
+html_theme_options = {
+    "dark_css_variables": {
+        "admonition-font-size": "100%",
+        "admonition-title-font-size": "100%",
+    },
+    "light_css_variables": {
+        "admonition-font-size": "100%",
+        "admonition-title-font-size": "100%",
+    },
+}
 
 # The name of an image file (within the static path) to use as favicon
 # of the docs.  This file should be a Windows icon file (.ico) being
