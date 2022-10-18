@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+from typing import cast
 from unittest import SkipTest
 from unittest import mock
 
@@ -12,6 +13,7 @@ from django.core.exceptions import FieldError
 from django.db import connection
 from django.db import connections
 from django.db import models
+from django.db.backends.mysql.base import DatabaseWrapper
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField
 from django.db.models import Transform
@@ -27,7 +29,7 @@ from tests.testapp.models import SpeclessDynamicModel
 class DynColTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        if not connection.mysql_is_mariadb:
+        if not cast(DatabaseWrapper, connection).mysql_is_mariadb:
             raise SkipTest("Dynamic Columns require MariaDB")
         super().setUpClass()
 
