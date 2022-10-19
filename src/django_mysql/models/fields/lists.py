@@ -234,7 +234,7 @@ class IndexLookup(Lookup):
     ) -> tuple[str, list[str | int]]:
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.process_rhs(compiler, connection)
-        params = tuple(lhs_params) + tuple(rhs_params)
+        params = list(lhs_params) + list(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
         return f"(FIND_IN_SET({rhs}, {lhs}) = {self.index})", params
 
