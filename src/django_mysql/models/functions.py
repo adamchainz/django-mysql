@@ -378,7 +378,11 @@ class AsType(Func):
     function = ""
     template = "%(expressions)s AS %(data_type)s"
 
-    def __init__(self, expression: ExpressionArgument, data_type: str) -> None:
+    def __init__(
+        self,
+        expression: Expression | str | float | int | dt.date | dt.time | dt.datetime,
+        data_type: str,
+    ) -> None:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         if not hasattr(expression, "resolve_expression"):
