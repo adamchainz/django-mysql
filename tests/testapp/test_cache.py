@@ -1301,7 +1301,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 @override_cache_settings()
 class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
     @pytest.fixture(autouse=True)
-    def flake8_path(self, flake8_path):
+    def set_flake8_path(self, flake8_path):
         self.flake8_path = flake8_path
 
     def test_mysql_cache_migration(self):
