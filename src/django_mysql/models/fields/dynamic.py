@@ -20,7 +20,6 @@ from django.db.models import TextField
 from django.db.models import TimeField
 from django.db.models import Transform
 from django.db.models.sql.compiler import SQLCompiler
-from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.models.lookups import DynColHasKey
@@ -290,7 +289,7 @@ class DynamicField(Field):
             kwargs["blank"] = False
         return name, path, args, kwargs
 
-    def formfield(self, *args: Any, **kwargs: Any) -> FormField | None:
+    def formfield(self, *args: Any, **kwargs: Any) -> Any:
         """
         Disabled in forms - there is no sensible way of editing this
         """
