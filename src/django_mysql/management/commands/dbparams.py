@@ -3,8 +3,10 @@ from __future__ import annotations
 import argparse
 from typing import Any
 
-from django.core.management import BaseCommand, CommandError
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.core.management import BaseCommand
+from django.core.management import CommandError
+from django.db import connections
+from django.db import DEFAULT_DB_ALIAS
 from django.db.utils import ConnectionDoesNotExist
 
 from django_mysql.utils import settings_to_cmd_args

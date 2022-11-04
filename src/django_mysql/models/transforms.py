@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Iterable
+from typing import Any
+from typing import Iterable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import IntegerField, Transform
+from django.db.models import IntegerField
+from django.db.models import Transform
 from django.db.models.sql.compiler import SQLCompiler
 
 from django_mysql.utils import collapse_spaces

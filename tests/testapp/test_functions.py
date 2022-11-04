@@ -5,39 +5,46 @@ from unittest import SkipTest
 
 import pytest
 from django.db import connection
-from django.db.models import F, FloatField, IntegerField, Q, Value
-from django.db.models.functions import Length, Lower, Upper
+from django.db.models import F
+from django.db.models import FloatField
+from django.db.models import IntegerField
+from django.db.models import Q
+from django.db.models import Value
+from django.db.models.functions import Length
+from django.db.models.functions import Lower
+from django.db.models.functions import Upper
 from django.test import TestCase
 
-from django_mysql.models.functions import (
-    CRC32,
-    ELT,
-    MD5,
-    SHA1,
-    SHA2,
-    AsType,
-    ColumnAdd,
-    ColumnDelete,
-    ColumnGet,
-    ConcatWS,
-    Field,
-    If,
-    JSONArrayAppend,
-    JSONExtract,
-    JSONInsert,
-    JSONKeys,
-    JSONLength,
-    JSONReplace,
-    JSONSet,
-    LastInsertId,
-    RegexpInstr,
-    RegexpReplace,
-    RegexpSubstr,
-    Sign,
-    UpdateXML,
-    XMLExtractValue,
-)
-from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
+from django_mysql.models.functions import AsType
+from django_mysql.models.functions import ColumnAdd
+from django_mysql.models.functions import ColumnDelete
+from django_mysql.models.functions import ColumnGet
+from django_mysql.models.functions import ConcatWS
+from django_mysql.models.functions import CRC32
+from django_mysql.models.functions import ELT
+from django_mysql.models.functions import Field
+from django_mysql.models.functions import If
+from django_mysql.models.functions import JSONArrayAppend
+from django_mysql.models.functions import JSONExtract
+from django_mysql.models.functions import JSONInsert
+from django_mysql.models.functions import JSONKeys
+from django_mysql.models.functions import JSONLength
+from django_mysql.models.functions import JSONReplace
+from django_mysql.models.functions import JSONSet
+from django_mysql.models.functions import LastInsertId
+from django_mysql.models.functions import MD5
+from django_mysql.models.functions import RegexpInstr
+from django_mysql.models.functions import RegexpReplace
+from django_mysql.models.functions import RegexpSubstr
+from django_mysql.models.functions import SHA1
+from django_mysql.models.functions import SHA2
+from django_mysql.models.functions import Sign
+from django_mysql.models.functions import UpdateXML
+from django_mysql.models.functions import XMLExtractValue
+from tests.testapp.models import Alphabet
+from tests.testapp.models import Author
+from tests.testapp.models import DynamicModel
+from tests.testapp.models import JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
 from tests.testapp.utils import print_all_queries
 

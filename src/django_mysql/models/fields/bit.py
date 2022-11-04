@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import BooleanField, Expression, NullBooleanField
+from django.db.models import BooleanField
+from django.db.models import Expression
+from django.db.models import NullBooleanField
 
 
 class Bit1Mixin:

@@ -7,10 +7,19 @@ import time
 from contextlib import nullcontext
 from copy import copy
 from functools import wraps
-from typing import Any, Callable, Dict, Generator, Optional, Tuple, TypeVar, Union, cast
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import Dict
+from typing import Generator
+from typing import Optional
+from typing import Tuple
+from typing import TypeVar
+from typing import Union
 
 from django.conf import settings
-from django.db import connections, models
+from django.db import connections
+from django.db import models
 from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
 from django.test.utils import CaptureQueriesContext
@@ -20,12 +29,10 @@ from django.utils.translation import gettext as _
 from django_mysql.compat import cache
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
-from django_mysql.utils import (
-    StopWatch,
-    WeightedAverageRate,
-    format_duration,
-    settings_to_cmd_args,
-)
+from django_mysql.utils import format_duration
+from django_mysql.utils import settings_to_cmd_args
+from django_mysql.utils import StopWatch
+from django_mysql.utils import WeightedAverageRate
 
 _Q = TypeVar("_Q", bound="QuerySetMixin")
 QueryRewriteFunc = TypeVar("QueryRewriteFunc", bound=Callable[..., Any])

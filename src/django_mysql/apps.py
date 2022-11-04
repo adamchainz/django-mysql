@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any
+from typing import Callable
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -9,7 +10,8 @@ from django.db.backends.signals import connection_created
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.checks import register_checks
-from django_mysql.rewrite_query import REWRITE_MARKER, rewrite_query
+from django_mysql.rewrite_query import REWRITE_MARKER
+from django_mysql.rewrite_query import rewrite_query
 from django_mysql.utils import mysql_connections
 
 

@@ -3,13 +3,20 @@ from __future__ import annotations
 import datetime as dt
 import json
 import warnings
-from typing import Any, Union
+from typing import Any
+from typing import Union
 
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import connections
+from django.db import DEFAULT_DB_ALIAS
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import CharField, Expression
+from django.db.models import CharField
+from django.db.models import Expression
 from django.db.models import Field as DjangoField
-from django.db.models import Func, IntegerField, JSONField, TextField, Value
+from django.db.models import Func
+from django.db.models import IntegerField
+from django.db.models import JSONField
+from django.db.models import TextField
+from django.db.models import Value
 from django.db.models.sql.compiler import SQLCompiler
 
 ExpressionArgument = Union[

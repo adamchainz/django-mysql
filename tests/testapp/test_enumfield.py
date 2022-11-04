@@ -3,13 +3,17 @@ from __future__ import annotations
 import pytest
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.db import connection, models
+from django.db import connection
+from django.db import models
 from django.db.utils import DataError
-from django.test import TestCase, TransactionTestCase, override_settings
+from django.test import override_settings
+from django.test import TestCase
+from django.test import TransactionTestCase
 from django.test.utils import isolate_apps
 
 from django_mysql.models import EnumField
-from tests.testapp.models import EnumModel, NullableEnumModel
+from tests.testapp.models import EnumModel
+from tests.testapp.models import NullableEnumModel
 
 
 class TestEnumField(TestCase):

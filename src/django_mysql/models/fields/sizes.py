@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import BinaryField, TextField
+from django.db.models import BinaryField
+from django.db.models import TextField
 
 from django_mysql.typing import DeconstructResult
 

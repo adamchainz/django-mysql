@@ -2,21 +2,25 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from typing import Any, Callable, Dict, Iterable, Type, Union, cast
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import Dict
+from typing import Iterable
+from typing import Type
+from typing import Union
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import (
-    DateField,
-    DateTimeField,
-    Expression,
-    Field,
-    FloatField,
-    IntegerField,
-    TextField,
-    TimeField,
-    Transform,
-)
+from django.db.models import DateField
+from django.db.models import DateTimeField
+from django.db.models import Expression
+from django.db.models import Field
+from django.db.models import FloatField
+from django.db.models import IntegerField
+from django.db.models import TextField
+from django.db.models import TimeField
+from django.db.models import Transform
 from django.db.models.sql.compiler import SQLCompiler
 from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _

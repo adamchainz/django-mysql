@@ -5,20 +5,23 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 import pytest
-from django.db import OperationalError, connection, connections
-from django.db.transaction import TransactionManagementError, atomic
-from django.test import TestCase, TransactionTestCase
+from django.db import connection
+from django.db import connections
+from django.db import OperationalError
+from django.db.transaction import atomic
+from django.db.transaction import TransactionManagementError
+from django.test import TestCase
+from django.test import TransactionTestCase
 
 from django_mysql.exceptions import TimeoutError
-from django_mysql.locks import Lock, TableLock
+from django_mysql.locks import Lock
+from django_mysql.locks import TableLock
 from django_mysql.models import Model
-from tests.testapp.models import (
-    AgedCustomer,
-    Alphabet,
-    Customer,
-    ProxyAlphabet,
-    TitledAgedCustomer,
-)
+from tests.testapp.models import AgedCustomer
+from tests.testapp.models import Alphabet
+from tests.testapp.models import Customer
+from tests.testapp.models import ProxyAlphabet
+from tests.testapp.models import TitledAgedCustomer
 
 
 class LockTests(TestCase):

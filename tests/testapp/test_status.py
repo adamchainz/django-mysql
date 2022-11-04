@@ -4,12 +4,10 @@ import pytest
 from django.test import TestCase
 
 from django_mysql.exceptions import TimeoutError
-from django_mysql.status import (
-    GlobalStatus,
-    SessionStatus,
-    global_status,
-    session_status,
-)
+from django_mysql.status import global_status
+from django_mysql.status import GlobalStatus
+from django_mysql.status import session_status
+from django_mysql.status import SessionStatus
 
 
 class BaseStatusTests(TestCase):

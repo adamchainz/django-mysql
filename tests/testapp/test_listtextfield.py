@@ -5,16 +5,19 @@ import re
 
 import pytest
 from django import forms
-from django.core import exceptions, serializers
+from django.core import exceptions
+from django.core import serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase
+from django.test import TestCase
 from django.test.utils import isolate_apps
 
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
-from tests.testapp.models import BigCharListModel, BigIntListModel
+from tests.testapp.models import BigCharListModel
+from tests.testapp.models import BigIntListModel
 
 
 class TestSaveLoad(TestCase):
