@@ -8,12 +8,10 @@ from django.core.exceptions import ValidationError
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from django_mysql.validators import (
-    ListMaxLengthValidator,
-    ListMinLengthValidator,
-    SetMaxLengthValidator,
-    SetMinLengthValidator,
-)
+from django_mysql.validators import ListMaxLengthValidator
+from django_mysql.validators import ListMinLengthValidator
+from django_mysql.validators import SetMaxLengthValidator
+from django_mysql.validators import SetMinLengthValidator
 
 
 class SimpleListField(forms.CharField):

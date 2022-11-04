@@ -8,14 +8,22 @@ import zlib
 from random import random
 from textwrap import dedent
 from time import time
-from typing import Any, Callable, Iterable, Tuple, cast
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import Iterable
+from typing import Tuple
 
-from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
-from django.db import connections, router
+from django.core.cache.backends.base import BaseCache
+from django.core.cache.backends.base import default_key_func
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.db import connections
+from django.db import router
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
-from django_mysql.utils import collapse_spaces, get_list_sql
+from django_mysql.utils import collapse_spaces
+from django_mysql.utils import get_list_sql
 
 if sys.version_info >= (3, 8):
     from typing import Literal

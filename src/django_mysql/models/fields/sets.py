@@ -1,16 +1,22 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import CharField, Field, IntegerField, Model, TextField
+from django.db.models import CharField
+from django.db.models import Field
+from django.db.models import IntegerField
+from django.db.models import Model
+from django.db.models import TextField
 from django.db.models.expressions import BaseExpression
 from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleSetField
-from django_mysql.models.lookups import SetContains, SetIContains
+from django_mysql.models.lookups import SetContains
+from django_mysql.models.lookups import SetIContains
 from django_mysql.models.transforms import SetLength
 from django_mysql.typing import DeconstructResult
 from django_mysql.validators import SetMaxLengthValidator

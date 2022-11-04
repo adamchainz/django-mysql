@@ -3,13 +3,18 @@ from __future__ import annotations
 from unittest import SkipTest
 
 import pytest
-from django.db import connection, migrations, models, transaction
+from django.db import connection
+from django.db import migrations
+from django.db import models
+from django.db import transaction
 from django.db.migrations.operations.base import Operation
 from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 
-from django_mysql.operations import AlterStorageEngine, InstallPlugin, InstallSOName
+from django_mysql.operations import AlterStorageEngine
+from django_mysql.operations import InstallPlugin
+from django_mysql.operations import InstallSOName
 from django_mysql.test.utils import override_mysql_variables
 from tests.testapp.utils import conn_is_mysql
 

@@ -9,18 +9,28 @@ from io import StringIO
 from typing import Any
 
 import pytest
-from django.core.cache import CacheKeyWarning, cache, caches
-from django.core.management import CommandError, call_command
-from django.db import IntegrityError, connection
+from django.core.cache import cache
+from django.core.cache import CacheKeyWarning
+from django.core.cache import caches
+from django.core.management import call_command
+from django.core.management import CommandError
+from django.db import connection
+from django.db import IntegrityError
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
-from django.middleware.cache import FetchFromCacheMiddleware, UpdateCacheMiddleware
-from django.test import RequestFactory, TestCase, TransactionTestCase
+from django.middleware.cache import FetchFromCacheMiddleware
+from django.middleware.cache import UpdateCacheMiddleware
+from django.test import RequestFactory
+from django.test import TestCase
+from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from parameterized import parameterized
 
-from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
-from tests.testapp.models import Poll, expensive_calculation
+from django_mysql.cache import BIGINT_SIGNED_MAX
+from django_mysql.cache import BIGINT_SIGNED_MIN
+from django_mysql.cache import MySQLCache
+from tests.testapp.models import expensive_calculation
+from tests.testapp.models import Poll
 
 
 # functions/classes for complex data type tests

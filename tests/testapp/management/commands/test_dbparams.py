@@ -4,7 +4,8 @@ from io import StringIO
 from unittest import mock
 
 import pytest
-from django.core.management import CommandError, call_command
+from django.core.management import call_command
+from django.core.management import CommandError
 from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Iterable
+from typing import Any
+from typing import Iterable
 
 from django.core import checks
 

@@ -2,21 +2,26 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from unittest import SkipTest, mock
+from unittest import mock
+from unittest import SkipTest
 
 import mariadb_dyncol
 import pytest
 from django.core import serializers
 from django.core.exceptions import FieldError
-from django.db import connection, connections, models
+from django.db import connection
+from django.db import connections
+from django.db import models
 from django.db.migrations.writer import MigrationWriter
-from django.db.models import CharField, Transform
+from django.db.models import CharField
+from django.db.models import Transform
 from django.test import TestCase
 from django.test.utils import isolate_apps
 
 from django_mysql.models import DynamicField
 from django_mysql.models.fields.dynamic import KeyTransform
-from tests.testapp.models import DynamicModel, SpeclessDynamicModel
+from tests.testapp.models import DynamicModel
+from tests.testapp.models import SpeclessDynamicModel
 
 
 class DynColTestCase(TestCase):

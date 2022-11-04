@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable
+from typing import Any
+from typing import Callable
+from typing import Iterable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import CharField, Lookup, Transform
+from django.db.models import CharField
+from django.db.models import Lookup
+from django.db.models import Transform
 from django.db.models.lookups import BuiltinLookup
 from django.db.models.sql.compiler import SQLCompiler
 

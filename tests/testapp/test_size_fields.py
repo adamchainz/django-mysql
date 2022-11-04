@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import pytest
 from django.core.management import call_command
-from django.db import connection, models
+from django.db import connection
+from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.transaction import atomic
 from django.db.utils import DataError
-from django.test import TestCase, TransactionTestCase
-from django.test.utils import isolate_apps, override_settings
+from django.test import TestCase
+from django.test import TransactionTestCase
+from django.test.utils import isolate_apps
+from django.test.utils import override_settings
 
-from django_mysql.models import SizedBinaryField, SizedTextField
+from django_mysql.models import SizedBinaryField
+from django_mysql.models import SizedTextField
 from django_mysql.test.utils import override_mysql_variables
 from tests.testapp.models import SizeFieldModel
 from tests.testapp.utils import column_type

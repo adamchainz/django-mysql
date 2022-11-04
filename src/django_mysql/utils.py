@@ -3,9 +3,11 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 from types import TracebackType
-from typing import Any, Generator
+from typing import Any
+from typing import Generator
 
-from django.db import DEFAULT_DB_ALIAS, connections
+from django.db import connections
+from django.db import DEFAULT_DB_ALIAS
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Model
 
