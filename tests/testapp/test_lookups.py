@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from django.db import models
-from django.db.models.expressions import OuterRef, Subquery
+from django.db.models.expressions import OuterRef
+from django.db.models.expressions import Subquery
 from django.test import TestCase
 
-from django_mysql.models import GroupConcat, ListCharField
-from tests.testapp.models import Author, Book
+from django_mysql.models import GroupConcat
+from django_mysql.models import ListCharField
+from tests.testapp.models import Author
+from tests.testapp.models import Book
 
 
 class CaseExactTests(TestCase):
@@ -67,9 +70,19 @@ class SetContainsTests(TestCase):
         the_hobbit = Book.objects.create(title="The Hobbit", author=tolkien)
         Book.objects.create(title="Unfinished Tales", author=tolkien)
 
-        starting_with_the = Book.objects.filter(title__startswith='The', author=OuterRef('pk')).order_by().values('author')
-        concatenated_titles = starting_with_the.annotate(the_titles=GroupConcat('title', output_field=ListCharField(models.CharField()))).values('the_titles')
-        qs = Author.objects.annotate(titles=Subquery(concatenated_titles)).filter(titles__contains='The Hobbit')
+        starting_with_the = (
+            Book.objects.filter(title__startswith="The", author=OuterRef("pk"))
+            .order_by()
+            .values("author")
+        )
+        concatenated_titles = starting_with_the.annotate(
+            the_titles=GroupConcat(
+                "title", output_field=ListCharField(models.CharField())
+            )
+        ).values("the_titles")
+        qs = Author.objects.annotate(titles=Subquery(concatenated_titles)).filter(
+            titles__contains="The Hobbit"
+        )
         tolkien_with_titles = qs.get()
 
         assert len(tolkien_with_titles.titles) == 2
