@@ -5,7 +5,7 @@ History
 * Make ``MySQLCache.touch()`` return ``True`` if the key was touched, ``False`` otherwise.
   This return value was missing since the method was added for Django 2.1.
 
-* Fix ``FIND_IN_SET`` parameter ordering in ``SetContains`` lookup.
+* Fix a bug where set fields’ ``contains`` lookups would put SQL parameters in the wrong order.
 
 4.7.1 (2022-08-11)
 ------------------
