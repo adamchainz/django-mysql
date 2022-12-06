@@ -58,27 +58,6 @@ Numeric Functions
 
         >>> Author.objects.annotate(description_crc=CRC32("description"))
 
-.. class:: Sign(expression)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.Sign` instead.
-
-    Returns the sign of the argument as -1, 0, or 1, depending on whether
-    ``expression`` is negative, zero, or positive.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_sign>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/sign/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(wealth_sign=Sign("wealth"))
-
-
 String Functions
 ----------------
 
@@ -297,78 +276,6 @@ Regexp Functions
         ...     name_has_space=0
         ... )
         [<Author: Euripides>, <Author: Sophocles>]
-
-Encryption Functions
---------------------
-
-
-.. class:: MD5(expression)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.MD5` instead.
-
-    Calculates an MD5 128-bit checksum for the string ``expression``.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/encryption-functions.html#function_md5>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/md5/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(description_md5=MD5("description"))
-
-
-.. class:: SHA1(expression)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.SHA1` instead.
-
-    Calculates an SHA-1 160-bit checksum for the string ``expression``, as
-    described in RFC 3174 (Secure Hash Algorithm).
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/encryption-functions.html#function_sha1>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/sha1/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(description_sha=SHA1("description"))
-
-
-.. class:: SHA2(expression, hash_len=512)
-
-    .. note::
-
-        This function is deprecated. Use
-        :class:`django.db.models.functions.SHA224`,
-        :class:`~django.db.models.functions.SHA256`,
-        :class:`~django.db.models.functions.SHA384`, or
-        :class:`~django.db.models.functions.SHA512` instead.
-
-    Given a string ``expression``, calculates a SHA-2 checksum, which is
-    considered more cryptographically secure than its SHA-1 equivalent. The
-    SHA-2 family includes SHA-224, SHA-256, SHA-384, and SHA-512, and the
-    ``hash_len`` must correspond to one of these, i.e. 224, 256, 384 or 512.
-    The default for ``hash_len`` is 512.
-
-    Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/encryption-functions.html#function_sha2>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/sha2/>`__.
-
-    Usage example:
-
-    .. code-block:: pycon
-
-        >>> Author.objects.annotate(description_sha256=SHA2("description", 256))
-
 
 Information Functions
 ---------------------

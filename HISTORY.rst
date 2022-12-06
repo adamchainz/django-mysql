@@ -7,6 +7,13 @@ History
 
 * Fix a bug where set fields’ ``contains`` lookups would put SQL parameters in the wrong order.
 
+* Remove deprecated database functions which exist in Django 3.0+:
+
+  * ``Sign``
+  * ``MD5``
+  * ``SHA1``
+  * ``SHA2``.
+
 4.7.1 (2022-08-11)
 ------------------
 
