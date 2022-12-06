@@ -13,6 +13,8 @@ from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
 from django.db.models import Value
+from django.db.models.functions import Concat
+from django.db.models.functions import Upper
 from django.test import override_settings
 from django.test import SimpleTestCase
 from django.test import TestCase
@@ -121,6 +123,19 @@ class TestSaveLoad(TestCase):
 
         not_mouldy = CharSetModel.objects.exclude(**{lname: "mouldy"})
         assert not_mouldy.count() == 0
+
+    def test_char_lookup_contains_with_params(self):
+        # Regression test for bug where parameters were in the wrong order
+        instance = CharSetModel.objects.create(field={"MOULDY", "rotten"})
+
+        mouldy = CharSetModel.objects.annotate(
+            ufield=Upper(
+                Concat("field", Value("")),
+                output_field=SetCharField(base_field=models.CharField(max_length=8)),
+            )
+        ).filter(ufield__contains=Upper(Value("Mouldy")))
+
+        assert set(mouldy) == {instance}
 
     def test_char_len_lookup_empty(self):
         mymodel = CharSetModel.objects.create(field=set())

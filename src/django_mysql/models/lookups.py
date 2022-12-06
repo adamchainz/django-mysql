@@ -70,8 +70,8 @@ class SetContains(Lookup):
     ) -> tuple[str, Iterable[Any]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = tuple(lhs_params) + tuple(rhs_params)
-        # Put rhs on the left since that's the order FIND_IN_SET uses
+        # Put rhs (and params) on the left since that's the order FIND_IN_SET uses
+        params = tuple(rhs_params) + tuple(lhs_params)
         return f"FIND_IN_SET({rhs}, {lhs})", params
 
 
