@@ -2,6 +2,9 @@
 History
 =======
 
+4.8.0 (2022-12-06)
+------------------
+
 * Make ``MySQLCache.touch()`` return ``True`` if the key was touched, ``False`` otherwise.
   This return value was missing since the method was added for Django 2.1.
 
