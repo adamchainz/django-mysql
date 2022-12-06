@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from unittest import SkipTest
 
 import pytest
@@ -32,13 +31,9 @@ from django_mysql.models.functions import JSONLength
 from django_mysql.models.functions import JSONReplace
 from django_mysql.models.functions import JSONSet
 from django_mysql.models.functions import LastInsertId
-from django_mysql.models.functions import MD5
 from django_mysql.models.functions import RegexpInstr
 from django_mysql.models.functions import RegexpReplace
 from django_mysql.models.functions import RegexpSubstr
-from django_mysql.models.functions import SHA1
-from django_mysql.models.functions import SHA2
-from django_mysql.models.functions import Sign
 from django_mysql.models.functions import UpdateXML
 from django_mysql.models.functions import XMLExtractValue
 from tests.testapp.models import Alphabet
@@ -140,24 +135,6 @@ class NumericFunctionTests(TestCase):
         # Precalculated this in MySQL prompt. Python's binascii.crc32 doesn't
         # match - maybe sign issues?
         assert ab.crc == 2854018686
-
-    def test_sign(self):
-        Alphabet.objects.create(a=123, b=0, c=-999)
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            kwargs = {
-                "asign": Sign("a"),
-                "bsign": Sign("b"),
-                "csign": Sign("c"),
-            }
-
-        ab = Alphabet.objects.annotate(**kwargs).get()
-
-        assert ab.asign == 1
-        assert ab.bsign == 0
-        assert ab.csign == -1
 
 
 class StringFunctionTests(TestCase):
@@ -297,67 +274,6 @@ class XMLFunctionTests(TestCase):
         Alphabet.objects.create(d='{"this": "isNotXML"}')
         ab = Alphabet.objects.annotate(ev=XMLExtractValue("d", "/some")).get()
         assert ab.ev == ""
-
-
-class EncryptionFunctionTests(TestCase):
-    def test_md5_string(self):
-        string = "A string"
-        Alphabet.objects.create(d=string)
-        pymd5 = hashlib.md5(string.encode("ascii")).hexdigest()
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            md5 = MD5("d")
-        ab = Alphabet.objects.annotate(md5=md5).get()
-
-        assert ab.md5 == pymd5
-
-    def test_sha1_string(self):
-        string = "A string"
-        Alphabet.objects.create(d=string)
-        pysha1 = hashlib.sha1(string.encode("ascii")).hexdigest()
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            sha1 = SHA1("d")
-        ab = Alphabet.objects.annotate(sha=sha1).get()
-
-        assert ab.sha == pysha1
-
-    def test_sha2_string(self):
-        string = "A string"
-        Alphabet.objects.create(d=string)
-
-        for hash_len in (224, 256, 384, 512):
-            sha_func = getattr(hashlib, f"sha{hash_len}")
-            pysha = sha_func(string.encode("ascii")).hexdigest()
-
-            with self.assertWarnsMessage(
-                DeprecationWarning, "This function is deprecated."
-            ):
-                sha2 = SHA2("d", hash_len)
-            ab = Alphabet.objects.annotate(sha=sha2).get()
-
-            assert ab.sha == pysha
-
-    def test_sha2_string_hash_len_default(self):
-        string = "A string"
-        Alphabet.objects.create(d=string)
-        pysha512 = hashlib.sha512(string.encode("ascii")).hexdigest()
-
-        with self.assertWarnsMessage(
-            DeprecationWarning, "This function is deprecated."
-        ):
-            sha2 = SHA2("d")
-        ab = Alphabet.objects.annotate(sha=sha2).get()
-
-        assert ab.sha == pysha512
-
-    def test_sha2_bad_hash_len(self):
-        with pytest.raises(ValueError):
-            SHA2("a", 123)
 
 
 class InformationFunctionTests(TestCase):

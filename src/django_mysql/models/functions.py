@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import warnings
 from typing import Any
 from typing import Union
 
@@ -59,22 +58,6 @@ class If(Func):
 class CRC32(SingleArgFunc):
     function = "CRC32"
     output_field_class = IntegerField
-
-
-class Sign(SingleArgFunc):
-    function = "SIGN"
-    output_field_class = IntegerField
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn(
-            (
-                "This function is deprecated. Use "
-                + "django.db.models.functions.Sign instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)
 
 
 # String Functions
@@ -168,57 +151,6 @@ class XMLExtractValue(Func):
             xpath_expr = Value(xpath_expr)
 
         return super().__init__(xml_frag, xpath_expr, output_field=TextField())
-
-
-# Encryption Functions
-
-
-class MD5(SingleArgFunc):
-    function = "MD5"
-    output_field_class = CharField
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn(
-            "This function is deprecated. Use django.db.models.functions.MD5 instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)
-
-
-class SHA1(SingleArgFunc):
-    function = "SHA1"
-    output_field_class = CharField
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn(
-            "This function is deprecated. Use django.db.models.functions.SHA1 instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)
-
-
-class SHA2(Func):
-    function = "SHA2"
-    hash_lens = (224, 256, 384, 512)
-
-    def __init__(self, expression: ExpressionArgument, hash_len: int = 512) -> None:
-        if hash_len not in self.hash_lens:
-            raise ValueError(
-                "hash_len must be one of {}".format(
-                    ",".join(str(x) for x in self.hash_lens)
-                )
-            )
-        warnings.warn(
-            (
-                "This function is deprecated. Use "
-                + "django.db.models.functions.SHA{hash_len} instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(expression, Value(hash_len), output_field=TextField())
 
 
 # Information Functions
