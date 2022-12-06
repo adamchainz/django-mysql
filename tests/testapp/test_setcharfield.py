@@ -129,7 +129,10 @@ class TestSaveLoad(TestCase):
         instance = CharSetModel.objects.create(field={"MOULDY", "rotten"})
 
         mouldy = CharSetModel.objects.annotate(
-            ufield=Upper(Concat("field", Value("")))
+            ufield=Upper(
+                Concat("field", Value("")),
+                output_field=SetCharField(base_field=models.CharField(max_length=8)),
+            )
         ).filter(ufield__contains=Upper(Value("Mouldy")))
 
         assert set(mouldy) == {instance}

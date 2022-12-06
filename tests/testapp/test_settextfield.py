@@ -9,9 +9,9 @@ from django.core import serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
+from django.db.models import Value
 from django.db.models.functions import Concat
 from django.db.models.functions import Upper
-from django.db.models.functions import Value
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test.utils import isolate_apps
@@ -126,7 +126,10 @@ class TestSaveLoad(TestCase):
         instance = BigCharSetModel.objects.create(field={"MOULDY", "rotten"})
 
         mouldy = BigCharSetModel.objects.annotate(
-            ufield=Upper(Concat("field", Value("")))
+            ufield=Upper(
+                Concat("field", Value("")),
+                output_field=SetTextField(base_field=models.CharField(max_length=8)),
+            )
         ).filter(ufield__contains=Upper(Value("Mouldy")))
 
         assert set(mouldy) == {instance}
