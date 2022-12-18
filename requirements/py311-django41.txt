@@ -64,9 +64,9 @@ coverage==6.5.0 \
     --hash=sha256:f642e90754ee3e06b0e7e51bce3379590e76b7f76b708e1a71ff043f87025c84 \
     --hash=sha256:fc2af30ed0d5ae0b1abdb4ebdce598eafd5b35397d4d75deb341a614d333d987
     # via -r requirements.in
-django==4.1.3 \
-    --hash=sha256:678bbfc8604eb246ed54e2063f0765f13b321a50526bdc8cb1f943eda7fa31f1 \
-    --hash=sha256:6b1de6886cae14c7c44d188f580f8ba8da05750f544c80ae5ad43375ab293cd5
+django==4.1.4 \
+    --hash=sha256:0b223bfa55511f950ff741983d408d78d772351284c75e9f77d2b830b6b4d148 \
+    --hash=sha256:d38a4e108d2386cb9637da66a82dc8d0733caede4c83c4afdbda78af4214211b
     # via
     #   -r requirements.in
     #   django-jsonfield-backport
@@ -87,9 +87,9 @@ iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
     # via pytest
-mariadb-dyncol==3.6.0 \
-    --hash=sha256:5d72fb8da997386a91a0fcede2923077385dcf673560f0a8ba1793adc084e7e6 \
-    --hash=sha256:64ba55d8bd9299c9fd15dff2d0c90dd1692290e84dcf23e1d6c67f118cf45c85
+mariadb-dyncol==3.6.1 \
+    --hash=sha256:843cc1cd56e6e696e75331f644cfc30ff9f20a40741267ed3cf86a2093994804 \
+    --hash=sha256:cc63fe28fa5dad4d843f665fad0ae091db3756f0a51d1fded5b2861304359724
     # via -r requirements.in
 mccabe==0.7.0 \
     --hash=sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325 \
@@ -104,9 +104,9 @@ mysqlclient==2.1.1 \
     --hash=sha256:c812b67e90082a840efb82a8978369e6e69fc62ce1bda4ca8f3084a9d862308b \
     --hash=sha256:dea88c8d3f5a5d9293dfe7f087c16dd350ceb175f2f6631c9cf4caf3e19b7a96
     # via -r requirements.in
-packaging==21.3 \
-    --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
-    --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
+packaging==22.0 \
+    --hash=sha256:2198ec20bd4c017b8f9717e00f0c8714076fc2fd93816750ab48e2c41de2cfd3 \
+    --hash=sha256:957e2148ba0e1a3b282772e791ef1d8083648bc131c8ab0c1feba110ce1146c3
     # via pytest
 parameterized==0.8.1 \
     --hash=sha256:41bbff37d6186430f77f900d777e5bb6a24928a1c46fb1de692f8b52b8833b5c \
@@ -124,10 +124,6 @@ pyflakes==3.0.1 \
     --hash=sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf \
     --hash=sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd
     # via flake8
-pyparsing==3.0.9 \
-    --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
-    --hash=sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc
-    # via packaging
 pytest==7.2.0 \
     --hash=sha256:892f933d339f068883b6fd5a459f03d85bfcb355e4981e146d2c7616c21fef71 \
     --hash=sha256:c4014eb40e10f11f355ad4e3c2fb2c6c6d1919c73f3b5a433de4708202cade59
