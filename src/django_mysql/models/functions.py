@@ -383,7 +383,7 @@ class AsType(Func):
             expression = Value(expression)
 
         if data_type not in KeyTransform.TYPE_MAP and data_type != "BINARY":
-            raise ValueError(f"Invalid data_type '{data_type}'")
+            raise ValueError(f"Invalid data_type {data_type!r}")
 
         super().__init__(expression, data_type=data_type)
 

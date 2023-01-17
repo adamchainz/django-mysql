@@ -78,7 +78,7 @@ class GroupConcat(Aggregate):
             sql.append(self.ordering.upper())
 
         if self.separator is not None:
-            sql.append(f" SEPARATOR '{self.separator}'")
+            sql.append(f" SEPARATOR '{self.separator}'")  # noqa: B028
 
         sql.append(")")
 
