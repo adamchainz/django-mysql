@@ -43,7 +43,7 @@ class override_mysql_variables:
 
         if isinstance(test_func, type):
             if not issubclass(test_func, TestCase):
-                raise Exception(
+                raise TypeError(
                     "{} only works with TestCase classes.".format(
                         self.__class__.__name__
                     )

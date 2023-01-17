@@ -35,7 +35,7 @@ class BaseStatus:
         with self.get_cursor() as cursor:
             num_rows = cursor.execute(self.query + " LIKE %s", (name,))
             if num_rows == 0:
-                raise KeyError(f"No such status variable '{name}'")
+                raise KeyError(f"No such status variable {name!r}")
             return self._cast(cursor.fetchone()[1])
 
     def get_many(self, names: Iterable[str]) -> dict[str, int | float | bool | str]:

@@ -57,9 +57,9 @@ class Command(BaseCommand):
         try:
             connection = connections[alias]
         except ConnectionDoesNotExist:
-            raise CommandError(f"Connection '{alias}' does not exist")
+            raise CommandError(f"Connection {alias!r} does not exist")
         if connection.vendor != "mysql":
-            raise CommandError(f"{alias} is not a MySQL database connection")
+            raise CommandError(f"{alias!r} is not a MySQL database connection")
 
         if show_mysql and show_dsn:
             raise CommandError("Pass only one of --mysql and --dsn")

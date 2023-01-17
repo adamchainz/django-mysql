@@ -39,7 +39,7 @@ class Command(BaseCommand):
             try:
                 cache = caches[alias]
             except InvalidCacheBackendError:
-                raise CommandError(f"Cache '{alias}' does not exist")
+                raise CommandError(f"Cache {alias!r} does not exist")
 
             if not isinstance(cache, MySQLCache):  # pragma: no cover
                 continue

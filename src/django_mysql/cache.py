@@ -524,7 +524,7 @@ class MySQLCache(BaseDatabaseCache):
             return pickle.loads(raw_value)
 
         raise ValueError(
-            f"Unknown value_type '{value_type}' read from the cache table."
+            f"Unknown value_type {value_type!r} read from the cache table."
         )
 
     def _maybe_cull(self) -> None:

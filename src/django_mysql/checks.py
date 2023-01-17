@@ -46,7 +46,7 @@ def check_variables(
 
 def innodb_strict_mode_warning(alias: str) -> checks.Warning:
     return checks.Warning(
-        f"InnoDB Strict Mode is not set for database connection '{alias}'",
+        f"InnoDB Strict Mode is not set for database connection {alias!r}",
         hint=(
             "InnoDB Strict Mode escalates several warnings around "
             + "InnoDB-specific statements into errors. It's recommended you "
@@ -61,7 +61,7 @@ def innodb_strict_mode_warning(alias: str) -> checks.Warning:
 
 def utf8mb4_warning(alias: str) -> checks.Warning:
     return checks.Warning(
-        f"The character set is not utf8mb4 for database connection '{alias}'",
+        f"The character set is not utf8mb4 for database connection {alias!r}",
         hint=(
             "The default 'utf8' character set does not include support for "
             + "all Unicode characters. It's strongly recommended you move to "

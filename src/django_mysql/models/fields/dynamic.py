@@ -170,7 +170,7 @@ class DynamicField(Field):
             if not isinstance(key, str):
                 errors.append(
                     checks.Error(
-                        f"The key '{key}' in 'spec{path}' is not a string",
+                        f"The key {key!r} in 'spec{path}' is not a string",
                         hint="'spec' keys must be of type str, "
                         "'{}' is of type {}".format(key, type(key).__name__),
                         obj=self,

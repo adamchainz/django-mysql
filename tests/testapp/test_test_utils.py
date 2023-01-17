@@ -34,7 +34,7 @@ class OverrideVarsClassTest(OverrideVarsMethodTest):
         self.check_timestamp(456, using="other")
 
     def test_it_fails_on_non_test_classes(self):
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError):
 
             @override_mysql_variables(TIMESTAMP=123)
             class MyClass:
