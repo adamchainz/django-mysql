@@ -2,9 +2,10 @@
 History
 =======
 
+* Support Django 4.2.
+
 * Drop support for MySQL 5.7 and MariaDB 10.3.
   They will both reach EOL this year, and Django 4.2 does not support them.
-  (No actual functionality has been removed, just testing of these versions.)
 
 4.8.0 (2022-12-06)
 ------------------
