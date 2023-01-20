@@ -5,7 +5,7 @@ from django.db.backends.mysql.base import DatabaseWrapper as BaseDatabaseWrapper
 
 class DatabaseWrapper(BaseDatabaseWrapper):
     def init_connection_state(self):
-        if not self.mysql_is_mariadb and self.mysql_version >= (8,):
+        if not self.mysql_is_mariadb:
             sql_mode = ",".join(
                 [
                     "ERROR_FOR_DIVISION_BY_ZERO",
