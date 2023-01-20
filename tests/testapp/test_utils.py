@@ -98,7 +98,7 @@ class IndexNameTests(TestCase):
 
     def test_secondary_multiple_fields(self):
         name = index_name(AuthorMultiIndex, "name", "country")
-        assert name.startswith("testapp_authormultiindex")
+        assert name == "testapp_authormultiindex_uniq"
 
     def test_secondary_multiple_fields_non_existent_reversed_existent(self):
         # Checks that order is preserved

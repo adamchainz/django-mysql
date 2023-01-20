@@ -12,6 +12,7 @@ from django.db.models import CharField
 from django.db.models import DateTimeField
 from django.db.models import DecimalField
 from django.db.models import ForeignKey
+from django.db.models import Index
 from django.db.models import IntegerField
 from django.db.models import JSONField
 from django.db.models import Model as VanillaModel
@@ -178,7 +179,9 @@ class NameAuthorExtra(Model):
 
 class AuthorMultiIndex(Model):
     class Meta:
-        index_together = ("name", "country")
+        indexes = [
+            Index(fields=("name", "country"), name="testapp_authormultiindex_uniq")
+        ]
 
     name = CharField(max_length=32, db_index=True)
     country = CharField(max_length=32)
