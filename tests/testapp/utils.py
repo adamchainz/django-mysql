@@ -26,11 +26,9 @@ def conn_is_mysql(connection: BaseDatabaseWrapper) -> TypeGuard[MySQLDatabaseWra
 
 
 @contextmanager
-def skip_if_mysql_8_plus() -> Generator[None, None, None]:
-    if not conn_is_mysql(connection) or (
-        not connection.mysql_is_mariadb and connection.mysql_version >= (8,)
-    ):
-        pytest.skip("Requires MySQL<8 or MariaDB")
+def skip_if_mysql() -> Generator[None, None, None]:
+    if not connection.mysql_is_mariadb:
+        pytest.skip("Requires MariaDB")
     yield
 
 

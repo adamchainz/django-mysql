@@ -31,7 +31,7 @@ from tests.testapp.models import NameAuthor
 from tests.testapp.models import NameAuthorExtra
 from tests.testapp.models import VanillaAuthor
 from tests.testapp.utils import CaptureLastQuery
-from tests.testapp.utils import skip_if_mysql_8_plus
+from tests.testapp.utils import skip_if_mysql
 from tests.testapp.utils import used_indexes
 
 
@@ -180,13 +180,13 @@ class QueryHintTests(TestCase):
 
         assert "DJANGO_MYSQL_REWRITE_QUERIES" in str(excinfo.value)
 
-    @skip_if_mysql_8_plus()
+    @skip_if_mysql()
     def test_sql_cache(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.sql_cache().all())
         assert cap.query.startswith("SELECT SQL_CACHE ")
 
-    @skip_if_mysql_8_plus()
+    @skip_if_mysql()
     def test_sql_no_cache(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.sql_no_cache().all())

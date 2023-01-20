@@ -251,8 +251,8 @@ Once you’ve done this, the following methods will work.
 
     .. warning::
 
-        The query cache is disabled by default in MySQL 5.7.20+ and MariaDB
-        10.1.7+, and removed in MySQL 8.0+.
+        The query cache was removed in MySQL 8.0, and is disabled by default
+        from MariaDB 10.1.7.
 
     Example usage:
 
@@ -262,7 +262,6 @@ Once you’ve done this, the following methods will work.
         recent_posts = BlogPost.objects.sql_cache().order_by("-created")[:5]
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`__.
 
@@ -276,8 +275,8 @@ Once you’ve done this, the following methods will work.
 
     .. warning::
 
-        The query cache is disabled by default in MySQL 5.7.20+ and MariaDB
-        10.1.7+, and removed in MySQL 8.0+.
+        The query cache was removed in MySQL 8.0, and is disabled by default
+        from MariaDB 10.1.7.
 
     Example usage:
 
@@ -290,7 +289,6 @@ Once you’ve done this, the following methods will work.
         )
 
     Docs:
-    `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
     <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`__.
 
