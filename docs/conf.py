@@ -48,8 +48,8 @@ extensions = [
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = [
+    ".venv",
     "_build",
-    "venv",
 ]
 
 # -- Options for HTML output -------------------------------------------
