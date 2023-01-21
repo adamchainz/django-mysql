@@ -1,1 +1,1 @@
-See https://github.com/adamchainz/django-mysql/blob/main/CHANGELOG.rst
+See https://django-mysql.readthedocs.io/en/latest/changelog.html

@@ -31,7 +31,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    test_utilities
    exceptions
    contributing
-   history
+   changelog
 
 Indices and tables
 ==================
