@@ -79,6 +79,10 @@ html_favicon = "_static/favicon.ico"
 # "default.css".
 html_static_path = ["_static"]
 
+epub_exclude_files = [
+    "_static/favicon.ico",
+]
+
 # -- Options for LaTeX output ------------------------------------------
 
 # Grouping the document tree into LaTeX files. List of tuples
