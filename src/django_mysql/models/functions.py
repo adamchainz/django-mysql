@@ -25,7 +25,6 @@ ExpressionArgument = Union[
 
 
 class SingleArgFunc(Func):
-
     output_field_class: type[DjangoField]
 
     def __init__(self, expression: ExpressionArgument) -> None:

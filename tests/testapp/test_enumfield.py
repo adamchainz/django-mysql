@@ -101,7 +101,6 @@ class TestEnumField(TestCase):
 
 
 class TestCheck(TestCase):
-
     databases = {"default", "other"}
 
     def test_check(self):

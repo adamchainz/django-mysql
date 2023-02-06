@@ -256,7 +256,6 @@ class DynamicField(Field):
     ) -> None:
         for key, subspec in spec.items():
             if key in value:
-
                 expected_type = dict if isinstance(subspec, dict) else subspec
                 if not isinstance(value[key], expected_type):
                     raise TypeError(
@@ -304,7 +303,6 @@ DynamicField.register_lookup(DynColHasKey)
 
 
 class KeyTransform(Transform):
-
     SPEC_MAP = {
         dt.date: "DATE",
         dt.datetime: "DATETIME",

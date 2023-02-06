@@ -277,7 +277,6 @@ class XMLFunctionTests(TestCase):
 
 
 class InformationFunctionTests(TestCase):
-
     databases = {"default", "other"}
 
     def test_last_insert_id(self):

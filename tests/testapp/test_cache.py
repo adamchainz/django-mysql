@@ -125,7 +125,6 @@ def override_cache_settings(
 
 
 class MySQLCacheTableMixin(TransactionTestCase):
-
     table_name = "test cache table"
 
     @classmethod
@@ -307,12 +306,12 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             "ascii2": {"x": 1},
         }
         # Test `set`
-        for (key, value) in stuff.items():
+        for key, value in stuff.items():
             cache.set(key, value)
             assert cache.get(key) == value
 
         # Test `add`
-        for (key, value) in stuff.items():
+        for key, value in stuff.items():
             cache.delete(key)
             cache.add(key, value)
             assert cache.get(key) == value
@@ -321,7 +320,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         for key, _value in stuff.items():
             cache.delete(key)
         cache.set_many(stuff)
-        for (key, value) in stuff.items():
+        for key, value in stuff.items():
             assert cache.get(key) == value
 
     def test_binary_string(self):
@@ -474,7 +473,6 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert caches["v2"].get("answer4", version=2) is None
 
     def test_cache_versioning_add(self):
-
         # add, default version = 1, but manually override version = 2
         cache.add("answer1", 42, version=2)
         assert cache.get("answer1", version=1) is None

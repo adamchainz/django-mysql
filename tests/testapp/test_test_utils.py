@@ -22,7 +22,6 @@ class OverrideVarsMethodTest(TestCase):
 
 @override_mysql_variables(TIMESTAMP=123)
 class OverrideVarsClassTest(OverrideVarsMethodTest):
-
     databases = {"default", "other"}
 
     def test_class_decorator(self):

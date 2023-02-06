@@ -7,7 +7,6 @@ from django_mysql.models import SetCharField
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("testapp", "0001_initial")]
 
     operations = [

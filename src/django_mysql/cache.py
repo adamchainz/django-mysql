@@ -112,7 +112,6 @@ def get_reverse_key_func(
 
 
 class MySQLCache(BaseDatabaseCache):
-
     # Got an error with the add() query using BIGINT_UNSIGNED_MAX, so use a
     # value slightly 1 bit less (still an incalculable time into the future of
     # 1970)
@@ -258,7 +257,6 @@ class MySQLCache(BaseDatabaseCache):
 
         self._maybe_cull()
         with connections[db].cursor() as cursor:
-
             value, value_type = self.encode(value)
 
             params: tuple[Any, ...]
