@@ -33,7 +33,6 @@ class BaseStatusTests(TestCase):
 
 
 class GlobalStatusTests(TestCase):
-
     databases = {"default", "other"}
 
     def test_get(self):
@@ -124,7 +123,6 @@ class GlobalStatusTests(TestCase):
 
 
 class SessionStatusTests(TestCase):
-
     databases = {"default", "other"}
 
     def test_get_bytes_received(self):

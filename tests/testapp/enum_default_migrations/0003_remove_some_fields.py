@@ -6,7 +6,6 @@ from django_mysql.models import EnumField
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("testapp", "0002_add_some_fields")]
 
     operations = [

@@ -35,7 +35,6 @@ class GroupConcat(Aggregate):
         ordering: str | None = None,
         **extra: Any,
     ) -> None:
-
         if "output_field" not in extra:
             # This can/will be improved to SetTextField or ListTextField
             extra["output_field"] = CharField()

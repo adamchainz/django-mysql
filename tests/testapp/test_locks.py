@@ -25,7 +25,6 @@ from tests.testapp.models import TitledAgedCustomer
 
 
 class LockTests(TestCase):
-
     databases = {"default", "other"}
 
     supports_lock_info: bool
@@ -221,7 +220,6 @@ class LockTests(TestCase):
 
 
 class TableLockTests(TransactionTestCase):
-
     databases = {"default", "other"}
 
     def tearDown(self):

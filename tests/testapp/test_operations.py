@@ -42,7 +42,6 @@ def table_storage_engine(table_name: str) -> str:
 
 
 class PluginOperationTests(TransactionTestCase):
-
     databases = {"default", "other"}
 
     @classmethod

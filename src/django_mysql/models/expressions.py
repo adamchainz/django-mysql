@@ -48,7 +48,6 @@ class ListF:
 
 
 class AppendListF(TwoSidedExpression):
-
     # A slightly complicated expression.
     # basically if 'value' is not in the set, concat the current set with a
     # comma and 'value'
@@ -83,7 +82,6 @@ class AppendListF(TwoSidedExpression):
 
 
 class AppendLeftListF(TwoSidedExpression):
-
     # A slightly complicated expression.
     # basically if 'value' is not in the set, concat the current set with a
     # comma and 'value'
@@ -118,7 +116,6 @@ class AppendLeftListF(TwoSidedExpression):
 
 
 class PopListF(BaseExpression):
-
     sql_expression = collapse_spaces(
         """
         SUBSTRING(
@@ -159,7 +156,6 @@ class PopListF(BaseExpression):
 
 
 class PopLeftListF(BaseExpression):
-
     sql_expression = collapse_spaces(
         """
         IF(
@@ -207,7 +203,6 @@ class SetF:
 
 
 class AddSetF(TwoSidedExpression):
-
     # A slightly complicated expression.
     # basically if 'value' is not in the set, concat the current set with a
     # comma and 'value'
@@ -242,7 +237,6 @@ class AddSetF(TwoSidedExpression):
 
 
 class RemoveSetF(TwoSidedExpression):
-
     # Wow, this is a real doozy of an expression.
     # Basically, if it IS in the set, cut the string up to be everything except
     # that element.

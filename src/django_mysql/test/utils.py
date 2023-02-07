@@ -75,7 +75,6 @@ class override_mysql_variables:
 
     def enable(self) -> None:
         with connections[self.db].cursor() as cursor:
-
             for key, value in self.options.items():
                 cursor.execute(
                     """SET @overridden_{prefix}_{name} = @@{name},
@@ -88,7 +87,6 @@ class override_mysql_variables:
 
     def disable(self) -> None:
         with connections[self.db].cursor() as cursor:
-
             for key in self.options:
                 cursor.execute(
                     """SET @@{name} = @overridden_{prefix}_{name},

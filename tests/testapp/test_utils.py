@@ -68,7 +68,6 @@ class FormatDurationTests(SimpleTestCase):
 
 
 class IndexNameTests(TestCase):
-
     databases = {"default", "other"}
 
     def test_requires_field_names(self):

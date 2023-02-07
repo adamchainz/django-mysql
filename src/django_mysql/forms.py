@@ -15,7 +15,6 @@ from django_mysql.validators import SetMinLengthValidator
 
 
 class SimpleListField(forms.CharField):
-
     default_error_messages = {
         "item_n_invalid": _("Item %(nth)s in the list did not validate: "),
         "no_double_commas": _("No leading, trailing, or double commas."),

@@ -300,7 +300,6 @@ class SpeclessQueryTests(DynColTestCase):
 
 @isolate_apps("tests.testapp")
 class TestCheck(DynColTestCase):
-
     databases = {"default", "other"}
 
     def test_db_not_mariadb(self):

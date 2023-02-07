@@ -143,9 +143,7 @@ def modify_sql(
 
     # Don't bother with SELECT rewrite rules on non-SELECT queries
     if tokens[0] == "SELECT":
-
         for group_name, hint_set in SELECT_HINTS.items():
-
             try:
                 # Take the last hint we were told to add from this hint_set
                 to_add = [hint for hint in add_hints if hint in hint_set][-1]
