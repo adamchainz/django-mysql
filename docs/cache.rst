@@ -407,7 +407,6 @@ Or as a reversible migration:
 
 
     class Migration(migrations.Migration):
-
         dependencies = []
 
         operations = [

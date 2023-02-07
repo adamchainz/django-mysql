@@ -44,7 +44,6 @@ Install Plugin
 
 
         class Migration(migrations.Migration):
-
             dependencies = []
 
             operations = [
@@ -85,7 +84,6 @@ Install SOName
 
 
         class Migration(migrations.Migration):
-
             dependencies = []
 
             operations = [
@@ -132,7 +130,6 @@ Alter Storage Engine
 
 
         class Migration(migrations.Migration):
-
             dependencies = []
 
             operations = [AlterStorageEngine("Pony", from_engine="MyISAM", to_engine="InnoDB")]
