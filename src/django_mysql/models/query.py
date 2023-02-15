@@ -375,7 +375,7 @@ def add_QuerySetMixin(queryset: models.QuerySet) -> models.QuerySet:
 
 @cache
 def _make_mixin_class(klass: type[models.QuerySet]) -> type[QuerySetMixin]:
-    class MixedInQuerySet(QuerySetMixin, klass):  # type: ignore [valid-type,misc]
+    class MixedInQuerySet(QuerySetMixin, klass):
         pass
 
     MixedInQuerySet.__name__ = "MySQL" + klass.__name__
