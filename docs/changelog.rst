@@ -2,6 +2,9 @@
 Changelog
 =========
 
+4.9.0 (2023-02-25)
+------------------
+
 * Support Django 4.2.
 
 * Drop support for MySQL 5.7 and MariaDB 10.3.
