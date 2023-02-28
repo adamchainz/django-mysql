@@ -30,3 +30,9 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 allow_untyped_defs = true
+
+[tool.rstcheck]
+ignore_directives = [
+  "automodule",
+]
+report_level = "ERROR"
