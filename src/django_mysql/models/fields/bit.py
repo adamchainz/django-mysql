@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.db import models
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import BooleanField
 from django.db.models import Expression
 
 
@@ -29,10 +29,9 @@ class Bit1Mixin:
             return 1 if value else 0
 
 
-class Bit1BooleanField(Bit1Mixin, BooleanField):
+class Bit1BooleanField(Bit1Mixin, models.BooleanField):
     pass
 
 
-class NullBit1BooleanField(Bit1Mixin, BooleanField):
-    def __init__(self, *args: Any, null: bool = False, **kwargs: Any) -> None:
-        super().__init__(*args, null=True, **kwargs)
+class NullBit1BooleanField(Bit1Mixin, models.NullBooleanField):
+    pass
