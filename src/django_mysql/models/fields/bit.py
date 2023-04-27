@@ -5,7 +5,6 @@ from typing import Any
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import BooleanField
 from django.db.models import Expression
-from django.db.models import NullBooleanField
 
 
 class Bit1Mixin:
@@ -34,5 +33,6 @@ class Bit1BooleanField(Bit1Mixin, BooleanField):
     pass
 
 
-class NullBit1BooleanField(Bit1Mixin, NullBooleanField):
-    pass
+class NullBit1BooleanField(Bit1Mixin, BooleanField):
+    def __init__(self, *args: Any, null: bool = False, **kwargs: Any) -> None:
+        super().__init__(*args, null=True, **kwargs)
