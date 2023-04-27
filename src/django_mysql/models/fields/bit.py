@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.db import models
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import BooleanField
 from django.db.models import Expression
-from django.db.models import NullBooleanField
 
 
 class Bit1Mixin:
@@ -30,9 +29,9 @@ class Bit1Mixin:
             return 1 if value else 0
 
 
-class Bit1BooleanField(Bit1Mixin, BooleanField):
+class Bit1BooleanField(Bit1Mixin, models.BooleanField):
     pass
 
 
-class NullBit1BooleanField(Bit1Mixin, NullBooleanField):
+class NullBit1BooleanField(Bit1Mixin, models.NullBooleanField):
     pass
