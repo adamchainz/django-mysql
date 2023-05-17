@@ -21,7 +21,7 @@ Django-MySQL
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
-.. figure:: https://raw.github.com/adamchainz/django-mysql/main/docs/images/dolphin-pony.png
+.. figure:: https://raw.githubusercontent.com/adamchainz/django-mysql/main/docs/images/dolphin-pony.png
    :alt: The dolphin-pony - proof that cute + cute = double cute.
 
 ..
