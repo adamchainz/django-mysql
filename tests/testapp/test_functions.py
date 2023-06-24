@@ -6,7 +6,8 @@ import pytest
 from django.db import connection
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.mysql.compiler import SQLCompiler
-from django.db.models import F, Expression
+from django.db.models import Expression
+from django.db.models import F
 from django.db.models import FloatField
 from django.db.models import IntegerField
 from django.db.models import Q
