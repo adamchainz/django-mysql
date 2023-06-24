@@ -15,7 +15,7 @@ from django.db.models.functions import Upper
 from django.test import TestCase
 from packaging.version import Version
 
-from django_mysql.models.functions import AsType, NaturalSortKey
+from django_mysql.models.functions import AsType
 from django_mysql.models.functions import ColumnAdd
 from django_mysql.models.functions import ColumnDelete
 from django_mysql.models.functions import ColumnGet
@@ -32,6 +32,7 @@ from django_mysql.models.functions import JSONLength
 from django_mysql.models.functions import JSONReplace
 from django_mysql.models.functions import JSONSet
 from django_mysql.models.functions import LastInsertId
+from django_mysql.models.functions import NaturalSortKey
 from django_mysql.models.functions import RegexpInstr
 from django_mysql.models.functions import RegexpReplace
 from django_mysql.models.functions import RegexpSubstr
