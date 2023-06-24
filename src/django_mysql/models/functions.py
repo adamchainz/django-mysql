@@ -129,7 +129,7 @@ class NaturalSortKey(Func):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
-        **extra_context,
+        **extra_context: dict[str, Any],
     ) -> tuple[str, tuple[Any, ...]]:
         if connection.vendor == "mysql" and not connection.mysql_is_mariadb:
             raise AssertionError("NATURAL_SORT_KEY is not supported by MySQL")

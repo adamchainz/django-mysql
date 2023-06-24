@@ -4,7 +4,9 @@ from unittest import SkipTest
 
 import pytest
 from django.db import connection
-from django.db.models import F
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.backends.mysql.compiler import SQLCompiler
+from django.db.models import F, Expression
 from django.db.models import FloatField
 from django.db.models import IntegerField
 from django.db.models import Q
@@ -226,11 +228,35 @@ class StringFunctionTests(TestCase):
         )
         assert avalues == [2, 1, 3, 4]
 
+    def test_natural_sort_key_with_mysql(self):
+        if connection.mysql_is_mariadb:
+            raise SkipTest("Test only makes sense on a MySQL connection")
+        expression = Expression(F("name"))
+        compiler = SQLCompiler(None, None, None)
+        key = NaturalSortKey(expression)
+
+        with pytest.raises(AssertionError) as excinfo:
+            key.as_sql(compiler, connection)
+        assert "NATURAL_SORT_KEY is not supported by MySQL" in str(excinfo.value)
+
+    def test_natural_sort_key_with_unsupported_mariadb_version(self):
+        if not connection.mysql_is_mariadb or Version(
+            ".".join(map(str, connection.mysql_version))
+        ) >= Version("10.7.0"):
+            raise SkipTest("Test only makes sense on a MariaDB<10.7.0")
+        expression = Expression(F("name"))
+        compiler = SQLCompiler(None, None, None)
+        key = NaturalSortKey(expression)
+
+        with pytest.raises(AssertionError) as excinfo:
+            key.as_sql(compiler, connection)
+        assert "NATURAL_SORT_KEY requires MariaDB:10.7.0+" in str(excinfo.value)
+
     def test_natural_sort_key(self):
         if not connection.mysql_is_mariadb or Version(
             ".".join(map(str, connection.mysql_version))
         ) < Version("10.7.0"):
-            raise SkipTest("MariaDB is required")
+            raise SkipTest("MariaDB:10.7.0+ is required")
 
         Alphabet.objects.create(a=1, d="b1")
         Alphabet.objects.create(a=2, d="a2")
