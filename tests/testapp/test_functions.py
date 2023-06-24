@@ -13,8 +13,9 @@ from django.db.models.functions import Length
 from django.db.models.functions import Lower
 from django.db.models.functions import Upper
 from django.test import TestCase
+from packaging.version import Version
 
-from django_mysql.models.functions import AsType
+from django_mysql.models.functions import AsType, NaturalSortKey
 from django_mysql.models.functions import ColumnAdd
 from django_mysql.models.functions import ColumnDelete
 from django_mysql.models.functions import ColumnGet
@@ -224,6 +225,21 @@ class StringFunctionTests(TestCase):
             )
         )
         assert avalues == [2, 1, 3, 4]
+
+    def test_natural_sort_key(self):
+        if not connection.mysql_is_mariadb or Version(
+            ".".join(map(str, connection.mysql_version))
+        ) < Version("10.7.0"):
+            raise SkipTest("MariaDB is required")
+
+        Alphabet.objects.create(a=1, d="b1")
+        Alphabet.objects.create(a=2, d="a2")
+        Alphabet.objects.create(a=3, d="a11")
+        Alphabet.objects.create(a=4, d="a1")
+        avalues = list(
+            Alphabet.objects.order_by(NaturalSortKey("d")).values_list("a", flat=True)
+        )
+        assert avalues == [4, 2, 3, 1]
 
 
 class XMLFunctionTests(TestCase):

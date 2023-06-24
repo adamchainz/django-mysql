@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+from packaging.version import Version
 from typing import Any
 from typing import Union
 
@@ -116,6 +117,25 @@ class Field(Func):
             values_exprs.append(v)
 
         super().__init__(field, *values_exprs)
+
+
+class NaturalSortKey(Func):
+    function = "NATURAL_SORT_KEY"
+
+    def __init__(self, expression: ExpressionArgument) -> None:
+        super().__init__(expression)
+
+    def as_sql(
+        self,
+        compiler: SQLCompiler,
+        connection: BaseDatabaseWrapper,
+        **extra_context,
+    ) -> tuple[str, tuple[Any, ...]]:
+        if connection.vendor == "mysql" and not connection.mysql_is_mariadb:
+            raise AssertionError("NATURAL_SORT_KEY is not supported by MySQL")
+        if Version(".".join(map(str, connection.mysql_version))) < Version("10.7.0"):
+            raise AssertionError("NATURAL_SORT_KEY requires MariaDB:10.7.0+")
+        return super().as_sql(compiler, connection, **extra_context)
 
 
 # XML Functions

@@ -135,6 +135,33 @@ String Functions
         >>> # Females, then males - but other values of gender (e.g. empty string) first
         >>> Person.objects.all().order_by(Field("gender", ["Female", "Male"]))
 
+.. class:: NaturalSortKey(expression)
+
+    .. note::
+        This works with MariaDB 10.7.0+ only. It is not supported by MySQL.
+        More information can be found in `its release notes
+        <https://mariadb.com/kb/en/mariadb-1070-release-notes/#natural-sort>`_.
+
+    Given an ``expression``, the NaturalSortKey function can be used for
+    sorting that is closer to natural sorting, providing a more intuitive
+    ordering. Strings are sorted in alphabetical order, while numbers are
+    treated in a way such that, for example, ``10`` is greater than ``2``,
+    whereas in other forms of sorting, ``2`` would be greater than ``10``,
+    just like ``z`` is greater than ``ya``.
+
+    Note that MariaDB's implementation ignores leading zeroes when performing the sort.
+
+    Docs:
+    `MariaDB <https://mariadb.com/kb/en/natural_sort_key/>`__.
+
+    Usage example:
+
+    .. code-block:: pycon
+
+        >>> # if your database contains strings ["a1", "a10", "a2"]
+        >>> Items.objects.order_by(NaturalSortKey("name"))
+        ["a1", "a2", "a10"]
+
 
 XML Functions
 -------------

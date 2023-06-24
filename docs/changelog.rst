@@ -2,6 +2,8 @@
 Changelog
 =========
 
+* Added support for NATURAL_SORT_KEY with MariaDB:10.7.0+
+
 4.10.0 (2023-06-16)
 -------------------
 
