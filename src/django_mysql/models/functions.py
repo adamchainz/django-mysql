@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from packaging.version import Version
 from typing import Any
 from typing import Union
 
@@ -18,6 +17,7 @@ from django.db.models import JSONField
 from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.sql.compiler import SQLCompiler
+from packaging.version import Version
 
 ExpressionArgument = Union[
     Expression,
