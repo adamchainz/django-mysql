@@ -3,7 +3,6 @@ from __future__ import annotations
 import builtins
 import pickle
 import re
-import sys
 import zlib
 from random import random
 from textwrap import dedent
@@ -12,6 +11,7 @@ from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Iterable
+from typing import Literal
 from typing import Tuple
 
 from django.core.cache.backends.base import BaseCache
@@ -25,14 +25,7 @@ from django.utils.module_loading import import_string
 from django_mysql.utils import collapse_spaces
 from django_mysql.utils import get_list_sql
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-
-    _BaseDeltaType = Literal["+", "-"]
-    _EncodedKeyType = Literal["i", "p", "z"]
-else:
-    _BaseDeltaType = str
-    _EncodedKeyType = str
+_EncodedKeyType = Literal["i", "p", "z"]
 
 BIGINT_SIGNED_MIN = -9223372036854775808
 BIGINT_SIGNED_MAX = 9223372036854775807
@@ -406,7 +399,7 @@ class MySQLCache(BaseDatabaseCache):
         key: str,
         delta: int,
         version: int | None,
-        operation: _BaseDeltaType,
+        operation: Literal["+", "-"],
     ) -> int:
         key = self.make_key(key, version=version)
         self.validate_key(key)

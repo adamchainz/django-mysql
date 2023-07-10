@@ -21,20 +21,6 @@ if __name__ == "__main__":
     # https://docs.djangoproject.com/en/3.0/ref/databases/#mysql-db-api-drivers
     subprocess.run(
         [
-            "python3.7",
-            *common_args,
-            "-P",
-            "Django>=3.2a1,<3.3",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
-            "py37-django32.txt",
-        ],
-        check=True,
-        capture_output=True,
-    )
-    subprocess.run(
-        [
             "python3.8",
             *common_args,
             "-P",

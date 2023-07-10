@@ -10,10 +10,11 @@ from functools import wraps
 from typing import Any
 from typing import Callable
 from typing import cast
-from typing import Dict
 from typing import Generator
+from typing import Literal
 from typing import Optional
 from typing import Tuple
+from typing import TypedDict
 from typing import TypeVar
 from typing import Union
 
@@ -37,25 +38,17 @@ from django_mysql.utils import WeightedAverageRate
 _Q = TypeVar("_Q", bound="QuerySetMixin")
 QueryRewriteFunc = TypeVar("QueryRewriteFunc", bound=Callable[..., Any])
 
-if sys.version_info >= (3, 8):
-    from typing import Literal, TypedDict
 
-    class _CountTriesApproxDict(TypedDict):
-        fall_back: bool
-        return_approx_int: bool
-        min_size: int
+class _CountTriesApproxDict(TypedDict):
+    fall_back: bool
+    return_approx_int: bool
+    min_size: int
 
-    _IndexHintForType = Optional[Literal["JOIN", "ORDER BY", "GROUP BY"]]
 
-    _SmartObjectsDoneType = Union[int, Literal["???"]]
-    _SmartPkRangeType = Union[None, Tuple[int, int], Literal["all"]]
-    _SmartDirectionType = Literal[-1, 1]
-else:
-    _CountTriesApproxDict = Dict[str, Any]
-    _IndexHintForType = Optional[str]
-    _SmartObjectsDoneType = Union[int, str]
-    _SmartPkRangeType = Union[None, Tuple[int, int], str]
-    _SmartDirectionType = int
+_IndexHintForType = Optional[Literal["JOIN", "ORDER BY", "GROUP BY"]]
+
+_SmartPkRangeType = Union[None, Tuple[int, int], Literal["all"]]
+_SmartDirectionType = Literal[-1, 1]
 
 
 def requires_query_rewrite(func: QueryRewriteFunc) -> QueryRewriteFunc:
@@ -394,7 +387,7 @@ class ApproximateInt(int):
 
 
 class SmartChunkedIterator:
-    objects_done: _SmartObjectsDoneType
+    objects_done: int | Literal["???"]
 
     def __init__(
         self,
