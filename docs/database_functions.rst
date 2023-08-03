@@ -95,8 +95,8 @@ String Functions
     Note that if ``number`` is a string, it will refer to a field, whereas
     members of ``values`` that are strings will be wrapped with ``Value``
     automatically and thus interpreted as the given string. This is for
-    convenience with the most common usage pattern where you have the list pre-
-    loaded in python, e.g. a ``choices`` field. If you want to refer to a
+    convenience with the most common usage pattern where you have the list
+    pre-loaded in python, e.g. a ``choices`` field. If you want to refer to a
     column, use Django's ``F()`` class.
 
     Docs:
@@ -364,7 +364,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_extract/>`.
+    `MariaDB <https://mariadb.com/kb/en/json_extract/>`__.
 
     Usage examples:
 
