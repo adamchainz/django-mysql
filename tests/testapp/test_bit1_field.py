@@ -190,11 +190,16 @@ else:
             class Invalid(models.Model):
                 nb = NullBit1BooleanField()
 
+            if django.VERSION >= (5, 0):
+                hint = "Use BooleanField(null=True, blank=True) instead."
+            else:
+                hint = "Use BooleanField(null=True) instead."
+
             assert Invalid.check() == [
                 checks.Error(
                     "NullBooleanField is removed except for support in historical "
                     "migrations.",
-                    hint="Use BooleanField(null=True) instead.",
+                    hint=hint,
                     obj=Invalid._meta.get_field("nb"),
                     id="fields.E903",
                 ),
