@@ -4,14 +4,15 @@ import warnings
 
 import django
 from django.db import connection
-from pytest_django.plugin import _blocking_manager
+from pytest_django.plugin import blocking_manager_key
 
 
 def pytest_report_header(config):
     dot_version = ".".join(str(x) for x in django.VERSION)
     header = "Django version: " + dot_version
 
-    with _blocking_manager.unblock(), connection._nodb_cursor() as cursor:
+    pytest_django_db_blocker = config.stash[blocking_manager_key]
+    with pytest_django_db_blocker.unblock(), connection._nodb_cursor() as cursor:
         cursor.execute("SELECT VERSION()")
         version = cursor.fetchone()[0]
         header += f"\nMySQL version: {version}"
