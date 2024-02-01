@@ -3,6 +3,7 @@ Implements a function for hoisting specially constructed comments in SQL
 queries and using them to rewrite that query. This is done to support query
 hints whilst obviating patching Django's ORM in complex ways.
 """
+
 from __future__ import annotations
 
 import operator
