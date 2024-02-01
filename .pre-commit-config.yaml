@@ -74,3 +74,8 @@ repos:
   rev: v1.8.0
   hooks:
   - id: mypy
+    args: ["--ignore-missing-imports", "--scripts-are-modules", "--show-traceback"]
+    additional_dependencies:
+    - django-stubs==1.16.0
+    - mysqlclient
+    - pytest==7.2.1

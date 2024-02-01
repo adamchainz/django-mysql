@@ -6,6 +6,8 @@ from typing import Callable
 from typing import cast
 from typing import TypeVar
 
+__all__ = ("cache",)
+
 if sys.version_info >= (3, 9):
     from functools import cache
 else:
