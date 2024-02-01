@@ -135,9 +135,7 @@ class UpdateXML(Func):
         if not hasattr(new_xml, "resolve_expression"):
             new_xml = Value(new_xml)
 
-        return super().__init__(
-            xml_target, xpath_expr, new_xml, output_field=TextField()
-        )
+        super().__init__(xml_target, xpath_expr, new_xml, output_field=TextField())
 
 
 class XMLExtractValue(Func):
@@ -149,7 +147,7 @@ class XMLExtractValue(Func):
         if not hasattr(xpath_expr, "resolve_expression"):
             xpath_expr = Value(xpath_expr)
 
-        return super().__init__(xml_frag, xpath_expr, output_field=TextField())
+        super().__init__(xml_frag, xpath_expr, output_field=TextField())
 
 
 # Information Functions
