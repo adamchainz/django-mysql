@@ -13,9 +13,9 @@ from django.db.models import Q
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test.utils import isolate_apps
-
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListTextField
+
 from tests.testapp.models import BigCharListModel
 from tests.testapp.models import BigIntListModel
 

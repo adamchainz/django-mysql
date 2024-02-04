@@ -11,11 +11,11 @@ from django.db.migrations.operations.base import Operation
 from django.db.migrations.state import ProjectState
 from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
-
 from django_mysql.operations import AlterStorageEngine
 from django_mysql.operations import InstallPlugin
 from django_mysql.operations import InstallSOName
 from django_mysql.test.utils import override_mysql_variables
+
 from tests.testapp.utils import conn_is_mysql
 
 

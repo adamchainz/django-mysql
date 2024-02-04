@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from django.db import migrations
 from django.db import models
-
 from django_mysql.models import EnumField
 
 

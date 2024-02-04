@@ -19,7 +19,6 @@ from django.db.models import Model as VanillaModel
 from django.db.models import OneToOneField
 from django.db.models import TextField
 from django.utils import timezone
-
 from django_mysql.models import Bit1BooleanField
 from django_mysql.models import DynamicField
 from django_mysql.models import EnumField
@@ -32,6 +31,7 @@ from django_mysql.models import SetCharField
 from django_mysql.models import SetTextField
 from django_mysql.models import SizedBinaryField
 from django_mysql.models import SizedTextField
+
 from tests.testapp.utils import conn_is_mysql
 
 

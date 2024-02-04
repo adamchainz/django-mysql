@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 from django.db import connections
 from django.test import TestCase
-
 from django_mysql.test.utils import override_mysql_variables
 
 

@@ -15,9 +15,9 @@ from django.db.models.functions import Upper
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test.utils import isolate_apps
-
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
+
 from tests.testapp.models import BigCharSetModel
 from tests.testapp.models import BigIntSetModel
 

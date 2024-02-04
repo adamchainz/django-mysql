@@ -13,14 +13,13 @@ from django.db.models.functions import Length
 from django.db.models.functions import Lower
 from django.db.models.functions import Upper
 from django.test import TestCase
-
+from django_mysql.models.functions import CRC32
+from django_mysql.models.functions import ELT
 from django_mysql.models.functions import AsType
 from django_mysql.models.functions import ColumnAdd
 from django_mysql.models.functions import ColumnDelete
 from django_mysql.models.functions import ColumnGet
 from django_mysql.models.functions import ConcatWS
-from django_mysql.models.functions import CRC32
-from django_mysql.models.functions import ELT
 from django_mysql.models.functions import Field
 from django_mysql.models.functions import If
 from django_mysql.models.functions import JSONArrayAppend
@@ -36,6 +35,7 @@ from django_mysql.models.functions import RegexpReplace
 from django_mysql.models.functions import RegexpSubstr
 from django_mysql.models.functions import UpdateXML
 from django_mysql.models.functions import XMLExtractValue
+
 from tests.testapp.models import Alphabet
 from tests.testapp.models import Author
 from tests.testapp.models import DynamicModel

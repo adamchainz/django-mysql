@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 from typing import Callable
-from typing import cast
 from typing import Iterable
+from typing import cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper

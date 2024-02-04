@@ -3,8 +3,8 @@ from __future__ import annotations
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import override_settings
-
 from django_mysql.rewrite_query import rewrite_query
+
 from tests.testapp.utils import CaptureLastQuery
 
 

@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import pytest
 from django.test import TestCase
-
 from django_mysql.exceptions import TimeoutError
-from django_mysql.status import global_status
 from django_mysql.status import GlobalStatus
-from django_mysql.status import session_status
 from django_mysql.status import SessionStatus
+from django_mysql.status import global_status
+from django_mysql.status import session_status
 
 
 class BaseStatusTests(TestCase):

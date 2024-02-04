@@ -3,7 +3,6 @@ from __future__ import annotations
 from django.core.management import call_command
 from django.test import TestCase
 from django.test import TransactionTestCase
-
 from django_mysql.checks import check_variables
 from django_mysql.test.utils import override_mysql_variables
 

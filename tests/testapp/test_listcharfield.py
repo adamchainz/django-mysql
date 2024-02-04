@@ -13,16 +13,16 @@ from django.db import models
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import Q
 from django.db.models import Value
-from django.test import override_settings
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test import TransactionTestCase
+from django.test import override_settings
 from django.test.utils import isolate_apps
-
 from django_mysql.forms import SimpleListField
 from django_mysql.models import ListCharField
 from django_mysql.models import ListF
 from django_mysql.test.utils import override_mysql_variables
+
 from tests.testapp.models import CharListDefaultModel
 from tests.testapp.models import CharListModel
 from tests.testapp.models import IntListModel

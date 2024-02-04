@@ -15,16 +15,16 @@ from django.db.models import Q
 from django.db.models import Value
 from django.db.models.functions import Concat
 from django.db.models.functions import Upper
-from django.test import override_settings
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test import TransactionTestCase
+from django.test import override_settings
 from django.test.utils import isolate_apps
-
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetCharField
 from django_mysql.models import SetF
 from django_mysql.test.utils import override_mysql_variables
+
 from tests.testapp.models import CharSetDefaultModel
 from tests.testapp.models import CharSetModel
 from tests.testapp.models import IntSetModel

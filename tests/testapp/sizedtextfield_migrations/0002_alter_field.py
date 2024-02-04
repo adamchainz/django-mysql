@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from django.db import migrations
-
 from django_mysql.models import SizedTextField
 
 

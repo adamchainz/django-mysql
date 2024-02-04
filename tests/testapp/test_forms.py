@@ -4,7 +4,6 @@ import pytest
 from django import forms
 from django.core import exceptions
 from django.test import SimpleTestCase
-
 from django_mysql.forms import SimpleListField
 from django_mysql.forms import SimpleSetField
 

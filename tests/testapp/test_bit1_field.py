@@ -10,8 +10,8 @@ from django.db.models import F
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test.utils import isolate_apps
-
 from django_mysql.models import NullBit1BooleanField
+
 from tests.testapp.models import Bit1Model
 
 if django.VERSION < (4, 0):

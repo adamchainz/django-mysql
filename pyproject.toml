@@ -51,6 +51,17 @@ Repository = "https://github.com/adamchainz/django-mysql"
 [tool.black]
 target-version = ['py38']
 
+[tool.ruff.lint]
+select = [
+    "I",
+]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+required-imports = [
+    "from __future__ import annotations",
+]
+
 [tool.pytest.ini_options]
 addopts = """\
     --strict-config

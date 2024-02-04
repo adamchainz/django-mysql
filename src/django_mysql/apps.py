@@ -34,9 +34,12 @@ class MySQLConfig(AppConfig):
         connection_created.connect(install_rewrite_hook)
 
     def add_lookups(self) -> None:
-        from django.db.models import CharField, TextField
+        from django.db.models import CharField
+        from django.db.models import TextField
 
-        from django_mysql.models.lookups import CaseSensitiveExact, Soundex, SoundsLike
+        from django_mysql.models.lookups import CaseSensitiveExact
+        from django_mysql.models.lookups import Soundex
+        from django_mysql.models.lookups import SoundsLike
 
         CharField.register_lookup(CaseSensitiveExact)
         CharField.register_lookup(SoundsLike)

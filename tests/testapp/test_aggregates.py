@@ -4,12 +4,12 @@ import pytest
 from django.db.models import F
 from django.db.models import TextField
 from django.test import TestCase
-
 from django_mysql.models import BitAnd
 from django_mysql.models import BitOr
 from django_mysql.models import BitXor
 from django_mysql.models import GroupConcat
 from django_mysql.test.utils import override_mysql_variables
+
 from tests.testapp.models import Alphabet
 from tests.testapp.models import Author
 
