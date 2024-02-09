@@ -15,10 +15,10 @@ from django.db.models import Q
 from django.db.models import Value
 from django.db.models.functions import Concat
 from django.db.models.functions import Upper
-from django.test import override_settings
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test import TransactionTestCase
+from django.test import override_settings
 from django.test.utils import isolate_apps
 
 from django_mysql.forms import SimpleSetField

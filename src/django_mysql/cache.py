@@ -9,14 +9,14 @@ from textwrap import dedent
 from time import time
 from typing import Any
 from typing import Callable
-from typing import cast
 from typing import Iterable
 from typing import Literal
 from typing import Tuple
+from typing import cast
 
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.base import BaseCache
 from django.core.cache.backends.base import default_key_func
-from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.db import connections
 from django.db import router
 from django.utils.encoding import force_bytes

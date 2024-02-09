@@ -3,13 +3,13 @@ from __future__ import annotations
 import pickle
 import re
 import shutil
-from unittest import mock
 from unittest import SkipTest
+from unittest import mock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
-from django.db import connections
 from django.db import DEFAULT_DB_ALIAS
+from django.db import connections
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models.query import QuerySet
@@ -19,9 +19,9 @@ from django.test import TestCase
 from django.test.utils import captured_stdout
 from django.test.utils import override_settings
 
-from django_mysql.models import add_QuerySetMixin
 from django_mysql.models import ApproximateInt
 from django_mysql.models import SmartIterator
+from django_mysql.models import add_QuerySetMixin
 from django_mysql.utils import index_name
 from tests.testapp.models import Author
 from tests.testapp.models import AuthorExtra

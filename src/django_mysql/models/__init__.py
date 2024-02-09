@@ -18,10 +18,10 @@ from django_mysql.models.fields import SetCharField
 from django_mysql.models.fields import SetTextField
 from django_mysql.models.fields import SizedBinaryField
 from django_mysql.models.fields import SizedTextField
-from django_mysql.models.query import add_QuerySetMixin
 from django_mysql.models.query import ApproximateInt
-from django_mysql.models.query import pt_visual_explain
 from django_mysql.models.query import QuerySet
 from django_mysql.models.query import QuerySetMixin
 from django_mysql.models.query import SmartChunkedIterator
 from django_mysql.models.query import SmartIterator
+from django_mysql.models.query import add_QuerySetMixin
+from django_mysql.models.query import pt_visual_explain

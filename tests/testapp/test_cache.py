@@ -9,13 +9,13 @@ from io import StringIO
 from typing import Any
 
 import pytest
-from django.core.cache import cache
 from django.core.cache import CacheKeyWarning
+from django.core.cache import cache
 from django.core.cache import caches
-from django.core.management import call_command
 from django.core.management import CommandError
-from django.db import connection
+from django.core.management import call_command
 from django.db import IntegrityError
+from django.db import connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import FetchFromCacheMiddleware
@@ -29,8 +29,8 @@ from parameterized import parameterized
 from django_mysql.cache import BIGINT_SIGNED_MAX
 from django_mysql.cache import BIGINT_SIGNED_MIN
 from django_mysql.cache import MySQLCache
-from tests.testapp.models import expensive_calculation
 from tests.testapp.models import Poll
+from tests.testapp.models import expensive_calculation
 
 
 # functions/classes for complex data type tests
@@ -325,7 +325,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def test_binary_string(self):
         # Binary strings should be cacheable
-        from zlib import compress, decompress
+        from zlib import compress
+        from zlib import decompress
 
         value = "value_to_be_compressed"
         compressed_value = compress(value.encode())

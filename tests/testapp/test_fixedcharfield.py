@@ -5,10 +5,10 @@ from django.core.management import call_command
 from django.db import connection
 from django.db import models
 from django.db.utils import DataError
-from django.test import override_settings
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.test import TransactionTestCase
+from django.test import override_settings
 from django.test.utils import isolate_apps
 
 from django_mysql.models import FixedCharField

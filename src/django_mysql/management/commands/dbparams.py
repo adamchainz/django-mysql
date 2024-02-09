@@ -5,8 +5,8 @@ from typing import Any
 
 from django.core.management import BaseCommand
 from django.core.management import CommandError
-from django.db import connections
 from django.db import DEFAULT_DB_ALIAS
+from django.db import connections
 from django.db.utils import ConnectionDoesNotExist
 
 from django_mysql.utils import settings_to_cmd_args

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from unittest import mock
 from unittest import SkipTest
+from unittest import mock
 
 import mariadb_dyncol
 import pytest
