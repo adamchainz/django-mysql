@@ -4,11 +4,11 @@ import datetime as dt
 import json
 from typing import Any
 from typing import Callable
-from typing import cast
 from typing import Dict
 from typing import Iterable
 from typing import Type
 from typing import Union
+from typing import cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper

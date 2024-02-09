@@ -4,9 +4,9 @@ import pytest
 from django.test import SimpleTestCase
 from django.test import TestCase
 
+from django_mysql.utils import WeightedAverageRate
 from django_mysql.utils import format_duration
 from django_mysql.utils import index_name
-from django_mysql.utils import WeightedAverageRate
 from tests.testapp.models import Author
 from tests.testapp.models import AuthorMultiIndex
 

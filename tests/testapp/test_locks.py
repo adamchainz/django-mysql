@@ -5,11 +5,11 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 import pytest
+from django.db import OperationalError
 from django.db import connection
 from django.db import connections
-from django.db import OperationalError
-from django.db.transaction import atomic
 from django.db.transaction import TransactionManagementError
+from django.db.transaction import atomic
 from django.test import TestCase
 from django.test import TransactionTestCase
 

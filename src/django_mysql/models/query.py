@@ -9,7 +9,6 @@ from copy import copy
 from functools import wraps
 from typing import Any
 from typing import Callable
-from typing import cast
 from typing import Generator
 from typing import Literal
 from typing import Optional
@@ -17,6 +16,7 @@ from typing import Tuple
 from typing import TypedDict
 from typing import TypeVar
 from typing import Union
+from typing import cast
 
 from django.conf import settings
 from django.db import connections
@@ -30,10 +30,10 @@ from django.utils.translation import gettext as _
 from django_mysql.compat import cache
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
-from django_mysql.utils import format_duration
-from django_mysql.utils import settings_to_cmd_args
 from django_mysql.utils import StopWatch
 from django_mysql.utils import WeightedAverageRate
+from django_mysql.utils import format_duration
+from django_mysql.utils import settings_to_cmd_args
 
 _Q = TypeVar("_Q", bound="QuerySetMixin")
 QueryRewriteFunc = TypeVar("QueryRewriteFunc", bound=Callable[..., Any])
