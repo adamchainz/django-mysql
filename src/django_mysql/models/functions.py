@@ -392,7 +392,8 @@ class ColumnAdd(Func):
         self,
         expression: ExpressionArgument,
         to_add: dict[
-            str, ExpressionArgument | float | int | dt.date | dt.time | dt.datetime
+            str,
+            ExpressionArgument | float | int | dt.date | dt.time | dt.datetime,
         ],
     ) -> None:
         from django_mysql.models.fields import DynamicField
@@ -455,5 +456,8 @@ class ColumnGet(Func):
                 raise ValueError(f"Invalid data_type {data_type!r}")
 
         super().__init__(
-            expression, column_name, output_field=output_field, data_type=data_type
+            expression,
+            column_name,
+            output_field=output_field,
+            data_type=data_type,
         )
