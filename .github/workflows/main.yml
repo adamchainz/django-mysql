@@ -69,10 +69,15 @@ jobs:
     - name: Run tox targets for ${{ matrix.python-version }}
       run: tox run -f py$(echo ${{ matrix.python-version }} | tr -d .)
 
+    - name: Format database identifier
+      run: |
+        echo "db_id=${REPO//-/_}" >> "$GITHUB_OUTPUT"
+      id: format_db_id
+
     - name: Upload coverage data
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-${{ matrix.python-version }}-${{ matrix.database }}
+        name: coverage-data-${{ matrix.python-version }}-${{ steps.format_db_id.db_id }}
         path: '${{ github.workspace }}/.coverage.*'
 
   coverage:
