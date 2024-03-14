@@ -79,7 +79,7 @@ jobs:
     - name: Upload coverage data
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data-${{ matrix.python-version }}-${{ steps.format_db_id.db_id }}
+        name: coverage-data-${{ matrix.python-version }}-${{ steps.format_db_id.outputs.db_id }}
         path: '${{ github.workspace }}/.coverage.*'
 
   coverage:
