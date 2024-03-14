@@ -71,7 +71,9 @@ jobs:
 
     - name: Format database identifier
       run: |
-        echo "db_id=${REPO//-/_}" >> "$GITHUB_OUTPUT"
+        DB=${{ matrix.database }}
+        echo "db_id=${DB//:/-}"
+        echo "db_id=${DB//:/-}" >> "$GITHUB_OUTPUT"
       id: format_db_id
 
     - name: Upload coverage data
