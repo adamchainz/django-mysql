@@ -4,270 +4,202 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from functools import partial
 from pathlib import Path
 
 if __name__ == "__main__":
     os.chdir(Path(__file__).parent)
-    os.environ["CUSTOM_COMPILE_COMMAND"] = "requirements/compile.py"
-    os.environ["PIP_REQUIRE_VIRTUALENV"] = "0"
     common_args = [
-        "-m",
-        "piptools",
+        "uv",
+        "pip",
         "compile",
+        "--quiet",
         "--generate-hashes",
-        "--allow-unsafe",
-    ] + sys.argv[1:]
+        "--constraint",
+        "-",
+        "requirements.in",
+        *sys.argv[1:],
+    ]
+    run = partial(subprocess.run, check=True)
     # mysqlclient requirements found on each version's "Databases" documentation page:
     # https://docs.djangoproject.com/en/3.0/ref/databases/#mysql-db-api-drivers
-    subprocess.run(
+    run(
         [
-            "python3.8",
             *common_args,
-            "-P",
-            "Django>=3.2a1,<3.3",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.8",
+            "--output-file",
             "py38-django32.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=3.2a1,<3.3\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.8",
             *common_args,
-            "-P",
-            "Django>=4.0a1,<4.1",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.8",
+            "--output-file",
             "py38-django40.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.0a1,<4.1\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.8",
             *common_args,
-            "-P",
-            "Django>=4.1a1,<4.2",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.8",
+            "--output-file",
             "py38-django41.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.1a1,<4.2\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.8",
             *common_args,
-            "-P",
-            "Django>=4.2a1,<5.0",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.8",
+            "--output-file",
             "py38-django42.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.2a1,<5.0\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.9",
             *common_args,
-            "-P",
-            "Django>=3.2a1,<3.3",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.9",
+            "--output-file",
             "py39-django32.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=3.2a1,<3.3\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.9",
             *common_args,
-            "-P",
-            "Django>=4.0a1,<4.1",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.9",
+            "--output-file",
             "py39-django40.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.0a1,<4.1\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.9",
             *common_args,
-            "-P",
-            "Django>=4.1a1,<4.2",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.9",
+            "--output-file",
             "py39-django41.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.1a1,<4.2\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.9",
             *common_args,
-            "-P",
-            "Django>=4.2a1,<5.0",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.9",
+            "--output-file",
             "py39-django42.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.2a1,<5.0\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.10",
             *common_args,
-            "-P",
-            "Django>=3.2a1,<3.3",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.10",
+            "--output-file",
             "py310-django32.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=3.2a1,<3.3\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.10",
             *common_args,
-            "-P",
-            "Django>=4.0a1,<4.1",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.10",
+            "--output-file",
             "py310-django40.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.0a1,<4.1\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.10",
             *common_args,
-            "-P",
-            "Django>=4.1a1,<4.2",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.10",
+            "--output-file",
             "py310-django41.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.1a1,<4.2\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.10",
             *common_args,
-            "-P",
-            "Django>=4.2a1,<5.0",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.10",
+            "--output-file",
             "py310-django42.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.2a1,<5.0\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.10",
             *common_args,
-            "-P",
-            "Django>=5.0a1,<5.1",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.10",
+            "--output-file",
             "py310-django50.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=5.0a1,<5.1\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.11",
             *common_args,
-            "-P",
-            "Django>=4.1a1,<4.2",
-            "-P",
-            "mysqlclient>=1.4.0",
-            "-o",
+            "--python",
+            "3.11",
+            "--output-file",
             "py311-django41.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.1a1,<4.2\nmysqlclient>=1.4.0\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.11",
             *common_args,
-            "-P",
-            "Django>=4.2a1,<5.0",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.11",
+            "--output-file",
             "py311-django42.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.2a1,<5.0\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.11",
             *common_args,
-            "-P",
-            "Django>=5.0a1,<5.1",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.11",
+            "--output-file",
             "py311-django50.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=5.0a1,<5.1\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.12",
             *common_args,
-            "-P",
-            "Django>=4.2a1,<5.0",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.12",
+            "--output-file",
             "py312-django42.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=4.2a1,<5.0\nmysqlclient>=1.4.3\n",
     )
-    subprocess.run(
+    run(
         [
-            "python3.12",
             *common_args,
-            "-P",
-            "Django>=5.0a1,<5.1",
-            "-P",
-            "mysqlclient>=1.4.3",
-            "-o",
+            "--python",
+            "3.12",
+            "--output-file",
             "py312-django50.txt",
         ],
-        check=True,
-        capture_output=True,
+        input=b"Django>=5.0a1,<5.1\nmysqlclient>=1.4.3\n",
     )
