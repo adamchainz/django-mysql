@@ -721,7 +721,7 @@ def can_approx_count(queryset: QuerySetMixin) -> bool:
 
 
 def pt_visual_explain(queryset: models.QuerySet, display: bool = True) -> str:
-    # Lazily imported to reduce startup time - most invocations of manage.py wouldn't otherwise import django.test
+    # Lazy import improves start time - manage.py wouldn't normally import django.test
     from django.test.utils import CaptureQueriesContext
 
     connection = connections[queryset.db]
