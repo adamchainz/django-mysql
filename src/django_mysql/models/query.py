@@ -23,7 +23,6 @@ from django.db import connections
 from django.db import models
 from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
-from django.test.utils import CaptureQueriesContext
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
@@ -722,6 +721,9 @@ def can_approx_count(queryset: QuerySetMixin) -> bool:
 
 
 def pt_visual_explain(queryset: models.QuerySet, display: bool = True) -> str:
+    # Lazy import improves start time - manage.py wouldn't normally import django.test
+    from django.test.utils import CaptureQueriesContext
+
     connection = connections[queryset.db]
     capturer = CaptureQueriesContext(connection)
     with capturer, connection.cursor() as cursor:
