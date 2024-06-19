@@ -82,6 +82,11 @@ source = [
 show_missing = true
 
 [tool.mypy]
+enable_error_code = [
+  "ignore-without-code",
+  "redundant-expr",
+  "truthy-bool",
+]
 check_untyped_defs = true
 disallow_any_generics = true
 disallow_incomplete_defs = true
@@ -89,7 +94,6 @@ disallow_untyped_defs = true
 mypy_path = "src/"
 namespace_packages = false
 no_implicit_optional = true
-show_error_codes = true
 warn_unreachable = true
 warn_unused_ignores = true
 
