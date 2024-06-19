@@ -10,7 +10,7 @@ Django 3.2 to 5.0 supported.
 
 MySQL 8.0 supported.
 
-MariaDB 10.4 to 10.8 supported.
+MariaDB 10.5 to 10.8 supported.
 
 mysqclient 1.3 to 1.4 supported.
 
