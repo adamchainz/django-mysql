@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Any
 from unittest import SkipTest
 
 import pytest
@@ -183,10 +184,8 @@ class AlterStorageEngineTests(TransactionTestCase):
         app_label: str,
         *,
         proxy_model: bool = False,
-        unique_together: bool = False,
         options: bool = False,
         db_table: str | None = None,
-        index_together: bool = False,
     ) -> ProjectState:  # pragma: no cover
         """
         Creates a test model state and database table.
@@ -216,10 +215,8 @@ class AlterStorageEngineTests(TransactionTestCase):
             connection.enable_constraint_checking()
 
         # Make the "current" state
-        model_options = {
+        model_options: dict[str, Any] = {
             "swappable": "TEST_SWAP_MODEL",
-            "index_together": [["weight", "pink"]] if index_together else [],
-            "unique_together": [["pink", "weight"]] if unique_together else [],
         }
         if options:
             model_options["permissions"] = [("can_groom", "Can groom")]
