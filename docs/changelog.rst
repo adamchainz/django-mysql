@@ -2,6 +2,8 @@
 Changelog
 =========
 
+* Support Django 5.1.
+
 * Drop support for MariaDB 10.4.
   It is no longer maintained and  Django 5.1 does not support it.
 
