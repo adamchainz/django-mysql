@@ -5,6 +5,10 @@ Changelog
 4.13.0 (2024-04-26)
 -------------------
 
+* Lazily import ``django.test`` to reduce import time.
+
+  Thanks to Angus Holder in `PR #1084 <https://github.com/adamchainz/django-mysql/pull/1084>`__.
+
 4.12.0 (2023-10-11)
 -------------------
 
