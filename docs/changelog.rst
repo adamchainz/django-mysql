@@ -2,6 +2,9 @@
 Changelog
 =========
 
+4.14.0 (2024-06-19)
+-------------------
+
 * Support Django 5.1.
 
 * Drop support for MariaDB 10.4.
