@@ -425,7 +425,7 @@ class SmartChunkedIterator:
         self.report_progress = report_progress
         self.total = total
 
-    def __iter__(self) -> Generator[QuerySet, None, None]:
+    def __iter__(self) -> Generator[QuerySet]:
         first_pk, last_pk = self.get_first_and_last()
         direction: _SmartDirectionType
         if first_pk <= last_pk:
@@ -665,7 +665,7 @@ class SmartIterator(SmartChunkedIterator):
     Subclass of SmartChunkedIterator that unpacks the chunks
     """
 
-    def __iter__(self) -> Generator[models.Model, None, None]:
+    def __iter__(self) -> Generator[models.Model]:
         for chunk in super().__iter__():
             yield from chunk
 
@@ -673,7 +673,7 @@ class SmartIterator(SmartChunkedIterator):
 class SmartPKRangeIterator(SmartChunkedIterator):
     def __iter__(  # type: ignore [override]
         self,
-    ) -> Generator[tuple[int, int], None, None]:
+    ) -> Generator[tuple[int, int]]:
         for chunk in super().__iter__():
             start_pk, end_pk = chunk._smart_iterator_pks
             yield start_pk, end_pk
