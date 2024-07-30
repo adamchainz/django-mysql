@@ -26,7 +26,7 @@ def conn_is_mysql(connection: BaseDatabaseWrapper) -> TypeGuard[MySQLDatabaseWra
 
 
 @contextmanager
-def skip_if_mysql() -> Generator[None, None, None]:
+def skip_if_mysql() -> Generator[None]:
     if not connection.mysql_is_mariadb:
         pytest.skip("Requires MariaDB")
     yield

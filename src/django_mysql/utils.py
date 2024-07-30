@@ -177,7 +177,7 @@ def get_list_sql(sequence: list[str] | tuple[str, ...]) -> str:
     return "({})".format(",".join("%s" for x in sequence))
 
 
-def mysql_connections() -> Generator[BaseDatabaseWrapper, None, None]:
+def mysql_connections() -> Generator[BaseDatabaseWrapper]:
     conn_names = [DEFAULT_DB_ALIAS] + list(set(connections) - {DEFAULT_DB_ALIAS})
     for alias in conn_names:
         connection = connections[alias]
