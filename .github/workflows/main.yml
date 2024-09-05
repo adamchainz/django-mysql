@@ -80,6 +80,8 @@ jobs:
       with:
         name: coverage-data-${{ matrix.python-version }}-${{ steps.format_db_id.outputs.db_id }}
         path: '${{ github.workspace }}/.coverage.*'
+        include-hidden-files: true
+        if-no-files-found: true
 
   coverage:
     name: Coverage
