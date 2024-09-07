@@ -152,9 +152,9 @@ pytest==8.3.2 \
     #   pytest-django
     #   pytest-flake8-path
     #   pytest-randomly
-pytest-django==4.8.0 \
-    --hash=sha256:5d054fe011c56f3b10f978f41a8efb2e5adfc7e680ef36fb571ada1f24779d90 \
-    --hash=sha256:ca1ddd1e0e4c227cf9e3e40a6afc6d106b3e70868fd2ac5798a22501271cd0c7
+pytest-django==4.9.0 \
+    --hash=sha256:1d83692cb39188682dbb419ff0393867e9904094a549a7d38a3154d5731b2b99 \
+    --hash=sha256:8bf7bc358c9ae6f6fc51b6cebb190fe20212196e6807121f11bd6a3b03428314
     # via -r requirements.in
 pytest-flake8-path==1.5.0 \
     --hash=sha256:2c144a3127995d34e82df397350dbef7780c9920c5b7e9ebc81f63299011381e \
