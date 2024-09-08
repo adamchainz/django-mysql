@@ -33,6 +33,7 @@ class GroupConcat(Aggregate):
         distinct: bool = False,
         separator: str | None = None,
         ordering: str | None = None,
+        column_order: Union[List[str], str] | None = None,
         **extra: Any,
     ) -> None:
         if "output_field" not in extra:
@@ -46,7 +47,11 @@ class GroupConcat(Aggregate):
 
         if ordering not in ("asc", "desc", None):
             raise ValueError("'ordering' must be one of 'asc', 'desc', or None")
+        if ordering is not None:
+            if column_order is not None and isinstance(column_order, list):
+                raise ValueError("When having a list in column_order, you can specify the ordering of each column inside the list. Example: ['column_a DESC',...]")
         self.ordering = ordering
+        self.column_order = column_order
 
     def as_sql(
         self,
@@ -69,12 +74,25 @@ class GroupConcat(Aggregate):
 
         sql.append(expr_sql)
 
-        if self.ordering is not None:
-            sql.append(" ORDER BY ")
-            sql.append(expr_sql)
-            params.extend(params[:])
-            sql.append(" ")
-            sql.append(self.ordering.upper())
+        if self.ordering is not None or self.column_order is not None:
+            sql.append(" ORDER BY")
+
+
+            if self.column_order is not None:
+                if isinstance(self.column_order, str):
+                    sql.append(" ")
+                    sql.append(self.column_order)
+                if isinstance(self.column_order, list):
+                    sql.append(" ")
+                    sql.append(", ".join(self.column_order))
+            else:
+                sql.append(" ")
+                sql.append(expr_sql)
+                params.extend(params[:])
+
+            if self.ordering is not None and not isinstance(self.column_order, list):
+                sql.append(" ")
+                sql.append(self.ordering.upper())
 
         if self.separator is not None:
             sql.append(f" SEPARATOR '{self.separator}'")  # noqa: B028
