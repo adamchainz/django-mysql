@@ -79,8 +79,7 @@ class GroupConcat(Aggregate):
         sql.append(expr_sql)
 
         if self.ordering is not None or self.column_order is not None:
-            sql.append(" ORDER BY")
-            sql.append(" ")
+            sql.append(" ORDER BY ")
 
             if self.column_order is not None:
                 if isinstance(self.column_order, str):
