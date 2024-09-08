@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Union, List
+from typing import Any
+from typing import List
+from typing import Union
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Aggregate
@@ -33,7 +35,7 @@ class GroupConcat(Aggregate):
         distinct: bool = False,
         separator: str | None = None,
         ordering: str | None = None,
-        column_order: Union[List[str], str] | None = None,
+        column_order: list[str] | str | None = None,
         **extra: Any,
     ) -> None:
         if "output_field" not in extra:
