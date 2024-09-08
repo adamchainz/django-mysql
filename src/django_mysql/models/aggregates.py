@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import List # noqa: F401
-from typing import Union # noqa: F401
+from typing import List  # noqa: F401
+from typing import Union  # noqa: F401
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Aggregate
