@@ -80,10 +80,18 @@ class GroupConcatTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.shakes = Author.objects.create(name="William Shakespeare", bio="British author.")
-        cls.jk = Author.objects.create(name="JK Rowling", tutor=cls.shakes, bio="British author.")
-        cls.grisham = Author.objects.create(name="Grisham", tutor=cls.shakes, bio="American author.")
-        cls.agatha = Author.objects.create(name="Agatha Christie", tutor=cls.shakes, bio="British author.")
+        cls.shakes = Author.objects.create(
+            name="William Shakespeare", bio="British author."
+        )
+        cls.jk = Author.objects.create(
+            name="JK Rowling", tutor=cls.shakes, bio="British author."
+        )
+        cls.grisham = Author.objects.create(
+            name="Grisham", tutor=cls.shakes, bio="American author."
+        )
+        cls.agatha = Author.objects.create(
+            name="Agatha Christie", tutor=cls.shakes, bio="British author."
+        )
 
         cls.str_tutee_ids = [str(cls.jk.id), str(cls.grisham.id), str(cls.agatha.id)]
 
@@ -126,7 +134,9 @@ class GroupConcatTests(TestCase):
     def test_expression(self):
         concat = GroupConcat(F("id") + 1)
         out = self.shakes.tutees.aggregate(tids=concat)
-        concatted_ids = ",".join([str(self.jk.id + 1), str(self.grisham.id + 1), str(self.agatha.id + 1)])
+        concatted_ids = ",".join(
+            [str(self.jk.id + 1), str(self.grisham.id + 1), str(self.agatha.id + 1)]
+        )
         assert out == {"tids": concatted_ids}
 
     def test_application_order(self):
@@ -164,13 +174,17 @@ class GroupConcatTests(TestCase):
     def test_multiple_column_ordering(self):
         concat = GroupConcat("id", column_order=["bio", "name desc"])
         out = self.shakes.tutees.aggregate(tids=concat)
-        concatted_ids = ",".join([str(self.grisham.id), str(self.jk.id), str(self.agatha.id)])
+        concatted_ids = ",".join(
+            [str(self.grisham.id), str(self.jk.id), str(self.agatha.id)]
+        )
 
         assert out == {"tids": concatted_ids}
 
     def test_multiple_column_ordering_2(self):
         concat = GroupConcat("id", column_order="name")
         out = self.shakes.tutees.aggregate(tids=concat)
-        concatted_ids = ",".join([str(self.agatha.id), str(self.grisham.id), str(self.jk.id)])
+        concatted_ids = ",".join(
+            [str(self.agatha.id), str(self.grisham.id), str(self.jk.id)]
+        )
 
         assert out == {"tids": concatted_ids}

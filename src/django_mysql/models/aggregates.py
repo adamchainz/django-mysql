@@ -49,7 +49,9 @@ class GroupConcat(Aggregate):
             raise ValueError("'ordering' must be one of 'asc', 'desc', or None")
         if ordering is not None:
             if column_order is not None and isinstance(column_order, list):
-                raise ValueError("When having a list in column_order, you can specify the ordering of each column inside the list. Example: ['column_a DESC',...]")
+                raise ValueError(
+                    "When having a list in column_order, you can specify the ordering of each column inside the list. Example: ['column_a DESC',...]"
+                )
         self.ordering = ordering
         self.column_order = column_order
 
@@ -76,7 +78,6 @@ class GroupConcat(Aggregate):
 
         if self.ordering is not None or self.column_order is not None:
             sql.append(" ORDER BY")
-
 
             if self.column_order is not None:
                 if isinstance(self.column_order, str):
