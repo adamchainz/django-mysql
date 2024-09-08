@@ -80,16 +80,14 @@ class GroupConcat(Aggregate):
 
         if self.ordering is not None or self.column_order is not None:
             sql.append(" ORDER BY")
+            sql.append(" ")
 
             if self.column_order is not None:
                 if isinstance(self.column_order, str):
-                    sql.append(" ")
                     sql.append(self.column_order)
                 if isinstance(self.column_order, list):
-                    sql.append(" ")
                     sql.append(", ".join(self.column_order))
             else:
-                sql.append(" ")
                 sql.append(expr_sql)
                 params.extend(params[:])
 
