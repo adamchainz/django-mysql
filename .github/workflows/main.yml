@@ -27,10 +27,11 @@ jobs:
         - '3.13'
         database:
         - mysql:8.0
+        - mysql:9.0
         - mariadb:10.5
         - mariadb:10.6
-        - mariadb:10.7
-        - mariadb:10.8
+        - mariadb:10.11
+        - mariadb:11.4
 
     services:
       database:
