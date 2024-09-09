@@ -22,7 +22,7 @@ from tests.testapp.utils import column_type
 forceDataError = override_mysql_variables(SQL_MODE="STRICT_TRANS_TABLES")
 
 
-def migrate(name):
+def migrate(name: str) -> None:
     call_command(
         "migrate", "testapp", name, verbosity=0, skip_checks=True, interactive=False
     )
