@@ -4,6 +4,10 @@ Changelog
 
 * Support Python 3.13.
 
+* Add testing for MariaDB 10.11 and 11.4, and MySQL 9.0.
+  Drop testing for EOL MariaDB 10.7 and 10.8.
+  No changes were needed.
+
 4.14.0 (2024-06-19)
 -------------------
 
