@@ -95,6 +95,7 @@ class TestSerialization(SimpleTestCase):
         objs = list(serializers.deserialize("json", test_data))
         assert len(objs) == 1
         instance = objs[0].object
+        assert isinstance(instance, Bit1Model)
         assert not instance.flag_a
         assert instance.flag_b
 
@@ -180,6 +181,7 @@ if django.VERSION < (4, 0):
             objs = list(serializers.deserialize("json", test_data))
             assert len(objs) == 1
             instance = objs[0].object
+            assert isinstance(instance, NullBit1Model)
             assert instance.flag is None
 
 else:
