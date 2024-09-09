@@ -8,6 +8,7 @@ from typing import Callable
 from typing import Union
 from typing import cast
 
+from django import forms
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import DateField
@@ -289,7 +290,7 @@ class DynamicField(Field):
             kwargs["blank"] = False
         return name, path, args, kwargs
 
-    def formfield(self, *args: Any, **kwargs: Any) -> Any:
+    def formfield(self, *args: Any, **kwargs: Any) -> forms.Field | None:
         """
         Disabled in forms - there is no sensible way of editing this
         """

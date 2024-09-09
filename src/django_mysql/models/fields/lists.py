@@ -5,6 +5,7 @@ from typing import Any
 from typing import Callable
 from typing import cast
 
+from django import forms
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
@@ -154,7 +155,7 @@ class ListFieldMixin(Field):
         vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
-    def formfield(self, **kwargs: Any) -> Any:
+    def formfield(self, **kwargs: Any) -> forms.Field | None:
         defaults = {
             "form_class": SimpleListField,
             "base_field": self.base_field.formfield(),
