@@ -22,7 +22,7 @@ from tests.testapp.utils import column_type
 forceDataError = override_mysql_variables(SQL_MODE="STRICT_TRANS_TABLES")
 
 
-def migrate(name):
+def migrate(name: str) -> None:
     call_command(
         "migrate", "testapp", name, verbosity=0, skip_checks=True, interactive=False
     )
@@ -50,7 +50,7 @@ class SizedBinaryFieldTests(TestCase):
         # By default, SizedBinaryField should act like BinaryField
         field = SizedBinaryField()
         assert field.size_class == 4
-        assert field.db_type(None) == "longblob"
+        assert field.db_type(connection) == "longblob"
 
     @atomic
     def test_binary_1_max_length(self):
@@ -153,7 +153,7 @@ class SizedTextFieldTests(TestCase):
         # By default, SizedTextField should act like TextField
         field = SizedTextField()
         assert field.size_class == 4
-        assert field.db_type(None) == "longtext"
+        assert field.db_type(connection) == "longtext"
 
     def test_tinytext_max_length(self):
         # Okay

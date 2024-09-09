@@ -330,7 +330,7 @@ class QueryHintTests(TestCase):
 
     def test_force_index_invalid_for(self):
         with pytest.raises(ValueError) as excinfo:
-            Author.objects.force_index("a", for_="INVALID")
+            Author.objects.force_index("a", for_="INVALID")  # type: ignore [arg-type]
         assert "for_ must be one of" in str(excinfo.value)
 
     def test_index_hint_force_order_by(self):
@@ -527,7 +527,7 @@ class SmartIteratorTests(TestCase):
 
     def test_objects_pk_range_bad(self):
         with pytest.raises(ValueError) as excinfo:
-            list(Author.objects.iter_smart(pk_range="My Bad Value"))
+            list(Author.objects.iter_smart(pk_range="My Bad Value"))  # type: ignore [arg-type]
         assert "Unrecognized value for pk_range" in str(excinfo.value)
 
     def test_pk_range_race_condition(self):
