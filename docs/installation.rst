@@ -8,11 +8,7 @@ Python 3.8 to 3.13 supported.
 
 Django 3.2 to 5.1 supported.
 
-MySQL 8.0 supported.
-
-MariaDB 10.5 to 10.8 supported.
-
-mysqclient 1.3 to 1.4 supported.
+Tested on MySQL 8.0+ and MariaDB 10.5+.
 
 Installation
 ------------
