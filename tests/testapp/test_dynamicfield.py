@@ -495,6 +495,7 @@ class TestSerialization(DynColTestCase):
     def test_loading(self):
         deserialized = list(serializers.deserialize("json", self.test_data))
         instance = deserialized[0].object
+        assert isinstance(instance, DynamicModel)
         assert instance.attrs == {"a": "b"}
 
 
