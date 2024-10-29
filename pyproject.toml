@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "django-mysql"
-version = "4.14.0"
+version = "4.15.0"
 description = "Django-MySQL extends Django's built-in MySQL and MariaDB support their specific features not available on other databases."
 readme = "README.rst"
 keywords = [
