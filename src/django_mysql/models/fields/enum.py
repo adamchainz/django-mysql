@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 from typing import cast
 
-import django
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
 from django.utils.encoding import force_str
@@ -15,8 +14,7 @@ from django_mysql.typing import DeconstructResult
 class EnumField(CharField):
     description = _("Enumeration")
 
-    if django.VERSION >= (4, 1):
-        non_db_attrs = tuple(f for f in CharField.non_db_attrs if f != "choices")
+    non_db_attrs = tuple(f for f in CharField.non_db_attrs if f != "choices")
 
     def __init__(
         self,

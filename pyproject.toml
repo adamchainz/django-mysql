@@ -21,9 +21,6 @@ requires-python = ">=3.9"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Framework :: Django",
-  "Framework :: Django :: 3.2",
-  "Framework :: Django :: 4.0",
-  "Framework :: Django :: 4.1",
   "Framework :: Django :: 4.2",
   "Framework :: Django :: 5.0",
   "Framework :: Django :: 5.1",
@@ -42,7 +39,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "django>=3.2",
+  "django>=4.2",
 ]
 urls.Changelog = "https://django-mysql.readthedocs.io/en/latest/changelog.html"
 urls.Documentation = "https://django-mysql.readthedocs.io/"

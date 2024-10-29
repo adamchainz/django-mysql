@@ -4,7 +4,6 @@ import datetime as dt
 import json
 from typing import Any
 
-import django
 from django.core import checks
 from django.db import connection
 from django.db.models import CASCADE
@@ -27,7 +26,6 @@ from django_mysql.models import FixedCharField
 from django_mysql.models import ListCharField
 from django_mysql.models import ListTextField
 from django_mysql.models import Model
-from django_mysql.models import NullBit1BooleanField
 from django_mysql.models import SetCharField
 from django_mysql.models import SetTextField
 from django_mysql.models import SizedBinaryField
@@ -242,12 +240,6 @@ class SizeFieldModel(Model):
 class Bit1Model(Model):
     flag_a: Any = Bit1BooleanField(default=True)
     flag_b: Any = Bit1BooleanField(default=False)
-
-
-if django.VERSION < (4, 0):
-
-    class NullBit1Model(Model):
-        flag: Any = NullBit1BooleanField()
 
 
 class JSONModel(Model):
