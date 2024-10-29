@@ -97,7 +97,7 @@ class TestSerialization(SimpleTestCase):
 
 
 @isolate_apps("tests.testapp")
-class TestNullCheck(SimpleTestCase):
+class NullBit1BooleanFieldTests(SimpleTestCase):
     def test_check_deprecated(self):
         class Invalid(models.Model):
             nb = NullBit1BooleanField()
@@ -116,3 +116,9 @@ class TestNullCheck(SimpleTestCase):
                 id="fields.E903",
             ),
         ]
+
+    def test_get_prep_value(self):
+        # This None-only pathway is left just in case users are forcibly using
+        # the field despite the check error.
+        field = NullBit1BooleanField()
+        assert field.get_prep_value(None) is None
