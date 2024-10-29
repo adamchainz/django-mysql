@@ -4,15 +4,15 @@ import operator
 import subprocess
 import sys
 import time
+from collections.abc import Generator
 from contextlib import nullcontext
 from copy import copy
+from functools import cache
 from functools import wraps
 from typing import Any
 from typing import Callable
-from typing import Generator
 from typing import Literal
 from typing import Optional
-from typing import Tuple
 from typing import TypedDict
 from typing import TypeVar
 from typing import Union
@@ -26,7 +26,6 @@ from django.db.transaction import atomic
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
-from django_mysql.compat import cache
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
 from django_mysql.utils import StopWatch
@@ -46,7 +45,7 @@ class _CountTriesApproxDict(TypedDict):
 
 _IndexHintForType = Optional[Literal["JOIN", "ORDER BY", "GROUP BY"]]
 
-_SmartPkRangeType = Union[None, Tuple[int, int], Literal["all"]]
+_SmartPkRangeType = Union[None, tuple[int, int], Literal["all"]]
 _SmartDirectionType = Literal[-1, 1]
 
 

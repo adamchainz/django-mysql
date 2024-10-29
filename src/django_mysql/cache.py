@@ -4,14 +4,13 @@ import builtins
 import pickle
 import re
 import zlib
+from collections.abc import Iterable
 from random import random
 from textwrap import dedent
 from time import time
 from typing import Any
 from typing import Callable
-from typing import Iterable
 from typing import Literal
-from typing import Tuple
 from typing import cast
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
@@ -98,7 +97,7 @@ def get_reverse_key_func(
             return reverse_key_func
         else:
             return cast(
-                Callable[[str], Tuple[str, str, int]],
+                Callable[[str], tuple[str, str, int]],
                 import_string(reverse_key_func),
             )
     return None

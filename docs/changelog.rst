@@ -2,6 +2,8 @@
 Changelog
 =========
 
+* Drop Python 3.8 support.
+
 * Support Python 3.13.
 
 * Add testing for MariaDB 10.11 and 11.4, and MySQL 9.0.

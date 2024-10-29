@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import Any
-from typing import Iterable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import IntegerField

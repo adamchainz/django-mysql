@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Generator
 from contextlib import contextmanager
 from types import TracebackType
 from typing import Any
-from typing import Generator
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS
