@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+from collections.abc import Iterable
 from typing import Any
 from typing import Callable
-from typing import Dict
-from typing import Iterable
-from typing import Type
 from typing import Union
 from typing import cast
 
@@ -37,25 +35,25 @@ except ImportError:  # pragma: no cover
 
 # Mypy doesn't support recursive types at time of writing, but we can at least
 # define this type to two levels deep.
-SpecDict = Dict[
+SpecDict = dict[
     str,
     Union[
-        Type[dt.date],
-        Type[dt.datetime],
-        Type[float],
-        Type[int],
-        Type[str],
-        Type[dt.time],
-        Dict[
+        type[dt.date],
+        type[dt.datetime],
+        type[float],
+        type[int],
+        type[str],
+        type[dt.time],
+        dict[
             str,
             Union[
-                Type[dt.date],
-                Type[dt.datetime],
-                Type[float],
-                Type[int],
-                Type[str],
-                Type[dt.time],
-                Dict[str, Any],
+                type[dt.date],
+                type[dt.datetime],
+                type[float],
+                type[int],
+                type[str],
+                type[dt.time],
+                dict[str, Any],
             ],
         ],
     ],

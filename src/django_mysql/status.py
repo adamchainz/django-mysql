@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Iterable
+from collections.abc import Iterable
 
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
