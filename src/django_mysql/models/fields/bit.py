@@ -14,13 +14,7 @@ class Bit1Mixin:
     def from_db_value(
         self, value: Any, expression: Expression, connection: BaseDatabaseWrapper
     ) -> Any:
-        # Meant to be binary/bytes but can come back as unicode strings
-        if isinstance(value, bytes):
-            value = value == b"\x01"
-        elif isinstance(value, str):
-            # Only on older versions of mysqlclient and Py 2.7
-            value = value == "\x01"  # pragma: no cover
-        return value
+        return value == b"\x01"
 
     def get_prep_value(self, value: Any) -> int | None:
         if value is None:
