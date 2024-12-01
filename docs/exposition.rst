@@ -196,6 +196,21 @@ field class allows you to interact with those fields:
 
 :ref:`Read more <bit1booleanfields>`
 
+TinyInteger Fields
+------------------
+
+MySQL’s ``TINYINT`` type efficiently stores small integers in just one byte.
+These fields allow you to use it seamlessly in Django models:
+
+.. code-block:: python
+
+    class TinyIntModel(Model):
+        tiny_value = TinyIntegerField()  # Supports values from -128 to 127.
+        positive_tiny_value = PositiveTinyIntegerField()  # Supports values from 0 to 255.
+
+:ref:`Read more <tinyintegerfields>`
+
+
 -------------
 Field Lookups
 -------------
