@@ -18,6 +18,8 @@ from django_mysql.models.fields import SetCharField
 from django_mysql.models.fields import SetTextField
 from django_mysql.models.fields import SizedBinaryField
 from django_mysql.models.fields import SizedTextField
+from django_mysql.models.fields.integer import PositiveTinyIntegerField
+from django_mysql.models.fields.integer import TinyIntegerField
 from django_mysql.models.query import ApproximateInt
 from django_mysql.models.query import QuerySet
 from django_mysql.models.query import QuerySetMixin

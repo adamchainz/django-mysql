@@ -2,6 +2,8 @@
 Changelog
 =========
 
+* Added field class ``PositiveTinyIntegerField`` and ``TinyIntegerField`` that uses MySQL's ``TINYINT`` data type.
+
 4.15.0 (2024-10-29)
 -------------------
 

@@ -5,6 +5,8 @@ from django_mysql.models.fields.bit import NullBit1BooleanField
 from django_mysql.models.fields.dynamic import DynamicField
 from django_mysql.models.fields.enum import EnumField
 from django_mysql.models.fields.fixedchar import FixedCharField
+from django_mysql.models.fields.integer import PositiveTinyIntegerField
+from django_mysql.models.fields.integer import TinyIntegerField
 from django_mysql.models.fields.lists import ListCharField
 from django_mysql.models.fields.lists import ListTextField
 from django_mysql.models.fields.sets import SetCharField
@@ -20,8 +22,10 @@ __all__ = [
     "ListCharField",
     "ListTextField",
     "NullBit1BooleanField",
+    "PositiveTinyIntegerField",
     "SetCharField",
     "SetTextField",
     "SizedBinaryField",
     "SizedTextField",
+    "TinyIntegerField",
 ]
