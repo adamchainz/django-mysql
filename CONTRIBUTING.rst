@@ -20,7 +20,7 @@ Run the tests
 
    .. code-block:: console
 
-      DB_HOST=127.0.0.1 DB_USER=root DB_PASSWORD='hunter2' tox -e py313-django51
+      DB_HOST=127.0.0.1 DB_USER=root DB_PASSWORD='hunter2' tox -e py313-django52
 
   tox environments are split per Python and Django version.
 

@@ -67,6 +67,16 @@ if __name__ == "__main__":
         [
             *common_args,
             "--python",
+            "3.10",
+            "--output-file",
+            "py310-django52.txt",
+        ],
+        input=b"Django>=5.2a1,<5.3\nmysqlclient>=1.4.3\n",
+    )
+    run(
+        [
+            *common_args,
+            "--python",
             "3.11",
             "--output-file",
             "py311-django42.txt",
@@ -92,6 +102,16 @@ if __name__ == "__main__":
             "py311-django51.txt",
         ],
         input=b"Django>=5.1a1,<5.2\nmysqlclient>=1.4.3\n",
+    )
+    run(
+        [
+            *common_args,
+            "--python",
+            "3.11",
+            "--output-file",
+            "py311-django52.txt",
+        ],
+        input=b"Django>=5.2a1,<5.3\nmysqlclient>=1.4.3\n",
     )
     run(
         [
@@ -127,9 +147,29 @@ if __name__ == "__main__":
         [
             *common_args,
             "--python",
+            "3.12",
+            "--output-file",
+            "py312-django52.txt",
+        ],
+        input=b"Django>=5.2a1,<5.3\nmysqlclient>=1.4.3\n",
+    )
+    run(
+        [
+            *common_args,
+            "--python",
             "3.13",
             "--output-file",
             "py313-django51.txt",
         ],
         input=b"Django>=5.1a1,<5.2\nmysqlclient>=1.4.3\n",
+    )
+    run(
+        [
+            *common_args,
+            "--python",
+            "3.13",
+            "--output-file",
+            "py313-django52.txt",
+        ],
+        input=b"Django>=5.2a1,<5.3\nmysqlclient>=1.4.3\n",
     )
