@@ -83,7 +83,7 @@ def default_reverse_key_func(full_key: str) -> tuple[str, str, int]:
 
 
 def get_reverse_key_func(
-    reverse_key_func: str | Callable[[str], tuple[str, str, int]] | None
+    reverse_key_func: str | Callable[[str], tuple[str, str, int]] | None,
 ) -> Callable[[str], tuple[str, str, int]] | None:
     """
     Function to decide which reverse key function to use
