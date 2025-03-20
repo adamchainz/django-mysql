@@ -289,8 +289,7 @@ class RewriteQueryTests(TestCase):
             "SELECT col_a, col_b FROM `sometable` "
             + "WHERE (/*QueryRewrite':index=`sometable` FORCE PRIMARY */1)"
         ) == (
-            "SELECT col_a, col_b FROM `sometable` "
-            + "FORCE INDEX (PRIMARY) WHERE (1)"
+            "SELECT col_a, col_b FROM `sometable` " + "FORCE INDEX (PRIMARY) WHERE (1)"
         )
 
     def test_it_is_instrumented(self):

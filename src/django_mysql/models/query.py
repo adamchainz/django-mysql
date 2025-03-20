@@ -262,8 +262,8 @@ class QuerySetMixin(models.QuerySet):
 
         if len(index_names) == 0:
             indexes = "NONE"
-        elif len(index_names) == 1 and index_names[0] == 'PRIMARY':
-            indexes = 'PRIMARY'
+        elif len(index_names) == 1 and index_names[0] == "PRIMARY":
+            indexes = "PRIMARY"
         else:
             indexes = "`" + "`,`".join(index_names) + "`"
 

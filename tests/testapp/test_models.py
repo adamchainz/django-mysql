@@ -273,7 +273,7 @@ class QueryHintTests(TestCase):
 
     def test_force_index_primary(self):
         with CaptureLastQuery() as cap:
-            list(Author.objects.force_index("PRIMARY").order_by('pk'))
+            list(Author.objects.force_index("PRIMARY").order_by("pk"))
         assert ("FORCE INDEX (PRIMARY)") in cap.query
         used = used_indexes(cap.query)
         assert "PRIMARY" in used
@@ -319,7 +319,11 @@ class QueryHintTests(TestCase):
 
     def test_ignore_index_primary(self):
         with CaptureLastQuery() as cap:
-            list(Author.objects.filter(name__gt="").ignore_index("PRIMARY").order_by('pk'))
+            list(
+                Author.objects.filter(name__gt="")
+                .ignore_index("PRIMARY")
+                .order_by("pk")
+            )
         assert "IGNORE INDEX (PRIMARY)" in cap.query
         assert "PRIMARY" not in used_indexes(cap.query)
 
