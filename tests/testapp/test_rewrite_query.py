@@ -284,6 +284,15 @@ class RewriteQueryTests(TestCase):
             + "WHERE (1) ORDER BY col_a"
         )
 
+    def test_index_hint_primary(self):
+        assert rewrite_query(
+            "SELECT col_a, col_b FROM `sometable` "
+            + "WHERE (/*QueryRewrite':index=`sometable` FORCE PRIMARY */1)"
+        ) == (
+            "SELECT col_a, col_b FROM `sometable` "
+            + "FORCE INDEX (PRIMARY) WHERE (1)"
+        )
+
     def test_it_is_instrumented(self):
         with CaptureLastQuery() as cap, connection.cursor() as cursor:
             cursor.execute(

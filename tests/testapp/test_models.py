@@ -244,7 +244,7 @@ class QueryHintTests(TestCase):
     def test_use_index_primary(self):
         with CaptureLastQuery() as cap:
             list(Author.objects.use_index("PRIMARY"))
-        assert ("USE INDEX (`PRIMARY`)") in cap.query
+        assert ("USE INDEX (PRIMARY)") in cap.query
         used = used_indexes(cap.query)
         assert len(used) == 0 or "PRIMARY" in used
 
@@ -273,10 +273,10 @@ class QueryHintTests(TestCase):
 
     def test_force_index_primary(self):
         with CaptureLastQuery() as cap:
-            list(Author.objects.force_index("PRIMARY"))
-        assert ("FORCE INDEX (`PRIMARY`)") in cap.query
+            list(Author.objects.force_index("PRIMARY").order_by('pk'))
+        assert ("FORCE INDEX (PRIMARY)") in cap.query
         used = used_indexes(cap.query)
-        assert len(used) == 0 or "PRIMARY" in used
+        assert "PRIMARY" in used
 
     def test_force_index_inner_query(self):
         title_idx = index_name(Book, "title")
@@ -319,8 +319,8 @@ class QueryHintTests(TestCase):
 
     def test_ignore_index_primary(self):
         with CaptureLastQuery() as cap:
-            list(Author.objects.filter(name__gt="").ignore_index("PRIMARY"))
-        assert "IGNORE INDEX (`PRIMARY`)" in cap.query
+            list(Author.objects.filter(name__gt="").ignore_index("PRIMARY").order_by('pk'))
+        assert "IGNORE INDEX (PRIMARY)" in cap.query
         assert "PRIMARY" not in used_indexes(cap.query)
 
     def test_force_index_at_least_one(self):
@@ -355,7 +355,7 @@ class QueryHintTests(TestCase):
                     "PRIMARY", table_name=extra_table
                 )
             )
-        assert ("`" + extra_table + "` USE INDEX (`PRIMARY`) ") in cap.query
+        assert ("`" + extra_table + "` USE INDEX (PRIMARY) ") in cap.query
 
     def test_force_index_table_name_doesnt_exist_ignored(self):
         with CaptureLastQuery() as cap:
