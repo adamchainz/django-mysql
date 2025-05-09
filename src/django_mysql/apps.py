@@ -57,7 +57,7 @@ def install_rewrite_hook(connection: BaseDatabaseWrapper, **kwargs: Any) -> None
        here and not exit it, unless we store it forever in some variable.
     2. We want to be idempotent and only install the hook once.
     """
-    if connection.vendor != "mysql":
+    if connection.vendor != "mysql":  # pragma: no cover
         return
     if rewrite_hook not in connection.execute_wrappers:  # pragma: no branch
         connection.execute_wrappers.insert(0, rewrite_hook)
