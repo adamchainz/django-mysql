@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 from django.core.management import call_command
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db.utils import DataError
 from django.test import TestCase
@@ -79,3 +81,21 @@ class TestMigrations(TransactionTestCase):
         )
         with connection.cursor() as cursor:
             assert table_name not in table_names(cursor)
+
+
+class TestFormValidation(TestCase):
+    def test_signed_validators(self):
+        validators = TinyIntegerModel._meta.get_field("tiny_signed").validators
+        assert len(validators) == 2
+        assert isinstance(validators[0], MinValueValidator)
+        assert validators[0].limit_value == -128
+        assert isinstance(validators[1], MaxValueValidator)
+        assert validators[1].limit_value == 127
+
+    def test_unsigned_validators(self):
+        validators = TinyIntegerModel._meta.get_field("tiny_unsigned").validators
+        assert len(validators) == 2
+        assert isinstance(validators[0], MinValueValidator)
+        assert validators[0].limit_value == 0
+        assert isinstance(validators[1], MaxValueValidator)
+        assert validators[1].limit_value == 255
