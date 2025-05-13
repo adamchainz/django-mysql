@@ -74,6 +74,6 @@ repos:
   hooks:
   - id: mypy
     additional_dependencies:
-    - django-stubs==5.0.4
+    - django-stubs==5.2.0
     - mysqlclient
-    - pytest==8.3.2
+    - pytest==8.3.5
