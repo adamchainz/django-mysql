@@ -14,7 +14,7 @@ from django_mysql.models.fields.sizes import SizedTextField
 from django_mysql.models.fields.tiny_integer import PositiveTinyIntegerField
 from django_mysql.models.fields.tiny_integer import TinyIntegerField
 
-__all__ = [
+__all__ = (
     "Bit1BooleanField",
     "DynamicField",
     "EnumField",
@@ -28,4 +28,4 @@ __all__ = [
     "SizedBinaryField",
     "SizedTextField",
     "TinyIntegerField",
-]
+)

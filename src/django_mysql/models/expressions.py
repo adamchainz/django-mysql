@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from typing import Any
+from typing import Sequence
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import F
 from django.db.models import Value
 from django.db.models.expressions import BaseExpression
+from django.db.models.expressions import Combinable
+from django.db.models.expressions import Expression
 from django.db.models.sql.compiler import SQLCompiler
 
 from django_mysql.utils import collapse_spaces
@@ -18,10 +21,10 @@ class TwoSidedExpression(BaseExpression):
         self.lhs = lhs
         self.rhs = rhs
 
-    def get_source_expressions(self) -> list[BaseExpression]:
+    def get_source_expressions(self) -> list[Expression]:
         return [self.lhs, self.rhs]
 
-    def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
+    def set_source_expressions(self, exprs: Sequence[Combinable | Expression]) -> None:
         self.lhs, self.rhs = exprs
 
 
@@ -138,10 +141,10 @@ class PopListF(BaseExpression):
         super().__init__()
         self.lhs = lhs
 
-    def get_source_expressions(self) -> list[BaseExpression]:
+    def get_source_expressions(self) -> list[Expression]:
         return [self.lhs]
 
-    def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
+    def set_source_expressions(self, exprs: Sequence[Combinable | Expression]) -> None:
         (self.lhs,) = exprs
 
     def as_sql(
@@ -170,10 +173,10 @@ class PopLeftListF(BaseExpression):
         super().__init__()
         self.lhs = lhs
 
-    def get_source_expressions(self) -> list[BaseExpression]:
+    def get_source_expressions(self) -> list[Expression]:
         return [self.lhs]
 
-    def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
+    def set_source_expressions(self, exprs: Sequence[Combinable | Expression]) -> None:
         (self.lhs,) = exprs
 
     def as_sql(

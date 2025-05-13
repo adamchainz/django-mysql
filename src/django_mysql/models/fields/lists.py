@@ -5,6 +5,7 @@ from typing import Any
 from typing import Callable
 from typing import cast
 
+from django import forms
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
@@ -14,7 +15,7 @@ from django.db.models import Lookup
 from django.db.models import Model
 from django.db.models import TextField
 from django.db.models.expressions import BaseExpression
-from django.forms import Field as FormField
+from django.db.models.sql.compiler import SQLCompiler
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleListField
@@ -74,7 +75,7 @@ class ListFieldMixin(Field):
         return errors
 
     @property
-    def description(self) -> Any:
+    def description(self) -> str:
         return _("List of %(base_description)s") % {
             "base_description": self.base_field.description
         }
@@ -154,7 +155,7 @@ class ListFieldMixin(Field):
         vals = self.value_from_object(obj)
         return self.get_prep_value(vals)
 
-    def formfield(self, **kwargs: Any) -> FormField:
+    def formfield(self, **kwargs: Any) -> forms.Field | None:
         defaults = {
             "form_class": SimpleListField,
             "base_field": self.base_field.formfield(),
@@ -163,8 +164,10 @@ class ListFieldMixin(Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls: type[Model], name: str, **kwargs: Any) -> None:
-        super().contribute_to_class(cls, name, **kwargs)
+    def contribute_to_class(
+        self, cls: type[Model], name: str, private_only: bool = False
+    ) -> None:
+        super().contribute_to_class(cls, name, private_only=private_only)
         self.base_field.model = cls
 
 
@@ -228,11 +231,11 @@ class IndexLookup(Lookup):
         self.index = index
 
     def as_sql(
-        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
-        params = tuple(lhs_params) + tuple(rhs_params)
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+    ) -> tuple[str, list[str | int]]:
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = list(lhs_params) + list(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
         return f"(FIND_IN_SET({rhs}, {lhs}) = {self.index})", params
 
