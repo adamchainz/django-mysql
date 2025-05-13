@@ -48,7 +48,3 @@ Docs:
 
         class ExampleModel(models.Model):
             positive_tiny_value = PositiveTinyIntegerField()
-
-.. note::
-    Ensure that existing data values fall within the specified ranges before migrating
-    to this field, as values outside these ranges will cause migration operations to fail.
