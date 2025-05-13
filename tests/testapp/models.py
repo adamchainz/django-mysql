@@ -26,10 +26,12 @@ from django_mysql.models import FixedCharField
 from django_mysql.models import ListCharField
 from django_mysql.models import ListTextField
 from django_mysql.models import Model
+from django_mysql.models import PositiveTinyIntegerField
 from django_mysql.models import SetCharField
 from django_mysql.models import SetTextField
 from django_mysql.models import SizedBinaryField
 from django_mysql.models import SizedTextField
+from django_mysql.models import TinyIntegerField
 from tests.testapp.utils import conn_is_mysql
 
 
@@ -143,6 +145,11 @@ class SpeclessDynamicModel(Model):
 
 class FixedCharModel(Model):
     zip_code = FixedCharField(max_length=10)
+
+
+class TinyIntegerModel(Model):
+    tiny_signed = TinyIntegerField(null=True)
+    tiny_unsigned = PositiveTinyIntegerField(null=True)
 
 
 class Author(Model):

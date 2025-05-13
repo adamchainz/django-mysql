@@ -11,6 +11,8 @@ from django_mysql.models.fields.sets import SetCharField
 from django_mysql.models.fields.sets import SetTextField
 from django_mysql.models.fields.sizes import SizedBinaryField
 from django_mysql.models.fields.sizes import SizedTextField
+from django_mysql.models.fields.tiny_integer import PositiveTinyIntegerField
+from django_mysql.models.fields.tiny_integer import TinyIntegerField
 
 __all__ = [
     "Bit1BooleanField",
@@ -20,8 +22,10 @@ __all__ = [
     "ListCharField",
     "ListTextField",
     "NullBit1BooleanField",
+    "PositiveTinyIntegerField",
     "SetCharField",
     "SetTextField",
     "SizedBinaryField",
     "SizedTextField",
+    "TinyIntegerField",
 ]

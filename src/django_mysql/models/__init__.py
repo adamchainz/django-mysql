@@ -14,10 +14,12 @@ from django_mysql.models.fields import FixedCharField
 from django_mysql.models.fields import ListCharField
 from django_mysql.models.fields import ListTextField
 from django_mysql.models.fields import NullBit1BooleanField
+from django_mysql.models.fields import PositiveTinyIntegerField
 from django_mysql.models.fields import SetCharField
 from django_mysql.models.fields import SetTextField
 from django_mysql.models.fields import SizedBinaryField
 from django_mysql.models.fields import SizedTextField
+from django_mysql.models.fields import TinyIntegerField
 from django_mysql.models.query import ApproximateInt
 from django_mysql.models.query import QuerySet
 from django_mysql.models.query import QuerySetMixin
