@@ -214,7 +214,7 @@ Django-MySQL provides field classes for the ``TINYINT`` type:
         # Supports values from 0 to 255:
         positive_tiny_value = PositiveTinyIntegerField()
 
-:ref:`Read more <tinyintegerfields>`
+:ref:`Read more <tiny-integer-fields>`
 
 -------------
 Field Lookups

@@ -1,8 +1,8 @@
-.. _tinyintegerfields:
+.. _tiny-integer-fields:
 
-----------------
-TinyIntegerField
-----------------
+-------------------
+Tiny integer fields
+-------------------
 
 .. currentmodule:: django_mysql.models
 

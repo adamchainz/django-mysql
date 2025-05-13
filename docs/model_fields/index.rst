@@ -20,6 +20,6 @@ to the home of Django's native fields in ``django.db.models``.
    fixedchar_field
    resizable_text_binary_fields
    null_bit1_boolean_fields
-   tiny_integer_field
+   tiny_integer_fields
 
 .. currentmodule:: django_mysql.models
