@@ -6,14 +6,15 @@ Tiny integer fields
 
 .. currentmodule:: django_mysql.models
 
-When working with integers that fit within small ranges, the default integer
-fields can lead to excessive storage usage. MySQL’s ``TINYINT`` type allows
-efficient storage by limiting the size to one byte.
-The `TinyIntegerField` and `PositiveTinyIntegerField` make it easy to use
-the ``TINYINT`` and ``TINYINT UNSIGNED`` types in Django.
+When working with integers that only take small values, Django’s default integer fields can be a bit wasteful as smallest field class, |SmallIntegerField|__, takes 2 bytes.
+MySQL’s smallest integer data type, ``TINYINT``, is 1 byte, half the size!
+The below field classes allow you to use the ``TINYINT`` and ``TINYINT UNSIGNED`` types in Django.
+
+.. |SmallIntegerField| replace:: ``SmallIntegerField``
+__ https://docs.djangoproject.com/en/stable/ref/models/fields/#django.db.models.SmallIntegerField
 
 Docs:
-`MySQL TINYINT <https://dev.mysql.com/doc/refman/en/numeric-types.html>`_ /
+`MySQL TINYINT <https://dev.mysql.com/doc/refman/en/integer-types.html>`_ /
 `MariaDB <https://mariadb.com/kb/en/tinyint/>`_.
 
 .. class:: TinyIntegerField(**kwargs)
