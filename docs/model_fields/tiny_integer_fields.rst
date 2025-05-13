@@ -19,8 +19,8 @@ Docs:
 
 .. class:: TinyIntegerField(**kwargs)
 
-    A subclass of Django’s :class:`~django.db.models.SmallIntegerField` that uses a MySQL
-    ``TINYINT`` type for storage. It supports signed integer values ranging from -128 to 127.
+    A subclass of Django’s :class:`~django.db.models.IntegerField` that uses a MySQL ``TINYINT`` type for storage.
+    It supports signed integer values ranging from -128 to 127.
 
     Example:
 
@@ -35,9 +35,8 @@ Docs:
 
 .. class:: PositiveTinyIntegerField(**kwargs)
 
-    A subclass of Django’s :class:`~django.db.models.PositiveSmallIntegerField` that uses a
-    MySQL ``TINYINT UNSIGNED`` type for storage. It supports unsigned integer values ranging
-    from 0 to 255.
+    A subclass of Django’s :class:`~django.db.models.PositiveIntegerField` that uses a MySQL ``TINYINT UNSIGNED`` type for storage.
+    It supports unsigned integer values ranging from 0 to 255.
 
     Example:
 

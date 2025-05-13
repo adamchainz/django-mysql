@@ -3,12 +3,12 @@ from __future__ import annotations
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import PositiveSmallIntegerField
-from django.db.models import SmallIntegerField
+from django.db.models import IntegerField
+from django.db.models import PositiveIntegerField
 from django.utils.translation import gettext_lazy as _
 
 
-class TinyIntegerField(SmallIntegerField):
+class TinyIntegerField(IntegerField):
     description = _("Small integer")
     default_validators = [MinValueValidator(-128), MaxValueValidator(127)]
 
@@ -16,7 +16,7 @@ class TinyIntegerField(SmallIntegerField):
         return "tinyint"
 
 
-class PositiveTinyIntegerField(PositiveSmallIntegerField):
+class PositiveTinyIntegerField(PositiveIntegerField):
     description = _("Positive small integer")
     default_validators = [MinValueValidator(0), MaxValueValidator(255)]
 
