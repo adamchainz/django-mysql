@@ -2,6 +2,9 @@
 Changelog
 =========
 
+4.17.0 (2025-05-13)
+-------------------
+
 * Added field classes :class:`~django_mysql.models.TinyIntegerField` and
   :class:`~django_mysql.models.PositiveTinyIntegerField` that use MySQL’s one-byte
   ``TINYINT`` data type.
