@@ -33,7 +33,7 @@ index_rule_re = re.compile(
         (?P<for_what>JOIN|ORDER\ BY|GROUP\ BY)
         \ # space
     )?
-    (?P<index_names>(`[^`]+`(,`[^`]+`)*)|NONE)
+    (?P<index_names>(`[^`]+`(,`[^`]+`)*)|NONE|PRIMARY)
     """,
     re.VERBOSE,
 )
