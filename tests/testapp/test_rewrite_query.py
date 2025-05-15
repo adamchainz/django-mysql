@@ -50,7 +50,7 @@ class RewriteQueryTests(TestCase):
             + "nothing() AND (1)"
         )
 
-    def test_straight_join_preceeding_whitespace(self):
+    def test_straight_join_preceding_whitespace(self):
         assert rewrite_query(
             "  SELECT col_a, col_b FROM sometable WHERE nothing() AND "
             + "(/*QueryRewrite':STRAIGHT_JOIN*/1)"
@@ -238,9 +238,9 @@ class RewriteQueryTests(TestCase):
 
     def test_index_hint_multiple_indexes(self):
         assert rewrite_query(
-            "SELECT col_a FROM `tabl` WHERE "
-            "(/*QueryRewrite':index=`tabl` IGNORE `idx1`,`idx2`*/1)"
-        ) == ("SELECT col_a FROM `tabl` IGNORE INDEX (`idx1`,`idx2`) WHERE " + "(1)")
+            "SELECT col_a FROM `table` WHERE "
+            "(/*QueryRewrite':index=`table` IGNORE `idx1`,`idx2`*/1)"
+        ) == ("SELECT col_a FROM `table` IGNORE INDEX (`idx1`,`idx2`) WHERE " + "(1)")
 
     def test_index_hint_multiple_hints(self):
         assert rewrite_query(
