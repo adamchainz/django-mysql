@@ -467,7 +467,7 @@ class MySQLCache(BaseDatabaseCache):
         """
         if len(key) > 250:
             raise ValueError(
-                f"Cache key is longer than the maxmimum 250 characters: {key}"
+                f"Cache key is longer than the maximum 250 characters: {key}"
             )
         return super().validate_key(key)
 

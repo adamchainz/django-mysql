@@ -142,7 +142,7 @@ class GroupConcatTests(TestCase):
 
     def test_ordering_invalid(self):
         with pytest.raises(ValueError) as excinfo:
-            self.shakes.tutees.aggregate(tids=GroupConcat("id", ordering="asceding"))
+            self.shakes.tutees.aggregate(tids=GroupConcat("id", ordering="unknown"))
         assert "'ordering' must be one of" in str(excinfo.value)
 
     def test_ordering_asc(self):

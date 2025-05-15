@@ -299,7 +299,7 @@ as memcached, in an InnoDB table the keys are stored in order so range scans
 are easy.
 
 To use these methods, it must be possible to reverse-map the "full" key stored
-in the databse to the key you would provide to ``cache.get``, via a 'reverse
+in the database to the key you would provide to ``cache.get``, via a 'reverse
 key function'. If you have not set ``KEY_FUNCTION``, ``MySQLCache`` will use
 Django’s default key function, and can therefore default the reverse key
 function too, so you will not need to add anything.

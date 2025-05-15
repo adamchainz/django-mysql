@@ -507,7 +507,7 @@ Changelog
 1.0.2 (2016-01-24)
 ------------------
 
-* New function ``add_QuerySetMixin`` allows addding the ``QuerySetMixin`` to
+* New function ``add_QuerySetMixin`` allows adding the ``QuerySetMixin`` to
   arbitrary ``QuerySet``\s, for when you can't edit a model class.
 * Added field class ``EnumField`` that uses MySQL's ``ENUM`` data type.
 
@@ -650,7 +650,7 @@ Changelog
 0.1.5 (2015-03-11)
 ------------------
 
-* Added ``manage.py`` command ``dbparams`` for outputting database paramters
+* Added ``manage.py`` command ``dbparams`` for outputting database parameters
   in formats useful for shell scripts
 
 

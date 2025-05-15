@@ -24,7 +24,7 @@ class Lock:
         else:
             self.db = using
 
-        # For multi-database servers, we prefix the name of the lock wth
+        # For multi-database servers, we prefix the name of the lock with
         # the database, to protect against concurrent apps with the same locks
         self.name = self.make_name(self.db, name)
 

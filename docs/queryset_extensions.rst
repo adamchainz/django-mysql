@@ -50,7 +50,7 @@ Approximate Counting
 
     .. attribute:: return_approx_int=True
 
-        When ``True``, an ``int`` is not returned (excpet when falling back),
+        When ``True``, an ``int`` is not returned (except when falling back),
         but instead a subclass called ``ApproximateInt``. This is for all
         intents and purposes an ``int``, apart from when cast to ``str``, it
         renders as e.g. **'Approximately 12345'** (internationalization
