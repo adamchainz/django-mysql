@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
+from typing import Any, Callable
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -10,8 +9,7 @@ from django.db.backends.signals import connection_created
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.checks import register_checks
-from django_mysql.rewrite_query import REWRITE_MARKER
-from django_mysql.rewrite_query import rewrite_query
+from django_mysql.rewrite_query import REWRITE_MARKER, rewrite_query
 from django_mysql.utils import mysql_connections
 
 
@@ -34,12 +32,9 @@ class MySQLConfig(AppConfig):
         connection_created.connect(install_rewrite_hook)
 
     def add_lookups(self) -> None:
-        from django.db.models import CharField
-        from django.db.models import TextField
+        from django.db.models import CharField, TextField
 
-        from django_mysql.models.lookups import CaseSensitiveExact
-        from django_mysql.models.lookups import Soundex
-        from django_mysql.models.lookups import SoundsLike
+        from django_mysql.models.lookups import CaseSensitiveExact, Soundex, SoundsLike
 
         CharField.register_lookup(CaseSensitiveExact)
         CharField.register_lookup(SoundsLike)

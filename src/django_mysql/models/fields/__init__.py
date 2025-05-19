@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from django_mysql.models.fields.bit import Bit1BooleanField
-from django_mysql.models.fields.bit import NullBit1BooleanField
+from django_mysql.models.fields.bit import Bit1BooleanField, NullBit1BooleanField
 from django_mysql.models.fields.dynamic import DynamicField
 from django_mysql.models.fields.enum import EnumField
 from django_mysql.models.fields.fixedchar import FixedCharField
-from django_mysql.models.fields.lists import ListCharField
-from django_mysql.models.fields.lists import ListTextField
-from django_mysql.models.fields.sets import SetCharField
-from django_mysql.models.fields.sets import SetTextField
-from django_mysql.models.fields.sizes import SizedBinaryField
-from django_mysql.models.fields.sizes import SizedTextField
-from django_mysql.models.fields.tiny_integer import PositiveTinyIntegerField
-from django_mysql.models.fields.tiny_integer import TinyIntegerField
+from django_mysql.models.fields.lists import ListCharField, ListTextField
+from django_mysql.models.fields.sets import SetCharField, SetTextField
+from django_mysql.models.fields.sizes import SizedBinaryField, SizedTextField
+from django_mysql.models.fields.tiny_integer import (
+    PositiveTinyIntegerField,
+    TinyIntegerField,
+)
 
 __all__ = [
     "Bit1BooleanField",

@@ -6,32 +6,36 @@ from typing import Any
 
 from django.core import checks
 from django.db import connection
-from django.db.models import CASCADE
-from django.db.models import CharField
-from django.db.models import DateTimeField
-from django.db.models import DecimalField
-from django.db.models import ForeignKey
-from django.db.models import Index
-from django.db.models import IntegerField
-from django.db.models import JSONField
+from django.db.models import (
+    CASCADE,
+    CharField,
+    DateTimeField,
+    DecimalField,
+    ForeignKey,
+    Index,
+    IntegerField,
+    JSONField,
+    OneToOneField,
+    TextField,
+)
 from django.db.models import Model as VanillaModel
-from django.db.models import OneToOneField
-from django.db.models import TextField
 from django.utils import timezone
 
-from django_mysql.models import Bit1BooleanField
-from django_mysql.models import DynamicField
-from django_mysql.models import EnumField
-from django_mysql.models import FixedCharField
-from django_mysql.models import ListCharField
-from django_mysql.models import ListTextField
-from django_mysql.models import Model
-from django_mysql.models import PositiveTinyIntegerField
-from django_mysql.models import SetCharField
-from django_mysql.models import SetTextField
-from django_mysql.models import SizedBinaryField
-from django_mysql.models import SizedTextField
-from django_mysql.models import TinyIntegerField
+from django_mysql.models import (
+    Bit1BooleanField,
+    DynamicField,
+    EnumField,
+    FixedCharField,
+    ListCharField,
+    ListTextField,
+    Model,
+    PositiveTinyIntegerField,
+    SetCharField,
+    SetTextField,
+    SizedBinaryField,
+    SizedTextField,
+    TinyIntegerField,
+)
 from tests.testapp.utils import conn_is_mysql
 
 
@@ -194,7 +198,7 @@ class AuthorMultiIndex(Model):
 
 class AuthorHugeName(Model):
     class Meta:
-        db_table = "this_is_an_author_with_an_incredibly_long_table_name_" "you_know_it"
+        db_table = "this_is_an_author_with_an_incredibly_long_table_name_you_know_it"
 
     name = CharField(max_length=32)
 

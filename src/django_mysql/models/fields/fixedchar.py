@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper

@@ -3,36 +3,29 @@ from __future__ import annotations
 import pickle
 import re
 import shutil
-from unittest import SkipTest
-from unittest import mock
+from unittest import SkipTest, mock
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
-from django.db import DEFAULT_DB_ALIAS
-from django.db import connections
-from django.db.models import Exists
-from django.db.models import OuterRef
+from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import Exists, OuterRef
 from django.db.models.query import QuerySet
-from django.template import Context
-from django.template import Template
+from django.template import Context, Template
 from django.test import TestCase
-from django.test.utils import captured_stdout
-from django.test.utils import override_settings
+from django.test.utils import captured_stdout, override_settings
 
-from django_mysql.models import ApproximateInt
-from django_mysql.models import SmartIterator
-from django_mysql.models import add_QuerySetMixin
+from django_mysql.models import ApproximateInt, SmartIterator, add_QuerySetMixin
 from django_mysql.utils import index_name
-from tests.testapp.models import Author
-from tests.testapp.models import AuthorExtra
-from tests.testapp.models import AuthorMultiIndex
-from tests.testapp.models import Book
-from tests.testapp.models import NameAuthor
-from tests.testapp.models import NameAuthorExtra
-from tests.testapp.models import VanillaAuthor
-from tests.testapp.utils import CaptureLastQuery
-from tests.testapp.utils import skip_if_mysql
-from tests.testapp.utils import used_indexes
+from tests.testapp.models import (
+    Author,
+    AuthorExtra,
+    AuthorMultiIndex,
+    Book,
+    NameAuthor,
+    NameAuthorExtra,
+    VanillaAuthor,
+)
+from tests.testapp.utils import CaptureLastQuery, skip_if_mysql, used_indexes
 
 
 class MixinQuerysetTests(TestCase):
@@ -390,13 +383,13 @@ class FoundRowsTests(TestCase):
     def test_found_rows_requires_sql_calc_found_rows(self):
         authors = Author.objects.all()
         with pytest.raises(ValueError) as excinfo:
-            authors.found_rows
+            authors.found_rows  # noqa: B018
         assert "can only be used if" in str(excinfo.value)
 
     def test_found_rows_requires_iteration(self):
         authors = Author.objects.sql_calc_found_rows()[:5]
         with self.assertRaises(RuntimeError):
-            authors.found_rows
+            authors.found_rows  # noqa: B018
 
     def test_it_doesnt_work_with_iterator(self):
         authors = Author.objects.sql_calc_found_rows()[:5]
@@ -445,7 +438,7 @@ class FoundRowsTests(TestCase):
 
         authors2 = authors.filter(id__gte=1)
         with pytest.raises(RuntimeError):
-            authors2.found_rows
+            authors2.found_rows  # noqa: B018
 
         with self.assertNumQueries(2):
             list(authors2)
@@ -634,12 +627,10 @@ class SmartIteratorTests(TestCase):
         seen: list[int] = []
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             authors = Author.objects.raw(
-                """
-                SELECT id FROM {}
+                f"""
+                SELECT id FROM {Author._meta.db_table}
                 WHERE id >= %s AND id < %s
-            """.format(
-                    Author._meta.db_table
-                ),
+            """,
                 (start_pk, end_pk),
             )
             seen.extend(author.id for author in authors)
