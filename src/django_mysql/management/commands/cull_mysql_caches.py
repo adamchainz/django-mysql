@@ -4,10 +4,8 @@ import argparse
 from typing import Any
 
 from django.conf import settings
-from django.core.cache import InvalidCacheBackendError
-from django.core.cache import caches
-from django.core.management import BaseCommand
-from django.core.management import CommandError
+from django.core.cache import InvalidCacheBackendError, caches
+from django.core.management import BaseCommand, CommandError
 
 from django_mysql.cache import MySQLCache
 from django_mysql.utils import collapse_spaces

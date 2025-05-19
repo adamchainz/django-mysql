@@ -29,9 +29,7 @@ class BaseStatus:
 
     def get(self, name: str) -> int | float | bool | str:
         if "%" in name:
-            raise ValueError(
-                "get() is for fetching single variables, " "no % wildcards"
-            )
+            raise ValueError("get() is for fetching single variables, no % wildcards")
         with self.get_cursor() as cursor:
             num_rows = cursor.execute(self.query + " LIKE %s", (name,))
             if num_rows == 0:
@@ -44,7 +42,7 @@ class BaseStatus:
 
         if any(("%" in name) for name in names):
             raise ValueError(
-                "get_many() is for fetching named " "variables, no % wildcards"
+                "get_many() is for fetching named variables, no % wildcards"
             )
 
         with self.get_cursor() as cursor:

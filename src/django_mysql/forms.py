@@ -8,10 +8,12 @@ from django.core.exceptions import ValidationError
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from django_mysql.validators import ListMaxLengthValidator
-from django_mysql.validators import ListMinLengthValidator
-from django_mysql.validators import SetMaxLengthValidator
-from django_mysql.validators import SetMinLengthValidator
+from django_mysql.validators import (
+    ListMaxLengthValidator,
+    ListMinLengthValidator,
+    SetMaxLengthValidator,
+    SetMinLengthValidator,
+)
 
 
 class SimpleListField(forms.CharField):
@@ -137,7 +139,7 @@ class SimpleSetField(forms.CharField):
         "item_n_invalid": _("Item %(nth)s in the set did not validate: "),
         "no_double_commas": _("No leading, trailing, or double commas."),
         "no_duplicates": _(
-            "Duplicates are not supported. " "'%(item)s' appears twice or more."
+            "Duplicates are not supported. '%(item)s' appears twice or more."
         ),
     }
 

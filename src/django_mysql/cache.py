@@ -8,21 +8,14 @@ from collections.abc import Iterable
 from random import random
 from textwrap import dedent
 from time import time
-from typing import Any
-from typing import Callable
-from typing import Literal
-from typing import cast
+from typing import Any, Callable, Literal, cast
 
-from django.core.cache.backends.base import DEFAULT_TIMEOUT
-from django.core.cache.backends.base import BaseCache
-from django.core.cache.backends.base import default_key_func
-from django.db import connections
-from django.db import router
+from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
+from django.db import connections, router
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
-from django_mysql.utils import collapse_spaces
-from django_mysql.utils import get_list_sql
+from django_mysql.utils import collapse_spaces, get_list_sql
 
 _EncodedKeyType = Literal["i", "p", "z"]
 
@@ -146,7 +139,7 @@ class MySQLCache(BaseDatabaseCache):
                     "KEY_PREFIX."
                 )
         else:
-            reverse_key_func = params.get("REVERSE_KEY_FUNCTION", None)
+            reverse_key_func = params.get("REVERSE_KEY_FUNCTION")
             self.reverse_key_func = get_reverse_key_func(reverse_key_func)
 
     # Django API + helpers
@@ -412,7 +405,7 @@ class MySQLCache(BaseDatabaseCache):
             )
 
             if not updated:
-                raise ValueError("Key '%s' not found, or not an integer" % key)
+                raise ValueError(f"Key '{key}' not found, or not an integer")
 
             # New value stored in insert_id
             return cursor.lastrowid
@@ -549,11 +542,9 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                """SELECT cache_key FROM {table}
+                f"""SELECT cache_key FROM {table}
                    WHERE cache_key LIKE %s AND
-                         expires >= %s""".format(
-                    table=table
-                ),
+                         expires >= %s""",
                 (prefix, self._now()),
             )
             rows = cursor.fetchall()
@@ -584,12 +575,10 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             cursor.execute(
-                """SELECT cache_key, value, value_type
+                f"""SELECT cache_key, value, value_type
                    FROM {table}
                    WHERE cache_key LIKE %s AND
-                         expires >= %s""".format(
-                    table=table
-                ),
+                         expires >= %s""",
                 (prefix, self._now()),
             )
             rows = cursor.fetchall()
@@ -612,10 +601,8 @@ class MySQLCache(BaseDatabaseCache):
 
         with connections[db].cursor() as cursor:
             return cursor.execute(
-                """DELETE FROM {table}
-                   WHERE cache_key LIKE %s""".format(
-                    table=table
-                ),
+                f"""DELETE FROM {table}
+                   WHERE cache_key LIKE %s""",
                 (prefix,),
             )
 
@@ -646,19 +633,15 @@ class MySQLCache(BaseDatabaseCache):
             else:
                 cull_num = num // self._cull_frequency
                 cursor.execute(
-                    """SELECT cache_key FROM {table}
+                    f"""SELECT cache_key FROM {table}
                        ORDER BY cache_key
-                       LIMIT 1 OFFSET %s""".format(
-                        table=table
-                    ),
+                       LIMIT 1 OFFSET %s""",
                     (cull_num,),
                 )
                 max_key = cursor.fetchone()[0]
                 num_deleted += cursor.execute(
-                    """DELETE FROM {table}
-                       WHERE cache_key < %s""".format(
-                        table=table
-                    ),
+                    f"""DELETE FROM {table}
+                       WHERE cache_key < %s""",
                     (max_key,),
                 )
             return num_deleted

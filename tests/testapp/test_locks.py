@@ -5,23 +5,20 @@ from threading import Thread
 from typing import TYPE_CHECKING
 
 import pytest
-from django.db import OperationalError
-from django.db import connection
-from django.db import connections
-from django.db.transaction import TransactionManagementError
-from django.db.transaction import atomic
-from django.test import TestCase
-from django.test import TransactionTestCase
+from django.db import OperationalError, connection, connections
+from django.db.transaction import TransactionManagementError, atomic
+from django.test import TestCase, TransactionTestCase
 
 from django_mysql.exceptions import TimeoutError
-from django_mysql.locks import Lock
-from django_mysql.locks import TableLock
+from django_mysql.locks import Lock, TableLock
 from django_mysql.models import Model
-from tests.testapp.models import AgedCustomer
-from tests.testapp.models import Alphabet
-from tests.testapp.models import Customer
-from tests.testapp.models import ProxyAlphabet
-from tests.testapp.models import TitledAgedCustomer
+from tests.testapp.models import (
+    AgedCustomer,
+    Alphabet,
+    Customer,
+    ProxyAlphabet,
+    TitledAgedCustomer,
+)
 
 
 class LockTests(TestCase):
@@ -121,9 +118,8 @@ class LockTests(TestCase):
             assert threading_test.is_held()
             assert threading_test.holding_connection_id() != own_connection_id
 
-            with pytest.raises(TimeoutError):
-                with threading_test:
-                    pass
+            with pytest.raises(TimeoutError), threading_test:
+                pass
 
             to_you.put("Stop")
         finally:
@@ -165,9 +161,8 @@ class LockTests(TestCase):
             assert the_lock.is_held()
             assert the_lock.holding_connection_id() != own_connection_id
 
-            with pytest.raises(TimeoutError):
-                with the_lock:
-                    pass
+            with pytest.raises(TimeoutError), the_lock:
+                pass
 
             to_you.put("Stop")
         finally:
@@ -279,9 +274,8 @@ class TableLockTests(TransactionTestCase):
         assert Alphabet.objects.using("other").count() == 0
 
     def test_write_fails_touching_other_table(self):
-        with pytest.raises(OperationalError) as excinfo:
-            with TableLock(write=[Alphabet]):
-                Customer.objects.create(name="Lizzy")
+        with pytest.raises(OperationalError) as excinfo, TableLock(write=[Alphabet]):
+            Customer.objects.create(name="Lizzy")
 
         assert excinfo.value.args[0] == 1100  # ER_TABLE_NOT_LOCKED
 
@@ -303,16 +297,22 @@ class TableLockTests(TransactionTestCase):
         assert not connection.in_atomic_block
 
     def test_fails_in_atomic(self):
-        with atomic(), pytest.raises(TransactionManagementError) as excinfo:
-            with TableLock(read=[Alphabet]):
-                pass
+        with (
+            atomic(),
+            pytest.raises(TransactionManagementError) as excinfo,
+            TableLock(read=[Alphabet]),
+        ):
+            pass
 
         assert str(excinfo.value).startswith("InnoDB requires that we not be")
 
     def test_fail_nested(self):
-        with pytest.raises(TransactionManagementError) as excinfo:
-            with TableLock(write=[Alphabet]), TableLock(write=[Customer]):
-                pass
+        with (
+            pytest.raises(TransactionManagementError) as excinfo,
+            TableLock(write=[Alphabet]),
+            TableLock(write=[Customer]),
+        ):
+            pass
 
         assert str(excinfo.value).startswith("InnoDB requires that we not be")
 
@@ -331,16 +331,14 @@ class TableLockTests(TransactionTestCase):
             assert Alphabet.objects.count() == 0
 
     def test_writes_fail_under_read(self):
-        with TableLock(read=[Alphabet]):
-            with pytest.raises(OperationalError) as excinfo:
-                Alphabet.objects.update(a=2)
+        with TableLock(read=[Alphabet]), pytest.raises(OperationalError) as excinfo:
+            Alphabet.objects.update(a=2)
 
         assert "was locked with a READ lock and can't be updated" in str(excinfo.value)
 
     def test_fails_with_abstract_model(self):
-        with pytest.raises(ValueError) as excinfo:
-            with TableLock(read=[Model]):
-                pass
+        with pytest.raises(ValueError) as excinfo, TableLock(read=[Model]):
+            pass
 
         assert "Can't lock abstract model Model" in str(excinfo.value)
 
@@ -380,11 +378,10 @@ class TableLockTests(TransactionTestCase):
 
     def test_inherited_model_top_parent_fails(self):
         AgedCustomer.objects.create(age=99999, name="Methuselah")
-        with pytest.raises(OperationalError) as excinfo:
-            with TableLock(write=[Customer]):
-                # Django automatically follows down to children which aren't
-                # locked
-                Customer.objects.all().delete()
+        with pytest.raises(OperationalError) as excinfo, TableLock(write=[Customer]):
+            # Django automatically follows down to children which aren't
+            # locked
+            Customer.objects.all().delete()
         assert "was not locked with LOCK TABLES" in str(excinfo.value)
 
     def test_acquire_release(self):

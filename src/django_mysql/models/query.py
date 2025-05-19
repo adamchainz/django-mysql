@@ -7,20 +7,11 @@ import time
 from collections.abc import Generator
 from contextlib import nullcontext
 from copy import copy
-from functools import cache
-from functools import wraps
-from typing import Any
-from typing import Callable
-from typing import Literal
-from typing import Optional
-from typing import TypedDict
-from typing import TypeVar
-from typing import Union
-from typing import cast
+from functools import cache, wraps
+from typing import Any, Callable, Literal, Optional, TypedDict, TypeVar, Union, cast
 
 from django.conf import settings
-from django.db import connections
-from django.db import models
+from django.db import connections, models
 from django.db.models.sql.where import ExtraWhere
 from django.db.transaction import atomic
 from django.utils.functional import cached_property
@@ -28,10 +19,12 @@ from django.utils.translation import gettext as _
 
 from django_mysql.rewrite_query import REWRITE_MARKER
 from django_mysql.status import GlobalStatus
-from django_mysql.utils import StopWatch
-from django_mysql.utils import WeightedAverageRate
-from django_mysql.utils import format_duration
-from django_mysql.utils import settings_to_cmd_args
+from django_mysql.utils import (
+    StopWatch,
+    WeightedAverageRate,
+    format_duration,
+    settings_to_cmd_args,
+)
 
 _Q = TypeVar("_Q", bound="QuerySetMixin")
 QueryRewriteFunc = TypeVar("QueryRewriteFunc", bound=Callable[..., Any])
@@ -179,7 +172,7 @@ class QuerySetMixin(models.QuerySet):
     def found_rows(self) -> int:
         if not hasattr(self, "_found_rows"):
             raise ValueError(
-                "found_rows can only be used if you call " "sql_calc_found_rows()"
+                "found_rows can only be used if you call sql_calc_found_rows()"
             )
         if self._found_rows is None:
             raise RuntimeError(
@@ -257,7 +250,7 @@ class QuerySetMixin(models.QuerySet):
             for_bit = ""
         else:
             raise ValueError(
-                "for_ must be one of: None, 'JOIN', 'ORDER BY', " "'GROUP BY'"
+                "for_ must be one of: None, 'JOIN', 'ORDER BY', 'GROUP BY'"
             )
 
         if len(index_names) == 0:
@@ -265,9 +258,7 @@ class QuerySetMixin(models.QuerySet):
         else:
             indexes = "`" + "`,`".join(index_names) + "`"
 
-        hint = (
-            "/*QueryRewrite':index=`{table_name}` {hint} {for_bit}{indexes}*/1"
-        ).format(table_name=table_name, hint=hint, for_bit=for_bit, indexes=indexes)
+        hint = f"/*QueryRewrite':index=`{table_name}` {hint} {for_bit}{indexes}*/1"
         return self.extra(where=[hint])
 
     # Features handled by extra classes/functions
@@ -414,9 +405,9 @@ class SmartChunkedIterator:
         self.pk_range = pk_range
 
         self.rate = WeightedAverageRate(chunk_time)
-        assert (
-            0 < chunk_min <= chunk_max
-        ), "Minimum chunk size should not be greater than maximum chunk size."
+        assert 0 < chunk_min <= chunk_max, (
+            "Minimum chunk size should not be greater than maximum chunk size."
+        )
         self.chunk_min = chunk_min
         self.chunk_max = chunk_max
         self.chunk_size = self.constrain_size(chunk_size)
@@ -467,13 +458,12 @@ class SmartChunkedIterator:
     def sanitize_queryset(self, queryset: models.QuerySet) -> models.QuerySet:
         if queryset.ordered:
             raise ValueError(
-                "You can't use %s on a QuerySet with an ordering."
-                % self.__class__.__name__
+                f"You can't use {self.__class__.__name__} on a QuerySet with an ordering."
             )
 
         if queryset.query.low_mark or queryset.query.high_mark:
             raise ValueError(
-                "You can't use %s on a sliced QuerySet." % self.__class__.__name__
+                f"You can't use {self.__class__.__name__} on a sliced QuerySet."
             )
 
         pk = queryset.model._meta.pk
@@ -485,8 +475,7 @@ class SmartChunkedIterator:
             # If your custom field class should be allowed, just add it to
             # ALLOWED_PK_FIELD_CLASSES
             raise ValueError(
-                "You can't use %s on a model with a non-integer primary key."
-                % self.__class__.__name__
+                f"You can't use {self.__class__.__name__} on a model with a non-integer primary key."
             )
 
         return queryset.order_by("pk")
@@ -607,14 +596,7 @@ class SmartChunkedIterator:
             except ZeroDivisionError:  # pragma: no cover
                 percent_complete = 0.0
 
-        report = "{} {} processed {}/{} objects ({:.2f}%) in {} chunks".format(
-            self.model_name,
-            self.__class__.__name__,
-            self.objects_done,
-            self.total,
-            percent_complete,
-            self.chunks_done,
-        )
+        report = f"{self.model_name} {self.__class__.__name__} processed {self.objects_done}/{self.total} objects ({percent_complete:.2f}%) in {self.chunks_done} chunks"
 
         if end_pk is not None:
             report += "; {dir} pk so far {end_pk}".format(
@@ -704,16 +686,20 @@ def approx_count(queryset: models.QuerySet) -> int:
 def can_approx_count(queryset: QuerySetMixin) -> bool:
     query = queryset.query
 
-    if query.select or query.group_by or query.distinct:
-        return False
-    elif query.high_mark is not None or query.low_mark != 0:
+    if (
+        query.select
+        or query.group_by
+        or query.distinct
+        or query.high_mark is not None
+        or query.low_mark != 0
+    ):
         return False
 
     # Visit parts of the where clause - if any is not a query hint, fail
     for child in query.where.children:
-        if not isinstance(child, ExtraWhere):
-            return False
-        elif any(REWRITE_MARKER not in sql for sql in child.sqls):
+        if not isinstance(child, ExtraWhere) or any(
+            REWRITE_MARKER not in sql for sql in child.sqls
+        ):
             return False
 
     return True

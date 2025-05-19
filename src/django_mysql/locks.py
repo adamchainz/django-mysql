@@ -6,8 +6,7 @@ from types import TracebackType
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
 from django.db.models import Model
-from django.db.transaction import TransactionManagementError
-from django.db.transaction import atomic
+from django.db.transaction import TransactionManagementError, atomic
 from django.db.utils import DEFAULT_DB_ALIAS
 
 from django_mysql.exceptions import TimeoutError

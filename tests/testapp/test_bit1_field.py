@@ -3,12 +3,10 @@ from __future__ import annotations
 import json
 
 import django
-from django.core import checks
-from django.core import serializers
+from django.core import checks, serializers
 from django.db import models
 from django.db.models import F
-from django.test import SimpleTestCase
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.test.utils import isolate_apps
 
 from django_mysql.models import NullBit1BooleanField

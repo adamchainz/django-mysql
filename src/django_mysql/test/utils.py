@@ -44,9 +44,7 @@ class override_mysql_variables:
         if isinstance(test_func, type):
             if not issubclass(test_func, TestCase):
                 raise TypeError(
-                    "{} only works with TestCase classes.".format(
-                        self.__class__.__name__
-                    )
+                    f"{self.__class__.__name__} only works with TestCase classes."
                 )
 
             self.wrap_class(test_func)
@@ -77,11 +75,9 @@ class override_mysql_variables:
         with connections[self.db].cursor() as cursor:
             for key, value in self.options.items():
                 cursor.execute(
-                    """SET @overridden_{prefix}_{name} = @@{name},
-                           @@{name} = %s
-                    """.format(
-                        prefix=self.prefix, name=key
-                    ),
+                    f"""SET @overridden_{self.prefix}_{key} = @@{key},
+                           @@{key} = %s
+                    """,
                     (value,),
                 )
 
@@ -89,9 +85,7 @@ class override_mysql_variables:
         with connections[self.db].cursor() as cursor:
             for key in self.options:
                 cursor.execute(
-                    """SET @@{name} = @overridden_{prefix}_{name},
-                           @overridden_{prefix}_{name} = NULL
-                    """.format(
-                        name=key, prefix=self.prefix
-                    )
+                    f"""SET @@{key} = @overridden_{self.prefix}_{key},
+                           @overridden_{self.prefix}_{key} = NULL
+                    """
                 )
