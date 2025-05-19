@@ -1,25 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any
-from typing import Callable
-from typing import cast
+from typing import Any, Callable, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import CharField
-from django.db.models import Field
-from django.db.models import IntegerField
-from django.db.models import Lookup
-from django.db.models import Model
-from django.db.models import TextField
+from django.db.models import CharField, Field, IntegerField, Lookup, Model, TextField
 from django.db.models.expressions import BaseExpression
 from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleListField
-from django_mysql.models.lookups import SetContains
-from django_mysql.models.lookups import SetIContains
+from django_mysql.models.lookups import SetContains, SetIContains
 from django_mysql.models.transforms import SetLength
 from django_mysql.typing import DeconstructResult
 from django_mysql.validators import ListMaxLengthValidator
@@ -65,7 +57,7 @@ class ListFieldMixin(Field):
             )
             errors.append(
                 checks.Error(
-                    "Base field for list has errors:\n    %s" % messages,
+                    f"Base field for list has errors:\n    {messages}",
                     hint=None,
                     obj=self,
                     id="django_mysql.E004",
@@ -122,15 +114,11 @@ class ListFieldMixin(Field):
             for v in value:
                 if "," in v:
                     raise ValueError(
-                        "List members in {klass} {name} cannot contain commas".format(
-                            klass=self.__class__.__name__, name=self.name
-                        )
+                        f"List members in {self.__class__.__name__} {self.name} cannot contain commas"
                     )
                 elif not len(v):
                     raise ValueError(
-                        "The empty string cannot be stored in {klass} {name}".format(
-                            klass=self.__class__.__name__, name=self.name
-                        )
+                        f"The empty string cannot be stored in {self.__class__.__name__} {self.name}"
                     )
             return ",".join(value)
         return value
@@ -196,10 +184,9 @@ class ListCharField(ListFieldMixin, CharField):
                 errors.append(
                     checks.Error(
                         "Field can overrun - set contains CharFields of max "
-                        "length %s, leading to a comma-combined max length of "
-                        "%s, which is greater than the space reserved for the "
-                        "set - %s"
-                        % (self.base_field.max_length, max_size, self.max_length),
+                        f"length {self.base_field.max_length}, leading to a comma-combined max length of "
+                        f"{max_size}, which is greater than the space reserved for the "
+                        f"set - {self.max_length}",
                         hint=None,
                         obj=self,
                         id="django_mysql.E006",

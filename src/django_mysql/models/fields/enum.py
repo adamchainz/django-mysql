@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField
@@ -33,10 +32,8 @@ class EnumField(CharField):
                 reformatted_choices.append((choice, choice))
             else:
                 raise TypeError(
-                    'Invalid choice "{choice}". '
-                    "Expected string or tuple as elements in choices".format(
-                        choice=choice
-                    )
+                    f'Invalid choice "{choice}". '
+                    "Expected string or tuple as elements in choices"
                 )
 
         if "max_length" in kwargs:
@@ -67,4 +64,4 @@ class EnumField(CharField):
         values = [connection.connection.escape_string(c) for c, _ in self.flatchoices]
         # Use force_str because MySQLdb escape_string() returns bytes, but
         # pymysql returns str
-        return "enum(%s)" % ",".join("'%s'" % force_str(v) for v in values)
+        return "enum({})".format(",".join(f"'{force_str(v)}'" for v in values))

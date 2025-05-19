@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import pytest
 from django.core.management import call_command
-from django.core.validators import MaxValueValidator
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import connection
 from django.db.utils import DataError
-from django.test import TestCase
-from django.test import TransactionTestCase
-from django.test import override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 
 from tests.testapp.models import TinyIntegerModel
 

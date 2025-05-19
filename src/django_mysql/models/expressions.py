@@ -4,8 +4,7 @@ from collections.abc import Iterable
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import F
-from django.db.models import Value
+from django.db.models import F, Value
 from django.db.models.expressions import BaseExpression
 from django.db.models.sql.compiler import SQLCompiler
 

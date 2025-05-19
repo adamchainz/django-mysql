@@ -6,8 +6,7 @@ from collections.abc import Generator
 from types import TracebackType
 from typing import Any
 
-from django.db import DEFAULT_DB_ALIAS
-from django.db import connections
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Model
 
@@ -108,20 +107,20 @@ def settings_to_cmd_args(settings_dict: dict[str, Any]) -> list[str]:
     # Seems to be no good way to set sql_mode with CLI.
 
     if defaults_file:
-        args += ["--defaults-file=%s" % defaults_file]
+        args += [f"--defaults-file={defaults_file}"]
     if user:
-        args += ["--user=%s" % user]
+        args += [f"--user={user}"]
     if passwd:
-        args += ["--password=%s" % passwd]
+        args += [f"--password={passwd}"]
     if host:  # pragma: no branch
         if "/" in host:
-            args += ["--socket=%s" % host]
+            args += [f"--socket={host}"]
         else:
-            args += ["--host=%s" % host]
+            args += [f"--host={host}"]
     if port:
-        args += ["--port=%s" % port]
+        args += [f"--port={port}"]
     if cert:
-        args += ["--ssl-ca=%s" % cert]
+        args += [f"--ssl-ca={cert}"]
     if db:
         args += [db]
     return args
@@ -151,15 +150,13 @@ def index_name(model: Model, *field_names: str, using: str = DEFAULT_DB_ALIAS) -
 
     with connections[using].cursor() as cursor:
         cursor.execute(
-            """SELECT `INDEX_NAME`, `SEQ_IN_INDEX`, `COLUMN_NAME`
+            f"""SELECT `INDEX_NAME`, `SEQ_IN_INDEX`, `COLUMN_NAME`
                FROM INFORMATION_SCHEMA.STATISTICS
                WHERE TABLE_SCHEMA = DATABASE() AND
                      TABLE_NAME = %s AND
                      COLUMN_NAME IN {list_sql}
                ORDER BY `INDEX_NAME`, `SEQ_IN_INDEX` ASC
-            """.format(
-                list_sql=list_sql
-            ),
+            """,
             (model._meta.db_table,) + column_names,
         )
         indexes = defaultdict(list)

@@ -9,28 +9,18 @@ from io import StringIO
 from typing import Any
 
 import pytest
-from django.core.cache import CacheKeyWarning
-from django.core.cache import cache
-from django.core.cache import caches
-from django.core.management import CommandError
-from django.core.management import call_command
-from django.db import IntegrityError
-from django.db import connection
+from django.core.cache import CacheKeyWarning, cache, caches
+from django.core.management import CommandError, call_command
+from django.db import IntegrityError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
-from django.middleware.cache import FetchFromCacheMiddleware
-from django.middleware.cache import UpdateCacheMiddleware
-from django.test import RequestFactory
-from django.test import TestCase
-from django.test import TransactionTestCase
+from django.middleware.cache import FetchFromCacheMiddleware, UpdateCacheMiddleware
+from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from parameterized import parameterized
 
-from django_mysql.cache import BIGINT_SIGNED_MAX
-from django_mysql.cache import BIGINT_SIGNED_MIN
-from django_mysql.cache import MySQLCache
-from tests.testapp.models import Poll
-from tests.testapp.models import expensive_calculation
+from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
+from tests.testapp.models import Poll, expensive_calculation
 
 
 # functions/classes for complex data type tests
@@ -105,7 +95,7 @@ def caches_setting_for_tests(options=None, **params):
     # base config for the tests.
     # This results in the following search order:
     # params -> _caches_setting_base -> base
-    setting: dict[str, Any] = {k: {} for k in _caches_setting_base.keys()}
+    setting: dict[str, Any] = {k: {} for k in _caches_setting_base}
     for key, cache_params in setting.items():
         cache_params.update(_caches_setting_base[key])
         cache_params.update(params)
@@ -136,7 +126,7 @@ class MySQLCacheTableMixin(TransactionTestCase):
     @classmethod
     def drop_table(self):
         with connection.cursor() as cursor:
-            cursor.execute("DROP TABLE `%s`" % self.table_name)
+            cursor.execute(f"DROP TABLE `{self.table_name}`")
 
 
 @override_cache_settings()
@@ -155,7 +145,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def table_count(self):
         with connection.cursor() as cursor:
-            cursor.execute("SELECT COUNT(*) FROM `%s`" % self.table_name)
+            cursor.execute(f"SELECT COUNT(*) FROM `{self.table_name}`")
             return cursor.fetchone()[0]
 
     # These tests were copied from django's tests/cache/tests.py file
@@ -325,8 +315,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
     def test_binary_string(self):
         # Binary strings should be cacheable
-        from zlib import compress
-        from zlib import decompress
+        from zlib import compress, decompress
 
         value = "value_to_be_compressed"
         compressed_value = compress(value.encode())
@@ -1001,7 +990,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         # Create initial cache key entries. This will overflow the cache,
         # causing a cull.
         for i in range(1, initial_count + 1):
-            cull_cache.set("cull%d" % i, "value", 1000)
+            cull_cache.set(f"cull{i}", "value", 1000)
         count = 0
         # Count how many keys are left in the cache.
         for i in range(1, initial_count + 1):
@@ -1051,7 +1040,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
 
         cache.set("mykey", 123)
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE `%s` SET value_type = '?'" % self.table_name)
+            cursor.execute(f"UPDATE `{self.table_name}` SET value_type = '?'")
 
         with pytest.raises(ValueError):
             cache.get("mykey")
@@ -1072,15 +1061,14 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.set("akey", 123)
         with connection.cursor() as cursor:
             # Check that value_type is 'i' for integer
-            cursor.execute("SELECT value_type FROM `%s`" % self.table_name)
+            cursor.execute(f"SELECT value_type FROM `{self.table_name}`")
             t = cursor.fetchone()[0]
             assert t == "i"
 
             # Should be case-sensitive, so i != I
             cursor.execute(
-                """SELECT COUNT(*) FROM `%s`
+                f"""SELECT COUNT(*) FROM `{self.table_name}`
                    WHERE value_type = 'I'"""
-                % self.table_name
             )
             n = cursor.fetchone()[0]
             assert n == 0
@@ -1295,7 +1283,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     def test_cull_mysql_caches_bad_cache_name(self):
         with pytest.raises(CommandError) as excinfo:
             call_command("cull_mysql_caches", "NOTACACHE", verbosity=0)
-        assert "Cache 'NOTACACHE' does not exist" == str(excinfo.value)
+        assert str(excinfo.value) == "Cache 'NOTACACHE' does not exist"
 
 
 @override_cache_settings()

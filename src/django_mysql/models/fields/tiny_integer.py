@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from django.core.validators import MaxValueValidator
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import IntegerField
-from django.db.models import PositiveIntegerField
+from django.db.models import IntegerField, PositiveIntegerField
 from django.utils.translation import gettext_lazy as _
 
 

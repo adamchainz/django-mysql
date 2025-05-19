@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import pytest
-from django.test import SimpleTestCase
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
-from django_mysql.utils import WeightedAverageRate
-from django_mysql.utils import format_duration
-from django_mysql.utils import index_name
-from tests.testapp.models import Author
-from tests.testapp.models import AuthorMultiIndex
+from django_mysql.utils import WeightedAverageRate, format_duration, index_name
+from tests.testapp.models import Author, AuthorMultiIndex
 
 
 class WeightedAverageRateTests(SimpleTestCase):

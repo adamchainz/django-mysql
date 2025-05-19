@@ -2,20 +2,20 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
-from django.db import DEFAULT_DB_ALIAS
-from django.db import connections
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import CharField
-from django.db.models import Expression
+from django.db.models import (
+    CharField,
+    Expression,
+    Func,
+    IntegerField,
+    JSONField,
+    TextField,
+    Value,
+)
 from django.db.models import Field as DjangoField
-from django.db.models import Func
-from django.db.models import IntegerField
-from django.db.models import JSONField
-from django.db.models import TextField
-from django.db.models import Value
 from django.db.models.sql.compiler import SQLCompiler
 
 ExpressionArgument = Union[
@@ -440,8 +440,7 @@ class ColumnGet(Func):
         column_name: ExpressionArgument,
         data_type: str,
     ):
-        from django_mysql.models.fields.dynamic import DynamicField
-        from django_mysql.models.fields.dynamic import KeyTransform
+        from django_mysql.models.fields.dynamic import DynamicField, KeyTransform
 
         if not hasattr(column_name, "resolve_expression"):
             column_name = Value(column_name)
