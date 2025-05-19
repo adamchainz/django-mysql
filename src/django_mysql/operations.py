@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 from django.db.migrations.operations.base import Operation
-from django.db.migrations.state import ModelState
+from django.db.migrations.state import ProjectState
 from django.utils.functional import cached_property
 
 
@@ -15,15 +15,15 @@ class InstallPlugin(Operation):
         self.name = name
         self.soname = soname
 
-    def state_forwards(self, app_label: str, state: ModelState) -> None:
+    def state_forwards(self, app_label: str, state: ProjectState) -> None:
         pass  # pragma: no cover
 
     def database_forwards(
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        from_st: ModelState,
-        to_st: ModelState,
+        from_st: ProjectState,
+        to_st: ProjectState,
     ) -> None:
         if not self.plugin_installed(schema_editor):
             schema_editor.execute(
@@ -34,8 +34,8 @@ class InstallPlugin(Operation):
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        from_st: ModelState,
-        to_st: ModelState,
+        from_st: ProjectState,
+        to_st: ProjectState,
     ) -> None:
         if self.plugin_installed(schema_editor):
             schema_editor.execute("UNINSTALL PLUGIN %s" % self.name)
@@ -48,7 +48,7 @@ class InstallPlugin(Operation):
                 WHERE PLUGIN_NAME LIKE %s""",
                 (self.name,),
             )
-            count = cursor.fetchone()[0]
+            count: int = cursor.fetchone()[0]
             return count > 0
 
     def describe(self) -> str:
@@ -63,15 +63,15 @@ class InstallSOName(Operation):
     def __init__(self, soname: str) -> None:
         self.soname = soname
 
-    def state_forwards(self, app_label: str, state: ModelState) -> None:
+    def state_forwards(self, app_label: str, state: ProjectState) -> None:
         pass  # pragma: no cover
 
     def database_forwards(
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        from_st: ModelState,
-        to_st: ModelState,
+        from_st: ProjectState,
+        to_st: ProjectState,
     ) -> None:
         schema_editor.execute("INSTALL SONAME %s", (self.soname,))
 
@@ -79,8 +79,8 @@ class InstallSOName(Operation):
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        from_st: ModelState,
-        to_st: ModelState,
+        from_st: ProjectState,
+        to_st: ProjectState,
     ) -> None:
         schema_editor.execute("UNINSTALL SONAME %s", (self.soname,))
 
@@ -96,19 +96,17 @@ class AlterStorageEngine(Operation):
         self.engine = to_engine
         self.from_engine = from_engine
 
-    @property
-    def reversible(self) -> bool:
-        return self.from_engine is not None
+        self.reversible = self.from_engine is not None
 
-    def state_forwards(self, app_label: str, state: ModelState) -> None:
+    def state_forwards(self, app_label: str, state: ProjectState) -> None:
         pass
 
     def database_forwards(
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        from_state: ModelState,
-        to_state: ModelState,
+        from_state: ProjectState,
+        to_state: ProjectState,
     ) -> None:
         self._change_engine(app_label, schema_editor, to_state, engine=self.engine)
 
@@ -116,8 +114,8 @@ class AlterStorageEngine(Operation):
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        from_state: ModelState,
-        to_state: ModelState,
+        from_state: ProjectState,
+        to_state: ProjectState,
     ) -> None:
         if self.from_engine is None:
             raise NotImplementedError("You cannot reverse this operation")
@@ -128,7 +126,7 @@ class AlterStorageEngine(Operation):
         self,
         app_label: str,
         schema_editor: BaseDatabaseSchemaEditor,
-        to_state: ModelState,
+        to_state: ProjectState,
         engine: str,
     ) -> None:
         new_model = to_state.apps.get_model(app_label, self.name)

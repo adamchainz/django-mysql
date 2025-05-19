@@ -697,7 +697,7 @@ def approx_count(queryset: models.QuerySet) -> int:
         )
         # N.B. when we support more complex QuerySets they should be estimated
         # with 'EXPLAIN SELECT'
-        approx_count = cursor.fetchone()[0]
+        approx_count: int = cursor.fetchone()[0]
         return approx_count
 
 

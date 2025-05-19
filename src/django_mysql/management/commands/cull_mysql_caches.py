@@ -31,9 +31,10 @@ class Command(BaseCommand):
             help="Specify the cache alias(es) to cull.",
         )
 
-    def handle(
-        self, *args: Any, verbosity: int, aliases: list[str], **options: Any
-    ) -> None:
+    def handle(self, *args: Any, **options: Any) -> None:
+        verbosity: int = options["verbosity"]
+        aliases: list[str] = options["aliases"]
+
         if not aliases:
             aliases = list(settings.CACHES)
 

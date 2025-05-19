@@ -51,9 +51,11 @@ class Command(BaseCommand):
             "pt-online-schema-change $(./manage.py dbparams --dsn)",
         )
 
-    def handle(
-        self, *args: Any, alias: str, show_mysql: bool, show_dsn: bool, **options: Any
-    ) -> None:
+    def handle(self, *args: Any, **options: Any) -> None:
+        alias: str = options["alias"]
+        show_mysql: bool = options["show_mysql"]
+        show_dsn: bool = options["show_dsn"]
+
         try:
             connection = connections[alias]
         except ConnectionDoesNotExist:

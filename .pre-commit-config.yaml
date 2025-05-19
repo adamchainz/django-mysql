@@ -77,3 +77,7 @@ repos:
   rev: f40886d54c729f533f864ed6ce584e920feb0af7  # frozen: v1.15.0
   hooks:
   - id: mypy
+    additional_dependencies:
+    - django-stubs==5.2.0
+    - mysqlclient
+    - pytest==8.3.5

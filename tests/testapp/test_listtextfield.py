@@ -358,6 +358,7 @@ class TestSerialization(SimpleTestCase):
         """
         objs = list(serializers.deserialize("json", test_data))
         instance = objs[0].object
+        assert isinstance(instance, BigCharListModel)
         assert instance.field == ["big", "leather", "comfy"]
 
     def test_dumping_loading_empty(self):

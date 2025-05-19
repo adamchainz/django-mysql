@@ -30,7 +30,8 @@ class Command(BaseCommand):
             help="Specify the cache alias(es) to create migrations for.",
         )
 
-    def handle(self, *args: Any, aliases: list[str], **options: Any) -> None:
+    def handle(self, *args: Any, **options: Any) -> None:
+        aliases: list[str] = options["aliases"]
         if not aliases:
             aliases = list(settings.CACHES)
 

@@ -6,7 +6,6 @@ from collections.abc import Iterable
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
 from django.db.utils import DEFAULT_DB_ALIAS
-from django.utils.functional import SimpleLazyObject
 
 from django_mysql.exceptions import TimeoutError
 
@@ -16,6 +15,7 @@ class BaseStatus:
     Base class for the status classes
     """
 
+    __slots__ = ("db",)
     query = ""
 
     def __init__(self, using: str | None = None) -> None:
@@ -57,7 +57,7 @@ class BaseStatus:
                 ]
             )
 
-            cursor.execute(query, names)
+            cursor.execute(query, tuple(names))
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
@@ -127,5 +127,5 @@ class SessionStatus(BaseStatus):
     query = "SHOW SESSION STATUS"
 
 
-global_status = SimpleLazyObject(GlobalStatus)
-session_status = SimpleLazyObject(SessionStatus)
+global_status = GlobalStatus()
+session_status = SessionStatus()
