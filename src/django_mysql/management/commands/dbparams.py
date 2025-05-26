@@ -3,10 +3,8 @@ from __future__ import annotations
 import argparse
 from typing import Any
 
-from django.core.management import BaseCommand
-from django.core.management import CommandError
-from django.db import DEFAULT_DB_ALIAS
-from django.db import connections
+from django.core.management import BaseCommand, CommandError
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import ConnectionDoesNotExist
 
 from django_mysql.utils import settings_to_cmd_args
@@ -19,8 +17,8 @@ class Command(BaseCommand):
         "Outputs shell parameters representing database connection "
         "suitable for inclusion in various tools' commandlines. The "
         "connection alias should be a name from DATABASES - defaults to "
-        "'{default}'."
-    ).format(default=DEFAULT_DB_ALIAS)
+        f"'{DEFAULT_DB_ALIAS}'."
+    )
 
     requires_system_checks: list[str] = []
 
@@ -30,7 +28,7 @@ class Command(BaseCommand):
             metavar="alias",
             nargs="?",
             default=DEFAULT_DB_ALIAS,
-            help="Specify the database connection alias to output " "parameters for.",
+            help="Specify the database connection alias to output parameters for.",
         )
 
         parser.add_argument(

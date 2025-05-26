@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any
-from typing import Callable
+from typing import Any, Callable
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import CharField
-from django.db.models import Lookup
-from django.db.models import Transform
+from django.db.models import CharField, Lookup, Transform
 from django.db.models.lookups import BuiltinLookup
 from django.db.models.sql.compiler import SQLCompiler
 
@@ -16,7 +13,7 @@ class CaseSensitiveExact(BuiltinLookup):
     lookup_name = "case_exact"
 
     def get_rhs_op(self, connection: BaseDatabaseWrapper, rhs: str) -> str:
-        return "= BINARY %s" % rhs
+        return f"= BINARY {rhs}"
 
 
 class SoundsLike(Lookup):
@@ -41,7 +38,7 @@ class Soundex(Transform):
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
     ) -> tuple[str, Iterable[Any]]:
         lhs, params = compiler.compile(self.lhs)
-        return "SOUNDEX(%s)" % lhs, params
+        return f"SOUNDEX({lhs})", params
 
 
 # Custom field class lookups
@@ -58,10 +55,8 @@ class SetContains(Lookup):
             # Can't do multiple contains without massive ORM hackery
             # (ANDing all the FIND_IN_SET calls), so just reject them
             raise ValueError(
-                "Can't do contains with a set and {klass}, you should "
-                "pass them as separate filters.".format(
-                    klass=self.lhs.__class__.__name__
-                )
+                f"Can't do contains with a set and {self.lhs.__class__.__name__}, you should "
+                "pass them as separate filters."
             )
         return super().get_prep_lookup()
 

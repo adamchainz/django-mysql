@@ -7,9 +7,7 @@ from types import TracebackType
 from typing import Any
 
 import pytest
-from django.db import DEFAULT_DB_ALIAS
-from django.db import connection
-from django.db import connections
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrapper
 from django.db.backends.utils import CursorWrapper

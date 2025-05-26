@@ -3,22 +3,21 @@ from __future__ import annotations
 import datetime as dt
 import json
 from collections.abc import Iterable
-from typing import Any
-from typing import Callable
-from typing import Union
-from typing import cast
+from typing import Any, Callable, Union, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import DateField
-from django.db.models import DateTimeField
-from django.db.models import Expression
-from django.db.models import Field
-from django.db.models import FloatField
-from django.db.models import IntegerField
-from django.db.models import TextField
-from django.db.models import TimeField
-from django.db.models import Transform
+from django.db.models import (
+    DateField,
+    DateTimeField,
+    Expression,
+    Field,
+    FloatField,
+    IntegerField,
+    TextField,
+    TimeField,
+    Transform,
+)
 from django.db.models.sql.compiler import SQLCompiler
 from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
@@ -137,10 +136,10 @@ class DynamicField(Field):
                     checks.Error(
                         "The MySQL charset must be 'utf8' or 'utf8mb4' to "
                         "use DynamicField",
-                        hint="You are currently connecting with the '{}' "
+                        hint=f"You are currently connecting with the '{charset}' "
                         "character set. Add "
-                        "'OPTIONS': {{'charset': 'utf8mb4'}}, to your "
-                        "DATABASES setting to fix this".format(charset),
+                        "'OPTIONS': {'charset': 'utf8mb4'}, to your "
+                        "DATABASES setting to fix this",
                         obj=self,
                         id="django_mysql.E014",
                     )
@@ -170,7 +169,7 @@ class DynamicField(Field):
                     checks.Error(
                         f"The key {str(key)!r} in 'spec{path}' is not a string",
                         hint="'spec' keys must be of type str, "
-                        "'{}' is of type {}".format(key, type(key).__name__),
+                        f"'{key}' is of type {type(key).__name__}",
                         obj=self,
                         id="django_mysql.E010",
                     )
@@ -182,13 +181,11 @@ class DynamicField(Field):
                 errors.extend(self._check_spec_recursively(value, subpath))
             elif value not in KeyTransform.SPEC_MAP:
                 valid_names = ", ".join(
-                    sorted(x.__name__ for x in KeyTransform.SPEC_MAP.keys())
+                    sorted(x.__name__ for x in KeyTransform.SPEC_MAP)
                 )
                 errors.append(
                     checks.Error(
-                        "The value for '{}' in 'spec{}' is not an allowed type".format(
-                            key, path
-                        ),
+                        f"The value for '{key}' in 'spec{path}' is not an allowed type",
                         hint=(
                             "'spec' values must be one of the following types: "
                             + valid_names
@@ -223,7 +220,8 @@ class DynamicField(Field):
         end = name.split("_")[-1]
         if end in KeyTransform.TYPE_MAP and len(name) > len(end):
             return KeyTransformFactory(
-                key_name=name[: -len(end) - 1], data_type=end  # '_' + data_type
+                key_name=name[: -len(end) - 1],
+                data_type=end,  # '_' + data_type
             )
 
         return None
@@ -257,9 +255,7 @@ class DynamicField(Field):
                 expected_type = dict if isinstance(subspec, dict) else subspec
                 if not isinstance(value[key], expected_type):
                     raise TypeError(
-                        "Key '{}{}' should be of type {}".format(
-                            prefix, key, expected_type.__name__
-                        )
+                        f"Key '{prefix}{key}' should be of type {expected_type.__name__}"
                     )
 
                 if isinstance(subspec, dict):

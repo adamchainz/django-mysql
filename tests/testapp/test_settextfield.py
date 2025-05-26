@@ -4,22 +4,17 @@ import json
 
 import pytest
 from django import forms
-from django.core import exceptions
-from django.core import serializers
+from django.core import exceptions, serializers
 from django.db import models
 from django.db.migrations.writer import MigrationWriter
-from django.db.models import Q
-from django.db.models import Value
-from django.db.models.functions import Concat
-from django.db.models.functions import Upper
-from django.test import SimpleTestCase
-from django.test import TestCase
+from django.db.models import Q, Value
+from django.db.models.functions import Concat, Upper
+from django.test import SimpleTestCase, TestCase
 from django.test.utils import isolate_apps
 
 from django_mysql.forms import SimpleSetField
 from django_mysql.models import SetTextField
-from tests.testapp.models import BigCharSetModel
-from tests.testapp.models import BigIntSetModel
+from tests.testapp.models import BigCharSetModel, BigIntSetModel
 
 
 class TestSaveLoad(TestCase):

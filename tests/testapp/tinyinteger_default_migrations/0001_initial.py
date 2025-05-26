@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from django.db import migrations
-from django.db import models
+from django.db import migrations, models
 
-from django_mysql.models import PositiveTinyIntegerField
-from django_mysql.models import TinyIntegerField
+from django_mysql.models import PositiveTinyIntegerField, TinyIntegerField
 
 
 class Migration(migrations.Migration):
