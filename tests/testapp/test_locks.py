@@ -302,7 +302,7 @@ class TableLockTests(TransactionTestCase):
             pytest.raises(TransactionManagementError) as excinfo,
             TableLock(read=[Alphabet]),
         ):
-            pass
+            pass  # pragma: no cover
 
         assert str(excinfo.value).startswith("InnoDB requires that we not be")
 
@@ -312,7 +312,7 @@ class TableLockTests(TransactionTestCase):
             TableLock(write=[Alphabet]),
             TableLock(write=[Customer]),
         ):
-            pass
+            pass  # pragma: no cover
 
         assert str(excinfo.value).startswith("InnoDB requires that we not be")
 
@@ -338,7 +338,7 @@ class TableLockTests(TransactionTestCase):
 
     def test_fails_with_abstract_model(self):
         with pytest.raises(ValueError) as excinfo, TableLock(read=[Model]):
-            pass
+            pass  # pragma: no cover
 
         assert "Can't lock abstract model Model" in str(excinfo.value)
 
