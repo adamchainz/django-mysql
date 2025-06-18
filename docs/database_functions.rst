@@ -25,7 +25,7 @@ Control Flow Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/control-flow-functions.html#function_if>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/if-function/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/control-flow-functions/if-function>`__.
 
     Usage example:
 
@@ -50,7 +50,7 @@ Numeric Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/mathematical-functions.html#function_crc32>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/crc32/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/numeric-functions/crc32>`__.
 
     Usage example:
 
@@ -77,7 +77,7 @@ String Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/string-functions.html#function_concat-ws>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/concat_ws/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/concat_ws>`__.
 
     Usage example:
 
@@ -101,7 +101,7 @@ String Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/string-functions.html#function_elt>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/elt/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/elt>`__.
 
     Usage example:
 
@@ -126,7 +126,7 @@ String Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/string-functions.html#function_field>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/field/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/field>`__.
 
     Usage example:
 
@@ -155,7 +155,7 @@ XML Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/xml-functions.html#function_updatexml>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/updatexml/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/updatexml>`__.
 
     Usage example:
 
@@ -179,7 +179,7 @@ XML Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/xml-functions.html#function_extractvalue>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/extractvalue/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/extractvalue>`__.
 
     Usage example:
 
@@ -202,7 +202,7 @@ Regexp Functions
     These work with MariaDB 10.0.5+ only, which includes PCRE regular
     expressions and these extra functions to use them. More information can be
     found in `its documentation
-    <https://mariadb.com/kb/en/mariadb/regular-expressions-overview/>`_.
+    <https://mariadb.com/docs/server/reference/sql-functions/string-functions/regular-expressions-functions/regular-expressions-overview>`_.
 
 
 .. class:: RegexpInstr(expression, regex)
@@ -215,7 +215,7 @@ Regexp Functions
     column, whilst if ``regex`` is a string, it will be used as a string. If
     you want ``regex`` to refer to a column, use Django's ``F()`` class.
 
-    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_instr/>`__.
+    Docs: `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/regular-expressions-functions/regexp_instr>`__.
 
     Usage example:
 
@@ -236,7 +236,7 @@ Regexp Functions
     used as strings. If you want ``regex`` or ``replace`` to refer to columns,
     use Django's ``F()`` class.
 
-    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_replace/>`__.
+    Docs: `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/regular-expressions-functions/regexp_replace>`__.
 
     Usage example:
 
@@ -263,7 +263,7 @@ Regexp Functions
     column, whilst if ``regex`` is a string, it will be used as a string. If
     you want ``regex`` to refer to a column, use Django's ``F()`` class.
 
-    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/regexp_substr/>`__.
+    Docs: `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/string-functions/regular-expressions-functions/regexp_substr>`__.
 
     Usage example:
 
@@ -307,7 +307,7 @@ Information Functions
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/information-functions.html#function_last-insert-id>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/last_insert_id/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/secondary-functions/information-functions/last_insert_id>`__.
 
     Usage examples:
 
@@ -341,7 +341,7 @@ package.
 These functions use JSON paths to address content inside JSON documents - for
 more information on their syntax, refer to the docs:
 `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json.html#json-path-syntax>`__ /
-`MariaDB <https://mariadb.com/kb/en/jsonpath-expressions/>`__.
+`MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/jsonpath-expressions>`__.
 
 
 .. class:: JSONExtract(expression, *paths, output_field=None)
@@ -364,7 +364,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-extract>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_extract/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_extract>`__.
 
     Usage examples:
 
@@ -395,7 +395,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#function_json-keys>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_keys/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_keys>`__.
 
     .. code-block:: pycon
 
@@ -431,7 +431,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-attribute-functions.html#function_json-length>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_length/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_length>`__.
 
     .. code-block:: pycon
 
@@ -457,7 +457,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-insert>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_insert/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_insert>`__.
 
     .. code-block:: pycon
 
@@ -480,7 +480,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-replace>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_replace/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_replace>`__.
 
     .. code-block:: pycon
 
@@ -503,7 +503,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-set>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_set/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_set>`__.
 
     .. code-block:: pycon
 
@@ -530,7 +530,7 @@ more information on their syntax, refer to the docs:
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/8.0/en/json-modification-functions.html#function_json-array-append>`__ /
-    `MariaDB <https://mariadb.com/kb/en/json_array_append/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/json-functions/json_array_append>`__.
 
     .. code-block:: pycon
 
@@ -570,7 +570,7 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     examples below.
 
     Docs:
-    `MariaDB <https://mariadb.com/kb/en/mariadb/column_add/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/dynamic-columns-functions/column_add>`__.
 
     Usage examples:
 
@@ -597,7 +597,7 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     column". If you do mean that, use ``F('fieldname')``.
 
     Docs:
-    `MariaDB <https://mariadb.com/kb/en/mariadb/column_delete/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/dynamic-columns-functions/column_delete>`__.
 
     Usage examples:
 
@@ -617,7 +617,7 @@ These are MariaDB 10.0+ only, and for use with ``DynamicField``.
     documented for the ``DynamicField`` lookups.
 
     Docs:
-    `MariaDB <https://mariadb.com/kb/en/mariadb/column_get/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/special-functions/dynamic-columns-functions/column_get>`__.
 
     Usage examples:
 

@@ -22,7 +22,7 @@ The following can be imported from ``django_mysql.models``.
     Docs:
     `MySQL
     <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-and>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_and/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/bit_and>`__.
 
     Example usage:
 
@@ -42,7 +42,7 @@ The following can be imported from ``django_mysql.models``.
     Docs:
     `MySQL
     <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-or>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_or/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/bit_or>`__.
 
     Example usage:
 
@@ -62,7 +62,7 @@ The following can be imported from ``django_mysql.models``.
     Docs:
     `MySQL
     <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_bit-xor>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/bit_xor/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/bit_xor>`__.
 
     Example usage:
 
@@ -81,7 +81,7 @@ The following can be imported from ``django_mysql.models``.
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/group-by-functions.html#function_group-concat>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/group_concat/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/aggregate-functions/group_concat>`__.
 
     Example usage:
 
@@ -102,7 +102,7 @@ The following can be imported from ``django_mysql.models``.
 
         ``group_concat_max_len`` docs:
         `MySQL <https://dev.mysql.com/doc/refman/en/server-system-variables.html#sysvar_group_concat_max_len>`__ /
-        `MariaDB <https://mariadb.com/kb/en/server-system-variables/#group_concat_max_len>`__.
+        `MariaDB <https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/system-variables/server-system-variables#group_concat_max_len>`__.
 
     Optional arguments:
 

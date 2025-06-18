@@ -38,7 +38,7 @@ The following can be imported from ``django_mysql.locks``.
     For more information on user locks refer to the ``GET_LOCK`` documentation
     on `MySQL
     <https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html#function_get-lock>`__
-    or `MariaDB <https://mariadb.com/kb/en/mariadb/get_lock/>`__.
+    or `MariaDB <https://mariadb.com/docs/server/reference/sql-functions/secondary-functions/miscellaneous-functions/get_lock>`__.
 
     .. warning::
 
@@ -164,7 +164,7 @@ The following can be imported from ``django_mysql.locks``.
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/lock-tables.html>`_ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/lock-tables-and-unlock-tables/>`_.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-statements/transactions/lock-tables>`_.
 
     .. attribute:: read
 

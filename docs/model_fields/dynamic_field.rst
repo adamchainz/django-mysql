@@ -9,7 +9,7 @@ DynamicField
 **MariaDB** has a feature called **Dynamic Columns** that allows you to store
 different sets of columns for each row in a table. It works by storing the data
 in a blob and having a small set of functions to manipulate this blob.
-(`Docs <https://mariadb.com/kb/en/mariadb/dynamic-columns/>`_).
+(`Docs <https://mariadb.com/docs/server/reference/sql-structure/nosql/dynamic-columns>`_).
 
 Django-MySQL supports the *named* Dynamic Columns of MariaDB 10.0+, as opposed
 to the *numbered* format of 5.5+. It uses the
