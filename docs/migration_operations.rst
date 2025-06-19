@@ -22,7 +22,7 @@ Install Plugin
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/install-plugin.html>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/install-plugin/>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-statements/administrative-sql-statements/plugin-sql-statements/install-plugin>`__.
 
     .. attribute:: name
 
@@ -67,7 +67,7 @@ Install SOName
     the library is already installed, since there is no way of knowing if all
     the plugins inside the library are installed.
 
-    Docs: `MariaDB <https://mariadb.com/kb/en/mariadb/install-soname/>`_.
+    Docs: `MariaDB <https://mariadb.com/docs/server/reference/sql-statements/administrative-sql-statements/plugin-sql-statements/install-soname>`_.
 
     .. attribute:: soname
 
@@ -119,7 +119,7 @@ Alter Storage Engine
         If you're using this to move from MyISAM to InnoDB, there's a page for
         you in the MariaDB knowledge base - `Converting Tables from MyISAM to
         InnoDB
-        <https://mariadb.com/kb/en/mariadb/converting-tables-from-myisam-to-innodb/>`_.
+        <https://mariadb.com/docs/server/server-usage/storage-engines/converting-tables-from-myisam-to-innodb>`_.
 
     Example usage:
 

@@ -143,7 +143,7 @@ but you're more likely to run up against it first with the
 ``get_many``/``set_many`` operations.
 
 The `MySQL 8.0 default <https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_max_allowed_packet>`__ is 4MB,
-and the `MariaDB 10.2 default <https://mariadb.com/kb/en/server-system-variables/#max_allowed_packet>`__ is 16MB.
+and the `MariaDB 10.2 default <https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/system-variables/server-system-variables#max_allowed_packet>`__ is 16MB.
 Most applications should be fine with these limits.
 You can tweak the setting as high as 1GB - if this isn't enough, you should probably be considering another solution!
 

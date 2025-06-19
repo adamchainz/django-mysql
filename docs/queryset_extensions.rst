@@ -22,7 +22,7 @@ Approximate Counting
     full table scan to produce a consistent number, due to MVCC keeping several
     copies of rows when under transaction. If you have lots of rows, you will
     notice this as a slow query - `Percona have some more details
-    <https://www.percona.com/blog/2006/12/01/count-for-innodb-tables/>`_.
+    <https://www.percona.com/blog/count-for-innodb-tables/>`_.
 
     This method returns the approximate count found by running ``EXPLAIN SELECT
     COUNT(*) ...``. It can be out by 30-50% in the worst case, but in many
@@ -153,15 +153,14 @@ Once you’ve done this, the following methods will work.
     You should not pass user-supplied data in for the comment. As a basic
     protection against accidental SQL injection, passing a comment featuring
     ``*/`` will raise a ``ValueError``, since that would prematurely end the
-    comment. However due to `executable comments
-    <https://mariadb.com/kb/en/mariadb/comment-syntax/>`_, the comment is still
-    prone to some forms of injection.
+    comment.
+    However due to `executable comments <https://mariadb.com/docs/server/reference/sql-statements/comment-syntax#executable-comments>`_, the comment is still prone to some forms of injection.
 
     However this is a feature - by not including spaces around your string,
     you may use this injection to use `executable comments
-    <https://mariadb.com/kb/en/mariadb/comment-syntax/>`_ to add hints that are
-    otherwise not supported, or to use `MySQL 5.7+ optimizer hints
-    <https://www.percona.com/blog/2015/04/30/optimizer-hints-mysql-5-7-7-missed-manual/>`_.
+    <https://mariadb.com/docs/server/reference/sql-statements/comment-syntax#executable-comments>`__
+    to add hints that are otherwise not supported, or to use
+    `MySQL 5.7+ optimizer hints <https://www.percona.com/blog/optimizer-hints-mysql-5-7-7-missed-manual/>`__.
 
 .. method:: straight_join()
 
@@ -179,11 +178,11 @@ Once you’ve done this, the following methods will work.
 
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
-    `MariaDB <https://mariadb.com/kb/en/mariadb/select/#straight_join>`__.
+    `MariaDB <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#straight_join>`__.
 
     The MariaDB docs also have a good page `Index Hints: How to Force Query
     Plans”
-    <https://mariadb.com/kb/en/mariadb/index-hints-how-to-force-query-plans/>`_
+    <https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/index-hints-how-to-force-query-plans>`_
     which covers some cases when you might want to use ``STRAIGHT_JOIN``.
 
 .. method:: sql_small_result()
@@ -202,7 +201,7 @@ Once you’ve done this, the following methods will work.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`__.
+    <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#sql_small_result-sql_big_result>`__.
 
 .. method:: sql_big_result()
 
@@ -220,7 +219,7 @@ Once you’ve done this, the following methods will work.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_small_result-sql_big_result>`__.
+    <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#sql_small_result-sql_big_result>`__.
 
 .. method:: sql_buffer_result()
 
@@ -239,7 +238,7 @@ Once you’ve done this, the following methods will work.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_buffer_result>`__.
+    <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#sql_buffer_result>`__.
 
 .. method:: sql_cache()
 
@@ -263,7 +262,7 @@ Once you’ve done this, the following methods will work.
 
     Docs:
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`__.
+    <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#sql_cache-sql_no_cache>`__.
 
 .. method:: sql_no_cache()
 
@@ -290,7 +289,7 @@ Once you’ve done this, the following methods will work.
 
     Docs:
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_cache-sql_no_cache>`__.
+    <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#sql_cache-sql_no_cache>`__.
 
 .. method:: sql_calc_found_rows()
 
@@ -319,7 +318,7 @@ Once you’ve done this, the following methods will work.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/select.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/select/#sql_calc_found_rows>`__.
+    <https://mariadb.com/docs/server/reference/sql-statements/data-manipulation/selecting-data/optimizer-hints#sql_calc_found_rows>`__.
 
 .. method:: use_index(*index_names, for_=None, table_name=None)
 
@@ -368,7 +367,7 @@ Once you’ve done this, the following methods will work.
     Docs:
     `MySQL <https://dev.mysql.com/doc/refman/en/index-hints.html>`__ /
     `MariaDB
-    <https://mariadb.com/kb/en/mariadb/index-hints-how-to-force-query-plans/>`__.
+    <https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/index-hints-how-to-force-query-plans>`__.
 
 
 .. method:: force_index(*index_names, for_=None)
@@ -522,7 +521,7 @@ can be thought of in one of these two methods.
         dynamically adjusted to try and match this time, via a weighted average
         of the past and current speed of processing. The default and algorithm
         is taken from the analogous ``pt-online-schema-change`` flag
-        `--chunk-time <https://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html#cmdoption-pt-online-schema-change--chunk-time>`_.
+        `--chunk-time <https://docs.percona.com/percona-toolkit/pt-online-schema-change.html#cmdoption-pt-online-schema-change-chunk-time>`_.
 
     .. attribute:: chunk_size=2
 
@@ -654,9 +653,9 @@ Integration with pt-visual-explain
 
 How does MySQL *really* execute a query? The ``EXPLAIN`` statement
 (docs: `MySQL <https://dev.mysql.com/doc/refman/8.0/en/explain.html>`__ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/explain/>`__),
+`MariaDB <https://mariadb.com/docs/server/reference/sql-statements/administrative-sql-statements/analyze-and-explain-statements/explain>`__),
 gives a description of the execution plan, and the ``pt-visual-explain``
-`tool <https://www.percona.com/doc/percona-toolkit/2.2/pt-visual-explain.html>`_
+`tool <https://docs.percona.com/percona-toolkit/pt-visual-explain.html>`_
 can format this in an understandable tree.
 
 This function is a shortcut to turn a ``QuerySet`` into its visual explanation,

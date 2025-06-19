@@ -16,7 +16,7 @@ Django.
 
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/enum.html>`_ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/enum/>`_.
+`MariaDB <https://mariadb.com/docs/server/reference/data-types/string-data-types/enum/>`_.
 
 
 .. class:: EnumField(choices, **kwargs)

@@ -45,7 +45,7 @@ you activate this, but it's not very likely to affect you if you don't.
 
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/innodb-parameters.html#sysvar_innodb_strict_mode>`__ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/xtradbinnodb-strict-mode/>`__.
+`MariaDB <https://mariadb.com/docs/server/server-usage/storage-engines/innodb/innodb-system-variables#innodb_strict_mode>`__.
 
 As above, the easiest way to set this is to add ``SET`` to ``init_command`` in
 your ``DATABASES`` setting:
@@ -87,7 +87,7 @@ very easy for users to type emoji on phone keyboards these days!).
 
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/charset-unicode-utf8mb4.html>`__ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/unicode/>`__.
+`MariaDB <https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/unicode>`__.
 
 Also see this classic blogpost:
 `How to support full Unicode in MySQL databases <https://mathiasbynens.be/notes/mysql-utf8mb4>`_.

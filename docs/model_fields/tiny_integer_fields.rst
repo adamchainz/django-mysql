@@ -15,7 +15,7 @@ __ https://docs.djangoproject.com/en/stable/ref/models/fields/#django.db.models.
 
 Docs:
 `MySQL TINYINT <https://dev.mysql.com/doc/refman/en/integer-types.html>`_ /
-`MariaDB <https://mariadb.com/kb/en/tinyint/>`_.
+`MariaDB <https://mariadb.com/docs/server/reference/data-types/numeric-data-types/tinyint>`_.
 
 .. class:: TinyIntegerField(**kwargs)
 

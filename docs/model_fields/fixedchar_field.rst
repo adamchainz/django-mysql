@@ -19,7 +19,7 @@ behaviour.
 
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/char.html>`_ /
-`MariaDB <https://mariadb.com/kb/en/char/>`_.
+`MariaDB <https://mariadb.com/docs/server/reference/data-types/string-data-types/char>`_.
 
 .. class:: FixedCharField(*args, max_length: int, **kwargs)
 

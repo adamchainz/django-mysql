@@ -21,7 +21,7 @@ legacy database for example.
 
 Docs:
 `MySQL <https://dev.mysql.com/doc/refman/en/storage-requirements.html>`_ /
-`MariaDB <https://mariadb.com/kb/en/mariadb/data-type-storage-requirements/>`_.
+`MariaDB <https://mariadb.com/docs/server/reference/data-types/data-type-storage-requirements>`_.
 
 
 .. class:: SizedTextField(size_class: int, **kwargs)
