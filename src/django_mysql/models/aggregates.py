@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import Aggregate, CharField, Expression
+from django.db.models import Aggregate, CharField
 from django.db.models.sql.compiler import SQLCompiler
 
 
