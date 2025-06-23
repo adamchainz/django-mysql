@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.models import Aggregate, CharField, Expression
+from django.db.models import Aggregate, CharField
 from django.db.models.sql.compiler import SQLCompiler
 
 
@@ -27,7 +27,7 @@ class GroupConcat(Aggregate):
 
     def __init__(
         self,
-        expression: Expression,
+        expression: Any,
         distinct: bool = False,
         separator: str | None = None,
         ordering: str | None = None,
