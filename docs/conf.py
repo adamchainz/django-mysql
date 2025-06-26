@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
+    "sphinx_build_compatibility.extension",
     "sphinx_copybutton",
 ]
 
