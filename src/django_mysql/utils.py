@@ -131,7 +131,9 @@ def collapse_spaces(string: str) -> str:
     return " ".join(filter(None, bits))
 
 
-def index_name(model: Model, *field_names: str, using: str = DEFAULT_DB_ALIAS) -> str:
+def index_name(
+    model: type[Model], *field_names: str, using: str = DEFAULT_DB_ALIAS
+) -> str:
     """
     Returns the name of the index existing on field_names, or raises KeyError
     if no such index exists.
