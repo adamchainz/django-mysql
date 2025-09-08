@@ -7,6 +7,18 @@ Unreleased
 
 * Support Python 3.14.
 
+* Add testing for new database versions:
+
+  * MariaDB 12.0, 11.8
+  * MySQL 8.4 and 9.4.
+
+  Drop testing for EOL versions:
+
+  * MariaDB 10.5
+  * MySQL 8.0 and 9.0
+
+  No changes were needed.
+
 4.17.0 (2025-05-13)
 -------------------
 
