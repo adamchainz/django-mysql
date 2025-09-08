@@ -313,7 +313,7 @@ class TestCheck(DynColTestCase):
         assert errors[0].id == "django_mysql.E013"
         assert "MariaDB is required" in errors[0].msg
 
-    @mock.patch(DynamicField.__module__ + ".mariadb_dyncol", new=None)
+    @mock.patch(DynamicField.__module__ + ".HAVE_MARIADB_DYNCOL", new=False)
     def test_mariadb_dyncol_missing(self):
         errors = DynamicModel.check()
         assert len(errors) == 1

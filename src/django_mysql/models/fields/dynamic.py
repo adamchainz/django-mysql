@@ -28,8 +28,10 @@ from django_mysql.typing import DeconstructResult
 
 try:
     import mariadb_dyncol
+
+    HAVE_MARIADB_DYNCOL = True
 except ImportError:  # pragma: no cover
-    mariadb_dyncol = None
+    HAVE_MARIADB_DYNCOL = False
 
 
 # Mypy doesn't support recursive types at time of writing, but we can at least
@@ -87,7 +89,7 @@ class DynamicField(Field):
 
     def _check_mariadb_dyncol(self) -> list[checks.CheckMessage]:
         errors = []
-        if mariadb_dyncol is None:
+        if not HAVE_MARIADB_DYNCOL:
             errors.append(
                 checks.Error(
                     "'mariadb_dyncol' is required to use DynamicField",
