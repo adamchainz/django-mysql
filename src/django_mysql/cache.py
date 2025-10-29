@@ -6,7 +6,6 @@ import re
 import zlib
 from collections.abc import Iterable
 from random import random
-from textwrap import dedent
 from time import time
 from typing import Any, Callable, Literal, cast
 
@@ -102,17 +101,15 @@ class MySQLCache(BaseDatabaseCache):
     # 1970)
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
 
-    create_table_sql = dedent(
-        """\
-        CREATE TABLE `{table_name}` (
-            cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin
-                                   NOT NULL PRIMARY KEY,
-            value longblob NOT NULL,
-            value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin
-                               NOT NULL DEFAULT 'p',
-            expires BIGINT UNSIGNED NOT NULL
-        );
-    """
+    create_table_sql = (
+        "CREATE TABLE `{table_name}` (\n"
+        "    cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin\n"
+        "                           NOT NULL PRIMARY KEY,\n"
+        "    value longblob NOT NULL,\n"
+        "    value_type char(1) CHARACTER SET latin1 COLLATE latin1_bin\n"
+        "                       NOT NULL DEFAULT 'p',\n"
+        "    expires BIGINT UNSIGNED NOT NULL\n"
+        ");\n"
     )
 
     @classmethod
