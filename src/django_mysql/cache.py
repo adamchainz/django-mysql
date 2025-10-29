@@ -14,7 +14,7 @@ from django.db import connections, router
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
-from django_mysql.utils import collapse_spaces, get_list_sql
+from django_mysql.utils import get_list_sql
 
 _EncodedKeyType = Literal["i", "p", "z"]
 
@@ -159,13 +159,10 @@ class MySQLCache(BaseDatabaseCache):
             value, value_type = row
             return self.decode(value, value_type)
 
-    _get_query = collapse_spaces(
-        """
-        SELECT value, value_type
-        FROM {table}
-        WHERE cache_key = %s AND
-              expires >= %s
-    """
+    _get_query = (
+        "SELECT value, value_type "
+        "FROM {table} "
+        "WHERE cache_key = %s AND expires >= %s"
     )
 
     def get_many(
@@ -196,13 +193,10 @@ class MySQLCache(BaseDatabaseCache):
 
         return data
 
-    _get_many_query = collapse_spaces(
-        """
-        SELECT cache_key, value, value_type
-        FROM {table}
-        WHERE cache_key IN {list_sql} AND
-              expires >= %s
-    """
+    _get_many_query = (
+        "SELECT cache_key, value, value_type "
+        "FROM {table} "
+        "WHERE cache_key IN {list_sql} AND expires >= %s"
     )
 
     def set(
@@ -258,15 +252,13 @@ class MySQLCache(BaseDatabaseCache):
                 insert_id = cursor.lastrowid
                 return insert_id != 444
 
-    _set_many_query = collapse_spaces(
-        """
-        INSERT INTO {table} (cache_key, value, value_type, expires)
-        VALUES {{VALUES_CLAUSE}}
-        ON DUPLICATE KEY UPDATE
-            value=VALUES(value),
-            value_type=VALUES(value_type),
-            expires=VALUES(expires)
-    """
+    _set_many_query = (
+        "INSERT INTO {table} (cache_key, value, value_type, expires) "
+        "VALUES {{VALUES_CLAUSE}} "
+        "ON DUPLICATE KEY UPDATE "
+        "value=VALUES(value), "
+        "value_type=VALUES(value_type), "
+        "expires=VALUES(expires)"
     )
 
     _set_query = _set_many_query.replace("{{VALUES_CLAUSE}}", "(%s, %s, %s, %s)")
@@ -274,22 +266,15 @@ class MySQLCache(BaseDatabaseCache):
     # Uses the IFNULL / LEAST / LAST_INSERT_ID trick to communicate the special
     # value of 444 back to the client (LAST_INSERT_ID is otherwise 0, since
     # there is no AUTO_INCREMENT column)
-    _add_query = collapse_spaces(
-        """
-        INSERT INTO {table} (cache_key, value, value_type, expires)
-        VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            value=IF(expires > @tmp_now:=%s, value, VALUES(value)),
-            value_type=IF(expires > @tmp_now, value_type, VALUES(value_type)),
-            expires=IF(
-                expires > @tmp_now,
-                IFNULL(
-                    LEAST(LAST_INSERT_ID(444), NULL),
-                    expires
-                ),
-                VALUES(expires)
-            )
-    """
+    _add_query = (
+        "INSERT INTO {table} (cache_key, value, value_type, expires) "
+        "VALUES (%s, %s, %s, %s) "
+        "ON DUPLICATE KEY UPDATE "
+        "value=IF(expires > @tmp_now:=%s, value, VALUES(value)), "
+        "value_type=IF(expires > @tmp_now, value_type, VALUES(value_type)), "
+        "expires=IF(expires > @tmp_now, "
+        "IFNULL(LEAST(LAST_INSERT_ID(444), NULL), expires), "
+        "VALUES(expires))"
     )
 
     def set_many(
@@ -329,12 +314,7 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             cursor.execute(self._delete_query.format(table=table), (key,))
 
-    _delete_query = collapse_spaces(
-        """
-        DELETE FROM {table}
-        WHERE cache_key = %s
-    """
-    )
+    _delete_query = "DELETE FROM {table} WHERE cache_key = %s"
 
     def delete_many(self, keys: Iterable[str], version: int | None = None) -> None:
         made_keys = [self.make_key(key, version=version) for key in keys]
@@ -352,12 +332,7 @@ class MySQLCache(BaseDatabaseCache):
                 made_keys,
             )
 
-    _delete_many_query = collapse_spaces(
-        """
-        DELETE FROM {table}
-        WHERE cache_key IN {list_sql}
-    """
-    )
+    _delete_many_query = "DELETE FROM {table} WHERE cache_key IN {list_sql}"
 
     def has_key(self, key: str, version: int | None = None) -> bool:
         key = self.make_key(key, version=version)
@@ -370,11 +345,9 @@ class MySQLCache(BaseDatabaseCache):
             cursor.execute(self._has_key_query.format(table=table), (key, self._now()))
             return cursor.fetchone() is not None
 
-    _has_key_query = collapse_spaces(
-        """
-        SELECT 1 FROM {table}
-        WHERE cache_key = %s and expires > %s
-    """
+    _has_key_query = (
+        "SELECT 1 FROM {table} "
+        "WHERE cache_key = %s and expires > %s"
     )
 
     def incr(self, key: str, delta: int = 1, version: int | None = None) -> int:
@@ -409,17 +382,10 @@ class MySQLCache(BaseDatabaseCache):
 
     # Looks a bit tangled to turn the blob back into an int for updating, but
     # it works. Stores the new value for insert_id() with LAST_INSERT_ID
-    _delta_query = collapse_spaces(
-        """
-        UPDATE {table}
-        SET value = LAST_INSERT_ID(
-            CAST(value AS SIGNED INTEGER)
-            {operation}
-            %s
-        )
-        WHERE cache_key = %s AND
-              value_type = 'i'
-    """
+    _delta_query = (
+        "UPDATE {table} "
+        "SET value = LAST_INSERT_ID(CAST(value AS SIGNED INTEGER) {operation} %s) "
+        "WHERE cache_key = %s AND value_type = 'i'"
     )
 
     def clear(self) -> None:
@@ -442,13 +408,10 @@ class MySQLCache(BaseDatabaseCache):
             )
         return affected_rows > 0
 
-    _touch_query = collapse_spaces(
-        """
-        UPDATE {table}
-        SET expires = %s
-        WHERE cache_key = %s AND
-              expires >= %s
-    """
+    _touch_query = (
+        "UPDATE {table} "
+        "SET expires = %s "
+        "WHERE cache_key = %s AND expires >= %s"
     )
 
     def validate_key(self, key: str) -> None:

@@ -8,17 +8,14 @@ from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
 
 from django_mysql.cache import MySQLCache
-from django_mysql.utils import collapse_spaces
 
 
 class Command(BaseCommand):
     args = "<optional cache aliases>"
 
-    help = collapse_spaces(
-        """
-        Runs cache.cull() on all your MySQLCache caches, or only those
-        specified aliases.
-    """
+    help = (
+        "Runs cache.cull() on all your MySQLCache caches, or only those "
+        "specified aliases."
     )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
