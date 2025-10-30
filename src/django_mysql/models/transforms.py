@@ -13,10 +13,15 @@ class SetLength(Transform):
     output_field = IntegerField()
 
     # No str.count equivalent in MySQL :(
+    # fmt: off
     expr = (
-        "(CHAR_LENGTH(%s) - CHAR_LENGTH(REPLACE(%s, ',', '')) + "
-        "IF(CHAR_LENGTH(%s), 1, 0))"
+        "("
+            "CHAR_LENGTH(%s) - "
+            "CHAR_LENGTH(REPLACE(%s, ',', '')) + "
+            "IF(CHAR_LENGTH(%s), 1, 0)"
+        ")"
     )
+    # fmt: on
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper

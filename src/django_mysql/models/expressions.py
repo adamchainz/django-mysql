@@ -50,9 +50,19 @@ class AppendListF(TwoSidedExpression):
     # comma and 'value'
     # N.B. using MySQL side variables to avoid repeat calculation of
     # expression[s]
+    # fmt: off
     sql_expression = (
-        "CONCAT_WS(',', IF((@tmp_f:=%s) > '', @tmp_f, NULL), %s)"
+        "CONCAT_WS("
+            "',', "
+            "IF("
+                "(@tmp_f:=%s) > '', "
+                "@tmp_f, "
+                "NULL"
+            "), "
+            "%s"
+        ")"
     )
+    # fmt: on
 
     def as_sql(
         self,
@@ -74,9 +84,19 @@ class AppendLeftListF(TwoSidedExpression):
     # comma and 'value'
     # N.B. using MySQL side variables to avoid repeat calculation of
     # expression[s]
+    # fmt: off
     sql_expression = (
-        "CONCAT_WS(',', %s, IF((@tmp_f:=%s) > '', @tmp_f, NULL))"
+        "CONCAT_WS("
+            "',', "
+            "%s, "
+            "IF("
+                "(@tmp_f:=%s) > '', "
+                "@tmp_f, "
+                "NULL"
+            ")"
+        ")"
     )
+    # fmt: on
 
     def as_sql(
         self,
@@ -93,12 +113,23 @@ class AppendLeftListF(TwoSidedExpression):
 
 
 class PopListF(BaseExpression):
+    # fmt: off
     sql_expression = (
-        "SUBSTRING(@tmp_f:=%s, 1, "
-        "IF(LOCATE(',', @tmp_f), "
-        "(CHAR_LENGTH(@tmp_f) - CHAR_LENGTH(SUBSTRING_INDEX(@tmp_f, ',', -1)) - 1), "
-        "0))"
+        "SUBSTRING("
+            "@tmp_f:=%s, "
+            "1, "
+            "IF("
+                "LOCATE(',', @tmp_f), "
+                "("
+                    "CHAR_LENGTH(@tmp_f) - "
+                    "CHAR_LENGTH(SUBSTRING_INDEX(@tmp_f, ',', -1)) - "
+                    "1"
+                "), "
+                "0"
+            ")"
+        ")"
     )
+    # fmt: on
 
     def __init__(self, lhs: BaseExpression) -> None:
         super().__init__()
@@ -122,9 +153,15 @@ class PopListF(BaseExpression):
 
 
 class PopLeftListF(BaseExpression):
+    # fmt: off
     sql_expression = (
-        "IF((@tmp_c:=LOCATE(',', @tmp_f:=%s)) > 0, SUBSTRING(@tmp_f, @tmp_c + 1), '')"
+        "IF("
+            "(@tmp_c:=LOCATE(',', @tmp_f:=%s)) > 0, "
+            "SUBSTRING(@tmp_f, @tmp_c + 1), "
+            "''"
+        ")"
     )
+    # fmt: on
 
     def __init__(self, lhs: BaseExpression) -> None:
         super().__init__()
@@ -168,10 +205,19 @@ class AddSetF(TwoSidedExpression):
     # comma and 'value'
     # N.B. using MySQL side variables to avoid repeat calculation of
     # expression[s]
+    # fmt: off
     sql_expression = (
-        "IF(FIND_IN_SET(@tmp_val:=%s, @tmp_f:=%s), @tmp_f, "
-        "CONCAT_WS(',', IF(CHAR_LENGTH(@tmp_f), @tmp_f, NULL), @tmp_val))"
+        "IF("
+            "FIND_IN_SET(@tmp_val:=%s, @tmp_f:=%s), "
+            "@tmp_f, "
+            "CONCAT_WS("
+                "',', "
+                "IF(CHAR_LENGTH(@tmp_f), @tmp_f, NULL), "
+                "@tmp_val"
+            ")"
+        ")"
     )
+    # fmt: on
 
     def as_sql(
         self,
@@ -193,17 +239,38 @@ class RemoveSetF(TwoSidedExpression):
     # that element.
     # There are some tricks going on - e.g. LEAST to evaluate a sub expression
     # but not use it in the output of CONCAT_WS
+    # fmt: off
     sql_expression = (
-        "IF(@tmp_pos:=FIND_IN_SET(%s, @tmp_f:=%s), "
-        "CONCAT_WS(',', "
-        "LEAST(@tmp_len:=(CHAR_LENGTH(@tmp_f) - CHAR_LENGTH(REPLACE(@tmp_f, ',', '')) + "
-        "IF(CHAR_LENGTH(@tmp_f), 1, 0)), NULL), "
-        "CASE WHEN (@tmp_before:=SUBSTRING_INDEX(@tmp_f, ',', @tmp_pos - 1)) = '' "
-        "THEN NULL ELSE @tmp_before END, "
-        "CASE WHEN (@tmp_after:=SUBSTRING_INDEX(@tmp_f, ',', - (@tmp_len - @tmp_pos))) = '' "
-        "THEN NULL ELSE @tmp_after END), "
-        "@tmp_f)"
+        "IF("
+            "@tmp_pos:=FIND_IN_SET(%s, @tmp_f:=%s), "
+            "CONCAT_WS("
+                "',', "
+                "LEAST("
+                    "@tmp_len:=("
+                        "CHAR_LENGTH(@tmp_f) - "
+                        "CHAR_LENGTH(REPLACE(@tmp_f, ',', '')) + "
+                        "IF(CHAR_LENGTH(@tmp_f), 1, 0)"
+                    "), "
+                    "NULL"
+                "), "
+                "CASE WHEN "
+                    "(@tmp_before:=SUBSTRING_INDEX(@tmp_f, ',', @tmp_pos - 1)) "
+                    "= '' "
+                    "THEN NULL "
+                    "ELSE @tmp_before "
+                "END, "
+                "CASE WHEN "
+                    "(@tmp_after:="
+                        "SUBSTRING_INDEX(@tmp_f, ',', - (@tmp_len - @tmp_pos))) "
+                    "= '' "
+                    "THEN NULL "
+                    "ELSE @tmp_after "
+                "END"
+            "), "
+            "@tmp_f"
+        ")"
     )
+    # fmt: on
 
     def as_sql(
         self,

@@ -101,6 +101,7 @@ class MySQLCache(BaseDatabaseCache):
     # 1970)
     FOREVER_TIMEOUT = BIGINT_UNSIGNED_MAX >> 1
 
+    # fmt: off
     create_table_sql = (
         "CREATE TABLE `{table_name}` (\n"
         "    cache_key varchar(255) CHARACTER SET utf8 COLLATE utf8_bin\n"
@@ -111,6 +112,7 @@ class MySQLCache(BaseDatabaseCache):
         "    expires BIGINT UNSIGNED NOT NULL\n"
         ");\n"
     )
+    # fmt: on
 
     @classmethod
     def _now(cls) -> int:
@@ -159,11 +161,14 @@ class MySQLCache(BaseDatabaseCache):
             value, value_type = row
             return self.decode(value, value_type)
 
+    # fmt: off
     _get_query = (
         "SELECT value, value_type "
         "FROM {table} "
-        "WHERE cache_key = %s AND expires >= %s"
+        "WHERE cache_key = %s AND "
+              "expires >= %s"
     )
+    # fmt: on
 
     def get_many(
         self, keys: Iterable[str], version: int | None = None
@@ -193,11 +198,14 @@ class MySQLCache(BaseDatabaseCache):
 
         return data
 
+    # fmt: off
     _get_many_query = (
         "SELECT cache_key, value, value_type "
         "FROM {table} "
-        "WHERE cache_key IN {list_sql} AND expires >= %s"
+        "WHERE cache_key IN {list_sql} AND "
+              "expires >= %s"
     )
+    # fmt: on
 
     def set(
         self,
@@ -252,30 +260,39 @@ class MySQLCache(BaseDatabaseCache):
                 insert_id = cursor.lastrowid
                 return insert_id != 444
 
+    # fmt: off
     _set_many_query = (
         "INSERT INTO {table} (cache_key, value, value_type, expires) "
         "VALUES {{VALUES_CLAUSE}} "
         "ON DUPLICATE KEY UPDATE "
-        "value=VALUES(value), "
-        "value_type=VALUES(value_type), "
-        "expires=VALUES(expires)"
+            "value=VALUES(value), "
+            "value_type=VALUES(value_type), "
+            "expires=VALUES(expires)"
     )
+    # fmt: on
 
     _set_query = _set_many_query.replace("{{VALUES_CLAUSE}}", "(%s, %s, %s, %s)")
 
     # Uses the IFNULL / LEAST / LAST_INSERT_ID trick to communicate the special
     # value of 444 back to the client (LAST_INSERT_ID is otherwise 0, since
     # there is no AUTO_INCREMENT column)
+    # fmt: off
     _add_query = (
         "INSERT INTO {table} (cache_key, value, value_type, expires) "
         "VALUES (%s, %s, %s, %s) "
         "ON DUPLICATE KEY UPDATE "
-        "value=IF(expires > @tmp_now:=%s, value, VALUES(value)), "
-        "value_type=IF(expires > @tmp_now, value_type, VALUES(value_type)), "
-        "expires=IF(expires > @tmp_now, "
-        "IFNULL(LEAST(LAST_INSERT_ID(444), NULL), expires), "
-        "VALUES(expires))"
+            "value=IF(expires > @tmp_now:=%s, value, VALUES(value)), "
+            "value_type=IF(expires > @tmp_now, value_type, VALUES(value_type)), "
+            "expires=IF("
+                "expires > @tmp_now, "
+                "IFNULL("
+                    "LEAST(LAST_INSERT_ID(444), NULL), "
+                    "expires"
+                "), "
+                "VALUES(expires)"
+            ")"
     )
+    # fmt: on
 
     def set_many(
         self,
@@ -314,7 +331,12 @@ class MySQLCache(BaseDatabaseCache):
         with connections[db].cursor() as cursor:
             cursor.execute(self._delete_query.format(table=table), (key,))
 
-    _delete_query = "DELETE FROM {table} WHERE cache_key = %s"
+    # fmt: off
+    _delete_query = (
+        "DELETE FROM {table} "
+        "WHERE cache_key = %s"
+    )
+    # fmt: on
 
     def delete_many(self, keys: Iterable[str], version: int | None = None) -> None:
         made_keys = [self.make_key(key, version=version) for key in keys]
@@ -332,7 +354,12 @@ class MySQLCache(BaseDatabaseCache):
                 made_keys,
             )
 
-    _delete_many_query = "DELETE FROM {table} WHERE cache_key IN {list_sql}"
+    # fmt: off
+    _delete_many_query = (
+        "DELETE FROM {table} "
+        "WHERE cache_key IN {list_sql}"
+    )
+    # fmt: on
 
     def has_key(self, key: str, version: int | None = None) -> bool:
         key = self.make_key(key, version=version)
@@ -345,10 +372,12 @@ class MySQLCache(BaseDatabaseCache):
             cursor.execute(self._has_key_query.format(table=table), (key, self._now()))
             return cursor.fetchone() is not None
 
+    # fmt: off
     _has_key_query = (
         "SELECT 1 FROM {table} "
         "WHERE cache_key = %s and expires > %s"
     )
+    # fmt: on
 
     def incr(self, key: str, delta: int = 1, version: int | None = None) -> int:
         return self._base_delta(key, delta, version, "+")
@@ -382,11 +411,18 @@ class MySQLCache(BaseDatabaseCache):
 
     # Looks a bit tangled to turn the blob back into an int for updating, but
     # it works. Stores the new value for insert_id() with LAST_INSERT_ID
+    # fmt: off
     _delta_query = (
         "UPDATE {table} "
-        "SET value = LAST_INSERT_ID(CAST(value AS SIGNED INTEGER) {operation} %s) "
-        "WHERE cache_key = %s AND value_type = 'i'"
+        "SET value = LAST_INSERT_ID("
+            "CAST(value AS SIGNED INTEGER) "
+            "{operation} "
+            "%s"
+        ") "
+        "WHERE cache_key = %s AND "
+              "value_type = 'i'"
     )
+    # fmt: on
 
     def clear(self) -> None:
         db = router.db_for_write(self.cache_model_class)
@@ -408,11 +444,14 @@ class MySQLCache(BaseDatabaseCache):
             )
         return affected_rows > 0
 
+    # fmt: off
     _touch_query = (
         "UPDATE {table} "
         "SET expires = %s "
-        "WHERE cache_key = %s AND expires >= %s"
+        "WHERE cache_key = %s AND "
+              "expires >= %s"
     )
+    # fmt: on
 
     def validate_key(self, key: str) -> None:
         """
