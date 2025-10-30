@@ -126,11 +126,6 @@ def settings_to_cmd_args(settings_dict: dict[str, Any]) -> list[str]:
     return args
 
 
-def collapse_spaces(string: str) -> str:
-    bits = string.replace("\n", " ").split(" ")
-    return " ".join(filter(None, bits))
-
-
 def index_name(
     model: type[Model], *field_names: str, using: str = DEFAULT_DB_ALIAS
 ) -> str:

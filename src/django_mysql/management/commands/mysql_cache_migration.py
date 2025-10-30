@@ -8,17 +8,12 @@ from django.core.cache import InvalidCacheBackendError, caches
 from django.core.management import BaseCommand, CommandError
 
 from django_mysql.cache import MySQLCache
-from django_mysql.utils import collapse_spaces
 
 
 class Command(BaseCommand):
     args = "<app_name>"
 
-    help = collapse_spaces(
-        """
-        Outputs a migration that will create a table.
-    """
-    )
+    help = "Outputs a migration that will create a table."
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
