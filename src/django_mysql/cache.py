@@ -4,10 +4,10 @@ import builtins
 import pickle
 import re
 import zlib
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from random import random
 from time import time
-from typing import Any, Callable, Literal, cast
+from typing import Any, Literal, cast
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
 from django.db import connections, router

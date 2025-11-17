@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from collections.abc import Iterable
-from typing import Any, Callable, Union, cast
+from collections.abc import Callable, Iterable
+from typing import Any, cast
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -38,25 +38,21 @@ except ImportError:  # pragma: no cover
 # define this type to two levels deep.
 SpecDict = dict[
     str,
-    Union[
-        type[dt.date],
-        type[dt.datetime],
-        type[float],
-        type[int],
-        type[str],
-        type[dt.time],
-        dict[
-            str,
-            Union[
-                type[dt.date],
-                type[dt.datetime],
-                type[float],
-                type[int],
-                type[str],
-                type[dt.time],
-                dict[str, Any],
-            ],
-        ],
+    type[dt.date]
+    | type[dt.datetime]
+    | type[float]
+    | type[int]
+    | type[str]
+    | type[dt.time]
+    | dict[
+        str,
+        type[dt.date]
+        | type[dt.datetime]
+        | type[float]
+        | type[int]
+        | type[str]
+        | type[dt.time]
+        | dict[str, Any],
     ],
 ]
 

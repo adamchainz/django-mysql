@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from typing import Any, Union
+from typing import Any, TypeAlias
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -18,10 +18,7 @@ from django.db.models import (
 from django.db.models import Field as DjangoField
 from django.db.models.sql.compiler import SQLCompiler
 
-ExpressionArgument = Union[
-    Expression,
-    str,  # column reference handled by Django
-]
+ExpressionArgument: TypeAlias = Expression | str
 
 
 class SingleArgFunc(Func):

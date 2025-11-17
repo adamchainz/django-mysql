@@ -4,11 +4,11 @@ import operator
 import subprocess
 import sys
 import time
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from contextlib import nullcontext
 from copy import copy
 from functools import cache, wraps
-from typing import Any, Callable, Literal, Optional, TypedDict, TypeVar, Union, cast
+from typing import Any, Literal, TypedDict, TypeVar, cast
 
 from django.conf import settings
 from django.db import connections, models
@@ -36,9 +36,9 @@ class _CountTriesApproxDict(TypedDict):
     min_size: int
 
 
-_IndexHintForType = Optional[Literal["JOIN", "ORDER BY", "GROUP BY"]]
+_IndexHintForType = Literal["JOIN", "ORDER BY", "GROUP BY", None]
 
-_SmartPkRangeType = Union[None, tuple[int, int], Literal["all"]]
+_SmartPkRangeType = None | tuple[int, int] | Literal["all"]
 _SmartDirectionType = Literal[-1, 1]
 
 
