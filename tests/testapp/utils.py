@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import sys
 from collections.abc import Generator
 from contextlib import contextmanager
 from types import TracebackType
-from typing import Any
+from typing import Any, TypeGuard
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
@@ -12,11 +11,6 @@ from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
 from django.test.utils import CaptureQueriesContext
-
-if sys.version_info >= (3, 10):
-    from typing import TypeGuard
-else:
-    from typing_extensions import TypeGuard
 
 
 def conn_is_mysql(connection: BaseDatabaseWrapper) -> TypeGuard[MySQLDatabaseWrapper]:

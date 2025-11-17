@@ -118,7 +118,7 @@ class LockTests(TestCase):
             assert threading_test.is_held()
             assert threading_test.holding_connection_id() != own_connection_id
 
-            with pytest.raises(TimeoutError), threading_test:
+            with pytest.raises(TimeoutError), threading_test:  # pragma: no cover
                 pass
 
             to_you.put("Stop")
@@ -161,7 +161,7 @@ class LockTests(TestCase):
             assert the_lock.is_held()
             assert the_lock.holding_connection_id() != own_connection_id
 
-            with pytest.raises(TimeoutError), the_lock:
+            with pytest.raises(TimeoutError), the_lock:  # pragma: no cover
                 pass
 
             to_you.put("Stop")
