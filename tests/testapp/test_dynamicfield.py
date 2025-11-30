@@ -111,7 +111,7 @@ class DumbTransform(Transform):
 
     def as_sql(self, compiler, connection):
         lhs, params = compiler.compile(self.lhs)
-        return "%s", ["dumb"]
+        return "%s", ("dumb",)
 
 
 DynamicField.register_lookup(DumbTransform)

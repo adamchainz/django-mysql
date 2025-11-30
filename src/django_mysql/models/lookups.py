@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -23,11 +23,13 @@ class SoundsLike(Lookup):
         self,
         qn: Callable[[str], str],
         connection: BaseDatabaseWrapper,
-    ) -> tuple[str, Iterable[Any]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = tuple(lhs_params) + tuple(rhs_params)
-        return f"{lhs} SOUNDS LIKE {rhs}", params
+        return (
+            f"{lhs} SOUNDS LIKE {rhs}",
+            (*lhs_params, *rhs_params),
+        )
 
 
 class Soundex(Transform):
@@ -36,7 +38,7 @@ class Soundex(Transform):
 
     def as_sql(
         self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         lhs, params = compiler.compile(self.lhs)
         return f"SOUNDEX({lhs})", params
 
@@ -62,12 +64,14 @@ class SetContains(Lookup):
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         # Put rhs (and params) on the left since that's the order FIND_IN_SET uses
-        params = tuple(rhs_params) + tuple(lhs_params)
-        return f"FIND_IN_SET({rhs}, {lhs})", params
+        return (
+            f"FIND_IN_SET({rhs}, {lhs})",
+            (*rhs_params, *lhs_params),
+        )
 
 
 class SetIContains(SetContains):
@@ -82,8 +86,10 @@ class DynColHasKey(Lookup):
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = tuple(lhs_params) + tuple(rhs_params)
-        return f"COLUMN_EXISTS({lhs}, {rhs})", params
+        return (
+            f"COLUMN_EXISTS({lhs}, {rhs})",
+            (*lhs_params, *rhs_params),
+        )

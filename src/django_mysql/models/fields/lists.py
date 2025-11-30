@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from typing import Any, cast
 
 from django.core import checks
@@ -216,12 +216,14 @@ class IndexLookup(Lookup):
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
+    ) -> tuple[str, tuple[Any, ...]]:
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
-        params = tuple(lhs_params) + tuple(rhs_params)
         # Put rhs on the left since that's the order FIND_IN_SET uses
-        return f"(FIND_IN_SET({rhs}, {lhs}) = {self.index})", params
+        return (
+            f"(FIND_IN_SET({rhs}, {lhs}) = {self.index})",
+            (*lhs_params, *rhs_params),
+        )
 
 
 class IndexLookupFactory:

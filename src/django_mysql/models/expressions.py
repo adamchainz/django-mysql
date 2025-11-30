@@ -72,10 +72,10 @@ class AppendListF(TwoSidedExpression):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (field, value)
-        params = tuple(value_params) + tuple(field_params)
-
-        return sql, params
+        return (
+            self.sql_expression % (field, value),
+            (*value_params, *field_params),
+        )
 
 
 class AppendLeftListF(TwoSidedExpression):
@@ -148,8 +148,7 @@ class PopListF(BaseExpression):
     ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
 
-        sql = self.sql_expression % (field)
-        return sql, tuple(field_params)
+        return (self.sql_expression % (field), field_params)
 
 
 class PopLeftListF(BaseExpression):
@@ -180,8 +179,7 @@ class PopLeftListF(BaseExpression):
     ) -> tuple[str, tuple[Any, ...]]:
         field, field_params = compiler.compile(self.lhs)
 
-        sql = self.sql_expression % (field)
-        return sql, tuple(field_params)
+        return (self.sql_expression % (field), field_params)
 
 
 class SetF:
@@ -227,10 +225,10 @@ class AddSetF(TwoSidedExpression):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (value, field)
-        params = tuple(value_params) + tuple(field_params)
-
-        return sql, params
+        return (
+            self.sql_expression % (value, field),
+            (*value_params, *field_params),
+        )
 
 
 class RemoveSetF(TwoSidedExpression):
@@ -280,7 +278,7 @@ class RemoveSetF(TwoSidedExpression):
         field, field_params = compiler.compile(self.lhs)
         value, value_params = compiler.compile(self.rhs)
 
-        sql = self.sql_expression % (value, field)
-        params = tuple(value_params) + tuple(field_params)
-
-        return sql, params
+        return (
+            self.sql_expression % (value, field),
+            (*value_params, *field_params),
+        )
