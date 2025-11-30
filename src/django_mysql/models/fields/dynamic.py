@@ -342,7 +342,7 @@ class KeyTransform(Transform):
         lhs, params = compiler.compile(self.lhs)
         return (
             f"COLUMN_GET({lhs}, %s AS {self.data_type})",
-            tuple(params) + (self.key_name,),
+            (*params, self.key_name),
         )
 
 
