@@ -81,7 +81,7 @@ jobs:
       id: format_db_id
 
     - name: Upload coverage data
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: coverage-data-${{ matrix.python-version }}-${{ steps.format_db_id.outputs.db_id }}
         path: '${{ github.workspace }}/.coverage.*'
@@ -106,7 +106,7 @@ jobs:
         run: uv pip install --system coverage[toml]
 
       - name: Download data
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ${{ github.workspace }}
           pattern: coverage-data-*
@@ -122,7 +122,7 @@ jobs:
 
       - name: Upload HTML report
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: html-report
           path: htmlcov
