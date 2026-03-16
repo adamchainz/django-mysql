@@ -108,7 +108,7 @@ jobs:
       - name: Download data
         uses: actions/download-artifact@v8
         with:
-          path: ${{ github.workspace }}
+          path: .coverage
           pattern: coverage-data-*
           merge-multiple: true
 
