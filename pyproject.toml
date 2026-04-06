@@ -129,6 +129,23 @@ lint.isort.required-imports = [ "from __future__ import annotations" ]
 [tool.pyproject-fmt]
 max_supported_python = "3.14"
 
+[tool.mypy]
+enable_error_code = [
+  "ignore-without-code",
+  "redundant-expr",
+  "truthy-bool",
+]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+mypy_path = "src/"
+namespace_packages = false
+no_implicit_optional = true
+warn_unreachable = true
+warn_unused_ignores = true
+overrides = [ { module = "tests.*", allow_untyped_defs = true } ]
+
 [tool.pytest]
 ini_options.addopts = """\
     --strict-config
@@ -153,23 +170,6 @@ paths.source = [
 report.show_missing = true
 report.skip_covered = true
 report.skip_empty = true
-
-[tool.mypy]
-enable_error_code = [
-  "ignore-without-code",
-  "redundant-expr",
-  "truthy-bool",
-]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-mypy_path = "src/"
-namespace_packages = false
-no_implicit_optional = true
-warn_unreachable = true
-warn_unused_ignores = true
-overrides = [ { module = "tests.*", allow_untyped_defs = true } ]
 
 [tool.rstcheck]
 ignore_directives = [
