@@ -24,6 +24,7 @@ action, or get started with :doc:`installation`. Otherwise, take your pick:
    migration_operations
    form_fields
    validators
+   indexes
    cache
    locks
    status

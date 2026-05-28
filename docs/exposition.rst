@@ -199,7 +199,7 @@ field class allows you to interact with those fields:
 Tiny integer fields
 -------------------
 
-MySQL’s ``TINYINT`` type stores small integers efficiently, using just one byte.
+MySQL's ``TINYINT`` type stores small integers efficiently, using just one byte.
 Django-MySQL provides field classes for the ``TINYINT`` type:
 
 .. code-block:: python
@@ -355,3 +355,33 @@ specific one:
             self.run_it()
 
 :ref:`Read more <test_utilities>`
+
+-------
+Indexes
+-------
+
+MySQL-specific index types for optimizing your queries.
+
+Column Prefix Index
+-------------------
+
+An index class that allows you to create indexes with column prefix lengths,
+which can be both space-efficient and useful for queries that match against
+the start of strings:
+
+.. code-block:: python
+
+    class Article(Model):
+        title = models.CharField(max_length=200)
+        content = models.TextField()
+
+        class Meta:
+            indexes = [
+                ColumnPrefixIndex(
+                    fields=["title", "content"],
+                    prefix_lengths=(10, 50),
+                    name="title_content_prefix_idx",
+                ),
+            ]
+
+:doc:`Read more <indexes>`
