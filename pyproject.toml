@@ -130,26 +130,26 @@ lint.isort.required-imports = [ "from __future__ import annotations" ]
 max_supported_python = "3.14"
 
 [tool.mypy]
+mypy_path = "src/"
+namespace_packages = false
+disallow_any_generics = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_unreachable = true
 enable_error_code = [
   "ignore-without-code",
   "redundant-expr",
   "truthy-bool",
 ]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-mypy_path = "src/"
-namespace_packages = false
-no_implicit_optional = true
-warn_unreachable = true
-warn_unused_ignores = true
 overrides = [ { module = "tests.*", allow_untyped_defs = true } ]
+no_implicit_optional = true
 
 [tool.pytest]
-strict = true
 django_find_project = false
 DJANGO_SETTINGS_MODULE = "tests.settings"
+strict = true
 
 [tool.coverage]
 run.branch = true
