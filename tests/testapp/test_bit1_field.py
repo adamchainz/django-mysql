@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-import django
 from django.core import checks, serializers
 from django.db import models
 from django.db.models import F
@@ -100,10 +99,7 @@ class NullBit1BooleanFieldTests(SimpleTestCase):
         class Invalid(models.Model):
             nb = NullBit1BooleanField()
 
-        if django.VERSION >= (5, 0):
-            hint = "Use BooleanField(null=True, blank=True) instead."
-        else:
-            hint = "Use BooleanField(null=True) instead."
+        hint = "Use BooleanField(null=True, blank=True) instead."
 
         assert Invalid.check() == [
             checks.Error(
