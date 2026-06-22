@@ -65,7 +65,7 @@ def mysql_server():
                 conn.close()
                 break
             except MySQLdb.OperationalError:
-                if time.monotonic() > deadline:
+                if time.monotonic() > deadline:  # pragma: no cover
                     raise RuntimeError("MySQL did not become ready in time")
                 time.sleep(0.5)
 
