@@ -171,7 +171,7 @@ def modify_sql(
 table_spec_re_template = r"""
     \b(?P<operator>FROM|JOIN)
     \s+
-    (?P<table_name_with_alias>{table_name}(\s+[A-Z]+[0-9]+)?)
+    (?P<table_name_with_alias>{table_name}(\s+(`[^`]+`|[A-Z]+[0-9]+))?)
     \s+
 """
 
