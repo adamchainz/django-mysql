@@ -34,19 +34,8 @@ jobs:
         - mariadb:11.4
         - mariadb:10.11
 
-    services:
-      database:
-        image: ${{ matrix.database }}
-        env:
-          MYSQL_ROOT_PASSWORD: hunter2
-        ports:
-        - 3306:3306
-        options: --tmpfs /var/lib/mysql
-
     env:
-      DB_HOST: 127.0.0.1
-      DB_USER: root
-      DB_PASSWORD: hunter2
+      DB_IMAGE: ${{ matrix.database }}
 
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
