@@ -33,7 +33,6 @@ jobs:
         - mariadb:11.8
         - mariadb:11.4
         - mariadb:10.11
-        - mariadb:10.6
 
     services:
       database:
