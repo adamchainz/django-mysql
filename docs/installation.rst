@@ -8,7 +8,7 @@ Python 3.10 to 3.14 supported.
 
 Django 5.2 to 6.1 supported.
 
-Tested on MySQL 8.4+ and MariaDB 10.6+.
+Tested on MySQL 8.4+ and MariaDB 10.11+.
 
 Installation
 ------------

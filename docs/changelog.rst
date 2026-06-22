@@ -11,6 +11,8 @@ Unreleased
 
 * Drop Python 3.9 support.
 
+* Drop testing for near-EOL MariaDB 10.6.
+
 4.19.0 (2025-09-18)
 -------------------
 
