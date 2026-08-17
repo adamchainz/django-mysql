@@ -19,6 +19,10 @@ Unreleased
 
 * Drop testing for near-EOL MariaDB 10.6.
 
+* Fix ``MySQLCache.delete()`` to return a bool indicating whether the key was deleted, as per Django's cache API.
+
+  `PR #1209 <https://github.com/adamchainz/django-mysql/pull/1209>`__.
+
 4.19.0 (2025-09-18)
 -------------------
 

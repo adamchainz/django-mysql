@@ -186,9 +186,12 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
         cache.set("key1", "spam")
         cache.set("key2", "eggs")
         assert cache.get("key1") == "spam"
-        cache.delete("key1")
+        result = cache.delete("key1")
+        assert result is True
         assert cache.get("key1") is None
         assert cache.get("key2") == "eggs"
+        result = cache.delete("key1")
+        assert result is False
 
     def test_has_key(self):
         # The cache can be inspected for cache keys

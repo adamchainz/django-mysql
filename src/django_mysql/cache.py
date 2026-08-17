@@ -321,7 +321,7 @@ class MySQLCache(BaseDatabaseCache):
             cursor.execute(query, params)
         return []
 
-    def delete(self, key: str, version: int | None = None) -> None:
+    def delete(self, key: str, version: int | None = None) -> bool:
         key = self.make_key(key, version=version)
         self.validate_key(key)
 
@@ -329,7 +329,10 @@ class MySQLCache(BaseDatabaseCache):
         table = connections[db].ops.quote_name(self._table)
 
         with connections[db].cursor() as cursor:
-            cursor.execute(self._delete_query.format(table=table), (key,))
+            deleted: int = cursor.execute(
+                self._delete_query.format(table=table), (key,)
+            )
+        return deleted > 0
 
     # fmt: off
     _delete_query = (
