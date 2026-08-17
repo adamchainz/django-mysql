@@ -57,12 +57,12 @@ test = [
   "django-jsonfield-backport",
   "mariadb-dyncol",
   "mysqlclient>=1.4.3",
-  "parameterized",
   "pytest>=9",
   "pytest-django",
   "pytest-flake8-path",
   "pytest-randomly",
   "typing-extensions",
+  "unittest-parametrize>=1.8",
 ]
 docs = [
   "furo>=2024.8.6",
