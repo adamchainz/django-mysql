@@ -6,7 +6,6 @@ from collections.abc import Iterable
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
 from django.db.utils import DEFAULT_DB_ALIAS
-from django.utils.functional import SimpleLazyObject
 
 from django_mysql.exceptions import TimeoutError
 
@@ -16,6 +15,7 @@ class BaseStatus:
     Base class for the status classes
     """
 
+    __slots__ = ("db",)
     query = ""
 
     def __init__(self, using: str | None = None) -> None:
@@ -40,7 +40,9 @@ class BaseStatus:
         if not names:
             return {}
 
-        if any(("%" in name) for name in names):
+        names_tuple = tuple(names)
+
+        if any(("%" in name) for name in names_tuple):
             raise ValueError(
                 "get_many() is for fetching named variables, no % wildcards"
             )
@@ -50,12 +52,12 @@ class BaseStatus:
                 [
                     self.query,
                     "WHERE Variable_name IN (",
-                    ", ".join("%s" for n in names),
+                    ", ".join("%s" for n in names_tuple),
                     ")",
                 ]
             )
 
-            cursor.execute(query, names)
+            cursor.execute(query, tuple(names_tuple))
 
             return {name: self._cast(value) for name, value in cursor.fetchall()}
 
@@ -125,5 +127,5 @@ class SessionStatus(BaseStatus):
     query = "SHOW SESSION STATUS"
 
 
-global_status = SimpleLazyObject(GlobalStatus)
-session_status = SimpleLazyObject(SessionStatus)
+global_status = GlobalStatus()
+session_status = SessionStatus()
