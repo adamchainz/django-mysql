@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+from typing import cast
 from unittest import SkipTest, mock
 
 import mariadb_dyncol
@@ -9,6 +10,7 @@ import pytest
 from django.core import serializers
 from django.core.exceptions import FieldError
 from django.db import connection, connections, models
+from django.db.backends.mysql.base import DatabaseWrapper
 from django.db.migrations.writer import MigrationWriter
 from django.db.models import CharField, Transform
 from django.test import TestCase
@@ -22,7 +24,7 @@ from tests.testapp.models import DynamicModel, SpeclessDynamicModel
 class DynColTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        if not connection.mysql_is_mariadb:
+        if not cast(DatabaseWrapper, connection).mysql_is_mariadb:
             raise SkipTest("Dynamic Columns require MariaDB")
         super().setUpClass()
 
@@ -109,7 +111,7 @@ class DumbTransform(Transform):
     lookup_name = "dumb"
     output_field = CharField()
 
-    def as_sql(self, compiler, connection):
+    def as_sql(self, compiler, connection):  # type: ignore[override]
         lhs, params = compiler.compile(self.lhs)
         return "%s", ("dumb",)
 
@@ -488,6 +490,7 @@ class TestSerialization(DynColTestCase):
     def test_loading(self):
         deserialized = list(serializers.deserialize("json", self.test_data))
         instance = deserialized[0].object
+        assert isinstance(instance, DynamicModel)
         assert instance.attrs == {"a": "b"}
 
 

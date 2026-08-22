@@ -50,6 +50,9 @@ class GroupConcat(Aggregate):
         self,
         compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
+        function: str | None = None,
+        template: str | None = None,
+        arg_joiner: str | None = None,
         **extra_context: Any,
     ) -> tuple[str, tuple[Any, ...]]:
         connection.ops.check_expression_support(self)
@@ -58,7 +61,7 @@ class GroupConcat(Aggregate):
             sql.append("DISTINCT ")
 
         expr_parts = []
-        params = []
+        params: list[Any] = []
         for arg in self.source_expressions:
             arg_sql, arg_params = compiler.compile(arg)
             expr_parts.append(arg_sql)

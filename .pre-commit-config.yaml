@@ -59,3 +59,9 @@ repos:
   rev: 41e691678310dfd3833f7ab4e180ddb014310356  # frozen: v2.3.0
   hooks:
   - id: mypy
+    additional_dependencies:
+    - django-stubs==6.1.0
+    - mariadb-dyncol
+    - pytest==9.1.1
+    - types-mysqlclient
+    - unittest-parametrize

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = False
@@ -8,7 +9,7 @@ TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = "THISuISdNOT9A$SECRET9x&ji!vceayg+wwt472!bgs$0!i3k4"  # typos: ignore
 
-DATABASES = {
+DATABASES: dict[str, dict[str, Any]] = {
     "default": {
         "ENGINE": "tests.db_backend",
         "NAME": "django_mysql",

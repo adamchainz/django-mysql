@@ -79,7 +79,7 @@ class TestSaveLoad(TestCase):
     def test_char_lookup_icontains(self):
         self.check_char_lookup("icontains")
 
-    def check_char_lookup(self, lookup):
+    def check_char_lookup(self, lookup: str) -> None:
         lname = "field__" + lookup
         mymodel = CharSetModel.objects.create(field={"mouldy", "rotten"})
 
@@ -533,6 +533,7 @@ class TestSerialization(SimpleTestCase):
         """
         objs = list(serializers.deserialize("json", test_data))
         instance = objs[0].object
+        assert isinstance(instance, CharSetModel)
         assert instance.field == {"big", "leather", "comfy"}
 
 

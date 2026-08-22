@@ -76,7 +76,7 @@ class TestSaveLoad(TestCase):
     def test_char_lookup_icontains(self):
         self.check_char_lookup("icontains")
 
-    def check_char_lookup(self, lookup):
+    def check_char_lookup(self, lookup: str) -> None:
         lname = "field__" + lookup
         mymodel = BigCharListModel.objects.create(field=["mouldy", "rotten"])
 
@@ -355,14 +355,16 @@ class TestSerialization(SimpleTestCase):
         """
         objs = list(serializers.deserialize("json", test_data))
         instance = objs[0].object
+        assert isinstance(instance, BigCharListModel)
         assert instance.field == ["big", "leather", "comfy"]
 
     def test_dumping_loading_empty(self):
         instance = BigCharListModel(field=[])
         data = serializers.serialize("json", [instance])
         objs = list(serializers.deserialize("json", data))
-        instance = objs[0].object
-        assert instance.field == []
+        loaded = objs[0].object
+        assert isinstance(loaded, BigCharListModel)
+        assert loaded.field == []
 
 
 class TestDescription(SimpleTestCase):

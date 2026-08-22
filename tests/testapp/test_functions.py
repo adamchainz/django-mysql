@@ -34,7 +34,7 @@ from django_mysql.models.functions import (
 )
 from tests.testapp.models import Alphabet, Author, DynamicModel, JSONModel
 from tests.testapp.test_dynamicfield import DynColTestCase
-from tests.testapp.utils import print_all_queries
+from tests.testapp.utils import conn_is_mysql, print_all_queries
 
 
 class ControlFlowFunctionTests(TestCase):
@@ -566,6 +566,7 @@ class JSONFunctionTests(TestCase):
 class RegexpFunctionTests(TestCase):
     def setUp(self):
         super().setUp()
+        assert conn_is_mysql(connection)
         if not connection.mysql_is_mariadb:
             raise SkipTest("MariaDB is required")
 
@@ -731,7 +732,10 @@ class DynamicColumnsFunctionTests(DynColTestCase):
         with pytest.raises(ValueError) as excinfo:
             list(
                 DynamicModel.objects.annotate(
-                    attrs2=ColumnAdd("attrs", {"sub2": {"document": "store"}})
+                    attrs2=ColumnAdd(
+                        "attrs",
+                        {"sub2": {"document": "store"}},  # type: ignore[dict-item]
+                    )
                 ).values_list("attrs2", flat=True)
             )
         assert "nested values is not supported" in str(excinfo.value)

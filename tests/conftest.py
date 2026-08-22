@@ -62,7 +62,7 @@ def mysql_server():
                     user="root",
                     password="hunter2",
                 )
-                conn.close()
+                conn.close()  # type: ignore[no-untyped-call]
                 break
             except MySQLdb.OperationalError:
                 if time.monotonic() > deadline:  # pragma: no cover

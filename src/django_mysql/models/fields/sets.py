@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
+from django import forms
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import CharField, Field, IntegerField, Model, TextField
-from django.db.models.expressions import BaseExpression
-from django.forms import Field as FormField
+from django.db.models.expressions import BaseExpression, Combinable
 from django.utils.translation import gettext_lazy as _
 
 from django_mysql.forms import SimpleSetField
@@ -65,7 +65,7 @@ class SetFieldMixin(Field):
         return errors
 
     @property
-    def description(self) -> Any:
+    def description(self) -> Any:  # type: ignore[override]
         return _("Set of %(base_description)s") % {
             "base_description": self.base_field.description
         }
@@ -75,7 +75,7 @@ class SetFieldMixin(Field):
         self.base_field.set_attributes_from_name(name)
 
     def deconstruct(self) -> DeconstructResult:
-        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
+        name, path, args, kwargs = super().deconstruct()
         args = list(args)
 
         bad_paths = (
@@ -124,10 +124,10 @@ class SetFieldMixin(Field):
 
     def value_to_string(self, obj: Any) -> str:
         vals = self.value_from_object(obj)
-        return self.get_prep_value(vals)
+        return cast(str, self.get_prep_value(vals))
 
-    def formfield(self, **kwargs: Any) -> FormField:
-        defaults = {
+    def formfield(self, **kwargs: Any) -> forms.Field | None:
+        defaults: dict[str, Any] = {
             "form_class": SimpleSetField,
             "base_field": self.base_field.formfield(),
             "max_length": self.size,
@@ -135,8 +135,10 @@ class SetFieldMixin(Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-    def contribute_to_class(self, cls: type[Model], name: str, **kwargs: Any) -> None:
-        super().contribute_to_class(cls, name, **kwargs)
+    def contribute_to_class(
+        self, cls: type[Model], name: str, private_only: bool = False
+    ) -> None:
+        super().contribute_to_class(cls, name, private_only=private_only)
         self.base_field.model = cls
 
 
@@ -144,6 +146,11 @@ class SetCharField(SetFieldMixin, CharField):
     """
     A subclass of CharField for using MySQL's handy FIND_IN_SET function with.
     """
+
+    if TYPE_CHECKING:
+        # Used by django-stubs' mypy plugin to type model attributes.
+        _pyi_private_set_type: set[Any] | str | BaseExpression | Combinable  # type: ignore[assignment]
+        _pyi_private_get_type: set[Any]  # type: ignore[assignment]
 
     def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
@@ -157,6 +164,7 @@ class SetCharField(SetFieldMixin, CharField):
             and isinstance(self.base_field, CharField)
             and self.size
         ):
+            assert self.base_field.max_length is not None
             max_size = (
                 # The chars used
                 (self.size * (self.base_field.max_length))
@@ -180,7 +188,10 @@ class SetCharField(SetFieldMixin, CharField):
 
 
 class SetTextField(SetFieldMixin, TextField):
-    pass
+    if TYPE_CHECKING:
+        # Used by django-stubs' mypy plugin to type model attributes.
+        _pyi_private_set_type: set[Any] | str | BaseExpression | Combinable  # type: ignore[assignment]
+        _pyi_private_get_type: set[Any]  # type: ignore[assignment]
 
 
 SetCharField.register_lookup(SetContains)

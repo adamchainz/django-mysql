@@ -161,7 +161,7 @@ class QueryHintTests(TestCase):
                 Author.objects.filter(tutor=None)
                 .distinct()
                 .values("books__title")
-                .straight_join()
+                .straight_join()  # type: ignore[attr-defined]
             )
 
         assert cap.query.startswith("SELECT DISTINCT STRAIGHT_JOIN ")
@@ -323,7 +323,7 @@ class QueryHintTests(TestCase):
 
     def test_force_index_invalid_for(self):
         with pytest.raises(ValueError) as excinfo:
-            Author.objects.force_index("a", for_="INVALID")
+            Author.objects.force_index("a", for_="INVALID")  # type: ignore [arg-type]
         assert "for_ must be one of" in str(excinfo.value)
 
     def test_index_hint_force_order_by(self):
@@ -336,7 +336,9 @@ class QueryHintTests(TestCase):
 
     def test_use_index_none(self):
         with CaptureLastQuery() as cap:
-            list(Author.objects.values_list("name").distinct().use_index())
+            list(
+                Author.objects.values_list("name").distinct().use_index()  # type: ignore[attr-defined]
+            )
         assert "USE INDEX () " in cap.query
         assert used_indexes(cap.query) == set()
 
@@ -520,7 +522,7 @@ class SmartIteratorTests(TestCase):
 
     def test_objects_pk_range_bad(self):
         with pytest.raises(ValueError) as excinfo:
-            list(Author.objects.iter_smart(pk_range="My Bad Value"))
+            list(Author.objects.iter_smart(pk_range="My Bad Value"))  # type: ignore [arg-type]
         assert "Unrecognized value for pk_range" in str(excinfo.value)
 
     def test_pk_range_race_condition(self):
@@ -613,7 +615,7 @@ class SmartIteratorTests(TestCase):
         assert seen == [first.id, last.id]
 
     def test_iter_smart_pk_range(self):
-        seen = []
+        seen: list[int] = []
         for start_pk, end_pk in Author.objects.iter_smart_pk_ranges():
             seen.extend(
                 Author.objects.filter(id__gte=start_pk, id__lt=end_pk).values_list(

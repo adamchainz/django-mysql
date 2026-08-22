@@ -9,7 +9,7 @@ from io import StringIO
 from typing import Any
 
 import pytest
-from django.core.cache import CacheKeyWarning, cache, caches
+from django.core.cache import BaseCache, CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
 from django.db import IntegrityError, connection
 from django.db.migrations.state import ProjectState
@@ -90,7 +90,10 @@ _caches_setting_base = {
 }
 
 
-def caches_setting_for_tests(options=None, **params):
+def caches_setting_for_tests(
+    options: dict[str, Any] | None = None,
+    **params: Any,
+) -> dict[str, Any]:
     # `params` are test specific overrides and `_caches_settings_base` is the
     # base config for the tests.
     # This results in the following search order:
@@ -107,8 +110,10 @@ def caches_setting_for_tests(options=None, **params):
 
 # Spaces are used in the table name to ensure quoting/escaping is working
 def override_cache_settings(
-    BACKEND="django_mysql.cache.MySQLCache", LOCATION="test cache table", **kwargs
-):
+    BACKEND: str = "django_mysql.cache.MySQLCache",
+    LOCATION: str = "test cache table",
+    **kwargs: Any,
+) -> override_settings:
     return override_settings(
         CACHES=caches_setting_for_tests(BACKEND=BACKEND, LOCATION=LOCATION, **kwargs)
     )
@@ -118,13 +123,13 @@ class MySQLCacheTableMixin(TransactionTestCase):
     table_name = "test cache table"
 
     @classmethod
-    def create_table(self):
+    def create_table(self) -> None:
         sql = MySQLCache.create_table_sql.format(table_name=self.table_name)
         with connection.cursor() as cursor:
             cursor.execute(sql)
 
     @classmethod
-    def drop_table(self):
+    def drop_table(self) -> None:
         with connection.cursor() as cursor:
             cursor.execute(f"DROP TABLE `{self.table_name}`")
 
@@ -143,10 +148,11 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
         super().tearDownClass()
         cls.drop_table()
 
-    def table_count(self):
+    def table_count(self) -> int:
         with connection.cursor() as cursor:
             cursor.execute(f"SELECT COUNT(*) FROM `{self.table_name}`")
-            return cursor.fetchone()[0]
+            count: int = cursor.fetchone()[0]
+            return count
 
     # These tests were copied from django's tests/cache/tests.py file
 
@@ -718,7 +724,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
         fetch_middleware = FetchFromCacheMiddleware(empty_response)
 
         request = self.factory.get("/cache/test")
-        request._cache_update_cache = True
+        request._cache_update_cache = True  # type: ignore [attr-defined]
         get_cache_data = FetchFromCacheMiddleware(empty_response).process_request(
             request
         )
@@ -733,6 +739,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
 
         update_middleware = UpdateCacheMiddleware(get_response)
         response = update_middleware(request)
+        assert isinstance(response, HttpResponse)
 
         get_cache_data = fetch_middleware.process_request(request)
         assert get_cache_data is not None
@@ -771,10 +778,10 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
         cache.get_or_set("brian", 1979, version=2)
 
         with pytest.raises(TypeError, match=msg_re):
-            cache.get_or_set("brian")
+            cache.get_or_set("brian")  # type: ignore [call-arg]
 
         with pytest.raises(TypeError, match=msg_re):
-            cache.get_or_set("brian", version=1)
+            cache.get_or_set("brian", version=1)  # type: ignore [call-arg]
 
         assert cache.get("brian", version=1) is None
         assert cache.get_or_set("brian", 42, version=1) == 42
@@ -907,6 +914,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     # Original tests
 
     def test_base_set_bad_value(self):
+        cache = caches["default"]
+        assert isinstance(cache, MySQLCache)
         with pytest.raises(ValueError) as excinfo:
             cache._base_set("foo", "key", "value")
         assert "'mode' should be" in str(excinfo.value)
@@ -975,8 +984,10 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
         self._perform_cull_test(caches["zero_cull"], 50, 20)
 
     def test_no_cull_only_deletes_when_told(self):
-        self._perform_cull_test(caches["no_cull"], 50, 50)
-        caches["no_cull"].cull()
+        no_cull_cache = caches["no_cull"]
+        assert isinstance(no_cull_cache, MySQLCache)
+        self._perform_cull_test(no_cull_cache, 50, 50)
+        no_cull_cache.cull()
         assert self.table_count() == 25
 
     def test_cull_deletes_expired_first(self):
@@ -989,7 +1000,9 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
         self._perform_cull_test(cull_cache, 30, 30)
         assert cull_cache.get("key") is None
 
-    def _perform_cull_test(self, cull_cache, initial_count, final_count):
+    def _perform_cull_test(
+        self, cull_cache: BaseCache, initial_count: int, final_count: int
+    ) -> None:
         # Create initial cache key entries. This will overflow the cache,
         # causing a cull.
         for i in range(1, initial_count + 1):
@@ -1090,6 +1103,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     )
     def test_keys_with_prefix(self, cache_name):
         cache = caches[cache_name]
+        assert isinstance(cache, MySQLCache)
         assert cache.keys_with_prefix("") == set()
         assert cache.keys_with_prefix("K") == set()
 
@@ -1123,6 +1137,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     )
     def test_keys_with_prefix_version(self, cache_name):
         cache = caches[cache_name]
+        assert isinstance(cache, MySQLCache)
 
         cache.set("V12", True, version=1)
         cache.set("V12", True, version=2)
@@ -1134,6 +1149,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
 
     @override_cache_settings(KEY_FUNCTION=custom_key_func)
     def test_keys_with_prefix_with_bad_cache(self):
+        cache = caches["default"]
+        assert isinstance(cache, MySQLCache)
         with pytest.raises(ValueError) as excinfo:
             cache.keys_with_prefix("")
         assert str(excinfo.value).startswith("To use the _with_prefix commands")
@@ -1144,6 +1161,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     )
     def test_get_with_prefix(self, cache_name):
         cache = caches[cache_name]
+        assert isinstance(cache, MySQLCache)
         assert cache.get_with_prefix("") == {}
         assert cache.get_with_prefix("K") == {}
 
@@ -1168,6 +1186,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     )
     def test_get_with_prefix_version(self, cache_name):
         cache = caches[cache_name]
+        assert isinstance(cache, MySQLCache)
 
         cache.set("V12", ("version1",), version=1)
         cache.set("V12", "str", version=2)
@@ -1179,6 +1198,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
 
     @override_cache_settings(KEY_FUNCTION=custom_key_func)
     def test_get_with_prefix_with_bad_cache(self):
+        cache = caches["default"]
+        assert isinstance(cache, MySQLCache)
         with pytest.raises(ValueError) as excinfo:
             cache.get_with_prefix("")
         assert str(excinfo.value).startswith("To use the _with_prefix commands")
@@ -1189,6 +1210,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     )
     def test_delete_with_prefix(self, cache_name):
         cache = caches[cache_name]
+        assert isinstance(cache, MySQLCache)
 
         # Check it runs on an empty cache
         assert cache.delete_with_prefix("") == 0
@@ -1214,6 +1236,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     )
     def test_delete_with_prefix_version(self, cache_name):
         cache = caches[cache_name]
+        assert isinstance(cache, MySQLCache)
 
         cache.set("V12", True, version=1)
         cache.set("V12", True, version=2)
@@ -1242,6 +1265,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
 
     @override_cache_settings(KEY_FUNCTION=custom_key_func)
     def test_delete_with_prefix_with_no_reverse_works(self):
+        cache = caches["default"]
+        assert isinstance(cache, MySQLCache)
         cache.set_many({"K1": "value", "K2": "value2", "B2": "Anothervalue"})
         assert cache.delete_with_prefix("K") == 2
         assert cache.get_many(["K1", "K2", "B2"]) == {"B2": "Anothervalue"}
@@ -1271,6 +1296,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
     def test_cull_max_entries_minus_one(self):
         # cull with MAX_ENTRIES = -1 should never clear anything that is not
         # expired
+        cache = caches["default"]
+        assert isinstance(cache, MySQLCache)
 
         # one expired key
         cache.set("key", "value", 0.1)
@@ -1310,7 +1337,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, ParametrizedTestCase, TestCase):
 @override_cache_settings()
 class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
     @pytest.fixture(autouse=True)
-    def flake8_path(self, flake8_path):
+    def set_flake8_path(self, flake8_path):
         self.flake8_path = flake8_path
 
     def test_mysql_cache_migration(self):
@@ -1350,7 +1377,7 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
             operation.database_backwards("testapp", editor, new_state, state)
         assert not self.table_exists(self.table_name)
 
-    def table_exists(self, table_name):
+    def table_exists(self, table_name: str) -> bool:
         with connection.cursor() as cursor:
             cursor.execute(
                 """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES

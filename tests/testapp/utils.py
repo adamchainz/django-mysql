@@ -3,14 +3,16 @@ from __future__ import annotations
 from collections.abc import Generator
 from contextlib import contextmanager
 from types import TracebackType
-from typing import Any, TypeGuard
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
 from django.test.utils import CaptureQueriesContext
+
+if TYPE_CHECKING:
+    from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrapper
 
 
 def conn_is_mysql(connection: BaseDatabaseWrapper) -> TypeGuard[MySQLDatabaseWrapper]:
@@ -19,6 +21,7 @@ def conn_is_mysql(connection: BaseDatabaseWrapper) -> TypeGuard[MySQLDatabaseWra
 
 @contextmanager
 def skip_if_mysql() -> Generator[None]:
+    assert conn_is_mysql(connection)
     if not connection.mysql_is_mariadb:
         pytest.skip("Requires MariaDB")
     yield

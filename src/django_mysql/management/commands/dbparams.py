@@ -5,7 +5,7 @@ from typing import Any
 
 from django.core.management import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.utils import ConnectionDoesNotExist
+from django.utils.connection import ConnectionDoesNotExist
 
 from django_mysql.utils import settings_to_cmd_args
 

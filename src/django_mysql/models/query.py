@@ -13,7 +13,7 @@ from typing import Any, Literal, TypedDict, TypeVar, cast
 from django.conf import settings
 from django.db import connections, models
 from django.db.models.sql.where import ExtraWhere
-from django.db.transaction import atomic
+from django.db.transaction import Atomic, atomic
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
@@ -57,13 +57,14 @@ def requires_query_rewrite(func: QueryRewriteFunc) -> QueryRewriteFunc:
 
 class QuerySetMixin(models.QuerySet):
     _count_tries_approx: _CountTriesApproxDict | None
+    _found_rows: int | None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._count_tries_approx = None
 
     def _clone(self: _Q, *args: Any, **kwargs: Any) -> _Q:
-        clone = super()._clone(*args, **kwargs)
+        clone: _Q = super()._clone(*args, **kwargs)  # type: ignore[misc]
 
         clone._count_tries_approx = copy(getattr(self, "_count_tries_approx", None))
 
@@ -128,7 +129,7 @@ class QuerySetMixin(models.QuerySet):
     # into actual hints
 
     @requires_query_rewrite
-    def label(self, string: str) -> QuerySetMixin:
+    def label(self: _Q, string: str) -> _Q:
         """
         Adds an arbitrary user-defined comment that will appear after
         SELECT/UPDATE/DELETE which can be used to identify where the query was
@@ -136,35 +137,35 @@ class QuerySetMixin(models.QuerySet):
         """
         if "*/" in string:
             raise ValueError("Bad label - cannot be embedded in SQL comment")
-        return self.extra(where=[f"/*QueryRewrite':label={string}*/1"])
+        return cast("_Q", self.extra(where=[f"/*QueryRewrite':label={string}*/1"]))
 
     @requires_query_rewrite
     def straight_join(self: _Q) -> _Q:
-        return self.extra(where=["/*QueryRewrite':STRAIGHT_JOIN*/1"])
+        return cast("_Q", self.extra(where=["/*QueryRewrite':STRAIGHT_JOIN*/1"]))
 
     @requires_query_rewrite
     def sql_small_result(self: _Q) -> _Q:
-        return self.extra(where=["/*QueryRewrite':SQL_SMALL_RESULT*/1"])
+        return cast("_Q", self.extra(where=["/*QueryRewrite':SQL_SMALL_RESULT*/1"]))
 
     @requires_query_rewrite
     def sql_big_result(self: _Q) -> _Q:
-        return self.extra(where=["/*QueryRewrite':SQL_BIG_RESULT*/1"])
+        return cast("_Q", self.extra(where=["/*QueryRewrite':SQL_BIG_RESULT*/1"]))
 
     @requires_query_rewrite
     def sql_buffer_result(self: _Q) -> _Q:
-        return self.extra(where=["/*QueryRewrite':SQL_BUFFER_RESULT*/1"])
+        return cast("_Q", self.extra(where=["/*QueryRewrite':SQL_BUFFER_RESULT*/1"]))
 
     @requires_query_rewrite
     def sql_cache(self: _Q) -> _Q:
-        return self.extra(where=["/*QueryRewrite':SQL_CACHE*/1"])
+        return cast("_Q", self.extra(where=["/*QueryRewrite':SQL_CACHE*/1"]))
 
     @requires_query_rewrite
     def sql_no_cache(self: _Q) -> _Q:
-        return self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"])
+        return cast("_Q", self.extra(where=["/*QueryRewrite':SQL_NO_CACHE*/1"]))
 
     @requires_query_rewrite
     def sql_calc_found_rows(self: _Q) -> _Q:
-        qs = self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"])
+        qs = cast("_Q", self.extra(where=["/*QueryRewrite':SQL_CALC_FOUND_ROWS*/1"]))
         qs._found_rows = None
         return qs
 
@@ -259,7 +260,7 @@ class QuerySetMixin(models.QuerySet):
             indexes = "`" + "`,`".join(index_names) + "`"
 
         hint = f"/*QueryRewrite':index=`{table_name}` {hint} {for_bit}{indexes}*/1"
-        return self.extra(where=[hint])
+        return cast("_Q", self.extra(where=[hint]))
 
     # Features handled by extra classes/functions
 
@@ -350,14 +351,14 @@ class QuerySet(QuerySetMixin, models.QuerySet):
 
 
 def add_QuerySetMixin(queryset: models.QuerySet) -> models.QuerySet:
-    queryset2 = queryset._clone()
+    queryset2 = queryset._clone()  # type: ignore[attr-defined]
     queryset2.__class__ = _make_mixin_class(queryset.__class__)
-    return queryset2
+    return cast("models.QuerySet", queryset2)
 
 
 @cache
 def _make_mixin_class(klass: type[models.QuerySet]) -> type[QuerySetMixin]:
-    class MixedInQuerySet(QuerySetMixin, klass):
+    class MixedInQuerySet(QuerySetMixin, klass):  # type: ignore[valid-type,misc]
         pass
 
     MixedInQuerySet.__name__ = "MySQL" + klass.__name__
@@ -394,6 +395,7 @@ class SmartChunkedIterator:
     ):
         self.queryset = self.sanitize_queryset(queryset)
 
+        self.maybe_atomic: Atomic | nullcontext[None]
         if atomically:
             self.maybe_atomic = atomic(using=self.queryset.db)
         else:
@@ -415,7 +417,7 @@ class SmartChunkedIterator:
         self.report_progress = report_progress
         self.total = total
 
-    def __iter__(self) -> Generator[QuerySet]:
+    def __iter__(self) -> Generator[models.QuerySet]:
         first_pk, last_pk = self.get_first_and_last()
         direction: _SmartDirectionType
         if first_pk <= last_pk:
@@ -447,7 +449,7 @@ class SmartChunkedIterator:
                     chunk = self.queryset.filter(pk__lte=start_pk, pk__gt=end_pk)
                 # Attach the start_pk, end_pk onto the chunk queryset so they
                 # can be read by SmartRangeIterator or other client code
-                chunk._smart_iterator_pks = (start_pk, end_pk)
+                chunk._smart_iterator_pks = (start_pk, end_pk)  # type: ignore[attr-defined]
                 yield chunk
                 self.update_progress(direction, chunk, end_pk)
 
@@ -646,7 +648,7 @@ class SmartIterator(SmartChunkedIterator):
     Subclass of SmartChunkedIterator that unpacks the chunks
     """
 
-    def __iter__(self) -> Generator[models.Model]:
+    def __iter__(self) -> Generator[Any]:
         for chunk in super().__iter__():
             yield from chunk
 
@@ -656,7 +658,7 @@ class SmartPKRangeIterator(SmartChunkedIterator):
         self,
     ) -> Generator[tuple[int, int]]:
         for chunk in super().__iter__():
-            start_pk, end_pk = chunk._smart_iterator_pks
+            start_pk, end_pk = chunk._smart_iterator_pks  # type: ignore[attr-defined]
             yield start_pk, end_pk
 
 
@@ -679,11 +681,11 @@ def approx_count(queryset: models.QuerySet) -> int:
         )
         # N.B. when we support more complex QuerySets they should be estimated
         # with 'EXPLAIN SELECT'
-        approx_count = cursor.fetchone()[0]
+        approx_count: int = cursor.fetchone()[0]
         return approx_count
 
 
-def can_approx_count(queryset: QuerySetMixin) -> bool:
+def can_approx_count(queryset: models.QuerySet) -> bool:
     query = queryset.query
 
     if (

@@ -4,11 +4,13 @@ import time
 from collections import defaultdict
 from collections.abc import Generator
 from types import TracebackType
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Model
+
+if TYPE_CHECKING:
+    from django.db.backends.mysql.base import DatabaseWrapper as MySQLDatabaseWrapper
 
 
 class WeightedAverageRate:
@@ -142,7 +144,7 @@ def index_name(
     if len(fields) != len(field_names):
         unfound_names = set(field_names) - {field.name for field in fields}
         raise ValueError("Fields do not exist: " + ",".join(unfound_names))
-    column_names = tuple(field.column for field in fields)
+    column_names = cast("tuple[str, ...]", tuple(field.column for field in fields))
     list_sql = get_list_sql(column_names)
 
     with connections[using].cursor() as cursor:
@@ -156,7 +158,7 @@ def index_name(
             """,
             (model._meta.db_table,) + column_names,
         )
-        indexes = defaultdict(list)
+        indexes: defaultdict[str, list[str]] = defaultdict(list)
         for index_name, _, column_name in cursor.fetchall():
             indexes[index_name].append(column_name)
 
@@ -171,9 +173,9 @@ def get_list_sql(sequence: list[str] | tuple[str, ...]) -> str:
     return "({})".format(",".join("%s" for x in sequence))
 
 
-def mysql_connections() -> Generator[BaseDatabaseWrapper]:
+def mysql_connections() -> Generator[tuple[str, MySQLDatabaseWrapper]]:
     conn_names = [DEFAULT_DB_ALIAS] + list(set(connections) - {DEFAULT_DB_ALIAS})
     for alias in conn_names:
         connection = connections[alias]
         if connection.vendor == "mysql":
-            yield alias, connection
+            yield alias, cast("MySQLDatabaseWrapper", connection)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -21,11 +20,11 @@ class SoundsLike(Lookup):
 
     def as_sql(
         self,
-        qn: Callable[[str], str],
+        compiler: SQLCompiler,
         connection: BaseDatabaseWrapper,
     ) -> tuple[str, tuple[Any, ...]]:
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
         return (
             f"{lhs} SOUNDS LIKE {rhs}",
             (*lhs_params, *rhs_params),
@@ -37,7 +36,13 @@ class Soundex(Transform):
     output_field = CharField()
 
     def as_sql(
-        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+        self,
+        compiler: SQLCompiler,
+        connection: BaseDatabaseWrapper,
+        function: str | None = None,
+        template: str | None = None,
+        arg_joiner: str | None = None,
+        **extra_context: Any,
     ) -> tuple[str, tuple[Any, ...]]:
         lhs, params = compiler.compile(self.lhs)
         return f"SOUNDEX({lhs})", params
@@ -63,10 +68,10 @@ class SetContains(Lookup):
         return super().get_prep_lookup()
 
     def as_sql(
-        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
     ) -> tuple[str, tuple[Any, ...]]:
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
         # Put rhs (and params) on the left since that's the order FIND_IN_SET uses
         return (
             f"FIND_IN_SET({rhs}, {lhs})",
@@ -85,10 +90,10 @@ class DynColHasKey(Lookup):
     lookup_name = "has_key"
 
     def as_sql(
-        self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
+        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
     ) -> tuple[str, tuple[Any, ...]]:
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
         return (
             f"COLUMN_EXISTS({lhs}, {rhs})",
             (*lhs_params, *rhs_params),
