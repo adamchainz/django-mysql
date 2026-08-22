@@ -19,6 +19,9 @@ Unreleased
 
 * Drop testing for near-EOL MariaDB 10.6.
 
+* Replace the undocumented ``KeyTransformFactory`` and ``IndexLookupFactory`` classes with functions ``key_transform_class()`` and ``index_lookup_class()``, which return ``Transform`` / ``Lookup`` subclasses rather than callables returning instances.
+  Relatedly, ``IndexLookup`` now takes its ``index`` from a class attribute rather than its first constructor argument.
+
 * Fix ``MySQLCache.delete()`` to return a bool indicating whether the key was deleted, as per Django's cache API.
 
   `PR #1209 <https://github.com/adamchainz/django-mysql/pull/1209>`__.

@@ -123,7 +123,7 @@ class ListFieldMixin(Field):
             return ",".join(value)
         return value
 
-    def get_lookup(self, lookup_name: str) -> type[Lookup] | Callable[..., Lookup]:
+    def get_lookup(self, lookup_name: str) -> type[Lookup] | None:
         lookup = super().get_lookup(lookup_name)
         if lookup:
             return lookup
@@ -134,7 +134,7 @@ class ListFieldMixin(Field):
             pass
         else:
             index += 1  # MySQL uses 1-indexing
-            return IndexLookupFactory(index)
+            return index_lookup_class(index)
 
         return lookup
 
@@ -210,9 +210,7 @@ ListTextField.register_lookup(SetLength)
 
 
 class IndexLookup(Lookup):
-    def __init__(self, index: int, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.index = index
+    index: int
 
     def as_sql(
         self, qn: Callable[[str], str], connection: BaseDatabaseWrapper
@@ -226,9 +224,10 @@ class IndexLookup(Lookup):
         )
 
 
-class IndexLookupFactory:
-    def __init__(self, index: int) -> None:
-        self.index = index
+def index_lookup_class(index: int) -> type[IndexLookup]:
+    bound_index = index
 
-    def __call__(self, *args: Any, **kwargs: Any) -> IndexLookup:
-        return IndexLookup(self.index, *args, **kwargs)
+    class BoundIndexLookup(IndexLookup):
+        index = bound_index
+
+    return BoundIndexLookup
