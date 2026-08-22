@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from typing import Any, cast
 
 from django.core import checks
@@ -198,9 +198,7 @@ class DynamicField(Field):
     def db_type(self, connection: BaseDatabaseWrapper) -> str:
         return "mediumblob"
 
-    def get_transform(
-        self, name: str
-    ) -> type[Transform] | Callable[..., Transform] | None:
+    def get_transform(self, name: str) -> type[Transform] | None:
         transform: type[Transform] | None = super().get_transform(name)
         if transform is not None:
             return transform
@@ -210,14 +208,14 @@ class DynamicField(Field):
             if isinstance(type_, dict):
                 # Nested dict
                 data_type = KeyTransform.SPEC_MAP[dict]
-                return KeyTransformFactory(name, data_type, subspec=type_)
+                return key_transform_class(name, data_type, subspec=type_)
             else:
                 # Scalar type
-                return KeyTransformFactory(name, KeyTransform.SPEC_MAP[type_])
+                return key_transform_class(name, KeyTransform.SPEC_MAP[type_])
 
         end = name.split("_")[-1]
         if end in KeyTransform.TYPE_MAP and len(name) > len(end):
-            return KeyTransformFactory(
+            return key_transform_class(
                 key_name=name[: -len(end) - 1],
                 data_type=end,  # '_' + data_type
             )
@@ -346,15 +344,13 @@ class KeyTransform(Transform):
         )
 
 
-class KeyTransformFactory:
-    def __init__(
-        self, key_name: str, data_type: str, subspec: SpecDict | None = None
-    ) -> None:
-        self.key_name = key_name
-        self.data_type = data_type
-        self.subspec = subspec
+def key_transform_class(
+    key_name: str, data_type: str, subspec: SpecDict | None = None
+) -> type[KeyTransform]:
+    class BoundKeyTransform(KeyTransform):
+        def __init__(self, *expressions: Any, **kwargs: Any) -> None:
+            if subspec is not None:
+                kwargs["subspec"] = subspec
+            super().__init__(key_name, data_type, *expressions, **kwargs)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Transform:
-        if self.subspec is not None:
-            kwargs["subspec"] = self.subspec
-        return KeyTransform(self.key_name, self.data_type, *args, **kwargs)
+    return BoundKeyTransform
