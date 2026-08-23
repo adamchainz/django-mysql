@@ -149,6 +149,10 @@ strict = true
 [tool.coverage]
 run.branch = true
 run.data_file = ".coverage/cov"
+run.omit = [
+  # Only used for type checking, never imported at runtime.
+  "*/tests/settings_mypy.py"
+]
 run.parallel = true
 run.source = [
   "django_mysql",
