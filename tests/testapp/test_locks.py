@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import queue
 from threading import Thread
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from django.db import OperationalError, connection, connections
+from django.db.backends.mysql.base import DatabaseWrapper
 from django.db.transaction import TransactionManagementError, atomic
 from django.test import TestCase, TransactionTestCase
 
@@ -31,7 +32,7 @@ class LockTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.supports_lock_info = connection.mysql_is_mariadb
+        cls.supports_lock_info = cast(DatabaseWrapper, connection).mysql_is_mariadb
         if cls.supports_lock_info:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -224,7 +225,7 @@ class TableLockTests(TransactionTestCase):
         Customer.objects.using("other").all().delete()
         super().tearDown()
 
-    def is_locked(self, connection_name, table_name):
+    def is_locked(self, connection_name: str, table_name: str) -> bool:
         conn = connections[connection_name]
         with conn.cursor() as cursor:
             cursor.execute(
@@ -234,7 +235,9 @@ class TableLockTests(TransactionTestCase):
             rows = cursor.fetchall()
             if rows:
                 assert len(rows) == 1
-                return rows[0][2] > 0
+                value = rows[0][2]
+                assert isinstance(value, int)
+                return value > 0
             else:  # pragma: no cover
                 # MySQL 8+ closes the table really quickly. If it's closed,
                 # it's not locked.
@@ -289,7 +292,8 @@ class TableLockTests(TransactionTestCase):
 
     def test_creates_an_atomic(self):
         assert connection.get_autocommit() == 1
-        assert not connection.in_atomic_block
+        in_atomic_before = connection.in_atomic_block
+        assert not in_atomic_before
         with TableLock(read=[Alphabet]):
             assert connection.get_autocommit() == 0
             assert connection.in_atomic_block

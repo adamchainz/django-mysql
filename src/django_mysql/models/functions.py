@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from typing import Any, TypeAlias
+from typing import Any, TypeAlias, cast
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -12,13 +12,15 @@ from django.db.models import (
     Func,
     IntegerField,
     JSONField,
+    Q,
     TextField,
     Value,
 )
 from django.db.models import Field as DjangoField
+from django.db.models.expressions import Combinable
 from django.db.models.sql.compiler import SQLCompiler
 
-ExpressionArgument: TypeAlias = Expression | str
+ExpressionArgument: TypeAlias = Combinable | Expression | Q | str
 
 
 class SingleArgFunc(Func):
@@ -67,7 +69,9 @@ class ConcatWS(Func):
     function = "CONCAT_WS"
 
     def __init__(
-        self, *expressions: ExpressionArgument, separator: str | None = ","
+        self,
+        *expressions: ExpressionArgument,
+        separator: ExpressionArgument | None = ",",
     ) -> None:
         if len(expressions) < 2:
             raise ValueError("ConcatWS must take at least two expressions")
@@ -166,7 +170,8 @@ class LastInsertId(Func):
         # database connections in Django, and the reason was not clear
         with connections[using].cursor() as cursor:
             cursor.execute("SELECT LAST_INSERT_ID()")
-            return cursor.fetchone()[0]
+            id_: int = cursor.fetchone()[0]
+            return id_
 
 
 # JSON Functions
@@ -255,7 +260,11 @@ class JSONValue(Expression):
         if connection.vendor != "mysql":  # pragma: no cover
             raise AssertionError("JSONValue only supports MySQL/MariaDB")
         json_string = json.dumps(self._data, allow_nan=False)
-        if connection.vendor == "mysql" and connection.mysql_is_mariadb:
+        if (
+            connection.vendor == "mysql"
+            # type narrowed by vendor check
+            and connection.mysql_is_mariadb  # type: ignore [attr-defined]
+        ):
             # MariaDB doesn't support explicit cast to JSON.
             return "JSON_EXTRACT(%s, '$')", (json_string,)
         else:
@@ -267,22 +276,14 @@ class BaseJSONModifyFunc(Func):
         self,
         expression: ExpressionArgument,
         data: dict[
-            str,
-            (
-                ExpressionArgument
-                | None
-                | int
-                | float
-                | str
-                | list[Any]
-                | dict[str, Any]
-            ),
+            ExpressionArgument,
+            (Expression | None | int | float | str | list[Any] | dict[str, Any]),
         ],
     ) -> None:
         if not data:
             raise ValueError('"data" cannot be empty')
 
-        exprs = [expression]
+        exprs: list[ExpressionArgument] = [expression]
 
         for path, value in data.items():
             if not hasattr(path, "resolve_expression"):
@@ -293,7 +294,7 @@ class BaseJSONModifyFunc(Func):
             if not hasattr(value, "resolve_expression"):
                 value = JSONValue(value)
 
-            exprs.append(value)
+            exprs.append(cast("ExpressionArgument", value))
 
         super().__init__(*exprs, output_field=JSONField())
 
@@ -370,7 +371,11 @@ class AsType(Func):
     function = ""
     template = "%(expressions)s AS %(data_type)s"
 
-    def __init__(self, expression: ExpressionArgument, data_type: str) -> None:
+    def __init__(
+        self,
+        expression: Expression | str | float | int | dt.date | dt.time | dt.datetime,
+        data_type: str,
+    ) -> None:
         from django_mysql.models.fields.dynamic import KeyTransform
 
         if not hasattr(expression, "resolve_expression"):
@@ -389,13 +394,13 @@ class ColumnAdd(Func):
         self,
         expression: ExpressionArgument,
         to_add: dict[
-            str,
+            ExpressionArgument,
             ExpressionArgument | float | int | dt.date | dt.time | dt.datetime,
         ],
     ) -> None:
         from django_mysql.models.fields import DynamicField
 
-        expressions = [expression]
+        expressions: list[ExpressionArgument] = [expression]
         for name, value in to_add.items():
             if not hasattr(name, "resolve_expression"):
                 name = Value(name)
@@ -405,7 +410,7 @@ class ColumnAdd(Func):
             if not hasattr(value, "resolve_expression"):
                 value = Value(value)
 
-            expressions.extend((name, value))
+            expressions.extend((name, cast("ExpressionArgument", value)))
 
         super().__init__(*expressions, output_field=DynamicField())
 

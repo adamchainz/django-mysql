@@ -23,7 +23,13 @@ class SetLength(Transform):
     # fmt: on
 
     def as_sql(
-        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
+        self,
+        compiler: SQLCompiler,
+        connection: BaseDatabaseWrapper,
+        function: str | None = None,
+        template: str | None = None,
+        arg_joiner: str | None = None,
+        **extra_context: Any,
     ) -> tuple[str, tuple[Any, ...]]:
         lhs, params = compiler.compile(self.lhs)
         return self.expr % (lhs, lhs, lhs), params

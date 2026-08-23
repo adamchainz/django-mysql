@@ -125,19 +125,21 @@ max_supported_python = "3.15"
 [tool.mypy]
 mypy_path = "src/"
 namespace_packages = false
-disallow_any_generics = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-warn_unused_ignores = true
+# Parametrizing Django's generic field classes requires django-stubs-ext's
+# monkeypatch() at runtime, which isn't suitable for a library.
+disallow_any_generics = false
 warn_unreachable = true
 enable_error_code = [
   "ignore-without-code",
   "redundant-expr",
   "truthy-bool",
 ]
+strict = true
+plugins = [ "mypy_django_plugin.main" ]
 overrides = [ { module = "tests.*", allow_untyped_defs = true } ]
-no_implicit_optional = true
+
+[tool.django-stubs]
+django_settings_module = "tests.settings_mypy"
 
 [tool.pytest]
 django_find_project = false
@@ -147,6 +149,10 @@ strict = true
 [tool.coverage]
 run.branch = true
 run.data_file = ".coverage/cov"
+run.omit = [
+  # Only used for type checking, never imported at runtime.
+  "*/tests/settings_mypy.py"
+]
 run.parallel = true
 run.source = [
   "django_mysql",

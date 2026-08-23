@@ -6,7 +6,7 @@ from django_mysql.models import ListCharField
 
 
 class Migration(migrations.Migration):
-    dependencies: list[tuple[str, str]] = []
+    dependencies = []
 
     operations = [
         migrations.CreateModel(

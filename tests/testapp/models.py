@@ -254,7 +254,7 @@ class Bit1Model(Model):
 
 
 class JSONModel(Model):
-    attrs = JSONField(null=True)
+    attrs: Any = JSONField(null=True)
 
     name = CharField(max_length=3)
 

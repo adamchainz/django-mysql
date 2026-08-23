@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from collections.abc import Iterable
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any
 
+from django import forms
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import (
@@ -18,13 +18,13 @@ from django.db.models import (
     TimeField,
     Transform,
 )
+from django.db.models.expressions import BaseExpression, Combinable
 from django.db.models.sql.compiler import SQLCompiler
-from django.forms import Field as FormField
 from django.utils.translation import gettext_lazy as _
 
-from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
 from django_mysql.typing import DeconstructResult
+from django_mysql.utils import mysql_connections
 
 try:
     import mariadb_dyncol
@@ -58,6 +58,11 @@ SpecDict = dict[
 
 
 class DynamicField(Field):
+    if TYPE_CHECKING:
+        # Used by django-stubs' mypy plugin to type model attributes.
+        _pyi_private_set_type: dict[str, Any] | BaseExpression | Combinable
+        _pyi_private_get_type: dict[str, Any]
+
     empty_strings_allowed = False
     description = _("Mapping")
 
@@ -73,7 +78,7 @@ class DynamicField(Field):
             self.spec = {}
         else:
             self.spec = spec
-        super().__init__(*args, default=default, blank=blank, **kwargs)
+        super().__init__(*args, default=default, blank=blank, **kwargs)  # type: ignore[misc]
 
     def check(self, **kwargs: Any) -> list[checks.CheckMessage]:
         errors = super().check(**kwargs)
@@ -84,7 +89,7 @@ class DynamicField(Field):
         return errors
 
     def _check_mariadb_dyncol(self) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
         if not HAVE_MARIADB_DYNCOL:
             errors.append(
                 checks.Error(
@@ -97,7 +102,7 @@ class DynamicField(Field):
         return errors
 
     def _check_mariadb_version(self) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
 
         any_conn_works = any(
             (conn.vendor == "mysql" and conn.mysql_is_mariadb)
@@ -116,7 +121,7 @@ class DynamicField(Field):
         return errors
 
     def _check_character_set(self) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
 
         conn = None
         for _alias, check_conn in mysql_connections():
@@ -148,7 +153,7 @@ class DynamicField(Field):
     def _check_spec_recursively(
         self, spec: Any, path: str = ""
     ) -> list[checks.CheckMessage]:
-        errors = []
+        errors: list[checks.CheckMessage] = []
 
         if not isinstance(spec, dict):
             errors.append(
@@ -264,7 +269,7 @@ class DynamicField(Field):
         return json.dumps(self.value_from_object(obj))
 
     def deconstruct(self) -> DeconstructResult:
-        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.dynamic.DynamicField",
@@ -282,7 +287,7 @@ class DynamicField(Field):
             kwargs["blank"] = False
         return name, path, args, kwargs
 
-    def formfield(self, *args: Any, **kwargs: Any) -> FormField | None:
+    def formfield(self, *args: Any, **kwargs: Any) -> forms.Field | None:
         """
         Disabled in forms - there is no sensible way of editing this
         """
@@ -335,8 +340,14 @@ class KeyTransform(Transform):
         self.data_type = data_type
 
     def as_sql(
-        self, compiler: SQLCompiler, connection: BaseDatabaseWrapper
-    ) -> tuple[str, Iterable[Any]]:
+        self,
+        compiler: SQLCompiler,
+        connection: BaseDatabaseWrapper,
+        function: str | None = None,
+        template: str | None = None,
+        arg_joiner: str | None = None,
+        **extra_context: Any,
+    ) -> tuple[str, tuple[Any, ...]]:
         lhs, params = compiler.compile(self.lhs)
         return (
             f"COLUMN_GET({lhs}, %s AS {self.data_type})",

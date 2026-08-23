@@ -249,6 +249,6 @@ class AlterStorageEngineTests(TransactionTestCase):
         operations: list[Operation],
     ) -> ProjectState:
         migration = migrations.Migration("name", app_label)
-        migration.operations = operations
+        migration.operations = operations  # type: ignore[misc]
         with connection.schema_editor() as editor:
             return migration.apply(project_state, editor)

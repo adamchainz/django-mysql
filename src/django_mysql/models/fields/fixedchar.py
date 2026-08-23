@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
 
 from django.core import checks
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -28,7 +28,7 @@ class FixedCharField(CharField):
         return errors
 
     def deconstruct(self) -> DeconstructResult:
-        name, path, args, kwargs = cast(DeconstructResult, super().deconstruct())
+        name, path, args, kwargs = super().deconstruct()
 
         bad_paths = (
             "django_mysql.models.fields.fixedchar.FixedCharField",

@@ -558,6 +558,7 @@ class TestSerialization(SimpleTestCase):
         """
         objs = list(serializers.deserialize("json", test_data))
         instance = objs[0].object
+        assert isinstance(instance, CharListModel)
         assert instance.field == ["big", "leather", "comfy"]
 
 

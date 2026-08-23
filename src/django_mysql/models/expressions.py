@@ -1,24 +1,29 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import F, Value
-from django.db.models.expressions import BaseExpression
+from django.db.models.expressions import BaseExpression, Combinable, Expression
 from django.db.models.sql.compiler import SQLCompiler
 
 
 class TwoSidedExpression(BaseExpression):
-    def __init__(self, lhs: BaseExpression, rhs: BaseExpression) -> None:
+    lhs: Any
+    rhs: Any
+
+    def __init__(
+        self, lhs: Combinable | Expression, rhs: Combinable | Expression
+    ) -> None:
         super().__init__()
         self.lhs = lhs
         self.rhs = rhs
 
-    def get_source_expressions(self) -> list[BaseExpression]:
+    def get_source_expressions(self) -> list[Any]:
         return [self.lhs, self.rhs]
 
-    def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
+    def set_source_expressions(self, exprs: Sequence[Combinable | Expression]) -> None:
         self.lhs, self.rhs = exprs
 
 
@@ -27,12 +32,12 @@ class ListF:
         self.field_name = field_name
         self.field = F(field_name)
 
-    def append(self, value: BaseExpression | Any) -> AppendListF:
+    def append(self, value: Any) -> AppendListF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return AppendListF(self.field, value)
 
-    def appendleft(self, value: Any | BaseExpression) -> AppendLeftListF:
+    def appendleft(self, value: Any) -> AppendLeftListF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return AppendLeftListF(self.field, value)
@@ -131,14 +136,16 @@ class PopListF(BaseExpression):
     )
     # fmt: on
 
-    def __init__(self, lhs: BaseExpression) -> None:
+    lhs: Any
+
+    def __init__(self, lhs: Combinable | Expression) -> None:
         super().__init__()
         self.lhs = lhs
 
-    def get_source_expressions(self) -> list[BaseExpression]:
+    def get_source_expressions(self) -> list[Any]:
         return [self.lhs]
 
-    def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
+    def set_source_expressions(self, exprs: Sequence[Combinable | Expression]) -> None:
         (self.lhs,) = exprs
 
     def as_sql(
@@ -162,14 +169,16 @@ class PopLeftListF(BaseExpression):
     )
     # fmt: on
 
-    def __init__(self, lhs: BaseExpression) -> None:
+    lhs: Any
+
+    def __init__(self, lhs: Combinable | Expression) -> None:
         super().__init__()
         self.lhs = lhs
 
-    def get_source_expressions(self) -> list[BaseExpression]:
+    def get_source_expressions(self) -> list[Any]:
         return [self.lhs]
 
-    def set_source_expressions(self, exprs: Iterable[BaseExpression]) -> None:
+    def set_source_expressions(self, exprs: Sequence[Combinable | Expression]) -> None:
         (self.lhs,) = exprs
 
     def as_sql(
@@ -186,12 +195,12 @@ class SetF:
     def __init__(self, field_name: str) -> None:
         self.field = F(field_name)
 
-    def add(self, value: Any | BaseExpression) -> AddSetF:
+    def add(self, value: Any) -> AddSetF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return AddSetF(self.field, value)
 
-    def remove(self, value: Any | BaseExpression) -> RemoveSetF:
+    def remove(self, value: Any) -> RemoveSetF:
         if not hasattr(value, "as_sql"):
             value = Value(value)
         return RemoveSetF(self.field, value)

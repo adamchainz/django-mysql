@@ -11,6 +11,7 @@ from typing import Any, Literal, cast
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache, default_key_func
 from django.db import connections, router
+from django.db.models import Model
 from django.utils.encoding import force_bytes
 from django.utils.module_loading import import_string
 
@@ -53,7 +54,9 @@ class BaseDatabaseCache(BaseCache):
         super().__init__(params)
         self._table = table
 
-        class CacheEntry:
+        CacheEntry: type[Model]  # force Mypy to accept duck typing
+
+        class CacheEntry:  # type: ignore [no-redef]
             _meta = Options(table)
 
         self.cache_model_class = CacheEntry
@@ -174,7 +177,7 @@ class MySQLCache(BaseDatabaseCache):
         self, keys: Iterable[str], version: int | None = None
     ) -> dict[str, Any]:
         made_key_to_key = {self.make_key(key, version=version): key for key in keys}
-        made_keys = list(made_key_to_key.keys())
+        made_keys: list[Any] = list(made_key_to_key.keys())
         for key in made_keys:
             self.validate_key(key)
 
@@ -257,7 +260,7 @@ class MySQLCache(BaseDatabaseCache):
                 return True
             else:  # mode = 'add'
                 # Use a special code in the add query for "did insert"
-                insert_id = cursor.lastrowid
+                insert_id: int = cursor.lastrowid
                 return insert_id != 444
 
     # fmt: off
@@ -410,7 +413,8 @@ class MySQLCache(BaseDatabaseCache):
                 raise ValueError(f"Key '{key}' not found, or not an integer")
 
             # New value stored in insert_id
-            return cursor.lastrowid
+            result: int = cursor.lastrowid
+            return result
 
     # Looks a bit tangled to turn the blob back into an int for updating, but
     # it works. Stores the new value for insert_id() with LAST_INSERT_ID
@@ -442,7 +446,7 @@ class MySQLCache(BaseDatabaseCache):
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
         with connections[db].cursor() as cursor:
-            affected_rows = cursor.execute(
+            affected_rows: int = cursor.execute(
                 self._touch_query.format(table=table), [exp, key, self._now()]
             )
         return affected_rows > 0
@@ -602,16 +606,18 @@ class MySQLCache(BaseDatabaseCache):
         prefix = self.make_key(prefix + "%", version=version)
 
         with connections[db].cursor() as cursor:
-            return cursor.execute(
+            result: int = cursor.execute(
                 f"""DELETE FROM {table}
                    WHERE cache_key LIKE %s""",
                 (prefix,),
             )
+            return result
 
     def cull(self) -> int:
         db = router.db_for_write(self.cache_model_class)
         table = connections[db].ops.quote_name(self._table)
 
+        num_deleted: int
         with connections[db].cursor() as cursor:
             # First, try just deleting expired keys
             num_deleted = cursor.execute(

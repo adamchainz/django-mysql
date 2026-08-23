@@ -179,6 +179,7 @@ class TestFormfield(TestCase):
     def test_formfield(self):
         model_field = EnumField(choices=["this", "that"])
         form_field = model_field.formfield()
+        assert form_field is not None
 
         assert form_field.clean("this") == "this"
         assert form_field.clean("that") == "that"

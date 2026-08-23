@@ -44,7 +44,9 @@ class SimpleListField(forms.CharField):
             return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
-    def to_python(self, value: str) -> list[Any]:
+    def to_python(  # type: ignore[override]
+        self, value: Any
+    ) -> list[Any]:
         if value and len(value):
             items = value.split(",")
         else:
@@ -165,7 +167,9 @@ class SimpleSetField(forms.CharField):
             return ",".join(str(self.base_field.prepare_value(v)) for v in value)
         return value
 
-    def to_python(self, value: str) -> set[Any]:
+    def to_python(  # type: ignore[override]
+        self, value: Any
+    ) -> set[Any]:
         if value and len(value):
             items = value.split(",")
         else:
