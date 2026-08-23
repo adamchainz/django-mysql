@@ -6,6 +6,8 @@ from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.models import Aggregate, CharField
 from django.db.models.sql.compiler import SQLCompiler
 
+from django_mysql.models.fields import ListCharField, SetCharField
+
 
 class BitAnd(Aggregate):
     function = "BIT_AND"
@@ -34,8 +36,12 @@ class GroupConcat(Aggregate):
         **extra: Any,
     ) -> None:
         if "output_field" not in extra:
-            # This can/will be improved to SetTextField or ListTextField
-            extra["output_field"] = CharField()
+            if separator is not None:
+                extra["output_field"] = CharField()
+            elif distinct:
+                extra["output_field"] = SetCharField(CharField())
+            else:
+                extra["output_field"] = ListCharField(CharField())
 
         super().__init__(expression, **extra)
 
