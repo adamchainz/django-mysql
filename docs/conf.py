@@ -38,7 +38,6 @@ release = version
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
-    "sphinx.ext.intersphinx",
     "sphinx_copybutton",
 ]
 
@@ -97,12 +96,3 @@ latex_documents = [
         "manual",
     ),
 ]
-
-# -- Options for Intersphinx -------------------------------------------
-
-intersphinx_mapping = {
-    "django": (
-        "https://docs.djangoproject.com/en/stable/",
-        "https://docs.djangoproject.com/en/stable/_objects/",
-    ),
-}
